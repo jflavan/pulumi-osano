@@ -19,6 +19,7 @@ func Provider() p.Provider {
         WithConfig(infer.Config(&Config{})).
         WithResources(
             infer.Resource(&CookieConsentConfig{}),
+            infer.Resource(&CookieConsentRule{}),
         ).
         WithModuleMap(map[tokens.ModuleName]tokens.ModuleName{
             "provider": "index",
