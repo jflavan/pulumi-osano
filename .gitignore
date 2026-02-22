@@ -15,11 +15,18 @@ Pulumi.*.json
 
 # Node (generated SDKs often include node artifacts)
 node_modules/
+yarn.lock
 
 # Python
 __pycache__/
 *.pyc
 .venv/
+sdk/python/venv
+
+# .NET build artifacts
+sdk/dotnet/bin/
+sdk/dotnet/obj/
+sdk/dotnet/version.txt
 
 # IDE
 .vscode/
