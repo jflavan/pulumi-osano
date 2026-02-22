@@ -1,11 +1,12 @@
 package provider
 
 import (
+    "bytes"
     "context"
     "encoding/json"
     "fmt"
     "net/url"
-    "reflect"
+    "slices"
 
     p "github.com/pulumi/pulumi-go-provider"
     "github.com/pulumi/pulumi-go-provider/infer"
@@ -272,13 +273,13 @@ func (r *CookieConsentConfig) Diff(ctx context.Context, req infer.DiffRequest[Co
     if req.Inputs.Name != req.State.Name {
         diff["name"] = p.PropertyDiff{Kind: p.Update}
     }
-    if !reflect.DeepEqual(req.Inputs.Domains, req.State.Domains) {
+    if !slices.Equal(req.Inputs.Domains, req.State.Domains) {
         diff["domains"] = p.PropertyDiff{Kind: p.Update}
     }
     if req.Inputs.Mode != req.State.Mode {
         diff["mode"] = p.PropertyDiff{Kind: p.Update}
     }
-    if !reflect.DeepEqual(req.Inputs.OrgIds, req.State.OrgIds) {
+    if !slices.Equal(req.Inputs.OrgIds, req.State.OrgIds) {
         diff["orgIds"] = p.PropertyDiff{Kind: p.Update}
     }
 
@@ -290,9 +291,9 @@ func (r *CookieConsentConfig) Diff(ctx context.Context, req infer.DiffRequest[Co
                 diff["configuration"] = p.PropertyDiff{Kind: p.Update}
                 break
             }
-            db, _ := json.Marshal(desired)
-            cb, _ := json.Marshal(current)
-            if !bytesEqual(db, cb) {
+            db, errD := json.Marshal(desired)
+            cb, errC := json.Marshal(current)
+            if errD != nil || errC != nil || !bytes.Equal(db, cb) {
                 diff["configuration"] = p.PropertyDiff{Kind: p.Update}
                 break
             }
@@ -300,16 +301,4 @@ func (r *CookieConsentConfig) Diff(ctx context.Context, req infer.DiffRequest[Co
     }
 
     return infer.DiffResponse{HasChanges: len(diff) > 0, DetailedDiff: diff}, nil
-}
-
-func bytesEqual(a, b []byte) bool {
-    if len(a) != len(b) {
-        return false
-    }
-    for i := range a {
-        if a[i] != b[i] {
-            return false
-        }
-    }
-    return true
 }

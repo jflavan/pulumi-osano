@@ -139,18 +139,6 @@ func TestCookieConsentConfigDiff(t *testing.T) {
 	})
 }
 
-func TestBytesEqual(t *testing.T) {
-	if !bytesEqual([]byte{1, 2, 3}, []byte{1, 2, 3}) {
-		t.Fatalf("expected equal byte slices")
-	}
-	if bytesEqual([]byte{1, 2}, []byte{1, 2, 3}) {
-		t.Fatalf("expected slices with different lengths to be unequal")
-	}
-	if bytesEqual([]byte{1, 2, 3}, []byte{1, 2, 4}) {
-		t.Fatalf("expected slices with different contents to be unequal")
-	}
-}
-
 func validCheckInputValues() map[string]property.Value {
 	return map[string]property.Value{
 		"name": property.New("cookie-consent"),

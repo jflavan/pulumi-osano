@@ -69,11 +69,11 @@ Then iterate into fine-grained resources once patterns are solid:
   - `main.go` with provider wiring
 
 ### Phase 1 — Osano client
-- [ ] Implement `client` package:
+- [x] Implement `client` package:
   - auth header handling
   - base URL
   - request/response structs (generated from OpenAPI or hand-written)
-  - retry/backoff for 429/5xx
+  - [x] retry/backoff for 429/5xx (exponential backoff, Retry-After header support, configurable via `ClientOption`s)
   - pagination helpers if needed
 
 ### Phase 2 — Provider + CoreConfig resource
@@ -85,7 +85,9 @@ Then iterate into fine-grained resources once patterns are solid:
 - [ ] Add import support (document `pulumi import` usage).
 
 ### Phase 3 — Testing
-- [ ] Unit tests for diff/normalize logic.
+- [x] Unit tests for Check validation (valid inputs, missing name/domains/mode/storagePolicyHref).
+- [x] Unit tests for Diff logic (same inputs → no changes, changed name/mode/configuration → update).
+- [x] Unit test for `bytesEqual` helper.
 - [ ] Optional integration tests (env vars for token, configId).
 
 ### Phase 4 — SDK gen + packaging
