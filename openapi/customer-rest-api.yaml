@@ -1,0 +1,4785 @@
+openapi: 3.0.3
+info:
+  title: Osano API Reference
+  version: 1.0.0
+  description: >
+    # Introduction
+
+    This is the Osano API. Use of this API is subject to the Osano API Terms of
+    Service.
+
+
+    # Authentication
+
+    The Osano API uses API keys to authenticate requests that are generated on a
+    per-user basis. All calls require a valid, unexpired API key.
+
+
+    API keys may be generated within the [Osano settings -> API
+    Keys](https://my.osano.com/api-keys) page. You must be an admin or have the
+    correct privileges to generate an API key.
+
+
+    Once generated, the API key should be included in the `x-osano-api-key`
+    header of all requests.  For example:
+
+
+    ```
+
+    curl --header 'x-osano-api-key: <API_KEY>'
+    https://api.osano.com/v1/<API_PATH>
+
+    ```
+
+    # Pagination, Limits, and Sorting
+
+    Except where noted, all "list" resources will be sorted in descending order
+    by creation time, and this may not be changed.  The number of results
+    returned may be controlled via the limit param, but may not exceed 500.
+
+
+    Within the response of each "list" API call, there will be a "next" field,
+    which represents the pagination token.  This token may be added as a query
+    parameter, i.e. ?next=<...> to retrieve subsequent pages of the same
+    resource.
+  x-logo:
+    url: https://www.osano.com/hubfs/Imported%20images/Logo.svg
+    altText: Osano
+servers:
+  - url: https://api.osano.com
+    description: Production API
+security:
+  - ApiKeyAuth: []
+tags:
+  - name: cmp
+    x-displayName: Cookie Consent Configurations
+  - name: cmpRules
+    x-displayName: Cookie Consent Discoveries & Rules
+  - name: dsar
+    x-displayName: Subject Rights
+    description: Manage subject rights requests and data subject access requests
+  - name: connectors
+    x-displayName: Data Mapping Connectors
+  - name: dsarActionItems
+    x-displayName: Subject Rights Action Items
+    description: Manage action items for subject rights requests
+  - name: dataDiscovery
+    x-displayName: Data Discovery
+    description: Discover and manage data stores and personal data fields
+  - name: dsar_response_model
+    x-displayName: Subject Rights Request Model
+    description: |
+      <SchemaDefinition schemaRef="#/components/schemas/DsarResponse" />
+  - name: dsar_payload
+    x-displayName: Subject Rights Request Payload
+    description: |
+      <SchemaDefinition schemaRef="#/components/schemas/Dsar" />
+  - name: dsar_update_payload
+    x-displayName: Subject Rights Update Payload
+    description: |
+      <SchemaDefinition schemaRef="#/components/schemas/DsarUpdate" />
+  - name: subjectRightsPortal
+    x-displayName: Subject Rights Portal
+  - name: customerInsights
+    x-displayName: Customer Insights
+x-tagGroups:
+  - name: General
+    tags:
+      - cmp
+      - cmpRules
+      - connectors
+      - dsar
+      - dataDiscovery
+      - dsarActionItems
+      - subjectRightsPortal
+      - customerInsights
+paths:
+  /v1/customer-insights:
+    get:
+      summary: Compliance API
+      description: >-
+        Insights returning entitlements and spotlight metrics for a given
+        customer
+      tags:
+        - customerInsights
+      operationId: getCustomerInsights
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/CustomerInsightsResponseList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/cookie-consent/configs:
+    get:
+      summary: List Cookie Consent Configurations
+      description: >-
+        Returns a list of Cookie Consent Configurations. Results are sorted in
+        descending order by creation time by default. The sort by field can be
+        overridden by specifying a `sortBy` param. The number of results
+        returned may be controlled via the limit param, but may not exceed
+        1000.  The "next" object in the response may be used to retrieve
+        subsequent pages of the same resource.
+      tags:
+        - cmp
+      operationId: getConfigs
+      parameters:
+        - in: query
+          name: name
+          schema:
+            type: string
+          description: >-
+            The name of the configuration to filter results by (case
+            insensitive, partial matches allowed).
+        - $ref: '#/components/parameters/domainsParam'
+        - $ref: '#/components/parameters/CmpConfigLimitParam'
+        - $ref: '#/components/parameters/nextTokenParam'
+        - $ref: '#/components/parameters/sortByParam'
+        - $ref: '#/components/parameters/orgIdsParam'
+        - $ref: '#/components/parameters/cmpConfigModeParam'
+        - $ref: '#/components/parameters/cmpConfigPublishStatusParam'
+        - $ref: '#/components/parameters/cmpConfigTattleRecordStoppedParam'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CmpConfigResponseList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Create New Cookie Consent Configuration
+      description: Create a new Cookie Consent Configuration.
+      tags:
+        - cmp
+      operationId: createConfig
+      requestBody:
+        description: ''
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CmpConfigWithDefaults'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CmpConfigResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/cookie-consent/configs/{configId}:
+    get:
+      summary: Return Detailed Cookie Consent Configuration
+      description: Get a detailed Cookie Consent Configuration by ID.
+      tags:
+        - cmp
+      operationId: getConfig
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CmpConfigResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      summary: Update Cookie Consent Configuration
+      description: Update an existing Cookie Consent Configuration.
+      tags:
+        - cmp
+      operationId: updateConfig
+      parameters:
+        - name: configId
+          required: true
+          in: path
+          description: The identifier of the Cookie Consent Configuration to be updated.
+          schema:
+            type: string
+      requestBody:
+        description: >-
+          The properties to be updated on the Cookie Consent Configuration. 
+          Note: this allows for a partial update, so all fields are optional.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CmpConfig'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CmpConfigResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/cookie-consent/configs/{configId}/publish:
+    post:
+      summary: Publish Cookie Consent Configuration
+      description: >
+        Publish an existing Cookie Consent Configuration.
+
+
+        Guidelines for publishing a configuration:
+
+        - A configuration cannot be queued again for publishing until the
+        publish operation is complete. It's recommended that all configuration
+        changes are made prior to sending a publish request for that
+        configuration.
+
+        - A maximum of 300 configs per customer account can be queued for
+        publishing at a time.
+
+        - It's recommended to send a batch of publish requests (up to 250
+        requests) every 30 minutes. Note: this is not the equivalent to sending
+        X number of publish requests per minute over a 30 minute period."
+      tags:
+        - cmp
+      operationId: publishConfig
+      parameters:
+        - name: configId
+          required: true
+          in: path
+          description: The identifier of the Cookie Consent Configuration to be published.
+          schema:
+            type: string
+      requestBody:
+        description: ''
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                keepUnclassifiedTattles:
+                  type: boolean
+                  description: >-
+                    When `true`, unclassified cookie/script/iframe discoveries
+                    will not be deleted. When `false`, all unclassified
+                    cookie/script/iframe discoveries will be deleted.
+                description:
+                  type: string
+                  description: >-
+                    When included in the request, allows for text comments
+                    provided about the publish to be retained with the version
+                    number for reference in the Osano Admin UI.
+                webhookUrl:
+                  type: string
+                  description: The URL to be called when the publish operation is complete.
+      responses:
+        '204':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/cookie-consent/configs/{configId}/discoveries:
+    get:
+      summary: List Configuration Discoveries
+      description: >-
+        Retrieve a list of Discoveries for a Cookie Consent Configuration by
+        configuration ID.
+      tags:
+        - cmp
+      operationId: getTattles
+      parameters:
+        - name: configId
+          required: true
+          in: path
+          description: The identifier of the Cookie Consent Configuration to be queried.
+          schema:
+            type: string
+        - $ref: '#/components/parameters/cmpDiscoveriesStoreTypeParam'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CmpDiscoveriesResponseList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/cookie-consent/configs/{configId}/rules:
+    get:
+      summary: List Configuration Rules
+      description: >-
+        Retrieve a list of Rules for a Cookie Consent Configuration by
+        configuration ID.
+      tags:
+        - cmp
+      operationId: getRules
+      parameters:
+        - name: configId
+          required: true
+          in: path
+          description: The identifier of the Cookie Consent Configuration to be queried.
+          schema:
+            type: string
+        - $ref: '#/components/parameters/cmpRulesStoreTypeParam'
+        - $ref: '#/components/parameters/cmpRulesClassificationParam'
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/nextTokenParam'
+      responses:
+        '200':
+          $ref: '#/components/responses/CmpRulesList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/cookie-consent/rules:
+    post:
+      summary: Create New Cookie Consent Rules
+      description: >-
+        Create one or more Cookie Consent Rules. The maximum number of rules
+        that may be created in a single call is 100.  If the request is
+        successful, the response will contain a list of the created rules.
+      tags:
+        - cmpRules
+      operationId: createRules
+      requestBody:
+        $ref: '#/components/requestBodies/CmpRulesPost'
+      responses:
+        '200':
+          $ref: '#/components/responses/CmpRulesList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/cookie-consent/rules/{ruleId}:
+    patch:
+      summary: Update Cookie Consent Rule
+      description: Update an existing Cookie Consent Rule by ID.
+      tags:
+        - cmpRules
+      operationId: updateRule
+      parameters:
+        - name: ruleId
+          required: true
+          in: path
+          description: The identifier of the Cookie Consent Rule to be updated.
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        $ref: '#/components/requestBodies/CmpRulePatch'
+      responses:
+        '200':
+          $ref: '#/components/responses/CmpRulePatch'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete Cookie Consent Rule
+      description: Deletes a single Cookie Consent Rule by ID.
+      tags:
+        - cmpRules
+      operationId: deleteRule
+      parameters:
+        - name: ruleId
+          required: true
+          in: path
+          description: The identifier of the Cookie Consent Rule to be deleted.
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '204':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/dsar:
+    get:
+      summary: List Subject Rights Requests (DEPRECATED)
+      description: 'Deprecated: Please use /v1/subject-rights/requests instead'
+      tags:
+        - dsar
+      operationId: getDsars2
+      parameters:
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/nextTokenParam'
+        - $ref: '#/components/parameters/afterParam'
+        - $ref: '#/components/parameters/dsarSourceParam'
+        - $ref: '#/components/parameters/dsarStatusParam'
+        - $ref: '#/components/parameters/dsarRequestTypeParam'
+        - $ref: '#/components/parameters/formIdParam'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DsarResponseList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Create New Subject Rights Request(s) (DEPRECATED)
+      description: 'Deprecated: Please use /v1/subject-rights/requests instead'
+      tags:
+        - dsar
+      operationId: createDsars2
+      requestBody:
+        description: The Subject Rights Request(s) to be created.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DsarList'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DsarResponseList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/dsar/{dsarId}:
+    get:
+      summary: Return Detailed Subject Rights Request (DEPRECATED)
+      description: 'Deprecated: Please use /v1/subject-rights/requests/{dsarId} instead'
+      tags:
+        - dsar
+      operationId: getDsar2
+      parameters:
+        - name: dsarId
+          required: true
+          in: path
+          description: The identifier of the Subject Rights Request to return.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DsarResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      summary: Update Subject Rights Request (DEPRECATED)
+      description: 'Deprecated: Please use /v1/subject-rights/requests/{dsarId} instead'
+      tags:
+        - dsar
+      operationId: updateDsar2
+      parameters:
+        - name: dsarId
+          required: true
+          in: path
+          description: The identifier of the Subject Rights Request to be updated.
+          schema:
+            type: string
+      requestBody:
+        description: Object containing the fields to be updated.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DsarUpdate'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DsarResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/dsar/{dsarId}/identification:
+    post:
+      summary: Update Identification Photo (DEPRECATED)
+      description: >-
+        Deprecated: Please use
+        /v1/subject-rights/requests/{dsarId}/identification instead
+      tags:
+        - dsar
+      operationId: updateIdentityFile2
+      parameters:
+        - name: dsarId
+          required: true
+          in: path
+          description: The identifier of the Subject Rights Request to be updated.
+          schema:
+            type: string
+      requestBody:
+        content:
+          image/webp:
+            schema:
+              type: string
+              format: binary
+          image/jpeg:
+            schema:
+              type: string
+              format: binary
+          image/png:
+            schema:
+              type: string
+              format: binary
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '204':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/subject-rights/requests:
+    get:
+      summary: List Subject Rights Requests
+      description: >-
+        Query for Subject Rights Requests.  Results are sorted in descending
+        order by creation time.  The number of results returned may be
+        controlled via the limit param, but may not exceed 500.  The "next"
+        object in the response may be used to retrieve subsequent pages of the
+        same resource.
+      tags:
+        - dsar
+      operationId: getDsars
+      parameters:
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/nextTokenParam'
+        - $ref: '#/components/parameters/afterParam'
+        - $ref: '#/components/parameters/dsarSourceParam'
+        - $ref: '#/components/parameters/dsarStatusParam'
+        - $ref: '#/components/parameters/dsarRequestTypeParam'
+        - $ref: '#/components/parameters/formIdParam'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DsarResponseList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Create New Subject Rights Request(s)
+      description: >-
+        Create one or more Subject Rights Requests.  The maximum number of
+        requests that may be created in a single call is 100.  If the request is
+        successful, the response will contain a list of the created requests.
+      tags:
+        - dsar
+      operationId: createDsars
+      requestBody:
+        description: The Subject Rights Request(s) to be created.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DsarList'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DsarResponseList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/subject-rights/requests/{dsarId}:
+    get:
+      summary: Return Detailed Subject Rights Request
+      description: Get a detailed Subject Rights Request by ID.
+      tags:
+        - dsar
+      operationId: getDsar
+      parameters:
+        - name: dsarId
+          required: true
+          in: path
+          description: The identifier of the Subject Rights Request to return.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DsarResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      summary: Update Subject Rights Request
+      description: >-
+        Update metadata about a Subject Rights Request as specified.  A partial
+        update may be performed.
+      tags:
+        - dsar
+      operationId: updateDsar
+      parameters:
+        - name: dsarId
+          required: true
+          in: path
+          description: The identifier of the Subject Rights Request to be updated.
+          schema:
+            type: string
+      requestBody:
+        description: Object containing the fields to be updated.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DsarUpdate'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DsarResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/subject-rights/requests/{dsarId}/identification:
+    post:
+      summary: Update Identification Photo
+      description: >-
+        Updates the file used for Identity Verification within the Osano
+        platform.  It should be an image.
+      tags:
+        - dsar
+      operationId: updateIdentityFile
+      parameters:
+        - name: dsarId
+          required: true
+          in: path
+          description: The identifier of the Subject Rights Request to be updated.
+          schema:
+            type: string
+      requestBody:
+        content:
+          image/webp:
+            schema:
+              type: string
+              format: binary
+          image/jpeg:
+            schema:
+              type: string
+              format: binary
+          image/png:
+            schema:
+              type: string
+              format: binary
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '204':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/subject-rights/requests/{requestId}/summaries:
+    get:
+      summary: Get Request Summaries
+      description: >-
+        Query what summaries are available for this DSAR request before they are
+        packaged and sent.
+      tags:
+        - dsar
+      operationId: getRequestSummaries
+      parameters:
+        - name: requestId
+          required: true
+          in: path
+          description: The identifier of the Subject Rights Request
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                  summaries:
+                    type: array
+                    items:
+                      type: object
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/subject-rights/requests/{requestId}/summary-notification:
+    get:
+      summary: Get Summary Notification
+      description: >
+        Retrieve information about a summary notification by request ID,
+        including the archive status and metadata.
+
+
+        This endpoint returns metadata about the notification package (PDF/ZIP
+        archive) that was sent to the requestor, including:
+
+        - The write status of the archive (NONE, WRITTEN, WRITE_ERROR)
+
+        - The archive file name and type
+
+        - When the summary was created
+
+        - List of summary entries included in the archive
+      tags:
+        - dsar
+      operationId: getSummaryNotification
+      parameters:
+        - name: requestId
+          required: true
+          in: path
+          description: The identifier of the Subject Rights Request
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - dsarSummaryId
+                  - requestId
+                  - writeStatus
+                  - summaryCreated
+                  - summaryEntries
+                properties:
+                  dsarSummaryId:
+                    type: string
+                    description: The unique identifier for this summary notification
+                  requestId:
+                    type: string
+                    description: The identifier of the Subject Rights Request
+                  writeStatus:
+                    type: string
+                    enum:
+                      - NONE
+                      - WRITTEN
+                      - WRITE_ERROR
+                    description: The status of the archive write operation
+                  archiveFileName:
+                    type: string
+                    nullable: true
+                    description: The name of the archive file if it has been written
+                  archiveFileType:
+                    type: string
+                    nullable: true
+                    description: The MIME type of the archive file
+                  summaryCreated:
+                    type: string
+                    format: date-time
+                    description: When the summary notification was created
+                  summaryEntries:
+                    type: array
+                    description: >-
+                      List of all summary entries included in this notification
+                      archive
+                    items:
+                      type: object
+                      required:
+                        - dsarSummaryEntryId
+                        - fileName
+                        - fileType
+                        - manual
+                        - created
+                      properties:
+                        dsarSummaryEntryId:
+                          type: number
+                          description: The unique identifier for this summary entry
+                        fileName:
+                          type: string
+                          description: The name of the summary file
+                        fileType:
+                          type: string
+                          description: The MIME type of the summary file
+                        manual:
+                          type: boolean
+                          description: >-
+                            Whether this summary was manually uploaded (true) or
+                            automatically generated (false)
+                        created:
+                          type: string
+                          format: date-time
+                          description: When this summary entry was created
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Send Summary Notification
+      description: >
+        Package and send all summaries for this DSAR request. This also
+        generates a PDF summary containing automated data discovery results
+        formatted as tables (by data store) and manually uploaded files, in
+        addition to a ZIP archive containing all summary files plus the PDF.
+
+        Subsequent POST requests to this endpoint for the DSAR request will do
+        nothing, as the summaries have already been packaged and sent.
+      tags:
+        - dsar
+      operationId: sendSummaryNotification
+      parameters:
+        - name: requestId
+          required: true
+          in: path
+          description: The identifier of the Subject Rights Request
+          schema:
+            type: string
+      responses:
+        '200':
+          description: >
+            Success - The summary notification has been packaged and sent. 
+
+
+            A ZIP archive containing a PDF summary and all associated files has
+            been generated and delivered to the requestor.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - dsarSummaryId
+                  - requestId
+                  - writeStatus
+                  - summaryCreated
+                  - summaryEntries
+                properties:
+                  dsarSummaryId:
+                    type: string
+                    description: The unique identifier for this summary notification
+                  requestId:
+                    type: string
+                    description: The identifier of the Subject Rights Request
+                  writeStatus:
+                    type: string
+                    enum:
+                      - NONE
+                      - WRITTEN
+                      - WRITE_ERROR
+                    description: The status of the archive write operation
+                  archiveFileName:
+                    type: string
+                    nullable: true
+                    description: The name of the archive file if it has been written
+                  archiveFileType:
+                    type: string
+                    nullable: true
+                    description: The MIME type of the archive file
+                  summaryCreated:
+                    type: string
+                    format: date-time
+                    description: When the summary notification was created
+                  summaryEntries:
+                    type: array
+                    description: >-
+                      List of all summary entries included in this notification
+                      archive
+                    items:
+                      type: object
+                      required:
+                        - dsarSummaryEntryId
+                        - fileName
+                        - fileType
+                        - manual
+                        - created
+                      properties:
+                        dsarSummaryEntryId:
+                          type: number
+                          description: The unique identifier for this summary entry
+                        fileName:
+                          type: string
+                          description: The name of the summary file
+                        fileType:
+                          type: string
+                          description: The MIME type of the summary file
+                        manual:
+                          type: boolean
+                          description: >-
+                            Whether this summary was manually uploaded (true) or
+                            automatically generated (false)
+                        created:
+                          type: string
+                          format: date-time
+                          description: When this summary entry was created
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                noSummaries:
+                  value:
+                    message: No summaries found for this request
+                  summary: No summaries available to package
+        '404':
+          description: Not Found - The specified Subject Rights Request does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                notFound:
+                  value:
+                    message: Subject Rights Request not found
+                  summary: Request ID does not exist
+        '409':
+          description: >-
+            Conflict - The summary notification has already been sent for this
+            request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                alreadySent:
+                  value:
+                    message: Summary notification has already been sent
+                  summary: Notification already sent
+  /v1/data-discovery/data-stores:
+    get:
+      summary: List Data Stores
+      description: >-
+        Returns a list of Data Stores.  Results are sorted in descending order
+        by creation time.  The number of results returned may be controlled via
+        the limit param, but may not exceed 500.  The "next" object in the
+        response may be used to retrieve subsequent pages of the same resource.
+      tags:
+        - dataDiscovery
+      operationId: getDataStores
+      parameters:
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/nextTokenParam'
+        - $ref: '#/components/parameters/afterParam'
+        - $ref: '#/components/parameters/connectorIdParam'
+        - $ref: '#/components/parameters/dataStoresActiveParam'
+        - $ref: '#/components/parameters/dataStoresNameParam'
+        - $ref: '#/components/parameters/dataStoresTypeParam'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataStoreResponseList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Create New Data Store
+      description: >-
+        Creates a new Data Store using the provided parameters.  If successful,
+        the created Data Store will be returned.
+      tags:
+        - dataDiscovery
+      operationId: createDataStore
+      requestBody:
+        description: Details of the Data Store to be created.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataStore'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataStoreResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/data-discovery/data-stores/{dataStoreId}:
+    get:
+      summary: Return Single Data Store
+      description: Returns a detailed Data Store by ID.
+      tags:
+        - dataDiscovery
+      operationId: getDataStoreById
+      parameters:
+        - name: dataStoreId
+          required: true
+          in: path
+          description: The identifier of the Data Store to be returned.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataStoreResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Deactivate a data store
+      description: >-
+        Deactivate a Data Store by ID.  This will prevent the Data Store from
+        being used in future Data Mapping operations.
+      tags:
+        - dataDiscovery
+      operationId: deleteDataStoreById
+      parameters:
+        - name: dataStoreId
+          required: true
+          in: path
+          description: The identifier of the Data Store to be deactivated.
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Success
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      summary: Update an existing data store
+      description: Update specific properties about a Data Store by ID.
+      tags:
+        - dataDiscovery
+      operationId: updateDataStoreById
+      parameters:
+        - name: dataStoreId
+          required: true
+          in: path
+          description: The identifier of the Data Store to be updated.
+          schema:
+            type: string
+      requestBody:
+        description: >-
+          The properties to be updated in the Data Store.  Note that this allows
+          for a partial update, not all fields are required.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataStoreUpdate'
+      responses:
+        '204':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/data-discovery/data-stores/{dataStoreId}/fields:
+    put:
+      summary: Update Data Store Fields
+      description: >-
+        Add to the list of personal data fields for a particular Data Store. 
+        Note that fields may not have the same path and name as an existing
+        field.  Any such fields in the payload will be ignored.
+      tags:
+        - dataDiscovery
+      operationId: updateDataStoreFields
+      parameters:
+        - name: dataStoreId
+          required: true
+          in: path
+          description: The identifier of the Data Store to be updated.
+          schema:
+            type: string
+      requestBody:
+        description: An array of personal data fields to be added to this Data Store.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataStoreFields'
+      responses:
+        '204':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      summary: Returns Data Store Fields
+      description: Returns a list of personal data fields for a particular Data Store.
+      tags:
+        - dataDiscovery
+      operationId: getDataStoreFields
+      parameters:
+        - name: dataStoreId
+          required: true
+          in: path
+          description: The identifier of the Data Store being queried.
+          schema:
+            type: string
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/nextTokenParam'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataStoreFieldResponseList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/data-discovery/data-stores/{dataStoreId}/fields/{fieldId}:
+    delete:
+      summary: Delete Data Store Field
+      description: Deletes a single Data Store Field by ID.
+      tags:
+        - dataDiscovery
+      operationId: deleteFieldById
+      parameters:
+        - name: dataStoreId
+          required: true
+          in: path
+          description: The identifier of the Data Store being queried.
+          schema:
+            type: string
+        - name: fieldId
+          required: true
+          in: path
+          description: The identifier of the Data Store Field being deleted.
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      summary: Update Data Store Field
+      description: >-
+        Updates a single Data Store Field by ID.  Note that this allows for a
+        partial update, not all fields are required.
+      tags:
+        - dataDiscovery
+      operationId: updateFieldById
+      parameters:
+        - name: dataStoreId
+          required: true
+          in: path
+          description: The identifier of the Data Store being queried.
+          schema:
+            type: string
+        - name: fieldId
+          required: true
+          in: path
+          description: The identifier of the Data Store Field being updated.
+          schema:
+            type: string
+      requestBody:
+        description: Field data to be updated.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataStoreField'
+      responses:
+        '204':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/data-stores:
+    get:
+      summary: List Data Stores (DEPRECATED)
+      description: 'Deprecated: Please use /v1/data-discovery/data-stores instead'
+      tags:
+        - dataDiscovery
+      operationId: getDataStores2
+      parameters:
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/nextTokenParam'
+        - $ref: '#/components/parameters/afterParam'
+        - $ref: '#/components/parameters/connectorIdParam'
+        - $ref: '#/components/parameters/dataStoresActiveParam'
+        - $ref: '#/components/parameters/dataStoresNameParam'
+        - $ref: '#/components/parameters/dataStoresTypeParam'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataStoreResponseList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Create New Data Store (DEPRECATED)
+      description: 'Deprecated: Please use /v1/data-discovery/data-stores instead'
+      tags:
+        - dataDiscovery
+      operationId: createDataStore2
+      requestBody:
+        description: Details of the Data Store to be created.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataStore'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataStoreResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/data-stores/{dataStoreId}:
+    get:
+      summary: Return Single Data Store (DEPRECATED)
+      description: >-
+        Deprecated: Please use /v1/data-discovery/data-stores/{dataStoreId}
+        instead
+      tags:
+        - dataDiscovery
+      operationId: getDataStoreById2
+      parameters:
+        - name: dataStoreId
+          required: true
+          in: path
+          description: The identifier of the Data Store to be returned.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataStoreResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Deactivate a data store (DEPRECATED)
+      description: >-
+        Deprecated: Please use /v1/data-discovery/data-stores/{dataStoreId}
+        instead
+      tags:
+        - dataDiscovery
+      operationId: deleteDataStoreById2
+      parameters:
+        - name: dataStoreId
+          required: true
+          in: path
+          description: The identifier of the Data Store to be deactivated.
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Success
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      summary: Update an existing data store (DEPRECATED)
+      description: >-
+        Deprecated: Please use /v1/data-discovery/data-stores/{dataStoreId}
+        instead
+      tags:
+        - dataDiscovery
+      operationId: updateDataStoreById2
+      parameters:
+        - name: dataStoreId
+          required: true
+          in: path
+          description: The identifier of the Data Store to be updated.
+          schema:
+            type: string
+      requestBody:
+        description: >-
+          The properties to be updated in the Data Store.  Note that this allows
+          for a partial update, not all fields are required.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataStoreUpdate'
+      responses:
+        '204':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/data-stores/{dataStoreId}/fields:
+    put:
+      summary: Update Data Store Fields (DEPRECATED)
+      description: >-
+        Deprecated: Please use
+        /v1/data-discovery/data-stores/{dataStoreId}/fields instead
+      tags:
+        - dataDiscovery
+      operationId: updateDataStoreFields2
+      parameters:
+        - name: dataStoreId
+          required: true
+          in: path
+          description: The identifier of the Data Store to be updated.
+          schema:
+            type: string
+      requestBody:
+        description: An array of personal data fields to be added to this Data Store.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataStoreFields'
+      responses:
+        '204':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      summary: Returns Data Store Fields (DEPRECATED)
+      description: >-
+        Deprecated: Please use
+        /v1/data-discovery/data-stores/{dataStoreId}/fields instead
+      tags:
+        - dataDiscovery
+      operationId: getDataStoreFields2
+      parameters:
+        - name: dataStoreId
+          required: true
+          in: path
+          description: The identifier of the Data Store being queried.
+          schema:
+            type: string
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/nextTokenParam'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataStoreFieldResponseList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/data-stores/{dataStoreId}/fields/{fieldId}:
+    delete:
+      summary: Delete Data Store Field (DEPRECATED)
+      description: >-
+        Deprecated: Please use
+        /v1/data-discovery/data-stores/{dataStoreId}/fields/{fieldId} instead
+      tags:
+        - dataDiscovery
+      operationId: deleteFieldById2
+      parameters:
+        - name: dataStoreId
+          required: true
+          in: path
+          description: The identifier of the Data Store being queried.
+          schema:
+            type: string
+        - name: fieldId
+          required: true
+          in: path
+          description: The identifier of the Data Store Field being deleted.
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      summary: Update Data Store Field (DEPRECATED)
+      description: >-
+        Deprecated: Please use
+        /v1/data-discovery/data-stores/{dataStoreId}/fields/{fieldId} instead
+      tags:
+        - dataDiscovery
+      operationId: updateFieldById2
+      parameters:
+        - name: dataStoreId
+          required: true
+          in: path
+          description: The identifier of the Data Store being queried.
+          schema:
+            type: string
+        - name: fieldId
+          required: true
+          in: path
+          description: The identifier of the Data Store Field being updated.
+          schema:
+            type: string
+      requestBody:
+        description: Field data to be updated.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataStoreField'
+      responses:
+        '204':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/connectors:
+    get:
+      summary: List Connectors (DEPRECATED)
+      description: 'Deprecated: Please use /v1/data-discovery/connectors instead'
+      tags:
+        - connectors
+      operationId: getConnectors2
+      parameters:
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/nextTokenParam'
+        - $ref: '#/components/parameters/productNameParam'
+        - $ref: '#/components/parameters/connectorTypeParam'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectorList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/data-discovery/connectors:
+    get:
+      summary: List Connectors
+      description: >-
+        Returns a detailed list of connectors by type (On-Prem or SaaS)
+        available in the Osano platform.
+      tags:
+        - connectors
+      operationId: getConnectors
+      parameters:
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/nextTokenParam'
+        - $ref: '#/components/parameters/productNameParam'
+        - $ref: '#/components/parameters/connectorTypeParam'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectorList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/dsar-action-items:
+    get:
+      summary: List Subject Rights Action Items (DEPRECATED)
+      description: 'Deprecated: Please use /v1/subject-rights/action-items instead'
+      tags:
+        - dsarActionItems
+      operationId: getDsarActionItems2
+      parameters:
+        - $ref: '#/components/parameters/dsarIdParam'
+        - $ref: '#/components/parameters/actionItemStatusParam'
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/nextTokenParam'
+        - $ref: '#/components/parameters/afterParam'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DsarActionItemResponseList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/dsar-action-items/{actionItemId}:
+    get:
+      summary: Return Single Subject Rights Action Item (DEPRECATED)
+      description: >-
+        Deprecated: Please use /v1/subject-rights/action-items/{actionItemId}
+        instead
+      tags:
+        - dsarActionItems
+      operationId: getDsarActionItem2
+      parameters:
+        - name: actionItemId
+          required: true
+          in: path
+          description: The id of the Action Item to return
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DsarActionItemResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      summary: Update Subject Rights Action Item (DEPRECATED)
+      description: >-
+        Deprecated: Please use /v1/subject-rights/action-items/{actionItemId}
+        instead
+      tags:
+        - dsarActionItems
+      operationId: updateDsarActionItem2
+      parameters:
+        - name: actionItemId
+          required: true
+          in: path
+          description: The id of the Action Item to update
+          schema:
+            type: number
+      requestBody:
+        description: >-
+          The properties to be updated in the Action Item.  Note that this
+          allows for a partial update, not all fields are required.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DsarActionItemUpdate'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DsarActionItemResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict - Action item already completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/dsar-action-items/{actionItemId}/summary-entry:
+    get:
+      summary: Return Action Item Summary Entries (DEPRECATED)
+      description: >-
+        Deprecated: Please use
+        /v1/subject-rights/action-items/{actionItemId}/summaries instead
+      tags:
+        - dsarActionItems
+      operationId: getDsarSummariesByActionItem2
+      parameters:
+        - name: actionItemId
+          required: true
+          in: path
+          description: The id of the Action Item whose summaries are to be returned
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DsarSummaryResponseList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Upload a Subject Rights Action Item Summary (DEPRECATED)
+      description: >-
+        Deprecated: Please use
+        /v1/subject-rights/action-items/{actionItemId}/summaries instead
+      x-middleware:
+        - fileMiddleware
+      tags:
+        - dsarActionItems
+      operationId: addDsarSummary2
+      parameters:
+        - name: actionItemId
+          required: true
+          in: path
+          description: The id of the Action Item to attach the summaries to
+          schema:
+            type: number
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/nextTokenParam'
+      requestBody:
+        description: Contents of the summary file.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+              format: binary
+          application/pdf:
+            schema:
+              type: string
+              format: binary
+          application/gz:
+            schema:
+              type: string
+              format: binary
+          application/zip:
+            schema:
+              type: string
+              format: binary
+          text/csv:
+            schema:
+              type: string
+              format: binary
+          text/plain:
+            schema:
+              type: string
+              format: binary
+          text/rich-text:
+            schema:
+              type: string
+              format: binary
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                filename:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DsarSummaryResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/dsar-action-items/{actionItemId}/summary-entry/{dsarSummaryId}:
+    patch:
+      summary: Update a Subject Rights Action Item Summary (DEPRECATED)
+      description: >-
+        Deprecated: Please use
+        /v1/subject-rights/action-items/{actionItemId}/summaries/{dsarSummaryId}
+        instead
+      tags:
+        - dsarActionItems
+      operationId: updateDsarSummary2
+      parameters:
+        - name: actionItemId
+          required: true
+          in: path
+          description: The id of the Action Item whose summary we are updating.
+          schema:
+            type: number
+        - name: dsarSummaryId
+          required: true
+          in: path
+          description: The id of the Action Item Summary to update
+          schema:
+            type: number
+      requestBody:
+        description: The properties to be updated in the Action Item Summary.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                excluded:
+                  type: boolean
+              required:
+                - excluded
+      responses:
+        '204':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/subject-rights/action-items:
+    get:
+      summary: List Subject Rights Action Items
+      description: Returns a detailed list of Subject Rights Action Items
+      tags:
+        - dsarActionItems
+      operationId: getDsarActionItems
+      parameters:
+        - $ref: '#/components/parameters/dsarIdParam'
+        - $ref: '#/components/parameters/actionItemStatusParam'
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/nextTokenParam'
+        - $ref: '#/components/parameters/afterParam'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DsarActionItemResponseList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/subject-rights/action-items/{actionItemId}:
+    get:
+      summary: Return Single Subject Rights Action Item
+      description: Returns a single Subject Rights Action Item
+      tags:
+        - dsarActionItems
+      operationId: getDsarActionItem
+      parameters:
+        - name: actionItemId
+          required: true
+          in: path
+          description: The id of the Action Item to return
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DsarActionItemResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      summary: Update Subject Rights Action Item
+      description: Updates a single Subject Rights Action Item
+      tags:
+        - dsarActionItems
+      operationId: updateDsarActionItem
+      parameters:
+        - name: actionItemId
+          required: true
+          in: path
+          description: The id of the Action Item to update
+          schema:
+            type: number
+      requestBody:
+        description: >-
+          The properties to be updated in the Action Item.  Note that this
+          allows for a partial update, not all fields are required.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DsarActionItemUpdate'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DsarActionItemResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict - Action item already completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/subject-rights/action-items/{actionItemId}/summaries:
+    get:
+      summary: Return Action Item Summary Entries
+      description: Returns a list of Summary Entries for a Subject Rights Action Item
+      tags:
+        - dsarActionItems
+      operationId: getDsarSummariesByActionItem
+      parameters:
+        - name: actionItemId
+          required: true
+          in: path
+          description: The id of the Action Item whose summaries are to be returned
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DsarSummaryResponseList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Upload a Subject Rights Action Item Summary
+      description: >-
+        Create a Subject Rights Action Item Summary from the data in the request
+        body.  If the content-type header is one of: application/json,
+        application/pdf, application/gz, application/zip, text/csv, text/plain,
+        or text/rich-text, the request body will be treated as a file and
+        uploaded as-is.  If the content-type is multipart/form-data, the request
+        body will be treated as a form and the file and name will be extracted
+        from the "file" and "name" fields.
+      x-middleware:
+        - fileMiddleware
+      tags:
+        - dsarActionItems
+      operationId: addDsarSummary
+      parameters:
+        - name: actionItemId
+          required: true
+          in: path
+          description: The id of the Action Item to attach the summaries to
+          schema:
+            type: number
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/nextTokenParam'
+      requestBody:
+        description: Contents of the summary file.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+              format: binary
+          application/pdf:
+            schema:
+              type: string
+              format: binary
+          application/gz:
+            schema:
+              type: string
+              format: binary
+          application/zip:
+            schema:
+              type: string
+              format: binary
+          text/csv:
+            schema:
+              type: string
+              format: binary
+          text/plain:
+            schema:
+              type: string
+              format: binary
+          text/rich-text:
+            schema:
+              type: string
+              format: binary
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                filename:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DsarSummaryResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/subject-rights/action-items/{actionItemId}/summaries/{dsarSummaryId}:
+    patch:
+      summary: Update a Subject Rights Action Item Summary
+      description: Updates the metadata for a single Subject Rights Action Item Summary
+      tags:
+        - dsarActionItems
+      operationId: updateDsarSummary
+      parameters:
+        - name: actionItemId
+          required: true
+          in: path
+          description: The id of the Action Item whose summary we are updating.
+          schema:
+            type: number
+        - name: dsarSummaryId
+          required: true
+          in: path
+          description: The id of the Action Item Summary to update
+          schema:
+            type: number
+      requestBody:
+        description: The properties to be updated in the Action Item Summary.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                excluded:
+                  type: boolean
+              required:
+                - excluded
+      responses:
+        '204':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/subject-rights/requests/{requestId}/portal-messages:
+    get:
+      summary: Get Portal Messages
+      description: Get the messages for a specific request
+      tags:
+        - subjectRightsPortal
+      operationId: getPortalMessages
+      parameters:
+        - name: requestId
+          required: true
+          in: path
+          description: The identifier of the Subject Rights request
+          schema:
+            type: string
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/nextTokenParam'
+        - $ref: '#/components/parameters/afterParam'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PortalMessagesResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Create Portal Message
+      description: Create a new message for a specific request
+      tags:
+        - subjectRightsPortal
+      operationId: postPortalMessage
+      parameters:
+        - name: requestId
+          required: true
+          in: path
+          description: The identifier of the Subject Rights request
+          schema:
+            type: string
+      requestBody:
+        description: The message to add to the request conversation
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PortalMessage'
+      responses:
+        '204':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/subject-rights/requests/{requestId}/portal-messages/{messageId}:
+    patch:
+      summary: Update Portal Message
+      description: Update a message for a specific request
+      tags:
+        - subjectRightsPortal
+      operationId: patchPortalMessage
+      parameters:
+        - name: requestId
+          required: true
+          in: path
+          description: The identifier of the Subject Rights request
+          schema:
+            type: string
+        - $ref: '#/components/parameters/messageIdParam'
+      requestBody:
+        description: The read status to update
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchPortalMessage'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatchPortalMessagesResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/subject-rights/requests/{requestId}/activity-log:
+    post:
+      summary: Create Activity Log Entry
+      description: >-
+        Create an offline activity log entry for a specific Subject Rights
+        request
+      tags:
+        - dsar
+      operationId: postRequestActivityLog
+      parameters:
+        - name: requestId
+          required: true
+          in: path
+          description: The identifier of the Subject Rights request
+          schema:
+            type: string
+      requestBody:
+        description: The activity log entry to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActivityLogEntry'
+      responses:
+        '204':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/subject-rights/action-items/{actionItemId}/activity-log:
+    post:
+      summary: Create Activity Log Entry
+      description: >-
+        Create an offline activity log entry for a specific Subject Rights
+        action item
+      tags:
+        - dsarActionItems
+      operationId: postActionItemActivityLog
+      parameters:
+        - name: actionItemId
+          required: true
+          in: path
+          description: The identifier of the Subject Rights action item
+          schema:
+            type: number
+      requestBody:
+        description: The activity log entry to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActivityLogEntry'
+      responses:
+        '204':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  requestBodies:
+    CmpRulesPost:
+      description: >-
+        The Cookie Consent Rule(s) to be created and the ID(s) of the config(s)
+        to create them for.
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - configIds
+            properties:
+              configIds:
+                type: array
+                minItems: 1
+                maxItems: 25
+                items:
+                  type: string
+                  format: uuid
+              cookies:
+                type: array
+                minItems: 1
+                items:
+                  $ref: '#/components/schemas/CmpCookieRuleRequiredProps'
+              iframes:
+                type: array
+                minItems: 1
+                items:
+                  $ref: '#/components/schemas/CmpRuleRequiredProps'
+              scripts:
+                type: array
+                minItems: 1
+                items:
+                  $ref: '#/components/schemas/CmpRuleRequiredProps'
+              localStorage:
+                type: array
+                minItems: 1
+                items:
+                  $ref: '#/components/schemas/CmpRuleRequiredProps'
+    CmpRulePatch:
+      description: The Cookie Consent Rule property(ies) to be updated.
+      required: true
+      content:
+        application/json:
+          schema:
+            anyOf:
+              - $ref: '#/components/schemas/CmpRule'
+              - $ref: '#/components/schemas/CmpCookieRule'
+  responses:
+    CustomerInsightsResponseList:
+      description: Success
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              items:
+                $ref: '#/components/schemas/CustomerInsights'
+    CmpRulesList:
+      description: Success
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              items:
+                type: array
+                items:
+                  oneOf:
+                    - type: object
+                      allOf:
+                        - $ref: '#/components/schemas/CmpRule'
+                        - $ref: '#/components/schemas/CmpRuleResponseProperties'
+                    - type: object
+                      allOf:
+                        - $ref: '#/components/schemas/CmpCookieRule'
+                        - $ref: '#/components/schemas/CmpRuleResponseProperties'
+    CmpRulePatch:
+      description: Success
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - type: object
+                allOf:
+                  - $ref: '#/components/schemas/CmpRule'
+                  - $ref: '#/components/schemas/CmpRuleResponseProperties'
+              - type: object
+                allOf:
+                  - $ref: '#/components/schemas/CmpCookieRule'
+                  - $ref: '#/components/schemas/CmpRuleResponseProperties'
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-osano-api-key
+  parameters:
+    limitParam:
+      name: limit
+      required: false
+      in: query
+      description: The number of items to return.
+      schema:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 500
+        default: 100
+    CmpConfigLimitParam:
+      name: limit
+      required: false
+      in: query
+      description: The number of items to return.
+      schema:
+        type: integer
+        format: int32
+        maximum: 1000
+        default: 100
+    nextTokenParam:
+      name: next
+      required: false
+      in: query
+      description: The pagination token from the previous request.
+      schema:
+        type: string
+    afterParam:
+      name: after
+      required: false
+      in: query
+      description: >-
+        Specify UTC date and time in ISO-8601 format (e.g. 2021-01-01T00:00:00Z)
+        to filter items created after this date.
+      schema:
+        type: string
+    sortByParam:
+      name: sortBy
+      required: false
+      in: query
+      description: Specify a field to sort by. If omitted, the default sort order is used.
+      schema:
+        type: string
+        default: created
+        enum:
+          - name
+          - created
+          - updated
+          - lastPublished
+    sortOrderParam:
+      name: sortOrder
+      required: false
+      in: query
+      description: >-
+        Specify the order in which results are returned.  If omitted, the
+        default sort order is used.
+      schema:
+        type: string
+        default: desc
+        enum:
+          - asc
+          - desc
+    domainParam:
+      name: domain
+      required: false
+      in: query
+      description: >-
+        A domain to filter results by. If your domain has non-standard
+        characters, please use Punycode encoding.
+      schema:
+        type: string
+        pattern: >-
+          ^((?:(?:(?!-))(?:xn--|_)?[A-Za-z0-9-]{0,61}[A-Za-z0-9]{1,1}\.){1,}[A-Za-z]{2,6})$
+      examples:
+        example:
+          value: example.com
+          summary: >-
+            This example filters results to only include those associated with
+            the specified domain.
+        punycodeExample:
+          value: xn--mnchen-3ya.com
+          summary: >-
+            This example filters results to only include those associated with
+            domain "münchen.com", which is represented in Punycode as
+            "xn--mnchen-3ya.com".
+    domainsParam:
+      name: domains
+      required: false
+      in: query
+      description: >-
+        A comma-separated list of domains to filter results by. If your domain
+        has non-standard characters, please use Punycode encoding. The optional
+        prefix can be used to specify how the filter is applied: any (default) -
+        return results that match any of the specified domains; not - return
+        results that do not match any of the specified domains; all - return
+        results that match all of the specified domains. Example:
+        "any:example.com,another-example.org" or
+        "not:example.com,another-example.org" or
+        "all:example.com,another-example.org"
+      schema:
+        type: string
+        pattern: >-
+          ^(?:(any|all|not):)?((?:(?!-)(?:xn--|_)?[A-Za-z\d-]{0,61}[A-Za-z\d]\.)+[A-Za-z]{2,6})(?:,((?:(?!-)(?:xn--|_)?[A-Za-z\d-]{0,61}[A-Za-z\d]\.)+[A-Za-z]{2,6}))*$
+      examples:
+        singleDomain:
+          value: example.com
+          summary: >-
+            This example filters results to only include those associated with
+            the specified domain.
+        multipleDomains:
+          value: example.com, another-example.org, sub.domain.co.uk
+          summary: >-
+            This example filters results to include those associated with any of
+            the specified domains.
+    orgIdsParam:
+      name: orgIds
+      required: false
+      in: query
+      description: >-
+        A comma-separated list of organization UUIDs to filter results by. The
+        optional prefix can be used to specify how the filter is applied: any
+        (default) - return results that match any of the specified org IDs; na -
+        return results that do not match any of the specified org IDs; all -
+        return results that match all of the specified org IDs. Example:
+        "any:uuid1,uuid2" or "not:uuid1,uuid2" or "all:uuid1,uuid2"
+      schema:
+        type: string
+        pattern: >-
+          ^(?:(any|all|not):)?((?:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(?:,[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})*)$
+      examples:
+        noPrefix:
+          value: >-
+            123e4567-e89b-12d3-a456-426614174000,987e6543-e21b-12d3-a456-426614174999
+          summary: >-
+            This example omits the prefix, which defaults to "any", to return
+            results that match any of the specified org IDs.
+        any:
+          value: >-
+            any:123e4567-e89b-12d3-a456-426614174000,987e6543-e21b-12d3-a456-426614174999
+          summary: >-
+            This example uses the "any" prefix to return results that match any
+            of the specified org IDs.
+        all:
+          value: >-
+            all:123e4567-e89b-12d3-a456-426614174000,987e6543-e21b-12d3-a456-426614174999
+          summary: >-
+            This example uses the "all" prefix to return results that match all
+            of the specified org IDs.
+        not:
+          value: >-
+            not:123e4567-e89b-12d3-a456-426614174000,987e6543-e21b-12d3-a456-426614174999
+          summary: >-
+            This example uses the "not" prefix to return results that do not
+            match any of the specified org IDs.
+    cmpConfigModeParam:
+      name: mode
+      required: false
+      in: query
+      description: The compliance mode for the configuration.
+      schema:
+        type: string
+        enum:
+          - debug
+          - permissive
+          - production
+    cmpConfigPublishStatusParam:
+      name: status
+      required: false
+      in: query
+      description: The publish status for the configuration.
+      schema:
+        type: string
+        enum:
+          - unpublished
+          - in-progress
+          - published
+          - outdated
+          - error
+    cmpConfigTattleRecordStoppedParam:
+      name: tattleRecordStopped
+      required: false
+      in: query
+      description: The tattle record stopped status for the configuration.
+      schema:
+        type: boolean
+    cmpDiscoveriesStoreTypeParam:
+      name: type
+      in: query
+      description: >-
+        The type of Discovery to be returned. If omitted, only cookie type
+        discoveries are returned.
+      schema:
+        type: string
+        default: cookie
+        enum:
+          - cookie
+          - script
+          - iframe
+          - localStorage
+    cmpRulesStoreTypeParam:
+      name: type
+      in: query
+      description: >-
+        The type of Rule to be returned. If omitted, all rule types are
+        returned.
+      schema:
+        type: string
+        enum:
+          - cookie
+          - script
+          - iframe
+          - localStorage
+    cmpRulesClassificationParam:
+      name: classification
+      in: query
+      description: The type of rule classification to be returned.
+      schema:
+        type: string
+        enum:
+          - ESSENTIAL
+          - ANALYTICS
+          - MARKETING
+          - PERSONALIZATION
+          - HIDDEN
+          - BLACKLISTED
+    dsarSourceParam:
+      name: source
+      required: false
+      in: query
+      description: >-
+        Source filter for the request. Must be one of API, CMP, CSV,
+        EMAIL_INTAKE, or WEB.
+      schema:
+        type: string
+        enum:
+          - API
+          - CMP
+          - CSV
+          - EMAIL_INTAKE
+          - WEB
+    dsarStatusParam:
+      name: status
+      required: false
+      in: query
+      description: >-
+        Status filter for the request. Must be one of
+        PENDING_EMAIL_VERIFICATION, PENDING_IDENTITY_VERIFICATION, IN_PROGRESS,
+        IN_REVIEW, PENDING_APPEAL, COMPLETED, REJECTED, or REJECTED_AUTO.
+      schema:
+        type: string
+        enum:
+          - PENDING_EMAIL_VERIFICATION
+          - PENDING_IDENTITY_VERIFICATION
+          - IN_PROGRESS
+          - IN_REVIEW
+          - PENDING_APPEAL
+          - COMPLETED
+          - REJECTED
+          - REJECTED_AUTO
+    dsarRequestTypeParam:
+      name: requestType
+      required: false
+      in: query
+      description: >-
+        Request type filter for the request. Must be one of DELETE, CORRECT,
+        SUMMARIZE, DO_NOT_SELL, OPT_OUT, LIMIT_USE, OTHER, PORTABILITY, or
+        CUSTOM_[1-5]
+      schema:
+        type: string
+        enum:
+          - DELETE
+          - CORRECT
+          - SUMMARIZE
+          - DO_NOT_SELL
+          - OPT_OUT
+          - LIMIT_USE
+          - OTHER
+          - PORTABILITY
+          - CUSTOM_1
+          - CUSTOM_2
+          - CUSTOM_3
+          - CUSTOM_4
+          - CUSTOM_5
+    formIdParam:
+      name: formId
+      required: false
+      in: query
+      description: Form identifier through which the Subject Rights Request was made.
+      schema:
+        type: integer
+        format: int32
+    connectorIdParam:
+      name: connectorId
+      required: false
+      in: query
+      description: >-
+        Optional connector identifier to filter data stores by.  This value is
+        ignored when the Data Store type is 'internal'.
+      schema:
+        type: integer
+        format: int32
+    dataStoresActiveParam:
+      name: active
+      required: false
+      in: query
+      description: >-
+        The active status of the Data Stores to be returned.  If omitted, only
+        active Data Stores are returned.
+      schema:
+        type: boolean
+    dataStoresNameParam:
+      name: name
+      required: false
+      in: query
+      description: >-
+        The name of the Data Stores to be returned.  Partial matches will also
+        be returned.
+      schema:
+        type: string
+        maxLength: 64
+    dataStoresTypeParam:
+      name: type
+      required: false
+      in: query
+      description: >-
+        The type of the Data Stores to be returned.  If omitted, all Data Stores
+        are returned.
+      schema:
+        type: string
+        enum:
+          - internal
+          - saas
+          - onprem
+    productNameParam:
+      name: name
+      required: false
+      in: query
+      description: Product name to filter by.  This may return partial matches.
+      schema:
+        type: string
+        maxLength: 64
+    dsarIdParam:
+      name: dsarId
+      required: false
+      in: query
+      description: The id of the Subject Rights request to filter by
+      schema:
+        type: string
+    messageIdParam:
+      name: messageId
+      required: true
+      in: path
+      description: The id of the message to update
+      schema:
+        type: string
+    actionItemStatusParam:
+      name: status
+      required: false
+      in: query
+      description: >-
+        Status filter for the request. Must be one of CLAIMED, IN_PROGRESS,
+        COMPLETED, or REJECTED.
+      schema:
+        type: string
+        enum:
+          - CLAIMED
+          - IN_PROGRESS
+          - COMPLETED
+          - REJECTED
+    connectorTypeParam:
+      name: type
+      required: false
+      in: query
+      description: >-
+        The type of Connectors to be returned.  By default, all Connectors are
+        returned.
+      schema:
+        type: string
+        enum:
+          - saas
+          - onprem
+  schemas:
+    CustomerInsights:
+      type: object
+      minProperties: 2
+      properties:
+        entitlements:
+          type: object
+          description: Products enabled for the customer.
+        products:
+          type: object
+          description: Spotlight product-related metrics for the customer.
+    ErrorResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        message:
+          type: string
+    CmpConfig:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          description: The name of the configuration.
+        domains:
+          type: array
+          minItems: 1
+          description: >-
+            A list of domains (cannot be null or empty) that are permitted to
+            host the configuration.
+          items:
+            type: string
+        orgIds:
+          type: array
+          uniqueItems: true
+          description: >-
+            A list of organization IDs that the configuration is associated
+            with. If omitted or empty, the configuration is associated with the
+            root organization of the customerId that created the API key used to
+            make the request.
+          items:
+            type: string
+            format: uuid
+        mode:
+          type: string
+          description: >
+            The compliance mode for the configuration.
+
+
+            - `debug`: Discovery/Listener Mode - Script and cookie information
+            will be gathered for categorization, but blocking will not occur and
+            the consent dialog will not be displayed.
+
+            - `permissive`: Permissive Mode - The consent dialog will be
+            displayed. All <i>uncategorized</i> scripts will be reported as
+            discoveries and allowed regardless of consent given. All
+            <i>categorized</i> scripts will be allowed or blocked based on the
+            user selection.
+
+            - `production`: Strict Mode <b>(recommended)</b> - The consent
+            dialog will be displayed, and all uncategorized scripts will be
+            blocked until they have been classified.
+
+
+            Note: It is recommended that all discovered scripts & cookies are
+            classified before changing the mode to `production` as all
+            unclassified entities will be blocked. For more information, see
+            Compliance Mode Definitions in the [Cmp Setup
+            Guide](https://docs.osano.com/hc/en-us/articles/22472106973332-Cmp-Setup-Guide#Step1)
+          enum:
+            - debug
+            - permissive
+            - production
+        configuration:
+          type: object
+          additionalProperties: false
+          minProperties: 1
+          properties:
+            additionalLinks:
+              type: array
+              minItems: 1
+              maxItems: 1
+              description: >
+                A nested array where the inner array contains two strings that
+                represent the text and URL for an additional link that can be
+                added to the consent banner.
+
+                - The first string determines the text that will be displayed on
+                the link and must be one of `subjectRightsRequest`,
+                `doNotSellOrShare`, `imprint`, `cookiePolicy`, `privacyPolicy`,
+                `securityPolicy`, `storagePolicy`, or `googlePrivacyPolicy`.
+                <b>Note:</b> this string value cannot be the same as the
+                `policyLinkText` value.
+
+                - The second string is the relative or absolute URL that the
+                link will navigate to when clicked.
+
+
+                Example: `[['subjectRightsRequest',
+                'https://example.com/subject-rights-request']]`
+              items:
+                type: array
+                minItems: 2
+                maxItems: 2
+                items:
+                  type: string
+            allowTimeout:
+              type: boolean
+              description: >-
+                Enables or disables the automatic timeout of banners and dialogs
+                that are on a timer. If disabled, the site visitor will need to
+                interact with the banner or dialog to make it disappear.
+            amazonConsent:
+              type: boolean
+              description: >-
+                When set to `true`, Amazon Consent Signal will be shared with
+                Amazon Ads scripts on your site. If you’re not using Amazon Ads
+                scripts, we recommend setting this to `false` or omitting this
+                property.
+            ccpaRelaxed:
+              type: boolean
+              description: >-
+                When enabled, visitors in California, Colorado, Connecticut,
+                Utah, and Virginia will be shown consent banner format 1 and
+                consent will be implied. When disabled, visitors in California,
+                Colorado, Connecticut, Utah, and Virginia will be shown consent
+                banner format 3 and explicit consent is required. For more
+                information, see [US State Level Legislation Opt-Out Banner
+                Format
+                Setting](https://docs.osano.com/hc/en-us/articles/22469433588756-US-State-Level-Legislation-Opt-Out-Banner-Format-Setting)
+            codeSplitting:
+              type: boolean
+              description: >-
+                When enabled, the `osano.js` script is segemented into a reduced
+                initial payload with additional requests made as needed. This
+                may help improve site rendering.
+            crossDomain:
+              type: boolean
+              description: >-
+                When enabled, it allows multiple domains to be added to the
+                configuration settings and allows initial consent to be shared
+                across unrelated domains owned by the same entity. For more
+                information, see [Cross Domain
+                Support](https://docs.osano.com/cross-domain-support).
+            dntSupport:
+              type: boolean
+              description: >-
+                Enables or disables honoring Do Not Track (DNT) signals from the
+                site visitor's browser.
+            forcedClassifyEnabled:
+              type: boolean
+              description: >-
+                When set to `true`, Osano will automatically block a list of
+                curated scripts and cookies (in addition to (and superseding)
+                your existing rules) in regions where their specific usage has
+                been declared illegal by regulatory bodies. When false, Osano
+                will respect existing classification settings. See [Block
+                List](https://docs.osano.com/hc/en-us/articles/22469397117716-Block-list)
+                for a list of blocked cookies.
+            forceManagePreferences:
+              type: boolean
+              description: >-
+                When set to `true`, a "Manage Preferences" button will be
+                present on banner templates 1 and 3. When set to `false`, banner
+                templates 1 and 3 will not have a "Manage Preferences" button.
+                For more information on banner templates, see [Consent Banner
+                Gallery](https://docs.osano.com/hc/en-us/articles/21084783710996-Consent-Banner-Gallery).
+            googleConsent:
+              type: boolean
+              description: >-
+                When enabled, Google Consent Mode for Google Analytics is
+                supported. GCM must be implemented via Google configuration for
+                this option to function. If you're unsure whether you're using
+                GCM, it is recommended to set this to `false`. For more
+                information, see [Google Consent
+                Mode](https://docs.osano.com/google-consent).
+            gpcSupport:
+              type: boolean
+              description: >-
+                When set to `true`, the Global Privacy Control (GPC) signal is
+                honored. For more information, see [Global Privacy
+                Control](https://docs.osano.com/global-privacy-controls-gpc)
+            iframeBlocking:
+              type: string
+              enum:
+                - ''
+                - debug
+                - permissive
+                - production
+              description: >
+                The mode for allowing or blocking iframes. Note: If `""` is
+                selected, then iframes will not be blocked or discovered. If the
+                top level mode is set to a lower level than the iframe mode,
+                then the iframe mode will be ignored.
+            localStorageBlocking:
+              type: string
+              enum:
+                - ''
+                - debug
+                - permissive
+                - production
+              description: >
+                The mode for allowing or blocking local storage. Note: If `""`
+                is selected, then local storage will not be blocked or
+                discovered. If the top level mode is set to a lower level than
+                the local storage mode, then the local storage mode will be
+                ignored.
+            managePreferencesEnabled:
+              type: boolean
+              description: >-
+                When set to `true`, First Layer Categories are disabled and
+                users in EEA member countries and the UK won't see category
+                toggles in the banner. When set to `false`, First Layer
+                Categories are enabled and users in EEA member countries and the
+                UK are shown cookie category toggles in the banner. For more
+                information, see [First Layer
+                Categories](https://docs.osano.com/first-layer-categories).
+            microsoftConsent:
+              type: boolean
+              description: >-
+                When set to `true`, Osano will share user consent choices with
+                Microsoft UET. Microsoft UET must be implemented on your website
+                for this option to function. Please note that this signal is
+                incompatible with the use of IAB TCF 2.x consent signals.
+            palette:
+              type: object
+              additionalProperties: false
+              description: >-
+                The styling and color palette for the banner, drawer, and DNS
+                (Do Not Sell) dialogs. Colors must be given in [CSS numerical
+                format](https://www.w3.org/TR/css-color-3/#numerical)
+                (hexadecimal, RGBa or HSLa). Color keywords are not supported.
+                To remove a color, set the value to `null`.
+              properties:
+                buttonAcceptBackgroundColor:
+                  type: string
+                  nullable: true
+                  description: >-
+                    The background color of the Accept button in the banner. If
+                    this is not set, it will fallback to the value set for
+                    `buttonBackgroundColor`.
+                buttonAcceptBackgroundColorHover:
+                  type: string
+                  nullable: true
+                  description: >-
+                    The background color of the Accept button in the banner when
+                    hovered. If this is not set, it will fallback to the value
+                    set for `buttonBackgroundColorHover`.
+                buttonAcceptBorderColor:
+                  type: string
+                  nullable: true
+                  description: >-
+                    The border color of the Accept button in the banner. If this
+                    is not set, it will fallback to the value set for
+                    `buttonBorderColor`.
+                buttonAcceptForegroundColor:
+                  type: string
+                  nullable: true
+                  description: >-
+                    The text color of the Accept button in the banner. If this
+                    is not set, it will fallback to the value set for
+                    `buttonForegroundColor`.
+                buttonBackgroundColor:
+                  type: string
+                  nullable: true
+                  description: The background color of the buttons.
+                buttonBackgroundColorHover:
+                  type: string
+                  nullable: true
+                  description: The background color of the buttons when hovered.
+                buttonBorderColor:
+                  type: string
+                  nullable: true
+                  description: >-
+                    The border color of the buttons. If this is not set, it will
+                    default to the value set for `buttonForegroundColor`.
+                buttonCloseColor:
+                  type: string
+                  nullable: true
+                  description: >-
+                    The text color of the close button in the banner. If this is
+                    not set, it will fallback to the value set for
+                    `dialogForegroundColor`.
+                buttonDenyBackgroundColor:
+                  type: string
+                  nullable: true
+                  description: >-
+                    The background color of the Deny button in the banner. If
+                    this is not set, it will fallback to the value set for
+                    `buttonBackgroundColor`.
+                buttonDenyBackgroundColorHover:
+                  type: string
+                  nullable: true
+                  description: >-
+                    The background color of the Deny button in the banner when
+                    hovered. If this is not set, it will fallback to the value
+                    set for `buttonBackgroundColorHover`.
+                buttonDenyBorderColor:
+                  type: string
+                  nullable: true
+                  description: >-
+                    The border color of the Deny button in the banner. If this
+                    is not set, it will fallback to the value set for
+                    `buttonBorderColor`.
+                buttonDenyForegroundColor:
+                  type: string
+                  nullable: true
+                  description: >-
+                    The text color of the Deny button in the banner. If this is
+                    not set, it will fallback to the value set for
+                    `buttonForegroundColor`.
+                buttonRejectAllBackgroundColor:
+                  type: string
+                  nullable: true
+                  description: >-
+                    The background color of the Reject All button in the banner.
+                    If this is not set, it will fallback to the value set for
+                    `buttonBackgroundColor`.
+                buttonRejectAllBackgroundColorHover:
+                  type: string
+                  nullable: true
+                  description: >-
+                    The background color of the Reject All button in the banner
+                    when hovered. If this is not set, it will fallback to the
+                    value set for `buttonBackgroundColorHover`.
+                buttonRejectAllBorderColor:
+                  type: string
+                  nullable: true
+                  description: >-
+                    The border color of the Reject All button in the banner. If
+                    this is not set, it will fallback to the value set for
+                    `buttonBorderColor`.
+                buttonRejectAllForegroundColor:
+                  type: string
+                  nullable: true
+                  description: >-
+                    The text color of the Reject All button in the banner. If
+                    this is not set, it will fallback to the value set for
+                    `buttonForegroundColor`.
+                buttonForegroundColor:
+                  type: string
+                  nullable: true
+                  description: The text color of the buttons.
+                buttonManageBackgroundColor:
+                  type: string
+                  nullable: true
+                  description: >-
+                    The background color of the Manage Preferences button in the
+                    banner. If this is not set, it will fallback to the value
+                    set for `buttonBackgroundColor`.
+                buttonManageBorderColor:
+                  type: string
+                  nullable: true
+                  description: >-
+                    The border color of the Manage Preferences button in the
+                    banner. If this is not set, it will fallback to the value
+                    set for `buttonBorderColor`.
+                buttonManageForegroundColor:
+                  type: string
+                  nullable: true
+                  description: >-
+                    The text color of the Manage Preferences button in the
+                    banner. If this is not set, it will fallback to the value
+                    set for `buttonForegroundColor`.
+                buttonManageBackgroundColorHover:
+                  type: string
+                  nullable: true
+                  description: >-
+                    The background color of the Manage Preferences button in the
+                    banner when hovered. If this is not set, it will fallback to
+                    the value set for `buttonBackgroundColorHover`.
+                dialogBackgroundColor:
+                  type: string
+                  nullable: true
+                  description: The background color of the dialogs.
+                dialogForegroundColor:
+                  type: string
+                  nullable: true
+                  description: The text color of the dialogs.
+                dialogGpcBackgroundColor:
+                  type: string
+                  nullable: true
+                  description: >-
+                    The background color of the GPC opt-out indicator in the
+                    banner.
+                dialogGpcBorderColor:
+                  type: string
+                  nullable: true
+                  description: The border color of the GPC opt-out indicator in the banner.
+                dialogGpcForegroundColor:
+                  type: string
+                  nullable: true
+                  description: The text color of the GPC opt-out indicator in the banner.
+                dialogGpcColor:
+                  type: string
+                  nullable: true
+                  description: >-
+                    The status dot color of the GPC opt-out indicator in the
+                    banner.
+                dialogType:
+                  type: string
+                  nullable: true
+                  enum:
+                    - bar
+                    - box
+                  description: >
+                    The type of banner to display. 
+
+                    - `bar`: A banner that appears at the top or bottom of the
+                    page.
+
+                    - `box`: A dialog that appears in the center of the page.
+                displayPosition:
+                  type: string
+                  nullable: true
+                  description: >
+                    If the `dialogType` is `bar`, valid options are `top` and
+                    `bottom` and defaults to `top` if `displayPosition` is
+                    `null`.
+
+                    If the `dialogType` is `box`, then valid options are
+                    `top-left`, `top-right`, `bottom-left`, `bottom-right`, and
+                    `center` and defaults to `center` if `displayPosition` is
+                    `null`.
+                gpcBackgroundColor:
+                  type: string
+                  nullable: true
+                  description: The background color of the GPC opt-out widget.
+                gpcBorderColor:
+                  type: string
+                  nullable: true
+                  description: The border color of the GPC opt-out widget.
+                gpcForegroundColor:
+                  type: string
+                  nullable: true
+                  description: The text color of the GPC opt-out widget.
+                gpcColor:
+                  type: string
+                  nullable: true
+                  description: The status dot color of the GPC opt-out widget.
+                gpcBackgroundColorHover:
+                  type: string
+                  nullable: true
+                  description: The background color of the GPC opt-out widget when hovered.
+                infoDialogBackgroundColor:
+                  type: string
+                  nullable: true
+                  description: >-
+                    The background color of the drawer and DNS dialogs. If this
+                    is not set, it will fallback to the value set for
+                    `dialogBackgroundColor`.
+                infoDialogForegroundColor:
+                  type: string
+                  nullable: true
+                  description: >-
+                    The text color of the drawer and DNS dialogs. If this is not
+                    set, it will fallback to the value set for
+                    `dialogForegroundColor`.
+                infoDialogOverlayColor:
+                  type: string
+                  nullable: true
+                  description: The overlay color of the drawer and DNS dialogs.
+                infoDialogButtonBackgroundColor:
+                  type: string
+                  nullable: true
+                  description: >-
+                    The background color of the drawer and DNS dialogs buttons.
+                    If this is not set, it will fallback to the value set for
+                    `buttonBackgroundColor`.
+                infoDialogButtonBackgroundColorHover:
+                  type: string
+                  nullable: true
+                  description: >-
+                    The background color of the drawer and DNS dialogs buttons
+                    when hovered. If this is not set, it will fallback to the
+                    value set for `buttonBackgroundColorHover`.
+                infoDialogButtonBorderColor:
+                  type: string
+                  nullable: true
+                  description: >-
+                    The border color of the drawer and DNS dialogs buttons. If
+                    this is not set, it will fallback to the value set for
+                    `buttonBorderColor`.
+                infoDialogButtonCloseColor:
+                  type: string
+                  nullable: true
+                  description: >-
+                    The text color of the close button in the drawer and DNS
+                    dialogs. If this is not set, it will fallback to the value
+                    set for `infoDialogForegroundColor`.
+                infoDialogButtonForegroundColor:
+                  type: string
+                  nullable: true
+                  description: >-
+                    The text color of the drawer and DNS dialogs buttons. If
+                    this is not set, it will fallback to the value set for
+                    `buttonForegroundColor`.
+                infoDialogGpcBackgroundColor:
+                  type: string
+                  nullable: true
+                  description: >-
+                    The background color of the GPC opt-out indicator in the
+                    drawer.
+                infoDialogGpcBorderColor:
+                  type: string
+                  nullable: true
+                  description: The border color of the GPC opt-out indicator in the drawer.
+                infoDialogGpcForegroundColor:
+                  type: string
+                  nullable: true
+                  description: The text color of the GPC opt-out indicator in the drawer.
+                infoDialogGpcColor:
+                  type: string
+                  nullable: true
+                  description: >-
+                    The status dot color of the GPC opt-out indicator in the
+                    drawer.
+                infoDialogLinkColor:
+                  type: string
+                  nullable: true
+                  description: >-
+                    The color of links in the drawer and DNS dialogs. If this is
+                    not set, it will fallback to the value set for `linkColor`.
+                infoDialogPosition:
+                  type: string
+                  nullable: true
+                  description: The position of the drawer.
+                  enum:
+                    - right
+                    - left
+                infoDialogToggleOffTrackColor:
+                  type: string
+                  nullable: true
+                  description: >-
+                    The background color of the toggle button in the drawer and
+                    DNS dialogs when it is in the disabled position. If this is
+                    not set, it will fallback to the value set for
+                    `toggleOffTrackColor`.
+                infoDialogToggleOffThumbColor:
+                  type: string
+                  nullable: true
+                  description: >-
+                    The color of the toggle button indicator in the drawer and
+                    DNS dialogs when it is in the disabled position. If this is
+                    not set, it will fallback to the value set for
+                    `toggleOffThumbColor`.
+                infoDialogToggleOnTrackColor:
+                  type: string
+                  nullable: true
+                  description: >-
+                    The background color of the toggle button in the drawer and
+                    DNS dialogs when it is in the enabled position. If this is
+                    not set, it will fallback to the value set for
+                    `toggleOnTrackColor`.
+                infoDialogToggleOnThumbColor:
+                  type: string
+                  nullable: true
+                  description: >-
+                    The color of the toggle button indicator in the drawer and
+                    DNS dialogs when it is in the enabled position. If this is
+                    not set, it will fallback to the value set for
+                    `toggleOnThumbColor`.
+                linkColor:
+                  type: string
+                  nullable: true
+                  description: The color of the links.
+                optOutWidgetPosition:
+                  type: string
+                  nullable: true
+                  description: The position of the opt-out widget.
+                  enum:
+                    - right
+                    - left
+                toggleOffThumbColor:
+                  type: string
+                  nullable: true
+                  description: >-
+                    The color of the toggle button indicators when they are in
+                    the disabled position.
+                toggleOffTrackColor:
+                  type: string
+                  nullable: true
+                  description: >-
+                    The background color of the toggle buttons when they are in
+                    the disabled position.
+                toggleOnTrackColor:
+                  type: string
+                  nullable: true
+                  description: >-
+                    The background color of the toggle buttons when they are in
+                    the enabled position.
+                toggleOnThumbColor:
+                  type: string
+                  nullable: true
+                  description: >-
+                    The color of the toggle button indicators when they are in
+                    the enabled position.
+                toggleButtonOffColor:
+                  type: string
+                  nullable: true
+                  deprecated: true
+                  description: >-
+                    The color of the toggle button indicators when they are in
+                    the disabled position. This property is deprecated. Please
+                    use `toggleOffThumbColor` instead.
+                toggleButtonOnColor:
+                  type: string
+                  nullable: true
+                  deprecated: true
+                  description: >-
+                    The color of the toggle button indicators when they are in
+                    the enabled position. This property is deprecated. Please
+                    use `toggleOnThumbColor` instead.
+                toggleOffBackgroundColor:
+                  type: string
+                  nullable: true
+                  deprecated: true
+                  description: >-
+                    The background color of the toggle buttons when they are in
+                    the disabled position. This property is deprecated. Please
+                    use `toggleOffTrackColor` instead.
+                toggleOnBackgroundColor:
+                  type: string
+                  nullable: true
+                  deprecated: true
+                  description: >-
+                    The background color of the toggle buttons when they are in
+                    the enabled position. This property is deprecated. Please
+                    use `toggleOnTrackColor` instead.
+                widgetPosition:
+                  type: string
+                  nullable: true
+                  description: The position of the widget.
+                  enum:
+                    - right
+                    - left
+            policyLinkInDrawer:
+              type: boolean
+              description: >-
+                Enables or disables the presentation of the policy link in the
+                preferences drawer.
+            policyLinkText:
+              type: string
+              enum:
+                - cookieNotice
+                - cookiePolicy
+                - storagePoloicy
+                - privacyNotice
+                - privacyPolicy
+              description: >-
+                The text of the link displayed in the dialog (and optionally, in
+                the drawer - see `policyLinkInDrawer` property) that links the
+                site visitor to the url specified  in the `storagePolicyHref`
+                property.
+            showConsentUuid:
+              type: boolean
+              description: >-
+                When set to `true`, the end user’s consent UUID will be present
+                in the Preference Drawer with a copy button. When disabled, an
+                end user will need to access their Osano cookie in their browser
+                to locate the consent UUID.
+            showOptOutWidget:
+              type: boolean
+              description: >-
+                When set to `true`, the opt-out widget will be displayed on the
+                site. When set to `false`, the opt-out widget will be hidden.
+            showWidget:
+              type: boolean
+              description: >-
+                When set to `true`, the consent widget will be displayed on the
+                site. When set to `false`, the widget will be hidden.
+            storagePolicyHref:
+              type: string
+              description: >-
+                The URL for your site's privacy policy. Can be relative or
+                absolute.
+            tattleSampling:
+              type: number
+              format: float
+              maximum: 1
+              minimum: 0
+              description: >-
+                The percentage of visitors (0-1) for whom discoveries will be
+                recorded. A value of 0 disables discovery recording, while a
+                value of 1 records discoveries for all visitors.
+            timeoutSeconds:
+              type: integer
+              description: >-
+                The number of seconds to wait before hiding the banner and
+                saving default consent settings.
+            translations:
+              type: object
+              additionalProperties: false
+              description: Translation overrides for the configuration text strings.
+              properties:
+                messaging:
+                  type: object
+                  additionalProperties: false
+                  properties:
+                    categories:
+                      type: object
+                      additionalProperties: true
+                    closeButton:
+                      type: object
+                      additionalProperties: true
+                    default:
+                      type: object
+                      additionalProperties: true
+                    timer:
+                      type: object
+                      additionalProperties: true
+                    usageHow:
+                      type: object
+                      additionalProperties: true
+                    usageList:
+                      type: object
+                      additionalProperties: true
+                    usageWhat:
+                      type: object
+                      additionalProperties: true
+                    viewCookies:
+                      type: object
+                      additionalProperties: true
+                    viewDisclosures:
+                      type: object
+                      additionalProperties: true
+                drawer:
+                  type: object
+                  additionalProperties: false
+                  properties:
+                    description:
+                      type: object
+                      additionalProperties: true
+                    header:
+                      type: object
+                      additionalProperties: true
+                doNotSell:
+                  type: object
+                  additionalProperties: false
+                  properties:
+                    description:
+                      type: object
+                      additionalProperties: true
+                    header:
+                      type: object
+                      additionalProperties: true
+                categories:
+                  type: object
+                  additionalProperties: false
+                  properties:
+                    ANALYTICS:
+                      type: object
+                      additionalProperties: false
+                      properties:
+                        description:
+                          type: object
+                          additionalProperties: true
+                        label:
+                          type: object
+                          additionalProperties: true
+                    ESSENTIAL:
+                      type: object
+                      additionalProperties: false
+                      properties:
+                        description:
+                          type: object
+                          additionalProperties: true
+                        label:
+                          type: object
+                          additionalProperties: true
+                    MARKETING:
+                      type: object
+                      additionalProperties: false
+                      properties:
+                        description:
+                          type: object
+                          additionalProperties: true
+                        label:
+                          type: object
+                          additionalProperties: true
+                    OPT_OUT:
+                      type: object
+                      additionalProperties: false
+                      properties:
+                        description:
+                          type: object
+                          additionalProperties: true
+                        label:
+                          type: object
+                          additionalProperties: true
+                    PERSONALIZATION:
+                      type: object
+                      additionalProperties: false
+                      properties:
+                        description:
+                          type: object
+                          additionalProperties: true
+                        label:
+                          type: object
+                          additionalProperties: true
+                buttons:
+                  type: object
+                  additionalProperties: false
+                  properties:
+                    accept:
+                      type: object
+                      additionalProperties: true
+                    acceptAll:
+                      type: object
+                      additionalProperties: true
+                    deny:
+                      type: object
+                      additionalProperties: true
+                    denyAll:
+                      type: object
+                      additionalProperties: true
+                    denyNonEssential:
+                      type: object
+                      additionalProperties: true
+                    dialog:
+                      type: object
+                      additionalProperties: false
+                      properties:
+                        denyAll:
+                          type: object
+                          additionalProperties: false
+                          properties:
+                            fr:
+                              type: object
+                              additionalProperties: true
+                        openDrawer:
+                          type: object
+                          additionalProperties: false
+                          properties:
+                            fr:
+                              type: object
+                              additionalProperties: true
+                    managePreferences:
+                      type: object
+                      additionalProperties: true
+                    rejectNonEssential:
+                      type: object
+                      additionalProperties: true
+                    save:
+                      type: object
+                      additionalProperties: true
+                optOut:
+                  type: object
+                  additionalProperties: false
+                  properties:
+                    active:
+                      type: object
+                      additionalProperties: true
+                    honored:
+                      type: object
+                      additionalProperties: true
+                    signalActive:
+                      type: object
+                      additionalProperties: true
+                    signalHonored:
+                      type: object
+                      additionalProperties: true
+    CmpConfigWithDefaults:
+      allOf:
+        - $ref: '#/components/schemas/CmpConfig'
+        - type: object
+          required:
+            - name
+            - domains
+            - mode
+            - configuration
+          properties:
+            configuration:
+              required:
+                - storagePolicyHref
+              properties:
+                allowTimeout:
+                  default: true
+                amazonConsent:
+                  default: false
+                ccpaRelaxed:
+                  default: false
+                codeSplitting:
+                  default: false
+                crossDomain:
+                  default: false
+                dntSupport:
+                  default: true
+                forcedClassifyEnabled:
+                  default: true
+                forceManagePreferences:
+                  default: true
+                googleConsent:
+                  default: true
+                gpcSupport:
+                  default: true
+                iframeBlocking:
+                  default: ''
+                localStorageBlocking:
+                  default: ''
+                managePreferencesEnabled:
+                  default: false
+                microsoftConsent:
+                  default: false
+                palette:
+                  properties:
+                    buttonBackgroundColor:
+                      default: '#7A3FF1'
+                    buttonDenyBackgroundColor:
+                      default: '#7A3FF1'
+                    buttonDenyForegroundColor:
+                      default: '#FFFFFF'
+                    buttonForegroundColor:
+                      default: '#FFFFFF'
+                    dialogBackgroundColor:
+                      default: '#180D43'
+                    dialogForegroundColor:
+                      default: '#FFFFFF'
+                    dialogType:
+                      default: bar
+                    infoDialogBackgroundColor:
+                      default: '#180D43'
+                    infoDialogForegroundColor:
+                      default: '#FFFFFF'
+                    infoDialogOverlayColor:
+                      default: ''
+                    infoDialogPosition:
+                      default: right
+                    linkColor:
+                      default: '#37CD8F'
+                    optOutWidgetPosition:
+                      default: left
+                    toggleOnThumbColor:
+                      default: '#FFFFFF'
+                    toggleOffThumbColor:
+                      default: '#FFFFFF'
+                    toggleOnTrackColor:
+                      default: '#37CD8F'
+                    toggleOffTrackColor:
+                      default: '#7A3FF1'
+                    widgetPosition:
+                      default: right
+                policyLinkInDrawer:
+                  default: false
+                policyLinkText:
+                  default: privacyPolicy
+                showConsentUuid:
+                  default: false
+                showOptOutWidget:
+                  default: true
+                showWidget:
+                  default: true
+                tattleSampling:
+                  default: 1
+                timeoutSeconds:
+                  default: 10
+    CmpConfigResponseList:
+      type: object
+      additionalProperties: false
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CmpConfigResponse'
+        next:
+          type: string
+          description: >-
+            A token which may be appended to subsequent requests to retrieve the
+            next page of results, i.e. ?next=...
+    CmpConfigResponse:
+      allOf:
+        - $ref: '#/components/schemas/CmpConfig'
+        - type: object
+          additionalProperties: false
+          required:
+            - configId
+          properties:
+            created:
+              type: integer
+              description: The unix epoch timestamp when the configuration was created.
+            updated:
+              type: integer
+              description: >-
+                The unix epoch timestamp when the configuration was last
+                updated.
+            publishStatus:
+              type: string
+              enum:
+                - unpublished
+                - in-progress
+                - published
+                - outdated
+                - error
+            lastPublished:
+              type: integer
+              description: >-
+                The unix epoch timestamp when the configuration was last
+                published.
+            publishedRevision:
+              type: integer
+            tattleRecordStopped:
+              type: boolean
+            configId:
+              type: string
+              description: The configuration ID.
+              format: uuid
+            customerId:
+              type: string
+              description: The customer ID associated with the configuration.
+    CmpDiscoveriesResponseList:
+      type: object
+      additionalProperties: false
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CmpDiscoveriesResponse'
+    CmpDiscoveriesResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - customerId
+        - configId
+        - storeKey
+        - storeType
+        - created
+        - updated
+        - scanOrigin
+        - firstPageSeen
+      properties:
+        configId:
+          type: string
+          format: uuid
+        customerId:
+          type: string
+        storeKey:
+          type: string
+        storeType:
+          type: string
+        created:
+          type: string
+          format: date-time
+          description: >-
+            The date and time the discovery was created (displayed as "First
+            Date Seen" in my.osano.com).
+        updated:
+          type: string
+          format: date-time
+        scanOrigin:
+          type: string
+          nullable: true
+          enum:
+            - URL Scan
+            - osano.js
+          description: >-
+            "URL Scan" if it was discovered by a URL scan, "osano.js" if not,
+            and null if the origin is not available (displayed as "Unknown" in
+            my.osano.com).
+        firstPageSeen:
+          type: string
+          format: URL
+        confidence:
+          type: string
+          nullable: true
+          enum:
+            - Unknown
+            - Low
+            - Medium
+            - High
+          description: >-
+            The AI confidence level for the discovery classification. Only
+            available for cookie type discoveries. "Unknown" if no AI confidence
+            data is available.
+    CmpRule:
+      type: object
+      minProperties: 1
+      properties:
+        classification:
+          type: string
+          enum:
+            - ANALYTICS
+            - BLACKLISTED
+            - ESSENTIAL
+            - HIDDEN
+            - MARKETING
+            - PERSONALIZATION
+        rule:
+          type: string
+          description: The type of the rule.
+          minLength: 3
+          maxLength: 1000
+        disclosure:
+          type: boolean
+          description: >-
+            Whether the rule should be disclosed. If omitted, this property will
+            default to `false`.
+        title:
+          type: string
+          nullable: true
+          description: >-
+            The title of the rule. This is used in the consent disclosure in
+            place of the rule when defined.
+          maxLength: 64
+        vendorName:
+          type: string
+          nullable: true
+          description: The value of the rule.
+          maxLength: 100
+    CmpRuleRequiredProps:
+      allOf:
+        - $ref: '#/components/schemas/CmpRule'
+        - type: object
+          required:
+            - classification
+            - rule
+    CmpCookieRule:
+      allOf:
+        - $ref: '#/components/schemas/CmpRule'
+        - type: object
+          properties:
+            description:
+              type: string
+              nullable: true
+              description: A description of the cookie to be used in disclosures.
+              maxLength: 1000
+            expiry:
+              type: string
+              nullable: true
+              description: The length of time that must elapse before the cookie expires.
+              maxLength: 50
+    CmpCookieRuleRequiredProps:
+      allOf:
+        - $ref: '#/components/schemas/CmpCookieRule'
+        - type: object
+          required:
+            - classification
+            - rule
+    CmpRuleResponseProperties:
+      type: object
+      additionalProperties: false
+      properties:
+        type:
+          type: string
+          enum:
+            - cookie
+            - script
+            - iframe
+        ruleId:
+          type: integer
+          format: int32
+        configId:
+          type: string
+          format: uuid
+        vendorId:
+          type: string
+        created:
+          type: string
+          format: date-time
+        updated:
+          type: string
+          format: date-time
+    DsarResponseList:
+      type: object
+      additionalProperties: false
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/DsarResponse'
+        next:
+          type: string
+          description: >-
+            A token which may be appended to subsequent requests to retrieve the
+            next page of results, i.e. ?next=...
+    DsarResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - dsarId
+        - status
+        - requestType
+        - requestSource
+        - due
+        - created
+      properties:
+        dsarId:
+          type: string
+        status:
+          type: string
+        requestType:
+          type: string
+        requestSource:
+          type: string
+        notes:
+          type: string
+        dsarDetails:
+          type: object
+        due:
+          type: string
+          format: date-time
+        created:
+          type: string
+          format: date-time
+        form:
+          type: object
+          properties:
+            formId:
+              type: integer
+            formName:
+              type: string
+    DsarSummaryResponseList:
+      type: object
+      additionalProperties: false
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/DsarSummaryResponse'
+        next:
+          type: string
+          description: >-
+            A token which may be appended to subsequent requests to retrieve the
+            next page of results, i.e. ?next=...
+    DsarSummaryResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - dsarSummaryId
+        - dsarId
+        - fileName
+        - fileType
+        - manual
+        - created
+      properties:
+        dsarSummaryId:
+          type: string
+        dsarId:
+          type: string
+        dataStore:
+          type: object
+          properties:
+            dataStoreId:
+              type: number
+            name:
+              type: string
+        fileName:
+          type: string
+        fileType:
+          type: string
+        manual:
+          type: boolean
+        created:
+          type: string
+          format: date-time
+    DsarList:
+      type: array
+      maxItems: 100
+      items:
+        $ref: '#/components/schemas/Dsar'
+    Dsar:
+      type: object
+      additionalProperties: false
+      required:
+        - formId
+        - requestType
+        - status
+        - dsarDetails
+      properties:
+        formId:
+          type: integer
+        requestType:
+          type: string
+        status:
+          type: string
+        due:
+          type: string
+          format: date-time
+        lastUpdated:
+          type: string
+          format: date-time
+        lastUpdatedBy:
+          type: string
+          format: email
+          minLength: 5
+          maxLength: 100
+        notes:
+          type: string
+          maxLength: 500
+        dsarDetails:
+          type: object
+          additionalProperties: true
+          required:
+            - email
+          properties:
+            email:
+              type: string
+              format: email
+              minLength: 5
+              maxLength: 100
+            given-name:
+              type: string
+            family-name:
+              type: string
+    DsarUpdate:
+      type: object
+      additionalProperties: true
+      properties:
+        status:
+          type: string
+          enum:
+            - PENDING_EMAIL_VERIFICATION
+            - PENDING_IDENTITY_VERIFICATION
+            - IN_PROGRESS
+            - PENDING_APPEAL
+            - COMPLETED
+            - REJECTED
+            - REJECTED_AUTO
+            - IN_REVIEW
+        notes:
+          type: string
+          maxLength: 500
+        notify:
+          type: boolean
+          default: true
+          description: >-
+            When set to true and status is COMPLETED or REJECTED, an email
+            notification will be sent to the requestor. Defaults to true when
+            status is COMPLETED or REJECTED, otherwise defaults to false.
+        content:
+          type: string
+          maxLength: 10000
+          nullable: true
+          description: >-
+            Completion or rejection message to be emailed to the requestor. When
+            status is COMPLETED or REJECTED and notify is true, this field is
+            REQUIRED. When status is COMPLETED or REJECTED and notify is false,
+            this field is optional. This message will be added to the portal
+            conversation.
+    Connector:
+      type: object
+      additionalProperties: false
+      required:
+        - connectorId
+        - productName
+        - authType
+      properties:
+        connectorId:
+          type: integer
+          format: int32
+        productName:
+          type: string
+        authType:
+          type: string
+    ConnectorList:
+      type: object
+      additionalProperties: false
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Connector'
+        next:
+          type: string
+          description: >-
+            A token which may be appended to subsequent requests to retrieve the
+            next page of results, i.e. ?next=...
+    DataStoreOwner:
+      type: object
+      additionalProperties: true
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 5
+          maxLength: 100
+        primary:
+          type: boolean
+    DataStoreLabels:
+      type: object
+      additionalProperties: true
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+        labelId:
+          type: string
+          format: uuid
+          nullable: true
+    DataStorePurposesOfProcessing:
+      type: object
+      additionalProperties: true
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+        processingPurposeId:
+          type: string
+          format: uuid
+          nullable: true
+    DataStoreUpdate:
+      type: object
+      additionalProperties: true
+      properties:
+        name:
+          type: string
+          minLength: 3
+          maxLength: 64
+        description:
+          type: string
+          minLength: 3
+          maxLength: 256
+          nullable: true
+        alias:
+          type: string
+          minLength: 3
+          maxLength: 64
+          nullable: true
+        countryIso:
+          type: string
+          minLength: 2
+          maxLength: 2
+          nullable: true
+          description: ISO 3166-1 alpha-2 code
+        owners:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataStoreOwner'
+        purposesOfProcessing:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataStorePurposesOfProcessing'
+          nullable: true
+        labels:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataStoreLabels'
+          nullable: true
+        metadata:
+          type: object
+          nullable: true
+    DataStore:
+      type: object
+      additionalProperties: true
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 64
+        description:
+          type: string
+          minLength: 1
+          maxLength: 256
+        alias:
+          type: string
+          minLength: 1
+          maxLength: 64
+        connectorId:
+          type: integer
+          format: int32
+        owners:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/DataStoreOwner'
+    DataStoreResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        dataStoreId:
+          type: integer
+          format: int32
+        name:
+          type: string
+        status:
+          type: string
+          nullable: true
+          description: >-
+            The sync status of the data store (e.g., QUEUED, SYNCED, FAILED).
+            Null for internal data stores.
+        lastSync:
+          type: string
+          format: date-time
+          nullable: true
+          description: The timestamp of the last sync operation
+        description:
+          type: string
+        alias:
+          type: string
+        type:
+          type: string
+        active:
+          type: boolean
+        created:
+          type: string
+          format: date-time
+        connector:
+          $ref: '#/components/schemas/Connector'
+        owners:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/DataStoreOwner'
+        totalFields:
+          type: integer
+          format: int32
+          description: Total count of fields in the data store
+        unclassifiedFields:
+          type: integer
+          format: int32
+          description: Count of fields that have not been classified
+        fieldsWithUserData:
+          type: integer
+          format: int32
+          description: Count of fields that contain user data
+        metadata:
+          type: object
+    DataStoreResponseList:
+      type: object
+      additionalProperties: false
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataStoreResponse'
+        next:
+          type: string
+          description: >-
+            A token which may be appended to subsequent requests to retrieve the
+            next page of results, i.e. ?next=...
+    DataStoreField:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          minLength: 1
+        path:
+          type: string
+          nullable: true
+        classification:
+          type: string
+          nullable: true
+          maxLength: 32
+          example: NAME
+          description: This field should be capitalized
+    DataStoreFields:
+      type: array
+      items:
+        $ref: '#/components/schemas/DataStoreField'
+    DataStoreFieldResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - fieldId
+        - name
+        - path
+        - created
+      properties:
+        fieldId:
+          type: integer
+          format: int32
+        name:
+          type: string
+        path:
+          type: string
+        classification:
+          type: string
+        created:
+          type: string
+          format: date-time
+    DataStoreFieldResponseList:
+      type: object
+      additionalProperties: false
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataStoreFieldResponse'
+        next:
+          type: string
+          description: >-
+            A token which may be appended to subsequent requests to retrieve the
+            next page of results, i.e. ?next=...
+    DsarActionItemUpdate:
+      type: object
+      additionalProperties: true
+      properties:
+        assignee:
+          type: string
+          format: email
+          nullable: true
+        status:
+          type: string
+          enum:
+            - IN_PROGRESS
+            - COMPLETED
+            - CLAIMED
+            - REJECTED
+        internalNotes:
+          type: string
+          maxLength: 500
+        resultsFound:
+          type: boolean
+          description: >-
+            Should be provided when setting status to COMPLETED to indicate
+            whether results were found during the data subject access request.
+    DsarActionItemResponseList:
+      type: object
+      additionalProperties: false
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/DsarActionItemResponse'
+        next:
+          type: string
+          description: >-
+            A token which may be appended to subsequent requests to retrieve the
+            next page of results, i.e. ?next=...
+    DsarActionItemResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - dsarActionItemId
+        - dataStore
+        - assignees
+        - dsarId
+        - dsarDetails
+        - status
+        - due
+        - created
+        - requestStatus
+        - requestType
+      properties:
+        dsarActionItemId:
+          type: number
+        assignees:
+          type: array
+          items:
+            type: string
+            format: email
+        dataStore:
+          type: object
+          properties:
+            dataStoreId:
+              type: number
+            name:
+              type: string
+        dsarId:
+          type: string
+        dsarDetails:
+          type: object
+        due:
+          type: string
+          format: date-time
+        created:
+          type: string
+          format: date-time
+        status:
+          type: string
+        internalNotes:
+          type: string
+        requestStatus:
+          type: string
+        requestType:
+          type: string
+        completionType:
+          type: string
+          nullable: true
+          description: The type of completion (e.g., MANUAL, NO_RESULTS)
+    PortalMessage:
+      type: object
+      additionalProperties: false
+      required:
+        - content
+      properties:
+        content:
+          type: string
+    ActivityLogEntry:
+      type: object
+      additionalProperties: false
+      required:
+        - note
+      properties:
+        note:
+          type: string
+          description: The note or description of the activity
+        user:
+          type: string
+          description: >-
+            The user who performed the action (defaults to API user if not
+            provided)
+        timestamp:
+          type: string
+          format: date-time
+          description: >-
+            When the action occurred (defaults to current timestamp if not
+            provided)
+    PatchPortalMessage:
+      type: object
+      additionalProperties: false
+      required:
+        - read
+      properties:
+        read:
+          type: boolean
+    PatchPortalMessagesResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - messageId
+        - updated
+      properties:
+        messageId:
+          type: number
+        updated:
+          type: string
+          format: date-time
+    PortalMessagesResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PortalMessagesList'
+        next:
+          type: string
+          description: >-
+            A token which may be appended to subsequent requests to retrieve the
+            next page of results, i.e. ?next=...
+    PortalMessagesList:
+      type: object
+      additionalProperties: false
+      required:
+        - messageId
+        - content
+        - sent
+        - read
+        - source
+      properties:
+        messageId:
+          type: number
+        content:
+          type: string
+        sent:
+          type: string
+          format: date-time
+        read:
+          type: boolean
+        source:
+          type: string
+        attachments:
+          type: array
+          items:
+            type: object
+            properties:
+              messageAttachmentId:
+                type: number
+              fileName:
+                type: string
+              fileType:
+                type: string
+              fileExt:
+                type: string

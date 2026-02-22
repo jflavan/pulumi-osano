@@ -12,7 +12,16 @@ Status: scaffolding/plan stage.
 See [PLAN.md](./PLAN.md).
 
 ## Prereqs (for local dev)
-- Go (required if using pulumi-go-provider)
+- Go
 - Pulumi CLI
 
-If those aren’t installed on the dev machine, build/test in CI or on a prepared workstation.
+## Local build
+From repo root:
+
+- Build provider binary:
+  - `cd provider && go build ./cmd/pulumi-resource-osano`
+
+## Notes
+- Osano Customer REST API uses `x-osano-api-key`.
+- Osano Unified Consent Core API uses `x-uc-api-key`.
+- See `PLAN.md` for current scope and next steps.

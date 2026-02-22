@@ -19,22 +19,33 @@ Use the **Pulumi Go Provider SDK** (`github.com/pulumi/pulumi-go-provider`) to i
 Start with a small, high-leverage surface area that supports idempotent pipeline automation.
 
 ### Provider configuration
-- `osano:apiToken` (secret)
-- `osano:baseUrl` (optional; default Osano API URL)
-- Optional: `customerId` / `configId` defaults if Osano’s API is scoped that way
+Osano currently exposes multiple API surfaces with different auth headers:
+- Customer REST API: `x-osano-api-key`
+- Unified Consent Core API: `x-uc-api-key`
+
+Provider config (proposed):
+- `osano:osanoApiKey` (secret) — Customer REST API
+- `osano:ucApiKey` (secret) — Unified Consent Core API
+- `osano:customerBaseUrl` (optional; default `https://api.osano.com`)
+- `osano:ucBaseUrl` (optional; default `https://uc.api.osano.com`)
 
 ### First resources (pick 1–2 to ship quickly)
-Because the UC Core API appears to have a large **Config** object with many nested fields, start with a **coarse-grained** resource:
+**Customer REST API is the best v0 target for IaC** because it includes real CRUD for configuration objects (e.g., CMP configs/rules). The Unified Consent Core API is primarily runtime/consent flows and appears largely read-only for configuration.
 
-1) `osano:uc:CoreConfig` (or `osano:uc:Config`)
-- Inputs: fields you want to manage declaratively (domains, privacyPolicyUrl, processingTime/unit, privacyProtocols, text customizations, styling, etc.)
-- Outputs: server-managed fields (created/updated/published IDs, etc.)
-- Behavior: create/update calls map to the API endpoints for config update; diff ignores server-managed fields.
+1) `osano:CookieConsentConfig`
+- Backed by `/v1/cookie-consent/configs` (create/list/get/patch)
+- Inputs: name/domains/mode/orgIds + `configuration` object
+- Outputs: `configId`, `publishStatus`, `lastPublished`, etc.
+- Note: public spec does **not** include delete for configs (delete will be no-op / orphan).
+
+2) (optional) `osano:CookieConsentConfigPublish`
+- Backed by `/v1/cookie-consent/configs/{configId}/publish`
+- Modeled carefully (publish is async + potentially non-idempotent); may be a Function/invoke instead.
 
 Then iterate into fine-grained resources once patterns are solid:
-- `Domain` (if separate endpoint exists)
-- `PrivacyProtocol` / `Integration` (if CRUD-able independently)
-- `TextCustomization` (per locale)
+- `CookieConsentRule` (`/rules` endpoints)
+- `DataStore` connectors, etc.
+- UC Core functions: `getConfig`, `getCollections`, token creation helpers
 
 ## Design decisions
 - Prefer explicit IDs for import/refresh (Pulumi `Read`).

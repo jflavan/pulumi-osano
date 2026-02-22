@@ -24,3 +24,10 @@ __pycache__/
 # IDE
 .vscode/
 .idea/
+
+# Local reference clones
+.ref/
+
+# Local provider binaries
+provider/pulumi-resource-*
+provider/pulumi-gen-*
