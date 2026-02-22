@@ -1,0 +1,26 @@
+# OS
+.DS_Store
+
+# Go
+/bin/
+/dist/
+*.exe
+*.test
+*.out
+
+# Pulumi
+.pulumi/
+Pulumi.*.yaml
+Pulumi.*.json
+
+# Node (generated SDKs often include node artifacts)
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# IDE
+.vscode/
+.idea/
