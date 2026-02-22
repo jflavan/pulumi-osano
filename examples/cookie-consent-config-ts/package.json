@@ -1,0 +1,9 @@
+{
+    "name": "cookie-consent-config-ts",
+    "version": "0.0.1",
+    "private": true,
+    "dependencies": {
+        "@pulumi/pulumi": "^3.0.0",
+        "@pulumi/osano": "file:../../sdk/nodejs"
+    }
+}
