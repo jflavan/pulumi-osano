@@ -185,7 +185,8 @@ func (r *CookieConsentConfig) Read(ctx context.Context, req infer.ReadRequest[Co
     }
 
     var out cmpConfigResponse
-	if err := c.DoJSON(ctx, "GET", "/v1/cookie-consent/configs/"+url.PathEscape(req.ID), nil, nil, &out); err != nil {
+    if err := c.DoJSON(ctx, "GET", "/v1/cookie-consent/configs/"+url.PathEscape(req.ID), nil, nil, &out); err != nil {
+        return infer.ReadResponse[CookieConsentConfigArgs, CookieConsentConfigState]{}, err
     }
 
     // Preserve stored inputs (so users can provide partial configuration maps),
@@ -235,7 +236,8 @@ func (r *CookieConsentConfig) Update(ctx context.Context, req infer.UpdateReques
     }
 
     var out cmpConfigResponse
-	if err := c.DoJSON(ctx, "PATCH", "/v1/cookie-consent/configs/"+url.PathEscape(req.ID), nil, body, &out); err != nil {
+    if err := c.DoJSON(ctx, "PATCH", "/v1/cookie-consent/configs/"+url.PathEscape(req.ID), nil, body, &out); err != nil {
+        return infer.UpdateResponse[CookieConsentConfigState]{}, err
     }
 
     state := CookieConsentConfigState{

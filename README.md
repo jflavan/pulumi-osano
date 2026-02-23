@@ -45,9 +45,32 @@ cd provider && go build ./cmd/pulumi-resource-osano
 cd provider && go test -race -v -count=1 ./...
 ```
 
-## Example
+## Importing existing resources
 
-See [`examples/cookie-consent-config-ts/`](./examples/cookie-consent-config-ts/) for a TypeScript example that creates a config and rule.
+You can import existing Osano resources into Pulumi state using `pulumi import`.
+
+### CookieConsentConfig
+
+Import by the Osano `configId` (UUID):
+
+```sh
+pulumi import osano:index:CookieConsentConfig my-config <configId>
+```
+
+### CookieConsentRule
+
+Import by the integer `ruleId`. The `configId` must be set in the resource inputs so the provider can look up the rule:
+
+```sh
+pulumi import osano:index:CookieConsentRule my-rule <ruleId>
+```
+
+> **Note:** After importing, run `pulumi preview` to verify the imported state matches your code. Adjust inputs as needed to eliminate diffs.
+
+## Examples
+
+- [`examples/cookie-consent-config-ts/`](./examples/cookie-consent-config-ts/) — Config + rule (TypeScript)
+- [`examples/text-customization-ts/`](./examples/text-customization-ts/) — Text customization via configuration (TypeScript)
 
 ## Notes
 - The HTTP client retries 429 and 5xx responses with exponential backoff (respects `Retry-After` header).
