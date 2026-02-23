@@ -10,54 +10,49 @@ Reference repo: `.ref/pulumi-webflow` (cloned locally)
 - Two resources implemented: `CookieConsentConfig` and `CookieConsentRule`
 - HTTP client in `provider/internal/osano/` with retry/backoff, Retry-After support
 - OpenAPI specs in `openapi/` for reference
-- Unit tests passing (37 tests across provider + internal/osano packages)
+- 39 tests passing (37 unit + 2 integration skeletons) across provider + internal/osano packages
 - Schema generated, SDKs generated for nodejs/python/go/dotnet
-- Minimal TypeScript example in `examples/cookie-consent-config-ts/`
+- Two TypeScript examples in `examples/`
 - URL path parameters escaped with `url.PathEscape` to prevent path traversal
-- No CI yet
+- CI via GitHub Actions (build, test, vet, artifact upload on push/PR to `main`)
+- MIT license and CONTRIBUTING.md added
 
 ---
 
-## Task 1: Add retry/backoff to HTTP client
+## Task 1: Add retry/backoff to HTTP client ✅
 **File:** `provider/internal/osano/client.go`
 - Add retry with exponential backoff for 429 and 5xx responses
 - Respect `Retry-After` header if present
 - Max 3 retries, configurable
 
-## Task 2: Unit tests for CookieConsentConfig
+## Task 2: Unit tests for CookieConsentConfig ✅
 **Files:** `provider/cookie_consent_config_test.go`
 - Test Check: valid inputs pass, missing name/domains/mode/storagePolicyHref fail
 - Test Diff: same inputs → no changes, changed name/mode → update, changed config key → update
 - Test bytesEqual helper
 
-## Task 3: Add CookieConsentRule resource
+## Task 3: Add CookieConsentRule resource ✅
 **Spec:** Customer REST API `/v1/cookie-consent/configs/{configId}/rules`
 - Supports POST (create), PATCH (update), DELETE
 - Fields: classification, rule, disclosure, title, vendorName
 - This one has actual delete support
 - Wire into `provider/provider.go` WithResources
 
-## Task 4: Add Makefile
+## Task 4: Add Makefile ✅
 **File:** `Makefile` (repo root)
-- Reference: `.ref/pulumi-webflow/Makefile`
-- Targets: `provider` (build binary to `bin/`), `schema` (get-schema), `sdk/%` (gen-sdk per language), `clean`
-- Keep it minimal for now
+- Targets: `provider` (build binary to `bin/`), `schema` (get-schema), `sdk/%` (gen-sdk per language), `clean`, `test`
 
-## Task 5: Schema generation + SDK scaffolding
-- After Makefile: `make provider && make schema`
-- Then `make sdk/nodejs sdk/python sdk/go sdk/dotnet`
-- Verify generated SDKs compile/lint
+## Task 5: Schema generation + SDK scaffolding ✅
+- Schema generated via `make schema`
+- SDKs generated for nodejs/python/go/dotnet via `make sdk/<lang>`
 
-## Task 6: Add a minimal example
-**Dir:** `examples/cookie-consent-config-ts/`
-- TypeScript Pulumi program that creates a CookieConsentConfig
-- Include `Pulumi.yaml` with provider plugin reference
+## Task 6: Add a minimal example ✅
+**Dir:** `examples/cookie-consent-config-ts/` — Config + rule (TypeScript)
+**Dir:** `examples/text-customization-ts/` — Text customization (TypeScript)
 
-## Task 7 (stretch): GitHub Actions CI
-**Dir:** `.github/workflows/`
-- Build provider on push
-- Run tests
-- Optional: generate schema + SDKs in CI
+## Task 7: GitHub Actions CI ✅
+**Dir:** `.github/workflows/ci.yml`
+- Build provider, run tests, go vet, upload artifact on push/PR to `main`
 
 ---
 
