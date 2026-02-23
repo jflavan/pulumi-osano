@@ -32,6 +32,9 @@ sdk/dotnet/version.txt
 .vscode/
 .idea/
 
+# Task tracking (local only)
+CRASHBOT_TASKS.md
+
 # Local reference clones
 .ref/
 
