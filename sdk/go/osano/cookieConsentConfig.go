@@ -9,7 +9,7 @@ import (
 
 	"errors"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
-	"https:/github.com/highfiveghost/pulumi-osano/sdk/go/osano/internal"
+	"https:/github.com/johnflavan/pulumi-osano/sdk/go/osano/internal"
 )
 
 // Manages an Osano Cookie Consent (CMP) configuration.

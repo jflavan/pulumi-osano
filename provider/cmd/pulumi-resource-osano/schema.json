@@ -4,7 +4,7 @@
   "version": "0.0.1-dev",
   "description": "Pulumi provider for managing Osano via the Osano APIs (Customer REST API and Unified Consent Core API). ",
   "homepage": "https://developers.osano.com/",
-  "repository": "https://github.com/highfiveghost/pulumi-osano",
+  "repository": "https://github.com/johnflavan/pulumi-osano",
   "namespace": "osano",
   "language": {
     "csharp": {
@@ -12,7 +12,7 @@
     },
     "go": {
       "generateResourceContainerTypes": true,
-      "importBasePath": "https://github.com/highfiveghost/pulumi-osano/sdk/go/osano",
+      "importBasePath": "https://github.com/johnflavan/pulumi-osano/sdk/go/osano",
       "respectSchemaVersion": true
     },
     "nodejs": {

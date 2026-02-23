@@ -14,7 +14,7 @@ func Provider() p.Provider {
         WithDisplayName("Osano").
         WithDescription("Pulumi provider for managing Osano via the Osano APIs (Customer REST API and Unified Consent Core API). ").
         WithHomepage("https://developers.osano.com/").
-        WithRepository("https://github.com/highfiveghost/pulumi-osano").
+        WithRepository("https://github.com/johnflavan/pulumi-osano").
         WithNamespace(Name).
         WithConfig(infer.Config(&Config{})).
         WithResources(

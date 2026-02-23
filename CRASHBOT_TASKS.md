@@ -67,4 +67,4 @@ Reference repo: `.ref/pulumi-webflow` (cloned locally)
 - No delete endpoint exists for CMP configs (delete is no-op)
 - CMP rules DO have delete
 - Provider name: `osano`
-- Go module: `github.com/highfiveghost/pulumi-osano/provider`
+- Go module: `github.com/johnflavan/pulumi-osano/provider`

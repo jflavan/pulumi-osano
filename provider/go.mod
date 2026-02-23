@@ -1,4 +1,4 @@
-module github.com/highfiveghost/pulumi-osano/provider
+module github.com/johnflavan/pulumi-osano/provider
 
 go 1.25.0
 

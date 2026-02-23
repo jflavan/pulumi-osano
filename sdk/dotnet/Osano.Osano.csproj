@@ -7,7 +7,7 @@
     <Description>Pulumi provider for managing Osano via the Osano APIs (Customer REST API and Unified Consent Core API). </Description>
     <PackageLicenseExpression></PackageLicenseExpression>
     <PackageProjectUrl>https://developers.osano.com/</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/highfiveghost/pulumi-osano</RepositoryUrl>
+    <RepositoryUrl>https://github.com/johnflavan/pulumi-osano</RepositoryUrl>
     <PackageIcon>logo.png</PackageIcon>
     <Version>0.0.1-dev</Version>
 
