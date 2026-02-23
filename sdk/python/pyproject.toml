@@ -7,7 +7,7 @@
   version = "0.0.1+dev"
   [project.urls]
     Homepage = "https://developers.osano.com/"
-    Repository = "https://github.com/johnflavan/pulumi-osano"
+    Repository = "https://github.com/jflavan/pulumi-osano"
 
 [build-system]
   requires = ["setuptools>=61.0"]

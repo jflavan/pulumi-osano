@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	osanoclient "github.com/johnflavan/pulumi-osano/provider/internal/osano"
+	osanoclient "github.com/jflavan/pulumi-osano/provider/internal/osano"
 )
 
 // Integration tests require a live Osano API key.

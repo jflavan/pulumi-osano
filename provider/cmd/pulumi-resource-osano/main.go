@@ -6,7 +6,7 @@ import (
     "fmt"
     "os"
 
-    osano "github.com/johnflavan/pulumi-osano/provider"
+    osano "github.com/jflavan/pulumi-osano/provider"
 )
 
 func main() {

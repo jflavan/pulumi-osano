@@ -1,6 +1,6 @@
 PACK            := osano
 PROVIDER        := pulumi-resource-$(PACK)
-PROJECT         := github.com/johnflavan/pulumi-osano
+PROJECT         := github.com/jflavan/pulumi-osano
 VERSION_PATH    := provider.Version
 WORKING_DIR     := $(shell pwd)
 SCHEMA_FILE     := provider/cmd/pulumi-resource-osano/schema.json

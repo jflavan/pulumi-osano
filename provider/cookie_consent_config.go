@@ -11,7 +11,7 @@ import (
     p "github.com/pulumi/pulumi-go-provider"
     "github.com/pulumi/pulumi-go-provider/infer"
 
-    osanoclient "github.com/johnflavan/pulumi-osano/provider/internal/osano"
+    osanoclient "github.com/jflavan/pulumi-osano/provider/internal/osano"
 )
 
 // CookieConsentConfig manages a Cookie Consent (CMP) configuration via the Osano Customer REST API.

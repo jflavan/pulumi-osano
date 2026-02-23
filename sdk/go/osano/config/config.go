@@ -6,7 +6,7 @@ package config
 import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi/config"
-	"https:/github.com/johnflavan/pulumi-osano/sdk/go/osano/internal"
+	"https:/github.com/jflavan/pulumi-osano/sdk/go/osano/internal"
 )
 
 var _ = internal.GetEnvOrDefault
