@@ -61,9 +61,9 @@ Then iterate into fine-grained resources once patterns are solid:
 
 ## Work plan / tasks
 ### Phase 0 — scaffolding
-- [ ] Decide package name: `osano` (provider name) and module naming.
-- [ ] Add license, README, contributing.
-- [ ] Scaffold provider using pulumi-go-provider conventions:
+- [x] Decide package name: `osano` (provider name) and module naming.
+- [ ] Add license, contributing.
+- [x] Scaffold provider using pulumi-go-provider conventions:
   - `go.mod`
   - `PulumiPlugin.yaml`
   - `main.go` with provider wiring
@@ -77,25 +77,29 @@ Then iterate into fine-grained resources once patterns are solid:
   - pagination helpers if needed
 
 ### Phase 2 — Provider + CoreConfig resource
-- [ ] Provider `Configure` parses config, validates token.
-- [ ] Implement `CoreConfig` resource with:
+- [x] Provider `Configure` parses config, validates token.
+- [x] Implement `CookieConsentConfig` resource with:
   - `Check` validation
   - `Diff` ignoring server-managed fields
   - `Create/Read/Update/Delete` mapping to Osano endpoints
+- [x] Implement `CookieConsentRule` resource (full CRUD including delete).
 - [ ] Add import support (document `pulumi import` usage).
 
 ### Phase 3 — Testing
 - [x] Unit tests for Check validation (valid inputs, missing name/domains/mode/storagePolicyHref).
 - [x] Unit tests for Diff logic (same inputs → no changes, changed name/mode/configuration → update).
 - [x] Unit test for `bytesEqual` helper.
+- [x] Unit tests for CookieConsentRule Check and Diff (classification, storeType validation, replace semantics).
+- [x] Unit tests for HTTP client (retry/backoff, error handling, body resend, context cancellation).
+- [x] Unit tests for HTTPError formatting.
 - [ ] Optional integration tests (env vars for token, configId).
 
 ### Phase 4 — SDK gen + packaging
-- [ ] Generate schema/SDKs for TS/Python/.NET/Go.
+- [x] Generate schema/SDKs for TS/Python/.NET/Go.
 - [ ] Add CI (GitHub Actions) to build provider binaries and publish artifacts.
 
 ### Phase 5 — Examples
-- [ ] Example: manage domains + privacyPolicyUrl.
+- [x] Example: TypeScript config + rule (`examples/cookie-consent-config-ts/`).
 - [ ] Example: manage text customization for en-US.
 
 ## Questions to answer early

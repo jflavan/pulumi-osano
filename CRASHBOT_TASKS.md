@@ -6,11 +6,15 @@ Reference repo: `.ref/pulumi-webflow` (cloned locally)
 
 ## Current state
 - Provider scaffolded in Go using `pulumi-go-provider` v1.3.0
-- Builds successfully: `cd provider && go build ./cmd/pulumi-resource-osano`
-- One resource implemented: `CookieConsentConfig` (backed by Customer REST API)
-- HTTP client in `provider/internal/osano/`
+- Builds successfully: `make provider` (or `cd provider && go build ./cmd/pulumi-resource-osano`)
+- Two resources implemented: `CookieConsentConfig` and `CookieConsentRule`
+- HTTP client in `provider/internal/osano/` with retry/backoff, Retry-After support
 - OpenAPI specs in `openapi/` for reference
-- No tests yet, no SDK generation, no CI
+- Unit tests passing (37 tests across provider + internal/osano packages)
+- Schema generated, SDKs generated for nodejs/python/go/dotnet
+- Minimal TypeScript example in `examples/cookie-consent-config-ts/`
+- URL path parameters escaped with `url.PathEscape` to prevent path traversal
+- No CI yet
 
 ---
 

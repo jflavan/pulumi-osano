@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"strconv"
 
 	p "github.com/pulumi/pulumi-go-provider"
@@ -200,7 +201,7 @@ func (r *CookieConsentRule) Read(ctx context.Context, req infer.ReadRequest[Cook
 
 	// List rules for the config and find ours.
 	var out cmpRulesListResponse
-	if err := c.DoJSON(ctx, "GET", "/v1/cookie-consent/configs/"+configId+"/rules", nil, nil, &out); err != nil {
+	if err := c.DoJSON(ctx, "GET", "/v1/cookie-consent/configs/"+url.PathEscape(configId)+"/rules", nil, nil, &out); err != nil {
 		return infer.ReadResponse[CookieConsentRuleArgs, CookieConsentRuleState]{}, fmt.Errorf("read rule: %w", err)
 	}
 
@@ -243,7 +244,7 @@ func (r *CookieConsentRule) Update(ctx context.Context, req infer.UpdateRequest[
 	}
 
 	var out cmpRuleResponse
-	if err := c.DoJSON(ctx, "PATCH", "/v1/cookie-consent/rules/"+req.ID, nil, body, &out); err != nil {
+	if err := c.DoJSON(ctx, "PATCH", "/v1/cookie-consent/rules/"+url.PathEscape(req.ID), nil, body, &out); err != nil {
 		return infer.UpdateResponse[CookieConsentRuleState]{}, fmt.Errorf("update rule: %w", err)
 	}
 
@@ -260,7 +261,7 @@ func (r *CookieConsentRule) Delete(ctx context.Context, req infer.DeleteRequest[
 	}
 
 	id := strconv.Itoa(req.State.RuleId)
-	if err := c.DoJSON(ctx, "DELETE", "/v1/cookie-consent/rules/"+id, nil, nil, nil); err != nil {
+	if err := c.DoJSON(ctx, "DELETE", "/v1/cookie-consent/rules/"+url.PathEscape(id), nil, nil, nil); err != nil {
 		return infer.DeleteResponse{}, fmt.Errorf("delete rule: %w", err)
 	}
 
