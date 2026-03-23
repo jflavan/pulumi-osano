@@ -99,6 +99,7 @@ sdk/python: $(SCHEMA_FILE)
 sdk/dotnet: $(SCHEMA_FILE)
 	rm -rf $@
 	$(PULUMI) package gen-sdk --language dotnet $(SCHEMA_FILE) --version "${VERSION_GENERIC}"
+	cp README.md ${PACKDIR}/dotnet/
 	@python3 scripts/patch-dotnet-csproj.py sdk/dotnet/Community.Pulumi.Osano.csproj
 
 
