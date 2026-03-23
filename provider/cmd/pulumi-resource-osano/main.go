@@ -1,18 +1,16 @@
-// Package main runs the provider's gRPC server.
 package main
 
 import (
-    "context"
-    "fmt"
-    "os"
+	"context"
+	"fmt"
+	"os"
 
-    osano "github.com/jflavan/pulumi-osano/provider"
+	provider "github.com/jflavan/pulumi-osano/provider"
 )
 
 func main() {
-    err := osano.Provider().Run(context.Background(), osano.Name, osano.Version)
-    if err != nil {
-        fmt.Fprintf(os.Stderr, "Error: %s", err.Error())
-        os.Exit(1)
-    }
+	if err := provider.Provider().Run(context.Background(), provider.Name, provider.Version); err != nil {
+		fmt.Fprintf(os.Stderr, "error: %s\n", err)
+		os.Exit(1)
+	}
 }

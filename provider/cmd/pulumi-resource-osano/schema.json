@@ -1,285 +1,621 @@
 {
   "name": "osano",
-  "displayName": "Osano",
-  "version": "0.0.1-dev",
-  "description": "Pulumi provider for managing Osano via the Osano APIs (Customer REST API and Unified Consent Core API). ",
-  "homepage": "https://developers.osano.com/",
+  "displayName": "Osano (Unofficial)",
+  "description": "Unofficial Pulumi provider for managing Osano Unified Consent resources. Not affiliated with Pulumi Corporation or Osano, Inc.",
+  "homepage": "https://github.com/jflavan/pulumi-osano",
   "repository": "https://github.com/jflavan/pulumi-osano",
+  "pluginDownloadURL": "github://api.github.com/jflavan/pulumi-osano",
   "namespace": "osano",
   "language": {
     "csharp": {
-      "respectSchemaVersion": true
+      "respectSchemaVersion": true,
+      "rootNamespace": "Community.Pulumi"
     },
     "go": {
-      "generateResourceContainerTypes": true,
-      "importBasePath": "https://github.com/jflavan/pulumi-osano/sdk/go/osano",
-      "respectSchemaVersion": true
+      "importBasePath": "github.com/jflavan/pulumi-osano/sdk/go/osano"
+    },
+    "java": {
+      "basePackage": "io.github.jflavan.pulumi",
+      "buildFiles": "gradle"
     },
     "nodejs": {
+      "packageDescription": "Pulumi provider for the Osano Unified Consent API.",
+      "packageName": "@jflavan/pulumi-osano",
       "respectSchemaVersion": true
     },
     "python": {
-      "pyproject": {
-        "enabled": true
-      },
-      "respectSchemaVersion": true
+      "packageDescription": "Pulumi provider for the Osano Unified Consent API.",
+      "packageName": "pulumi_osano"
     }
   },
   "config": {
     "variables": {
-      "customerBaseUrl": {
+      "apiBaseUrl": {
         "type": "string",
-        "description": "Override base URL for the Customer REST API (default: https://api.osano.com)."
+        "description": "Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com)."
       },
       "osanoApiKey": {
         "type": "string",
-        "description": "Osano API key for the Customer REST API (x-osano-api-key).",
+        "description": "Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).",
         "secret": true
       },
-      "ucApiKey": {
-        "type": "string",
-        "description": "Unified Consent API key for the Unified Consent Core API (x-uc-api-key).",
-        "secret": true
+      "requestTimeoutSeconds": {
+        "type": "integer",
+        "description": "HTTP request timeout in seconds for Osano API calls (default 60)."
       },
-      "ucBaseUrl": {
+      "unifiedConsentApiKey": {
         "type": "string",
-        "description": "Override base URL for the Unified Consent Core API (default: https://uc.api.osano.com)."
+        "description": "Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret or OSANO_UC_API_KEY).",
+        "secret": true
       }
+    }
+  },
+  "types": {
+    "osano:index:ConsentAction": {
+      "properties": {
+        "action": {
+          "type": "string"
+        },
+        "jurisdiction": {
+          "type": "string"
+        },
+        "target": {
+          "type": "string"
+        },
+        "vendor": {
+          "type": "string"
+        }
+      },
+      "type": "object",
+      "required": [
+        "target",
+        "vendor",
+        "action"
+      ]
+    },
+    "osano:index:ConsentCompliance": {
+      "properties": {
+        "gpc": {
+          "type": "integer"
+        },
+        "privacyPolicy": {
+          "$ref": "#/types/osano:index:ConsentPrivacyPolicy"
+        }
+      },
+      "type": "object"
+    },
+    "osano:index:ConsentPrivacyPolicy": {
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "type": "object",
+      "required": [
+        "url"
+      ]
+    },
+    "osano:index:ConsentSubject": {
+      "properties": {
+        "anonymousId": {
+          "type": "string"
+        },
+        "verifiedId": {
+          "type": "string"
+        }
+      },
+      "type": "object"
     }
   },
   "provider": {
     "properties": {
-      "customerBaseUrl": {
+      "apiBaseUrl": {
         "type": "string",
-        "description": "Override base URL for the Customer REST API (default: https://api.osano.com)."
+        "description": "Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com)."
       },
       "osanoApiKey": {
         "type": "string",
-        "description": "Osano API key for the Customer REST API (x-osano-api-key).",
+        "description": "Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).",
         "secret": true
       },
-      "ucApiKey": {
-        "type": "string",
-        "description": "Unified Consent API key for the Unified Consent Core API (x-uc-api-key).",
-        "secret": true
+      "requestTimeoutSeconds": {
+        "type": "integer",
+        "description": "HTTP request timeout in seconds for Osano API calls (default 60)."
       },
-      "ucBaseUrl": {
+      "unifiedConsentApiKey": {
         "type": "string",
-        "description": "Override base URL for the Unified Consent Core API (default: https://uc.api.osano.com)."
+        "description": "Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret or OSANO_UC_API_KEY).",
+        "secret": true
       }
     },
     "inputProperties": {
-      "customerBaseUrl": {
+      "apiBaseUrl": {
         "type": "string",
-        "description": "Override base URL for the Customer REST API (default: https://api.osano.com)."
+        "description": "Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com)."
       },
       "osanoApiKey": {
         "type": "string",
-        "description": "Osano API key for the Customer REST API (x-osano-api-key).",
+        "description": "Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).",
         "secret": true
       },
-      "ucApiKey": {
-        "type": "string",
-        "description": "Unified Consent API key for the Unified Consent Core API (x-uc-api-key).",
-        "secret": true
+      "requestTimeoutSeconds": {
+        "type": "integer",
+        "description": "HTTP request timeout in seconds for Osano API calls (default 60)."
       },
-      "ucBaseUrl": {
+      "unifiedConsentApiKey": {
         "type": "string",
-        "description": "Override base URL for the Unified Consent Core API (default: https://uc.api.osano.com)."
+        "description": "Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret or OSANO_UC_API_KEY).",
+        "secret": true
       }
     }
   },
   "resources": {
-    "osano:index:CookieConsentConfig": {
-      "description": "Manages an Osano Cookie Consent (CMP) configuration.",
+    "osano:index:Consent": {
+      "description": "Creates unified consent decisions within Osano for a given subject.",
       "properties": {
-        "configId": {
-          "type": "string",
-          "description": "The Osano configId (UUID)."
+        "actions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/types/osano:index:ConsentAction"
+          },
+          "description": "Consent actions referencing privacy protocols (target) within a configuration (vendor)."
         },
-        "configuration": {
+        "attributes": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Optional key/value attributes stored with the consent record (e.g., ipAddress overrides)."
+        },
+        "compliance": {
+          "$ref": "#/types/osano:index:ConsentCompliance"
+        },
+        "consentId": {
+          "type": "string",
+          "description": "Synthetic identifier used by Pulumi to track consent submissions."
+        },
+        "jurisdiction": {
+          "type": "string",
+          "description": "Optional jurisdiction override matching one of the configuration's jurisdictions."
+        },
+        "lastSynced": {
+          "type": "string",
+          "description": "Timestamp of the last refresh from the Osano API (RFC3339)."
+        },
+        "origin": {
+          "type": "string",
+          "description": "Origin metadata for the consent, typically 'api' or 'gpc'."
+        },
+        "response": {
           "type": "object",
           "additionalProperties": {
             "$ref": "pulumi.json#/Any"
           },
-          "description": "CMP configuration object. At minimum, must include storagePolicyHref."
+          "description": "Latest raw response payload returned by Osano."
         },
-        "created": {
-          "type": "integer"
+        "subject": {
+          "$ref": "#/types/osano:index:ConsentSubject",
+          "description": "Subject identifiers used for the consent (verifiedId or anonymousId)."
         },
-        "customerId": {
-          "type": "string"
-        },
-        "domains": {
+        "tags": {
           "type": "array",
           "items": {
             "type": "string"
           },
-          "description": "Domains permitted to host the configuration."
-        },
-        "lastPublished": {
-          "type": "integer"
-        },
-        "mode": {
-          "type": "string",
-          "description": "Compliance mode: debug, permissive, or production."
-        },
-        "name": {
-          "type": "string",
-          "description": "The name of the configuration."
-        },
-        "orgIds": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Optional organization IDs associated with the config."
-        },
-        "publishStatus": {
-          "type": "string"
-        },
-        "publishedRevision": {
-          "type": "integer"
-        },
-        "tattleRecordStopped": {
-          "type": "boolean"
-        },
-        "updated": {
-          "type": "integer"
+          "description": "Custom tags that Osano associates with the consent record."
         }
       },
       "required": [
-        "name",
-        "domains",
-        "mode",
-        "configuration",
-        "configId"
+        "subject",
+        "actions",
+        "consentId",
+        "lastSynced",
+        "response"
       ],
       "inputProperties": {
-        "configuration": {
+        "actions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/types/osano:index:ConsentAction"
+          },
+          "description": "Consent actions referencing privacy protocols (target) within a configuration (vendor)."
+        },
+        "attributes": {
           "type": "object",
           "additionalProperties": {
-            "$ref": "pulumi.json#/Any"
+            "type": "string"
           },
-          "description": "CMP configuration object. At minimum, must include storagePolicyHref."
+          "description": "Optional key/value attributes stored with the consent record (e.g., ipAddress overrides)."
         },
-        "domains": {
+        "compliance": {
+          "$ref": "#/types/osano:index:ConsentCompliance"
+        },
+        "jurisdiction": {
+          "type": "string",
+          "description": "Optional jurisdiction override matching one of the configuration's jurisdictions."
+        },
+        "origin": {
+          "type": "string",
+          "description": "Origin metadata for the consent, typically 'api' or 'gpc'."
+        },
+        "subject": {
+          "$ref": "#/types/osano:index:ConsentSubject",
+          "description": "Subject identifiers used for the consent (verifiedId or anonymousId)."
+        },
+        "tags": {
           "type": "array",
           "items": {
             "type": "string"
           },
-          "description": "Domains permitted to host the configuration."
-        },
-        "mode": {
-          "type": "string",
-          "description": "Compliance mode: debug, permissive, or production."
-        },
-        "name": {
-          "type": "string",
-          "description": "The name of the configuration."
-        },
-        "orgIds": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Optional organization IDs associated with the config."
+          "description": "Custom tags that Osano associates with the consent record."
         }
       },
       "requiredInputs": [
-        "name",
-        "domains",
-        "mode",
-        "configuration"
+        "subject",
+        "actions"
       ]
+    }
+  },
+  "functions": {
+    "osano:index:checkConsent": {
+      "description": "Checks whether a unified consent record exists for a given subject ID.",
+      "inputs": {
+        "description": "Arguments for checkConsent",
+        "properties": {
+          "subjectId": {
+            "type": "string"
+          }
+        },
+        "type": "object",
+        "required": [
+          "subjectId"
+        ]
+      },
+      "outputs": {
+        "properties": {
+          "exists": {
+            "type": "boolean"
+          },
+          "subjectId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subjectId",
+          "exists"
+        ],
+        "type": "object"
+      }
     },
-    "osano:index:CookieConsentRule": {
-      "description": "Manages an Osano Cookie Consent (CMP) rule within a configuration.",
-      "properties": {
-        "classification": {
-          "type": "string",
-          "description": "Classification: ANALYTICS, BLACKLISTED, ESSENTIAL, HIDDEN, MARKETING, or PERSONALIZATION."
+    "osano:index:getCollection": {
+      "description": "Retrieves a specific privacy protocol collection by ID.",
+      "inputs": {
+        "description": "Arguments for getCollection",
+        "properties": {
+          "collectionId": {
+            "type": "string"
+          }
         },
-        "configId": {
-          "type": "string",
-          "description": "The configId of the Cookie Consent Configuration this rule belongs to."
-        },
-        "created": {
-          "type": "string",
-          "description": "Timestamp when the rule was created."
-        },
-        "disclosure": {
-          "type": "boolean",
-          "description": "Whether the rule should be disclosed. Defaults to false."
-        },
-        "rule": {
-          "type": "string",
-          "description": "The rule pattern (e.g. a cookie name pattern). Min 3, max 1000 characters."
-        },
-        "ruleId": {
-          "type": "integer",
-          "description": "The server-assigned integer rule ID."
-        },
-        "storeType": {
-          "type": "string",
-          "description": "The storage type category: cookies, scripts, iframes, or localStorage."
-        },
-        "title": {
-          "type": "string",
-          "description": "Optional title for the rule, used in consent disclosure."
-        },
-        "updated": {
-          "type": "string",
-          "description": "Timestamp when the rule was last updated."
-        },
-        "vendorName": {
-          "type": "string",
-          "description": "Optional vendor name for the rule."
-        }
+        "type": "object",
+        "required": [
+          "collectionId"
+        ]
       },
-      "required": [
-        "configId",
-        "storeType",
-        "classification",
-        "rule",
-        "ruleId"
-      ],
-      "inputProperties": {
-        "classification": {
-          "type": "string",
-          "description": "Classification: ANALYTICS, BLACKLISTED, ESSENTIAL, HIDDEN, MARKETING, or PERSONALIZATION."
+      "outputs": {
+        "properties": {
+          "collection": {
+            "additionalProperties": {
+              "$ref": "pulumi.json#/Any"
+            },
+            "type": "object"
+          },
+          "collectionId": {
+            "type": "string"
+          },
+          "exists": {
+            "type": "boolean"
+          }
         },
-        "configId": {
-          "type": "string",
-          "description": "The configId of the Cookie Consent Configuration this rule belongs to."
+        "required": [
+          "collectionId",
+          "collection",
+          "exists"
+        ],
+        "type": "object"
+      }
+    },
+    "osano:index:getCollections": {
+      "description": "Retrieves the aggregated privacy protocol collections for an optional jurisdiction and version (published/draft).",
+      "inputs": {
+        "description": "Arguments for getCollections",
+        "properties": {
+          "jurisdiction": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
         },
-        "disclosure": {
-          "type": "boolean",
-          "description": "Whether the rule should be disclosed. Defaults to false."
-        },
-        "rule": {
-          "type": "string",
-          "description": "The rule pattern (e.g. a cookie name pattern). Min 3, max 1000 characters."
-        },
-        "storeType": {
-          "type": "string",
-          "description": "The storage type category: cookies, scripts, iframes, or localStorage."
-        },
-        "title": {
-          "type": "string",
-          "description": "Optional title for the rule, used in consent disclosure."
-        },
-        "vendorName": {
-          "type": "string",
-          "description": "Optional vendor name for the rule."
-        }
+        "type": "object"
       },
-      "requiredInputs": [
-        "configId",
-        "storeType",
-        "classification",
-        "rule"
-      ]
+      "outputs": {
+        "properties": {
+          "collection": {
+            "additionalProperties": {
+              "$ref": "pulumi.json#/Any"
+            },
+            "type": "object"
+          },
+          "jurisdictions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "jurisdictions",
+          "collection"
+        ],
+        "type": "object"
+      }
+    },
+    "osano:index:getConfig": {
+      "description": "Retrieves the Unified Consent configuration referenced by the API key.",
+      "inputs": {
+        "type": "object"
+      },
+      "outputs": {
+        "properties": {
+          "config": {
+            "additionalProperties": {
+              "$ref": "pulumi.json#/Any"
+            },
+            "type": "object"
+          }
+        },
+        "required": [
+          "config"
+        ],
+        "type": "object"
+      }
+    },
+    "osano:index:getConsentProfile": {
+      "description": "Retrieves a consent profile for a hashed subject identifier and config ID.",
+      "inputs": {
+        "description": "Arguments for getConsentProfile",
+        "properties": {
+          "configId": {
+            "type": "string"
+          },
+          "hashedSubjectId": {
+            "type": "string"
+          }
+        },
+        "type": "object",
+        "required": [
+          "hashedSubjectId",
+          "configId"
+        ]
+      },
+      "outputs": {
+        "properties": {
+          "configId": {
+            "type": "string"
+          },
+          "exists": {
+            "type": "boolean"
+          },
+          "hashedSubjectId": {
+            "type": "string"
+          },
+          "profile": {
+            "additionalProperties": {
+              "$ref": "pulumi.json#/Any"
+            },
+            "type": "object"
+          }
+        },
+        "required": [
+          "hashedSubjectId",
+          "configId",
+          "profile",
+          "exists"
+        ],
+        "type": "object"
+      }
+    },
+    "osano:index:getSubject": {
+      "description": "Fetches subject identifiers (subject, verified, anonymous IDs) for a reference or session ID.",
+      "inputs": {
+        "properties": {
+          "referenceType": {
+            "type": "string"
+          },
+          "subjectRef": {
+            "type": "string"
+          }
+        },
+        "type": "object",
+        "required": [
+          "subjectRef"
+        ]
+      },
+      "outputs": {
+        "properties": {
+          "anonymousId": {
+            "type": "string"
+          },
+          "exists": {
+            "type": "boolean"
+          },
+          "subjectId": {
+            "type": "string"
+          },
+          "subjectRef": {
+            "type": "string"
+          },
+          "verifiedId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subjectRef",
+          "subjectId",
+          "verifiedId",
+          "anonymousId",
+          "exists"
+        ],
+        "type": "object"
+      }
+    },
+    "osano:index:getUnifiedConsent": {
+      "description": "Fetches the unified consent state for a subject reference using the Unified Consent API key.",
+      "inputs": {
+        "description": "Arguments for getUnifiedConsent",
+        "properties": {
+          "referenceType": {
+            "type": "string"
+          },
+          "subjectRef": {
+            "type": "string"
+          }
+        },
+        "type": "object",
+        "required": [
+          "subjectRef"
+        ]
+      },
+      "outputs": {
+        "properties": {
+          "conflicts": {
+            "items": {
+              "additionalProperties": {
+                "$ref": "pulumi.json#/Any"
+              },
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "exists": {
+            "type": "boolean"
+          },
+          "subjectRef": {
+            "type": "string"
+          },
+          "unifiedConsent": {
+            "additionalProperties": {
+              "$ref": "pulumi.json#/Any"
+            },
+            "type": "object"
+          }
+        },
+        "required": [
+          "subjectRef",
+          "exists",
+          "unifiedConsent",
+          "conflicts"
+        ],
+        "type": "object"
+      }
+    },
+    "osano:index:sendSubjectCode": {
+      "description": "Sends a verification code to a subject's email or phone using the Osano API key.",
+      "inputs": {
+        "description": "Arguments for sendSubjectCode",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "hashedSubjectId": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          }
+        },
+        "type": "object",
+        "required": [
+          "hashedSubjectId"
+        ]
+      },
+      "outputs": {
+        "properties": {
+          "channel": {
+            "type": "string"
+          },
+          "destination": {
+            "type": "string"
+          },
+          "hashedSubjectId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "hashedSubjectId",
+          "channel",
+          "destination"
+        ],
+        "type": "object"
+      }
+    },
+    "osano:index:verifySubjectCode": {
+      "description": "Verifies a subject profile using the code sent via email or SMS.",
+      "inputs": {
+        "description": "Arguments for verifySubjectCode",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "hashedSubjectId": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          }
+        },
+        "type": "object",
+        "required": [
+          "hashedSubjectId",
+          "code"
+        ]
+      },
+      "outputs": {
+        "properties": {
+          "channel": {
+            "type": "string"
+          },
+          "destination": {
+            "type": "string"
+          },
+          "hashedSubjectId": {
+            "type": "string"
+          },
+          "profile": {
+            "additionalProperties": {
+              "$ref": "pulumi.json#/Any"
+            },
+            "type": "object"
+          },
+          "verified": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "hashedSubjectId",
+          "channel",
+          "destination",
+          "verified",
+          "profile"
+        ],
+        "type": "object"
+      }
     }
   }
 }

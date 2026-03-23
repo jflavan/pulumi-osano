@@ -20,21 +20,17 @@ export class Provider extends pulumi.ProviderResource {
     }
 
     /**
-     * Override base URL for the Customer REST API (default: https://api.osano.com).
+     * Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com).
      */
-    declare public readonly customerBaseUrl: pulumi.Output<string | undefined>;
+    declare public readonly apiBaseUrl: pulumi.Output<string | undefined>;
     /**
-     * Osano API key for the Customer REST API (x-osano-api-key).
+     * Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
      */
     declare public readonly osanoApiKey: pulumi.Output<string | undefined>;
     /**
-     * Unified Consent API key for the Unified Consent Core API (x-uc-api-key).
+     * Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret or OSANO_UC_API_KEY).
      */
-    declare public readonly ucApiKey: pulumi.Output<string | undefined>;
-    /**
-     * Override base URL for the Unified Consent Core API (default: https://uc.api.osano.com).
-     */
-    declare public readonly ucBaseUrl: pulumi.Output<string | undefined>;
+    declare public readonly unifiedConsentApiKey: pulumi.Output<string | undefined>;
 
     /**
      * Create a Provider resource with the given unique name, arguments, and options.
@@ -47,13 +43,13 @@ export class Provider extends pulumi.ProviderResource {
         let resourceInputs: pulumi.Inputs = {};
         opts = opts || {};
         {
-            resourceInputs["customerBaseUrl"] = args?.customerBaseUrl;
+            resourceInputs["apiBaseUrl"] = args?.apiBaseUrl;
             resourceInputs["osanoApiKey"] = args?.osanoApiKey ? pulumi.secret(args.osanoApiKey) : undefined;
-            resourceInputs["ucApiKey"] = args?.ucApiKey ? pulumi.secret(args.ucApiKey) : undefined;
-            resourceInputs["ucBaseUrl"] = args?.ucBaseUrl;
+            resourceInputs["requestTimeoutSeconds"] = pulumi.output(args?.requestTimeoutSeconds).apply(JSON.stringify);
+            resourceInputs["unifiedConsentApiKey"] = args?.unifiedConsentApiKey ? pulumi.secret(args.unifiedConsentApiKey) : undefined;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
-        const secretOpts = { additionalSecretOutputs: ["osanoApiKey", "ucApiKey"] };
+        const secretOpts = { additionalSecretOutputs: ["osanoApiKey", "unifiedConsentApiKey"] };
         opts = pulumi.mergeOptions(opts, secretOpts);
         super(Provider.__pulumiType, name, resourceInputs, opts);
     }
@@ -64,19 +60,19 @@ export class Provider extends pulumi.ProviderResource {
  */
 export interface ProviderArgs {
     /**
-     * Override base URL for the Customer REST API (default: https://api.osano.com).
+     * Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com).
      */
-    customerBaseUrl?: pulumi.Input<string>;
+    apiBaseUrl?: pulumi.Input<string>;
     /**
-     * Osano API key for the Customer REST API (x-osano-api-key).
+     * Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
      */
     osanoApiKey?: pulumi.Input<string>;
     /**
-     * Unified Consent API key for the Unified Consent Core API (x-uc-api-key).
+     * HTTP request timeout in seconds for Osano API calls (default 60).
      */
-    ucApiKey?: pulumi.Input<string>;
+    requestTimeoutSeconds?: pulumi.Input<number>;
     /**
-     * Override base URL for the Unified Consent Core API (default: https://uc.api.osano.com).
+     * Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret or OSANO_UC_API_KEY).
      */
-    ucBaseUrl?: pulumi.Input<string>;
+    unifiedConsentApiKey?: pulumi.Input<string>;
 }

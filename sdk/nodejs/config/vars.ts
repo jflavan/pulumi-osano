@@ -8,18 +8,18 @@ declare var exports: any;
 const __config = new pulumi.Config("osano");
 
 /**
- * Override base URL for the Customer REST API (default: https://api.osano.com).
+ * Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com).
  */
-export declare const customerBaseUrl: string | undefined;
-Object.defineProperty(exports, "customerBaseUrl", {
+export declare const apiBaseUrl: string | undefined;
+Object.defineProperty(exports, "apiBaseUrl", {
     get() {
-        return __config.get("customerBaseUrl");
+        return __config.get("apiBaseUrl");
     },
     enumerable: true,
 });
 
 /**
- * Osano API key for the Customer REST API (x-osano-api-key).
+ * Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
  */
 export declare const osanoApiKey: string | undefined;
 Object.defineProperty(exports, "osanoApiKey", {
@@ -30,23 +30,23 @@ Object.defineProperty(exports, "osanoApiKey", {
 });
 
 /**
- * Unified Consent API key for the Unified Consent Core API (x-uc-api-key).
+ * HTTP request timeout in seconds for Osano API calls (default 60).
  */
-export declare const ucApiKey: string | undefined;
-Object.defineProperty(exports, "ucApiKey", {
+export declare const requestTimeoutSeconds: number | undefined;
+Object.defineProperty(exports, "requestTimeoutSeconds", {
     get() {
-        return __config.get("ucApiKey");
+        return __config.getObject<number>("requestTimeoutSeconds");
     },
     enumerable: true,
 });
 
 /**
- * Override base URL for the Unified Consent Core API (default: https://uc.api.osano.com).
+ * Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret or OSANO_UC_API_KEY).
  */
-export declare const ucBaseUrl: string | undefined;
-Object.defineProperty(exports, "ucBaseUrl", {
+export declare const unifiedConsentApiKey: string | undefined;
+Object.defineProperty(exports, "unifiedConsentApiKey", {
     get() {
-        return __config.get("ucBaseUrl");
+        return __config.get("unifiedConsentApiKey");
     },
     enumerable: true,
 });

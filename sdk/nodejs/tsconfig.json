@@ -13,12 +13,23 @@
         "strict": true
     },
     "files": [
+        "checkConsent.ts",
         "config/index.ts",
         "config/vars.ts",
-        "cookieConsentConfig.ts",
-        "cookieConsentRule.ts",
+        "consent.ts",
+        "getCollection.ts",
+        "getCollections.ts",
+        "getConfig.ts",
+        "getConsentProfile.ts",
+        "getSubject.ts",
+        "getUnifiedConsent.ts",
         "index.ts",
         "provider.ts",
-        "utilities.ts"
+        "sendSubjectCode.ts",
+        "types/index.ts",
+        "types/input.ts",
+        "types/output.ts",
+        "utilities.ts",
+        "verifySubjectCode.ts"
     ]
 }

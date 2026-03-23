@@ -7,8 +7,8 @@ import (
 	"fmt"
 
 	"github.com/blang/semver"
+	"github.com/jflavan/pulumi-osano/sdk/go/osano/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
-	"https:/github.com/jflavan/pulumi-osano/sdk/go/osano/internal"
 )
 
 type module struct {
@@ -21,10 +21,8 @@ func (m *module) Version() semver.Version {
 
 func (m *module) Construct(ctx *pulumi.Context, name, typ, urn string) (r pulumi.Resource, err error) {
 	switch typ {
-	case "osano:index:CookieConsentConfig":
-		r = &CookieConsentConfig{}
-	case "osano:index:CookieConsentRule":
-		r = &CookieConsentRule{}
+	case "osano:index:Consent":
+		r = &Consent{}
 	default:
 		return nil, fmt.Errorf("unknown resource type: %s", typ)
 	}

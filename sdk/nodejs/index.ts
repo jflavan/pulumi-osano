@@ -5,37 +5,77 @@ import * as pulumi from "@pulumi/pulumi";
 import * as utilities from "./utilities";
 
 // Export members:
-export { CookieConsentConfigArgs } from "./cookieConsentConfig";
-export type CookieConsentConfig = import("./cookieConsentConfig").CookieConsentConfig;
-export const CookieConsentConfig: typeof import("./cookieConsentConfig").CookieConsentConfig = null as any;
-utilities.lazyLoad(exports, ["CookieConsentConfig"], () => require("./cookieConsentConfig"));
+export { CheckConsentArgs, CheckConsentResult, CheckConsentOutputArgs } from "./checkConsent";
+export const checkConsent: typeof import("./checkConsent").checkConsent = null as any;
+export const checkConsentOutput: typeof import("./checkConsent").checkConsentOutput = null as any;
+utilities.lazyLoad(exports, ["checkConsent","checkConsentOutput"], () => require("./checkConsent"));
 
-export { CookieConsentRuleArgs } from "./cookieConsentRule";
-export type CookieConsentRule = import("./cookieConsentRule").CookieConsentRule;
-export const CookieConsentRule: typeof import("./cookieConsentRule").CookieConsentRule = null as any;
-utilities.lazyLoad(exports, ["CookieConsentRule"], () => require("./cookieConsentRule"));
+export { ConsentArgs } from "./consent";
+export type Consent = import("./consent").Consent;
+export const Consent: typeof import("./consent").Consent = null as any;
+utilities.lazyLoad(exports, ["Consent"], () => require("./consent"));
+
+export { GetCollectionArgs, GetCollectionResult, GetCollectionOutputArgs } from "./getCollection";
+export const getCollection: typeof import("./getCollection").getCollection = null as any;
+export const getCollectionOutput: typeof import("./getCollection").getCollectionOutput = null as any;
+utilities.lazyLoad(exports, ["getCollection","getCollectionOutput"], () => require("./getCollection"));
+
+export { GetCollectionsArgs, GetCollectionsResult, GetCollectionsOutputArgs } from "./getCollections";
+export const getCollections: typeof import("./getCollections").getCollections = null as any;
+export const getCollectionsOutput: typeof import("./getCollections").getCollectionsOutput = null as any;
+utilities.lazyLoad(exports, ["getCollections","getCollectionsOutput"], () => require("./getCollections"));
+
+export { GetConfigArgs, GetConfigResult } from "./getConfig";
+export const getConfig: typeof import("./getConfig").getConfig = null as any;
+export const getConfigOutput: typeof import("./getConfig").getConfigOutput = null as any;
+utilities.lazyLoad(exports, ["getConfig","getConfigOutput"], () => require("./getConfig"));
+
+export { GetConsentProfileArgs, GetConsentProfileResult, GetConsentProfileOutputArgs } from "./getConsentProfile";
+export const getConsentProfile: typeof import("./getConsentProfile").getConsentProfile = null as any;
+export const getConsentProfileOutput: typeof import("./getConsentProfile").getConsentProfileOutput = null as any;
+utilities.lazyLoad(exports, ["getConsentProfile","getConsentProfileOutput"], () => require("./getConsentProfile"));
+
+export { GetSubjectArgs, GetSubjectResult, GetSubjectOutputArgs } from "./getSubject";
+export const getSubject: typeof import("./getSubject").getSubject = null as any;
+export const getSubjectOutput: typeof import("./getSubject").getSubjectOutput = null as any;
+utilities.lazyLoad(exports, ["getSubject","getSubjectOutput"], () => require("./getSubject"));
+
+export { GetUnifiedConsentArgs, GetUnifiedConsentResult, GetUnifiedConsentOutputArgs } from "./getUnifiedConsent";
+export const getUnifiedConsent: typeof import("./getUnifiedConsent").getUnifiedConsent = null as any;
+export const getUnifiedConsentOutput: typeof import("./getUnifiedConsent").getUnifiedConsentOutput = null as any;
+utilities.lazyLoad(exports, ["getUnifiedConsent","getUnifiedConsentOutput"], () => require("./getUnifiedConsent"));
 
 export { ProviderArgs } from "./provider";
 export type Provider = import("./provider").Provider;
 export const Provider: typeof import("./provider").Provider = null as any;
 utilities.lazyLoad(exports, ["Provider"], () => require("./provider"));
 
+export { SendSubjectCodeArgs, SendSubjectCodeResult, SendSubjectCodeOutputArgs } from "./sendSubjectCode";
+export const sendSubjectCode: typeof import("./sendSubjectCode").sendSubjectCode = null as any;
+export const sendSubjectCodeOutput: typeof import("./sendSubjectCode").sendSubjectCodeOutput = null as any;
+utilities.lazyLoad(exports, ["sendSubjectCode","sendSubjectCodeOutput"], () => require("./sendSubjectCode"));
+
+export { VerifySubjectCodeArgs, VerifySubjectCodeResult, VerifySubjectCodeOutputArgs } from "./verifySubjectCode";
+export const verifySubjectCode: typeof import("./verifySubjectCode").verifySubjectCode = null as any;
+export const verifySubjectCodeOutput: typeof import("./verifySubjectCode").verifySubjectCodeOutput = null as any;
+utilities.lazyLoad(exports, ["verifySubjectCode","verifySubjectCodeOutput"], () => require("./verifySubjectCode"));
+
 
 // Export sub-modules:
 import * as config from "./config";
+import * as types from "./types";
 
 export {
     config,
+    types,
 };
 
 const _module = {
     version: utilities.getVersion(),
     construct: (name: string, type: string, urn: string): pulumi.Resource => {
         switch (type) {
-            case "osano:index:CookieConsentConfig":
-                return new CookieConsentConfig(name, <any>undefined, { urn })
-            case "osano:index:CookieConsentRule":
-                return new CookieConsentRule(name, <any>undefined, { urn })
+            case "osano:index:Consent":
+                return new Consent(name, <any>undefined, { urn })
             default:
                 throw new Error(`unknown resource type ${type}`);
         }

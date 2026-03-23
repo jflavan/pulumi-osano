@@ -4,29 +4,29 @@
 package config
 
 import (
+	"github.com/jflavan/pulumi-osano/sdk/go/osano/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi/config"
-	"https:/github.com/jflavan/pulumi-osano/sdk/go/osano/internal"
 )
 
 var _ = internal.GetEnvOrDefault
 
-// Override base URL for the Customer REST API (default: https://api.osano.com).
-func GetCustomerBaseUrl(ctx *pulumi.Context) string {
-	return config.Get(ctx, "osano:customerBaseUrl")
+// Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com).
+func GetApiBaseUrl(ctx *pulumi.Context) string {
+	return config.Get(ctx, "osano:apiBaseUrl")
 }
 
-// Osano API key for the Customer REST API (x-osano-api-key).
+// Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
 func GetOsanoApiKey(ctx *pulumi.Context) string {
 	return config.Get(ctx, "osano:osanoApiKey")
 }
 
-// Unified Consent API key for the Unified Consent Core API (x-uc-api-key).
-func GetUcApiKey(ctx *pulumi.Context) string {
-	return config.Get(ctx, "osano:ucApiKey")
+// HTTP request timeout in seconds for Osano API calls (default 60).
+func GetRequestTimeoutSeconds(ctx *pulumi.Context) int {
+	return config.GetInt(ctx, "osano:requestTimeoutSeconds")
 }
 
-// Override base URL for the Unified Consent Core API (default: https://uc.api.osano.com).
-func GetUcBaseUrl(ctx *pulumi.Context) string {
-	return config.Get(ctx, "osano:ucBaseUrl")
+// Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret or OSANO_UC_API_KEY).
+func GetUnifiedConsentApiKey(ctx *pulumi.Context) string {
+	return config.Get(ctx, "osano:unifiedConsentApiKey")
 }
