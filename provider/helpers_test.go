@@ -64,7 +64,6 @@ func TestValidateConsentArgs(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -99,11 +98,15 @@ func TestResolveVerificationContact(t *testing.T) {
 		{name: "email", email: "person@example.com", wantChannel: "email", wantValue: "person@example.com"},
 		{name: "sms", phone: "+15551234567", wantChannel: "sms", wantValue: "+15551234567"},
 		{name: "missing", wantErr: "either email or phone is required"},
-		{name: "both", email: "person@example.com", phone: "+15551234567", wantErr: "only one of email or phone can be provided"},
+		{
+			name:    "both",
+			email:   "person@example.com",
+			phone:   "+15551234567",
+			wantErr: "only one of email or phone can be provided",
+		},
 	}
 
 	for _, tc := range cases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -206,8 +209,9 @@ func TestStatusAllowedAndAPIError(t *testing.T) {
 		t.Fatal("expected 400 to be allowed when explicitly listed")
 	}
 
-	if got := (&apiError{StatusCode: http.StatusBadRequest, Body: "invalid subject"}).Error(); got != "osano api request failed with status 400: invalid subject" {
-		t.Fatalf("unexpected api error message: %q", got)
+	errMsg := (&apiError{StatusCode: http.StatusBadRequest, Body: "invalid subject"}).Error()
+	if errMsg != "osano api request failed with status 400: invalid subject" {
+		t.Fatalf("unexpected api error message: %q", errMsg)
 	}
 }
 

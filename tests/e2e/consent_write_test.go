@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-
 	"github.com/jflavan/pulumi-osano/tests/e2e/internal/api"
 	"github.com/jflavan/pulumi-osano/tests/e2e/internal/testenv"
 )

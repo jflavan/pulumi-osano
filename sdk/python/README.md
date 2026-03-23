@@ -53,16 +53,14 @@ To add the provider to a Pulumi program, reference the matching SDK:
 - **Python**: `pip install pulumi-osano`
 - **Go**: `go get github.com/jflavan/pulumi-osano/sdk/go/osano`
 - **.NET**: `dotnet add package Community.Pulumi.Osano`
-- **Java**: see `docs/RELEASE_GUIDE.md` for Maven coordinates once published
+- **Java**: `implementation("io.github.jflavan.pulumi:pulumi-osano:<version>")`
 
 ## Quick start
 
-The fastest way to try the provider is through the [examples/quickstart](./examples/quickstart) programs. The TypeScript variant is shown below.
+The TypeScript snippet below assumes you created a standard Pulumi TypeScript project with `pulumi new typescript` and then installed the released SDK:
 
 ```bash
-cd examples/quickstart/typescript
-npm install
-pulumi stack init dev
+npm install @jflavan/pulumi-osano
 pulumi config set osano:unifiedConsentApiKey --secret
 pulumi config set subjectRef <subject-id> --secret
 pulumi config set configId <config-id>
@@ -100,6 +98,8 @@ export const consentId = consent.consentId;
 ```
 
 Run `pulumi up` to submit the consent. Destroying the stack removes the logical Pulumi resource but does **not** delete historical events from Osano (they are immutable).
+
+If you're working from a repository clone instead of published packages, the repo-local examples under [examples/quickstart](./examples/quickstart) are aimed at contributors. Run `mise exec -- make build_sdks` once before using the TypeScript example so the local Node.js package exists.
 
 ## Authentication
 
@@ -143,7 +143,7 @@ Resource-level inputs are documented in the auto-generated SDK docs (see the GoD
 - [examples/quickstart/python](./examples/quickstart/python)
 - [examples/quickstart/go](./examples/quickstart/go)
 
-Each folder contains a `Pulumi.yaml`, language-specific dependency files, and a short README.
+These repo-local examples contain `Pulumi.yaml` plus language-specific dependency files. The shared quickstart README documents the local SDK setup required when running them from a clone.
 
 ## Development
 

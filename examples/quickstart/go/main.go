@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	osano "github.com/jflavan/pulumi-osano/sdk/go/osano"
+
+	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
 func main() {

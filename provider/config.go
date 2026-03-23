@@ -1,3 +1,4 @@
+//nolint:goheader // Source-file header normalization is still in progress during alpha.
 package provider
 
 import (
@@ -15,7 +16,7 @@ const (
 	defaultAPIBaseURL         = "https://uc.api.osano.com"
 	defaultRequestTimeoutSecs = 60
 
-	envOsanoAPIKey    = "OSANO_API_KEY"
+	envOsanoAPIKey    = "OSANO_API_KEY" //nolint:gosec // Environment variable name, not a credential.
 	envUnifiedConsent = "OSANO_UC_API_KEY"
 	envAPIBaseURL     = "OSANO_API_BASE_URL"
 	envRequestTimeout = "OSANO_API_TIMEOUT_SECONDS"
@@ -31,14 +32,20 @@ type Config struct {
 
 // Annotate documents the configuration schema exposed to Pulumi users.
 func (c *Config) Annotate(a infer.Annotator) {
-	a.Describe(&c.OsanoAPIKey,
-		"Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).",
+	a.Describe(
+		&c.OsanoAPIKey,
+		"Osano API key used for subject profile routes "+
+			"(set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).",
 	)
-	a.Describe(&c.UnifiedConsentAPIKey,
-		"Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret or OSANO_UC_API_KEY).",
+	a.Describe(
+		&c.UnifiedConsentAPIKey,
+		"Unified Consent API key used for consent collection routes "+
+			"(set via pulumi config set osano:unifiedConsentApiKey --secret or OSANO_UC_API_KEY).",
 	)
-	a.Describe(&c.APIBaseURL,
-		"Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com).",
+	a.Describe(
+		&c.APIBaseURL,
+		"Base URL for the Osano Unified Consent API. Override only when targeting a custom domain "+
+			"(default https://uc.api.osano.com).",
 	)
 	a.Describe(&c.RequestTimeoutSeconds,
 		"HTTP request timeout in seconds for Osano API calls (default 60).",

@@ -1,3 +1,4 @@
+//nolint:goheader // Source-file header normalization is still in progress during alpha.
 package provider
 
 import (
@@ -8,6 +9,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+
 	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/infer"
 )
@@ -60,26 +62,36 @@ type ConsentAction struct {
 	Jurisdiction string `pulumi:"jurisdiction,optional" json:"jurisdiction,omitempty"`
 }
 
+// Annotate registers the Consent resource token and description.
 func (r *ConsentResource) Annotate(a infer.Annotator) {
 	a.SetToken("index", "Consent")
 	a.Describe(r, "Creates unified consent decisions within Osano for a given subject.")
 }
 
+// Annotate documents the consent resource input schema.
 func (args *ConsentArgs) Annotate(a infer.Annotator) {
 	a.Describe(&args.Subject, "Subject identifiers used for the consent (verifiedId or anonymousId).")
-	a.Describe(&args.Actions, "Consent actions referencing privacy protocols (target) within a configuration (vendor).")
-	a.Describe(&args.Attributes, "Optional key/value attributes stored with the consent record (e.g., ipAddress overrides).")
+	a.Describe(
+		&args.Actions,
+		"Consent actions referencing privacy protocols (target) within a configuration (vendor).",
+	)
+	a.Describe(
+		&args.Attributes,
+		"Optional key/value attributes stored with the consent record (e.g., ipAddress overrides).",
+	)
 	a.Describe(&args.Jurisdiction, "Optional jurisdiction override matching one of the configuration's jurisdictions.")
 	a.Describe(&args.Origin, "Origin metadata for the consent, typically 'api' or 'gpc'.")
 	a.Describe(&args.Tags, "Custom tags that Osano associates with the consent record.")
 }
 
+// Annotate documents the computed consent resource state fields.
 func (state *ConsentState) Annotate(a infer.Annotator) {
 	a.Describe(&state.ConsentID, "Synthetic identifier used by Pulumi to track consent submissions.")
 	a.Describe(&state.LastSynced, "Timestamp of the last refresh from the Osano API (RFC3339).")
 	a.Describe(&state.Response, "Latest raw response payload returned by Osano.")
 }
 
+// Diff reports when a consent resource update should submit a new consent record.
 func (r *ConsentResource) Diff(
 	ctx context.Context, req infer.DiffRequest[ConsentArgs, ConsentState],
 ) (infer.DiffResponse, error) {
@@ -101,6 +113,7 @@ func (r *ConsentResource) Diff(
 	}, nil
 }
 
+// Create submits a new consent record to Osano.
 func (r *ConsentResource) Create(
 	ctx context.Context, req infer.CreateRequest[ConsentArgs],
 ) (infer.CreateResponse[ConsentState], error) {
@@ -115,6 +128,7 @@ func (r *ConsentResource) Create(
 	}, nil
 }
 
+// Read refreshes the local state from the upstream unified consent payload.
 func (r *ConsentResource) Read(
 	ctx context.Context, req infer.ReadRequest[ConsentArgs, ConsentState],
 ) (infer.ReadResponse[ConsentArgs, ConsentState], error) {
@@ -151,6 +165,7 @@ func (r *ConsentResource) Read(
 	}, nil
 }
 
+// Update submits a replacement consent record for the tracked subject state.
 func (r *ConsentResource) Update(
 	ctx context.Context, req infer.UpdateRequest[ConsentArgs, ConsentState],
 ) (infer.UpdateResponse[ConsentState], error) {
@@ -163,6 +178,7 @@ func (r *ConsentResource) Update(
 	}, nil
 }
 
+// Delete forgets the local Pulumi resource without deleting upstream consent history.
 func (r *ConsentResource) Delete(context.Context, infer.DeleteRequest[ConsentState]) (infer.DeleteResponse, error) {
 	// Osano consents are immutable historical records. Destroying the Pulumi resource
 	// simply forgets the local tracking without attempting to delete upstream data.
@@ -181,7 +197,7 @@ func applyConsent(
 
 	id := existingID
 	if id == "" {
-		id = fmt.Sprintf("consent-%s", uuid.NewString())
+		id = "consent-" + uuid.NewString()
 	}
 
 	state := ConsentState{

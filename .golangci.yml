@@ -11,7 +11,6 @@ linters:
     - exhaustive
     - copyloopvar
     - gocritic
-    - goheader
     - gosec
     - govet
     - importas
@@ -90,6 +89,12 @@ linters:
       # to parallelize without significant refactoring.
       - linters: [paralleltest]
         path: "_test\\.go$"
+
+      # Internal E2E helpers are not part of the public provider surface.
+      # Requiring exported API docs for these packages adds noise without
+      # improving user-facing maintainability.
+      - linters: [revive]
+        path: "tests/e2e/internal/"
 
 formatters:
   enable:

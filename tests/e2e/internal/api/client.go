@@ -1,9 +1,11 @@
+//nolint:goheader // Source-file header normalization is still in progress during alpha.
 package api
 
 import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -120,7 +122,7 @@ type ConsentAction struct {
 
 func (c *Client) CreateConsent(ctx context.Context, payload ConsentRequestPayload) (map[string]any, error) {
 	if len(payload.Actions) == 0 {
-		return nil, fmt.Errorf("at least one consent action is required")
+		return nil, errors.New("at least one consent action is required")
 	}
 	body, _, err := c.doJSON(ctx, http.MethodPost, "/v2/consents", nil, payload, headerUnifiedConsent, http.StatusCreated)
 	if err != nil {
@@ -136,14 +138,26 @@ func (c *Client) CreateConsent(ctx context.Context, payload ConsentRequestPayloa
 	return resp, nil
 }
 
-func (c *Client) FetchUnifiedConsent(ctx context.Context, subjectRef, referenceType string) (*UnifiedConsentPayload, bool, error) {
+func (c *Client) FetchUnifiedConsent(
+	ctx context.Context,
+	subjectRef, referenceType string,
+) (*UnifiedConsentPayload, bool, error) {
 	if referenceType == "" {
 		referenceType = "subject"
 	}
 	query := url.Values{}
 	query.Set("ref", referenceType)
-	path := fmt.Sprintf("/v2/consents/unified/%s", url.PathEscape(subjectRef))
-	body, status, err := c.doJSON(ctx, http.MethodGet, path, query, nil, headerUnifiedConsent, http.StatusOK, http.StatusBadRequest)
+	path := "/v2/consents/unified/" + url.PathEscape(subjectRef)
+	body, status, err := c.doJSON(
+		ctx,
+		http.MethodGet,
+		path,
+		query,
+		nil,
+		headerUnifiedConsent,
+		http.StatusOK,
+		http.StatusBadRequest,
+	)
 	if err != nil {
 		if apiErr, ok := err.(*apiError); ok && apiErr.StatusCode == http.StatusBadRequest {
 			return nil, false, nil
@@ -166,10 +180,21 @@ func (c *Client) FetchSubject(ctx context.Context, subjectRef, referenceType str
 	}
 	query := url.Values{}
 	query.Set("ref", referenceType)
-	path := fmt.Sprintf("/v2/subjects/%s", url.PathEscape(subjectRef))
-	body, status, err := c.doJSON(ctx, http.MethodGet, path, query, nil, headerUnifiedConsent, http.StatusOK, http.StatusBadRequest, http.StatusNotFound)
+	path := "/v2/subjects/" + url.PathEscape(subjectRef)
+	body, status, err := c.doJSON(
+		ctx,
+		http.MethodGet,
+		path,
+		query,
+		nil,
+		headerUnifiedConsent,
+		http.StatusOK,
+		http.StatusBadRequest,
+		http.StatusNotFound,
+	)
 	if err != nil {
-		if apiErr, ok := err.(*apiError); ok && (apiErr.StatusCode == http.StatusBadRequest || apiErr.StatusCode == http.StatusNotFound) {
+		if apiErr, ok := err.(*apiError); ok &&
+			(apiErr.StatusCode == http.StatusBadRequest || apiErr.StatusCode == http.StatusNotFound) {
 			return nil, false, nil
 		}
 		return nil, false, err
@@ -185,7 +210,7 @@ func (c *Client) FetchSubject(ctx context.Context, subjectRef, referenceType str
 }
 
 func (c *Client) CheckConsent(ctx context.Context, subjectID string) (bool, error) {
-	path := fmt.Sprintf("/v2/consents/check/%s", url.PathEscape(subjectID))
+	path := "/v2/consents/check/" + url.PathEscape(subjectID)
 	body, _, err := c.doJSON(ctx, http.MethodGet, path, nil, nil, headerUnifiedConsent, http.StatusOK)
 	if err != nil {
 		return false, err
@@ -199,13 +224,27 @@ func (c *Client) CheckConsent(ctx context.Context, subjectID string) (bool, erro
 	return resp.Exists, nil
 }
 
-func (c *Client) FetchConsentProfile(ctx context.Context, hashedSubjectID, configID string) (map[string]any, bool, error) {
+func (c *Client) FetchConsentProfile(
+	ctx context.Context,
+	hashedSubjectID, configID string,
+) (profile map[string]any, found bool, err error) {
 	query := url.Values{}
 	query.Set("configId", configID)
-	path := fmt.Sprintf("/v2/consent-profiles/%s", url.PathEscape(hashedSubjectID))
-	body, status, err := c.doJSON(ctx, http.MethodGet, path, query, nil, headerUnifiedConsent, http.StatusOK, http.StatusBadRequest, http.StatusNotFound)
+	path := "/v2/consent-profiles/" + url.PathEscape(hashedSubjectID)
+	body, status, err := c.doJSON(
+		ctx,
+		http.MethodGet,
+		path,
+		query,
+		nil,
+		headerUnifiedConsent,
+		http.StatusOK,
+		http.StatusBadRequest,
+		http.StatusNotFound,
+	)
 	if err != nil {
-		if apiErr, ok := err.(*apiError); ok && (apiErr.StatusCode == http.StatusBadRequest || apiErr.StatusCode == http.StatusNotFound) {
+		if apiErr, ok := err.(*apiError); ok &&
+			(apiErr.StatusCode == http.StatusBadRequest || apiErr.StatusCode == http.StatusNotFound) {
 			return nil, false, nil
 		}
 		return nil, false, err
@@ -213,11 +252,10 @@ func (c *Client) FetchConsentProfile(ctx context.Context, hashedSubjectID, confi
 	if status == http.StatusBadRequest || status == http.StatusNotFound {
 		return nil, false, nil
 	}
-	var payload map[string]any
-	if err := json.Unmarshal(body, &payload); err != nil {
+	if err := json.Unmarshal(body, &profile); err != nil {
 		return nil, false, fmt.Errorf("failed to decode consent profile payload: %w", err)
 	}
-	return payload, true, nil
+	return profile, true, nil
 }
 
 func (c *Client) FetchConfig(ctx context.Context) (map[string]any, error) {
@@ -232,7 +270,10 @@ func (c *Client) FetchConfig(ctx context.Context) (map[string]any, error) {
 	return payload, nil
 }
 
-func (c *Client) FetchCollections(ctx context.Context, jurisdiction, collectionType string) (*CollectionsPayload, error) {
+func (c *Client) FetchCollections(
+	ctx context.Context,
+	jurisdiction, collectionType string,
+) (*CollectionsPayload, error) {
 	query := url.Values{}
 	if v := strings.TrimSpace(jurisdiction); v != "" {
 		query.Set("jurisdiction", v)
@@ -251,9 +292,21 @@ func (c *Client) FetchCollections(ctx context.Context, jurisdiction, collectionT
 	return &payload, nil
 }
 
-func (c *Client) FetchCollection(ctx context.Context, collectionID string) (map[string]any, bool, error) {
-	path := fmt.Sprintf("/v2/collections/%s", url.PathEscape(collectionID))
-	body, status, err := c.doJSON(ctx, http.MethodGet, path, nil, nil, headerUnifiedConsent, http.StatusOK, http.StatusNotFound)
+func (c *Client) FetchCollection(
+	ctx context.Context,
+	collectionID string,
+) (collection map[string]any, found bool, err error) {
+	path := "/v2/collections/" + url.PathEscape(collectionID)
+	body, status, err := c.doJSON(
+		ctx,
+		http.MethodGet,
+		path,
+		nil,
+		nil,
+		headerUnifiedConsent,
+		http.StatusOK,
+		http.StatusNotFound,
+	)
 	if err != nil {
 		if apiErr, ok := err.(*apiError); ok && apiErr.StatusCode == http.StatusNotFound {
 			return nil, false, nil
@@ -263,11 +316,10 @@ func (c *Client) FetchCollection(ctx context.Context, collectionID string) (map[
 	if status == http.StatusNotFound {
 		return nil, false, nil
 	}
-	var payload map[string]any
-	if err := json.Unmarshal(body, &payload); err != nil {
+	if err := json.Unmarshal(body, &collection); err != nil {
 		return nil, false, fmt.Errorf("failed to decode collection payload: %w", err)
 	}
-	return payload, true, nil
+	return collection, true, nil
 }
 
 func (c *Client) SendVerificationCode(ctx context.Context, channel, contact, hashedSubjectID string) error {
@@ -289,7 +341,10 @@ func (c *Client) SendVerificationCode(ctx context.Context, channel, contact, has
 	return err
 }
 
-func (c *Client) VerifySubjectCode(ctx context.Context, channel, contact, hashedSubjectID, code string) (map[string]any, error) {
+func (c *Client) VerifySubjectCode(
+	ctx context.Context,
+	channel, contact, hashedSubjectID, code string,
+) (map[string]any, error) {
 	if c.osanoKey == "" {
 		return nil, fmt.Errorf("Osano API key is required to verify subject codes; set %s", testenv.EnvOsanoAPIKey)
 	}
@@ -337,7 +392,7 @@ func (c *Client) doJSON(
 	payload any,
 	header headerKind,
 	expectedStatus ...int,
-) ([]byte, int, error) {
+) (respBody []byte, status int, err error) {
 	base, err := url.Parse(c.baseURL)
 	if err != nil {
 		return nil, 0, fmt.Errorf("invalid base URL %q: %w", c.baseURL, err)
@@ -382,15 +437,19 @@ func (c *Client) doJSON(
 	if err != nil {
 		return nil, 0, fmt.Errorf("osano api request failed: %w", err)
 	}
-	defer resp.Body.Close()
-	data, err := io.ReadAll(resp.Body)
+	defer func() {
+		if closeErr := resp.Body.Close(); closeErr != nil && err == nil {
+			err = fmt.Errorf("failed to close response body: %w", closeErr)
+		}
+	}()
+	respBody, err = io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to read response body: %w", err)
 	}
 	for _, status := range expectedStatus {
 		if resp.StatusCode == status {
-			return data, resp.StatusCode, nil
+			return respBody, resp.StatusCode, nil
 		}
 	}
-	return nil, resp.StatusCode, &apiError{StatusCode: resp.StatusCode, body: data}
+	return nil, resp.StatusCode, &apiError{StatusCode: resp.StatusCode, body: respBody}
 }

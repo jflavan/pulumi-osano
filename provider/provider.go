@@ -3,11 +3,11 @@ package provider
 import (
 	"fmt"
 
+	provVersion "github.com/jflavan/pulumi-osano/provider/version"
+
 	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/infer"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/tokens"
-
-	provVersion "github.com/jflavan/pulumi-osano/provider/version"
 )
 
 // Version is exported so the gRPC server can announce the plugin version to Pulumi.
