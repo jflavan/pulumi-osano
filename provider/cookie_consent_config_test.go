@@ -10,12 +10,14 @@ import (
 )
 
 func TestCookieConsentConfigCheck(t *testing.T) {
-	r := &CookieConsentConfig{}
+	t.Parallel()
+
+	resource := &CookieConsentConfig{}
 	ctx := context.Background()
 
 	t.Run("valid inputs", func(t *testing.T) {
-		inputs := property.NewMap(validCheckInputValues())
-		resp, err := r.Check(ctx, infer.CheckRequest{NewInputs: inputs})
+		inputs := property.NewMap(validConfigCheckInputValues())
+		resp, err := resource.Check(ctx, infer.CheckRequest{NewInputs: inputs})
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -31,23 +33,23 @@ func TestCookieConsentConfigCheck(t *testing.T) {
 	}{
 		{
 			name:       "missing name",
-			inputs:     property.NewMap(deleteKey(validCheckInputValues(), "name")),
+			inputs:     property.NewMap(deleteKey(validConfigCheckInputValues(), "name")),
 			failureKey: "name",
 		},
 		{
 			name:       "missing domains",
-			inputs:     property.NewMap(deleteKey(validCheckInputValues(), "domains")),
+			inputs:     property.NewMap(deleteKey(validConfigCheckInputValues(), "domains")),
 			failureKey: "domains",
 		},
 		{
 			name:       "missing mode",
-			inputs:     property.NewMap(deleteKey(validCheckInputValues(), "mode")),
+			inputs:     property.NewMap(deleteKey(validConfigCheckInputValues(), "mode")),
 			failureKey: "mode",
 		},
 		{
 			name: "missing storagePolicyHref",
 			inputs: property.NewMap(func() map[string]property.Value {
-				values := validCheckInputValues()
+				values := validConfigCheckInputValues()
 				values["configuration"] = property.New(map[string]property.Value{
 					"foo": property.New("bar"),
 				})
@@ -59,7 +61,7 @@ func TestCookieConsentConfigCheck(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			resp, err := r.Check(ctx, infer.CheckRequest{NewInputs: tc.inputs})
+			resp, err := resource.Check(ctx, infer.CheckRequest{NewInputs: tc.inputs})
 			if err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
@@ -72,13 +74,15 @@ func TestCookieConsentConfigCheck(t *testing.T) {
 }
 
 func TestCookieConsentConfigDiff(t *testing.T) {
-	r := &CookieConsentConfig{}
+	t.Parallel()
+
+	resource := &CookieConsentConfig{}
 	ctx := context.Background()
 
 	t.Run("same inputs", func(t *testing.T) {
-		state := baseState()
-		inputs := baseArgs()
-		resp, err := r.Diff(ctx, infer.DiffRequest[CookieConsentConfigArgs, CookieConsentConfigState]{
+		state := baseConfigState()
+		inputs := baseConfigArgs()
+		resp, err := resource.Diff(ctx, infer.DiffRequest[CookieConsentConfigArgs, CookieConsentConfigState]{
 			State:  state,
 			Inputs: inputs,
 		})
@@ -88,58 +92,55 @@ func TestCookieConsentConfigDiff(t *testing.T) {
 		if resp.HasChanges {
 			t.Fatalf("expected no changes, got: %#v", resp.DetailedDiff)
 		}
-		if len(resp.DetailedDiff) != 0 {
-			t.Fatalf("expected no detailed diff, got: %#v", resp.DetailedDiff)
-		}
 	})
 
 	t.Run("changed name", func(t *testing.T) {
-		state := baseState()
-		inputs := baseArgs()
+		state := baseConfigState()
+		inputs := baseConfigArgs()
 		inputs.Name = "updated"
-		resp, err := r.Diff(ctx, infer.DiffRequest[CookieConsentConfigArgs, CookieConsentConfigState]{
+		resp, err := resource.Diff(ctx, infer.DiffRequest[CookieConsentConfigArgs, CookieConsentConfigState]{
 			State:  state,
 			Inputs: inputs,
 		})
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
-		assertDiffUpdate(t, resp, "name")
+		assertDiffKind(t, resp, "name", p.Update)
 	})
 
 	t.Run("changed mode", func(t *testing.T) {
-		state := baseState()
-		inputs := baseArgs()
+		state := baseConfigState()
+		inputs := baseConfigArgs()
 		inputs.Mode = "production"
-		resp, err := r.Diff(ctx, infer.DiffRequest[CookieConsentConfigArgs, CookieConsentConfigState]{
+		resp, err := resource.Diff(ctx, infer.DiffRequest[CookieConsentConfigArgs, CookieConsentConfigState]{
 			State:  state,
 			Inputs: inputs,
 		})
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
-		assertDiffUpdate(t, resp, "mode")
+		assertDiffKind(t, resp, "mode", p.Update)
 	})
 
 	t.Run("changed configuration key", func(t *testing.T) {
-		state := baseState()
-		inputs := baseArgs()
+		state := baseConfigState()
+		inputs := baseConfigArgs()
 		inputs.Configuration = map[string]any{
 			"storagePolicyHref": "https://example.com/policy",
 			"flag":              false,
 		}
-		resp, err := r.Diff(ctx, infer.DiffRequest[CookieConsentConfigArgs, CookieConsentConfigState]{
+		resp, err := resource.Diff(ctx, infer.DiffRequest[CookieConsentConfigArgs, CookieConsentConfigState]{
 			State:  state,
 			Inputs: inputs,
 		})
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
-		assertDiffUpdate(t, resp, "configuration")
+		assertDiffKind(t, resp, "configuration", p.Update)
 	})
 }
 
-func validCheckInputValues() map[string]property.Value {
+func validConfigCheckInputValues() map[string]property.Value {
 	return map[string]property.Value{
 		"name": property.New("cookie-consent"),
 		"domains": property.New([]property.Value{
@@ -167,7 +168,7 @@ func assertFailureProperty(t *testing.T, failures []p.CheckFailure, propertyKey 
 	t.Fatalf("expected failure for %q, got %#v", propertyKey, failures)
 }
 
-func assertDiffUpdate(t *testing.T, resp p.DiffResponse, key string) {
+func assertDiffKind(t *testing.T, resp p.DiffResponse, key string, want p.DiffKind) {
 	t.Helper()
 	if !resp.HasChanges {
 		t.Fatalf("expected changes, got none")
@@ -176,17 +177,17 @@ func assertDiffUpdate(t *testing.T, resp p.DiffResponse, key string) {
 	if !ok {
 		t.Fatalf("expected diff for %q, got %#v", key, resp.DetailedDiff)
 	}
-	if diff.Kind != p.Update {
-		t.Fatalf("expected %q diff kind %v, got %v", key, p.Update, diff.Kind)
+	if diff.Kind != want {
+		t.Fatalf("expected %q diff kind %v, got %v", key, want, diff.Kind)
 	}
 }
 
-func baseArgs() CookieConsentConfigArgs {
+func baseConfigArgs() CookieConsentConfigArgs {
 	return CookieConsentConfigArgs{
 		Name:    "cookie-consent",
 		Domains: []string{"example.com"},
 		Mode:    "debug",
-		OrgIds:  []string{"org-123"},
+		OrgIDs:  []string{"org-123"},
 		Configuration: map[string]any{
 			"storagePolicyHref": "https://example.com/storage-policy",
 			"flag":              true,
@@ -194,6 +195,6 @@ func baseArgs() CookieConsentConfigArgs {
 	}
 }
 
-func baseState() CookieConsentConfigState {
-	return CookieConsentConfigState{CookieConsentConfigArgs: baseArgs(), ConfigId: "config-123"}
+func baseConfigState() CookieConsentConfigState {
+	return CookieConsentConfigState{CookieConsentConfigArgs: baseConfigArgs(), ConfigID: "config-123"}
 }

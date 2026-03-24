@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Immutable;
 
-namespace Osano.Osano
+namespace Community.Pulumi.Osano
 {
     public static class Config
     {
@@ -32,6 +32,16 @@ namespace Osano.Osano
 
         private static readonly global::Pulumi.Config __config = new global::Pulumi.Config("osano");
 
+        private static readonly __Value<string?> _apiBaseUrl = new __Value<string?>(() => __config.Get("apiBaseUrl"));
+        /// <summary>
+        /// Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com).
+        /// </summary>
+        public static string? ApiBaseUrl
+        {
+            get => _apiBaseUrl.Get();
+            set => _apiBaseUrl.Set(value);
+        }
+
         private static readonly __Value<string?> _customerBaseUrl = new __Value<string?>(() => __config.Get("customerBaseUrl"));
         /// <summary>
         /// Override base URL for the Customer REST API (default: https://api.osano.com).
@@ -44,12 +54,22 @@ namespace Osano.Osano
 
         private static readonly __Value<string?> _osanoApiKey = new __Value<string?>(() => __config.Get("osanoApiKey"));
         /// <summary>
-        /// Osano API key for the Customer REST API (x-osano-api-key).
+        /// Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
         /// </summary>
         public static string? OsanoApiKey
         {
             get => _osanoApiKey.Get();
             set => _osanoApiKey.Set(value);
+        }
+
+        private static readonly __Value<int?> _requestTimeoutSeconds = new __Value<int?>(() => __config.GetInt32("requestTimeoutSeconds"));
+        /// <summary>
+        /// HTTP request timeout in seconds for Osano API calls (default 60).
+        /// </summary>
+        public static int? RequestTimeoutSeconds
+        {
+            get => _requestTimeoutSeconds.Get();
+            set => _requestTimeoutSeconds.Set(value);
         }
 
         private static readonly __Value<string?> _ucApiKey = new __Value<string?>(() => __config.Get("ucApiKey"));
@@ -70,6 +90,16 @@ namespace Osano.Osano
         {
             get => _ucBaseUrl.Get();
             set => _ucBaseUrl.Set(value);
+        }
+
+        private static readonly __Value<string?> _unifiedConsentApiKey = new __Value<string?>(() => __config.Get("unifiedConsentApiKey"));
+        /// <summary>
+        /// Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret or OSANO_UC_API_KEY).
+        /// </summary>
+        public static string? UnifiedConsentApiKey
+        {
+            get => _unifiedConsentApiKey.Get();
+            set => _unifiedConsentApiKey.Set(value);
         }
 
     }

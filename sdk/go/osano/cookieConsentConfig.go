@@ -8,8 +8,8 @@ import (
 	"reflect"
 
 	"errors"
+	"github.com/jflavan/pulumi-osano/sdk/go/osano/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
-	"https:/github.com/jflavan/pulumi-osano/sdk/go/osano/internal"
 )
 
 // Manages an Osano Cookie Consent (CMP) configuration.
@@ -138,56 +138,6 @@ func (i *CookieConsentConfig) ToCookieConsentConfigOutputWithContext(ctx context
 	return pulumi.ToOutputWithContext(ctx, i).(CookieConsentConfigOutput)
 }
 
-// CookieConsentConfigArrayInput is an input type that accepts CookieConsentConfigArray and CookieConsentConfigArrayOutput values.
-// You can construct a concrete instance of `CookieConsentConfigArrayInput` via:
-//
-//	CookieConsentConfigArray{ CookieConsentConfigArgs{...} }
-type CookieConsentConfigArrayInput interface {
-	pulumi.Input
-
-	ToCookieConsentConfigArrayOutput() CookieConsentConfigArrayOutput
-	ToCookieConsentConfigArrayOutputWithContext(context.Context) CookieConsentConfigArrayOutput
-}
-
-type CookieConsentConfigArray []CookieConsentConfigInput
-
-func (CookieConsentConfigArray) ElementType() reflect.Type {
-	return reflect.TypeOf((*[]*CookieConsentConfig)(nil)).Elem()
-}
-
-func (i CookieConsentConfigArray) ToCookieConsentConfigArrayOutput() CookieConsentConfigArrayOutput {
-	return i.ToCookieConsentConfigArrayOutputWithContext(context.Background())
-}
-
-func (i CookieConsentConfigArray) ToCookieConsentConfigArrayOutputWithContext(ctx context.Context) CookieConsentConfigArrayOutput {
-	return pulumi.ToOutputWithContext(ctx, i).(CookieConsentConfigArrayOutput)
-}
-
-// CookieConsentConfigMapInput is an input type that accepts CookieConsentConfigMap and CookieConsentConfigMapOutput values.
-// You can construct a concrete instance of `CookieConsentConfigMapInput` via:
-//
-//	CookieConsentConfigMap{ "key": CookieConsentConfigArgs{...} }
-type CookieConsentConfigMapInput interface {
-	pulumi.Input
-
-	ToCookieConsentConfigMapOutput() CookieConsentConfigMapOutput
-	ToCookieConsentConfigMapOutputWithContext(context.Context) CookieConsentConfigMapOutput
-}
-
-type CookieConsentConfigMap map[string]CookieConsentConfigInput
-
-func (CookieConsentConfigMap) ElementType() reflect.Type {
-	return reflect.TypeOf((*map[string]*CookieConsentConfig)(nil)).Elem()
-}
-
-func (i CookieConsentConfigMap) ToCookieConsentConfigMapOutput() CookieConsentConfigMapOutput {
-	return i.ToCookieConsentConfigMapOutputWithContext(context.Background())
-}
-
-func (i CookieConsentConfigMap) ToCookieConsentConfigMapOutputWithContext(ctx context.Context) CookieConsentConfigMapOutput {
-	return pulumi.ToOutputWithContext(ctx, i).(CookieConsentConfigMapOutput)
-}
-
 type CookieConsentConfigOutput struct{ *pulumi.OutputState }
 
 func (CookieConsentConfigOutput) ElementType() reflect.Type {
@@ -260,51 +210,7 @@ func (o CookieConsentConfigOutput) Updated() pulumi.IntPtrOutput {
 	return o.ApplyT(func(v *CookieConsentConfig) pulumi.IntPtrOutput { return v.Updated }).(pulumi.IntPtrOutput)
 }
 
-type CookieConsentConfigArrayOutput struct{ *pulumi.OutputState }
-
-func (CookieConsentConfigArrayOutput) ElementType() reflect.Type {
-	return reflect.TypeOf((*[]*CookieConsentConfig)(nil)).Elem()
-}
-
-func (o CookieConsentConfigArrayOutput) ToCookieConsentConfigArrayOutput() CookieConsentConfigArrayOutput {
-	return o
-}
-
-func (o CookieConsentConfigArrayOutput) ToCookieConsentConfigArrayOutputWithContext(ctx context.Context) CookieConsentConfigArrayOutput {
-	return o
-}
-
-func (o CookieConsentConfigArrayOutput) Index(i pulumi.IntInput) CookieConsentConfigOutput {
-	return pulumi.All(o, i).ApplyT(func(vs []interface{}) *CookieConsentConfig {
-		return vs[0].([]*CookieConsentConfig)[vs[1].(int)]
-	}).(CookieConsentConfigOutput)
-}
-
-type CookieConsentConfigMapOutput struct{ *pulumi.OutputState }
-
-func (CookieConsentConfigMapOutput) ElementType() reflect.Type {
-	return reflect.TypeOf((*map[string]*CookieConsentConfig)(nil)).Elem()
-}
-
-func (o CookieConsentConfigMapOutput) ToCookieConsentConfigMapOutput() CookieConsentConfigMapOutput {
-	return o
-}
-
-func (o CookieConsentConfigMapOutput) ToCookieConsentConfigMapOutputWithContext(ctx context.Context) CookieConsentConfigMapOutput {
-	return o
-}
-
-func (o CookieConsentConfigMapOutput) MapIndex(k pulumi.StringInput) CookieConsentConfigOutput {
-	return pulumi.All(o, k).ApplyT(func(vs []interface{}) *CookieConsentConfig {
-		return vs[0].(map[string]*CookieConsentConfig)[vs[1].(string)]
-	}).(CookieConsentConfigOutput)
-}
-
 func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*CookieConsentConfigInput)(nil)).Elem(), &CookieConsentConfig{})
-	pulumi.RegisterInputType(reflect.TypeOf((*CookieConsentConfigArrayInput)(nil)).Elem(), CookieConsentConfigArray{})
-	pulumi.RegisterInputType(reflect.TypeOf((*CookieConsentConfigMapInput)(nil)).Elem(), CookieConsentConfigMap{})
 	pulumi.RegisterOutputType(CookieConsentConfigOutput{})
-	pulumi.RegisterOutputType(CookieConsentConfigArrayOutput{})
-	pulumi.RegisterOutputType(CookieConsentConfigMapOutput{})
 }

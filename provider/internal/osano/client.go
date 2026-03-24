@@ -1,3 +1,4 @@
+//nolint:goheader // Source-file header normalization is still in progress during alpha.
 package osano
 
 import (
@@ -14,6 +15,7 @@ import (
 	"time"
 )
 
+// Client is a small JSON HTTP client for Osano's Customer REST API.
 type Client struct {
 	baseURL *url.URL
 	apiKey  string
@@ -26,6 +28,7 @@ type Client struct {
 	initialBackoff time.Duration
 }
 
+// ClientOption customizes the Osano HTTP client.
 type ClientOption func(*Client)
 
 const (
@@ -33,20 +36,23 @@ const (
 	defaultInitialBackoff = time.Second
 )
 
+// WithMaxRetries overrides the retry count for retryable responses.
 func WithMaxRetries(maxRetries int) ClientOption {
 	return func(c *Client) {
 		c.maxRetries = maxRetries
 	}
 }
 
+// WithInitialBackoff overrides the initial exponential backoff delay.
 func WithInitialBackoff(backoff time.Duration) ClientOption {
 	return func(c *Client) {
 		c.initialBackoff = backoff
 	}
 }
 
+// NewClient builds an Osano HTTP client using the provided base URL and API key header.
 func NewClient(baseURL *url.URL, headerName, apiKey string, opts ...ClientOption) *Client {
-	c := &Client{
+	client := &Client{
 		baseURL:        baseURL,
 		apiKey:         apiKey,
 		headerName:     headerName,
@@ -55,26 +61,28 @@ func NewClient(baseURL *url.URL, headerName, apiKey string, opts ...ClientOption
 		initialBackoff: defaultInitialBackoff,
 	}
 	for _, opt := range opts {
-		opt(c)
+		opt(client)
 	}
-	return c
+	return client
 }
 
-func (c *Client) DoJSON(ctx context.Context, method, pth string, query url.Values, in any, out any) error {
-	// Build URL
-	u := *c.baseURL
-	u.Path = path.Join(c.baseURL.Path, pth)
-	u.RawQuery = query.Encode()
+// DoJSON sends a JSON request, retries retryable failures, and decodes a JSON response.
+func (c *Client) DoJSON(
+	ctx context.Context, method, pth string, query url.Values, in, out any,
+) error {
+	requestURL := *c.baseURL
+	requestURL.Path = path.Join(c.baseURL.Path, pth)
+	requestURL.RawQuery = query.Encode()
 
 	var bodyBytes []byte
 	var body io.Reader
 	if in != nil {
-		b, err := json.Marshal(in)
+		encoded, err := json.Marshal(in)
 		if err != nil {
 			return fmt.Errorf("marshal request: %w", err)
 		}
-		bodyBytes = b
-		body = bytes.NewReader(b)
+		bodyBytes = encoded
+		body = bytes.NewReader(encoded)
 	}
 
 	maxRetries := c.maxRetries
@@ -83,7 +91,7 @@ func (c *Client) DoJSON(ctx context.Context, method, pth string, query url.Value
 	}
 
 	for attempt := 0; ; attempt++ {
-		req, err := http.NewRequestWithContext(ctx, method, u.String(), body)
+		req, err := http.NewRequestWithContext(ctx, method, requestURL.String(), body)
 		if err != nil {
 			return fmt.Errorf("new request: %w", err)
 		}
@@ -100,20 +108,20 @@ func (c *Client) DoJSON(ctx context.Context, method, pth string, query url.Value
 			return fmt.Errorf("do request: %w", err)
 		}
 
-		b, err := io.ReadAll(resp.Body)
-		resp.Body.Close()
+		payload, err := io.ReadAll(resp.Body)
+		closeErr := resp.Body.Close()
 		if err != nil {
 			return fmt.Errorf("read response: %w", err)
 		}
+		if closeErr != nil {
+			return fmt.Errorf("close response: %w", closeErr)
+		}
 
 		if resp.StatusCode >= 200 && resp.StatusCode < 300 {
-			if out == nil {
+			if out == nil || len(bytes.TrimSpace(payload)) == 0 {
 				return nil
 			}
-			if len(bytes.TrimSpace(b)) == 0 {
-				return nil
-			}
-			if err := json.Unmarshal(b, out); err != nil {
+			if err := json.Unmarshal(payload, out); err != nil {
 				return fmt.Errorf("unmarshal response: %w", err)
 			}
 			return nil
@@ -132,7 +140,7 @@ func (c *Client) DoJSON(ctx context.Context, method, pth string, query url.Value
 			continue
 		}
 
-		return &HTTPError{StatusCode: resp.StatusCode, Body: string(b)}
+		return &HTTPError{StatusCode: resp.StatusCode, Body: string(payload)}
 	}
 }
 
@@ -184,8 +192,10 @@ func sleepWithContext(ctx context.Context, delay time.Duration) error {
 	if delay <= 0 {
 		return nil
 	}
+
 	timer := time.NewTimer(delay)
 	defer timer.Stop()
+
 	select {
 	case <-ctx.Done():
 		return ctx.Err()

@@ -10,12 +10,14 @@ import (
 )
 
 func TestCookieConsentRuleCheck(t *testing.T) {
-	r := &CookieConsentRule{}
+	t.Parallel()
+
+	resource := &CookieConsentRule{}
 	ctx := context.Background()
 
 	t.Run("valid inputs", func(t *testing.T) {
 		inputs := property.NewMap(validRuleCheckInputValues())
-		resp, err := r.Check(ctx, infer.CheckRequest{NewInputs: inputs})
+		resp, err := resource.Check(ctx, infer.CheckRequest{NewInputs: inputs})
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -52,27 +54,27 @@ func TestCookieConsentRuleCheck(t *testing.T) {
 		{
 			name: "invalid classification",
 			inputs: property.NewMap(func() map[string]property.Value {
-				v := validRuleCheckInputValues()
-				v["classification"] = property.New("INVALID")
-				return v
+				values := validRuleCheckInputValues()
+				values["classification"] = property.New("INVALID")
+				return values
 			}()),
 			failureKey: "classification",
 		},
 		{
 			name: "invalid storeType",
 			inputs: property.NewMap(func() map[string]property.Value {
-				v := validRuleCheckInputValues()
-				v["storeType"] = property.New("invalid")
-				return v
+				values := validRuleCheckInputValues()
+				values["storeType"] = property.New("invalid")
+				return values
 			}()),
 			failureKey: "storeType",
 		},
 		{
 			name: "rule too short",
 			inputs: property.NewMap(func() map[string]property.Value {
-				v := validRuleCheckInputValues()
-				v["rule"] = property.New("ab")
-				return v
+				values := validRuleCheckInputValues()
+				values["rule"] = property.New("ab")
+				return values
 			}()),
 			failureKey: "rule",
 		},
@@ -80,7 +82,7 @@ func TestCookieConsentRuleCheck(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			resp, err := r.Check(ctx, infer.CheckRequest{NewInputs: tc.inputs})
+			resp, err := resource.Check(ctx, infer.CheckRequest{NewInputs: tc.inputs})
 			if err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
@@ -93,13 +95,15 @@ func TestCookieConsentRuleCheck(t *testing.T) {
 }
 
 func TestCookieConsentRuleDiff(t *testing.T) {
-	r := &CookieConsentRule{}
+	t.Parallel()
+
+	resource := &CookieConsentRule{}
 	ctx := context.Background()
 
 	t.Run("no changes", func(t *testing.T) {
 		state := baseRuleState()
 		inputs := baseRuleArgs()
-		resp, err := r.Diff(ctx, infer.DiffRequest[CookieConsentRuleArgs, CookieConsentRuleState]{
+		resp, err := resource.Diff(ctx, infer.DiffRequest[CookieConsentRuleArgs, CookieConsentRuleState]{
 			State:  state,
 			Inputs: inputs,
 		})
@@ -115,92 +119,76 @@ func TestCookieConsentRuleDiff(t *testing.T) {
 		state := baseRuleState()
 		inputs := baseRuleArgs()
 		inputs.Classification = "MARKETING"
-		resp, err := r.Diff(ctx, infer.DiffRequest[CookieConsentRuleArgs, CookieConsentRuleState]{
+		resp, err := resource.Diff(ctx, infer.DiffRequest[CookieConsentRuleArgs, CookieConsentRuleState]{
 			State:  state,
 			Inputs: inputs,
 		})
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
-		assertDiffUpdate(t, resp, "classification")
+		assertDiffKind(t, resp, "classification", p.Update)
 	})
 
 	t.Run("changed rule", func(t *testing.T) {
 		state := baseRuleState()
 		inputs := baseRuleArgs()
-		inputs.Rule = "new_pattern_*"
-		resp, err := r.Diff(ctx, infer.DiffRequest[CookieConsentRuleArgs, CookieConsentRuleState]{
+		inputs.Rule = "new-pattern-*"
+		resp, err := resource.Diff(ctx, infer.DiffRequest[CookieConsentRuleArgs, CookieConsentRuleState]{
 			State:  state,
 			Inputs: inputs,
 		})
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
-		assertDiffUpdate(t, resp, "rule")
+		assertDiffKind(t, resp, "rule", p.Update)
 	})
 
 	t.Run("changed disclosure", func(t *testing.T) {
 		state := baseRuleState()
 		inputs := baseRuleArgs()
 		inputs.Disclosure = true
-		resp, err := r.Diff(ctx, infer.DiffRequest[CookieConsentRuleArgs, CookieConsentRuleState]{
+		resp, err := resource.Diff(ctx, infer.DiffRequest[CookieConsentRuleArgs, CookieConsentRuleState]{
 			State:  state,
 			Inputs: inputs,
 		})
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
-		assertDiffUpdate(t, resp, "disclosure")
+		assertDiffKind(t, resp, "disclosure", p.Update)
 	})
 
 	t.Run("configId change requires replace", func(t *testing.T) {
 		state := baseRuleState()
 		inputs := baseRuleArgs()
-		inputs.ConfigId = "new-config-id"
-		resp, err := r.Diff(ctx, infer.DiffRequest[CookieConsentRuleArgs, CookieConsentRuleState]{
+		inputs.ConfigID = "new-config-id"
+		resp, err := resource.Diff(ctx, infer.DiffRequest[CookieConsentRuleArgs, CookieConsentRuleState]{
 			State:  state,
 			Inputs: inputs,
 		})
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
-		if !resp.HasChanges {
-			t.Fatal("expected changes")
-		}
-		d, ok := resp.DetailedDiff["configId"]
-		if !ok {
-			t.Fatalf("expected diff for configId, got: %#v", resp.DetailedDiff)
-		}
-		if d.Kind != p.UpdateReplace {
-			t.Fatalf("expected UpdateReplace for configId, got %v", d.Kind)
-		}
+		assertDiffKind(t, resp, "configId", p.UpdateReplace)
 	})
 
 	t.Run("storeType change requires replace", func(t *testing.T) {
 		state := baseRuleState()
 		inputs := baseRuleArgs()
 		inputs.StoreType = "iframes"
-		resp, err := r.Diff(ctx, infer.DiffRequest[CookieConsentRuleArgs, CookieConsentRuleState]{
+		resp, err := resource.Diff(ctx, infer.DiffRequest[CookieConsentRuleArgs, CookieConsentRuleState]{
 			State:  state,
 			Inputs: inputs,
 		})
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
-		if !resp.HasChanges {
-			t.Fatal("expected changes")
-		}
-		d, ok := resp.DetailedDiff["storeType"]
-		if !ok {
-			t.Fatalf("expected diff for storeType, got: %#v", resp.DetailedDiff)
-		}
-		if d.Kind != p.UpdateReplace {
-			t.Fatalf("expected UpdateReplace for storeType, got %v", d.Kind)
-		}
+		assertDiffKind(t, resp, "storeType", p.UpdateReplace)
 	})
 }
 
 func TestPtrStringEqual(t *testing.T) {
+	t.Parallel()
+
 	a := "hello"
 	b := "hello"
 	c := "world"
@@ -220,8 +208,7 @@ func TestPtrStringEqual(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := ptrStringEqual(tc.a, tc.b)
-			if got != tc.want {
+			if got := ptrStringEqual(tc.a, tc.b); got != tc.want {
 				t.Fatalf("ptrStringEqual(%v, %v) = %v, want %v", tc.a, tc.b, got, tc.want)
 			}
 		})
@@ -240,7 +227,7 @@ func validRuleCheckInputValues() map[string]property.Value {
 
 func baseRuleArgs() CookieConsentRuleArgs {
 	return CookieConsentRuleArgs{
-		ConfigId:       "config-abc-123",
+		ConfigID:       "config-abc-123",
 		StoreType:      "scripts",
 		Classification: "ANALYTICS",
 		Rule:           "google-analytics*",
@@ -251,6 +238,6 @@ func baseRuleArgs() CookieConsentRuleArgs {
 func baseRuleState() CookieConsentRuleState {
 	return CookieConsentRuleState{
 		CookieConsentRuleArgs: baseRuleArgs(),
-		RuleId:                42,
+		RuleID:                42,
 	}
 }

@@ -1,43 +1,32 @@
-# OS
-.DS_Store
-
-# Go
-/bin/
-/dist/
-*.exe
-*.test
-*.out
-
-# Pulumi
-.pulumi/
+/vendor/
+**/bin/
+**/obj/
+**/node_modules/
+**/.vs
+**/.idea
+**/.ionide
+.pulumi
 Pulumi.*.yaml
-Pulumi.*.json
-
-# Node (generated SDKs often include node artifacts)
-node_modules/
 yarn.lock
+ci-scripts
+/nuget/
+provider/**/schema-embed.json
+schema-check.txt
 
-# Python
-__pycache__/
-*.pyc
-.venv/
+sdk/dotnet/version.txt
+sdk/java/.gradle
+sdk/java/build/
+sdk/java/build.gradle
 sdk/python/venv
 
-# .NET build artifacts
-sdk/dotnet/bin/
-sdk/dotnet/obj/
-sdk/dotnet/version.txt
+# Local development/testing
+/dev/
+coverage.txt
+*.test
 
-# IDE
-.vscode/
-.idea/
+# Environment files (may contain secrets)
+.env
+!.env.example
 
-# Task tracking (local only)
-CRASHBOT_TASKS.md
-
-# Local reference clones
-.ref/
-
-# Local provider binaries
-provider/pulumi-resource-*
-provider/pulumi-gen-*
+# Auto Claude data directory
+.auto-claude/

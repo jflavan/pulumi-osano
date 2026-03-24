@@ -1,2 +1,2 @@
-// Pulumi provider for managing Osano via the Osano APIs (Customer REST API and Unified Consent Core API).
+// Unofficial Pulumi provider for managing Osano Unified Consent resources. Not affiliated with Pulumi Corporation or Osano, Inc.
 package osano

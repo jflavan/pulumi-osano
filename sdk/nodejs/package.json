@@ -1,7 +1,8 @@
 {
-    "name": "@osano/osano",
-    "version": "0.0.1-dev",
-    "homepage": "https://developers.osano.com/",
+    "name": "@jflavan/pulumi-osano",
+    "version": "1.0.0-alpha.0+dev",
+    "description": "Pulumi provider for the Osano Unified Consent API.",
+    "homepage": "https://github.com/jflavan/pulumi-osano",
     "repository": "https://github.com/jflavan/pulumi-osano",
     "scripts": {
         "build": "tsc"
@@ -16,6 +17,7 @@
     "pulumi": {
         "resource": true,
         "name": "osano",
-        "version": "0.0.1-dev"
+        "version": "1.0.0-alpha.0+dev",
+        "server": "github://api.github.com/jflavan/pulumi-osano"
     }
 }
