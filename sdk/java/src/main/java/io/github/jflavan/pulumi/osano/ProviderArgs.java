@@ -18,29 +18,44 @@ public final class ProviderArgs extends com.pulumi.resources.ResourceArgs {
 
     /**
      * Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com).
-     * 
+     *
      */
     @Import(name="apiBaseUrl")
     private @Nullable Output<String> apiBaseUrl;
 
     /**
      * @return Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com).
-     * 
+     *
      */
     public Optional<Output<String>> apiBaseUrl() {
         return Optional.ofNullable(this.apiBaseUrl);
     }
 
     /**
+     * Override base URL for the Customer REST API (default: https://api.osano.com).
+     *
+     */
+    @Import(name="customerBaseUrl")
+    private @Nullable Output<String> customerBaseUrl;
+
+    /**
+     * @return Override base URL for the Customer REST API (default: https://api.osano.com).
+     *
+     */
+    public Optional<Output<String>> customerBaseUrl() {
+        return Optional.ofNullable(this.customerBaseUrl);
+    }
+
+    /**
      * Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
-     * 
+     *
      */
     @Import(name="osanoApiKey")
     private @Nullable Output<String> osanoApiKey;
 
     /**
      * @return Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
-     * 
+     *
      */
     public Optional<Output<String>> osanoApiKey() {
         return Optional.ofNullable(this.osanoApiKey);
@@ -48,29 +63,75 @@ public final class ProviderArgs extends com.pulumi.resources.ResourceArgs {
 
     /**
      * HTTP request timeout in seconds for Osano API calls (default 60).
-     * 
+     *
      */
     @Import(name="requestTimeoutSeconds", json=true)
     private @Nullable Output<Integer> requestTimeoutSeconds;
 
     /**
      * @return HTTP request timeout in seconds for Osano API calls (default 60).
-     * 
+     *
      */
     public Optional<Output<Integer>> requestTimeoutSeconds() {
         return Optional.ofNullable(this.requestTimeoutSeconds);
     }
 
     /**
+     * Unified Consent API key for the Unified Consent Core API (x-uc-api-key).
+     *
+     * @deprecated
+     * use unifiedConsentApiKey instead
+     *
+     */
+    @Deprecated /* use unifiedConsentApiKey instead */
+    @Import(name="ucApiKey")
+    private @Nullable Output<String> ucApiKey;
+
+    /**
+     * @return Unified Consent API key for the Unified Consent Core API (x-uc-api-key).
+     *
+     * @deprecated
+     * use unifiedConsentApiKey instead
+     *
+     */
+    @Deprecated /* use unifiedConsentApiKey instead */
+    public Optional<Output<String>> ucApiKey() {
+        return Optional.ofNullable(this.ucApiKey);
+    }
+
+    /**
+     * Override base URL for the Unified Consent Core API (default: https://uc.api.osano.com).
+     *
+     * @deprecated
+     * use apiBaseUrl instead
+     *
+     */
+    @Deprecated /* use apiBaseUrl instead */
+    @Import(name="ucBaseUrl")
+    private @Nullable Output<String> ucBaseUrl;
+
+    /**
+     * @return Override base URL for the Unified Consent Core API (default: https://uc.api.osano.com).
+     *
+     * @deprecated
+     * use apiBaseUrl instead
+     *
+     */
+    @Deprecated /* use apiBaseUrl instead */
+    public Optional<Output<String>> ucBaseUrl() {
+        return Optional.ofNullable(this.ucBaseUrl);
+    }
+
+    /**
      * Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret or OSANO_UC_API_KEY).
-     * 
+     *
      */
     @Import(name="unifiedConsentApiKey")
     private @Nullable Output<String> unifiedConsentApiKey;
 
     /**
      * @return Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret or OSANO_UC_API_KEY).
-     * 
+     *
      */
     public Optional<Output<String>> unifiedConsentApiKey() {
         return Optional.ofNullable(this.unifiedConsentApiKey);
@@ -80,8 +141,11 @@ public final class ProviderArgs extends com.pulumi.resources.ResourceArgs {
 
     private ProviderArgs(ProviderArgs $) {
         this.apiBaseUrl = $.apiBaseUrl;
+        this.customerBaseUrl = $.customerBaseUrl;
         this.osanoApiKey = $.osanoApiKey;
         this.requestTimeoutSeconds = $.requestTimeoutSeconds;
+        this.ucApiKey = $.ucApiKey;
+        this.ucBaseUrl = $.ucBaseUrl;
         this.unifiedConsentApiKey = $.unifiedConsentApiKey;
     }
 
@@ -105,9 +169,9 @@ public final class ProviderArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param apiBaseUrl Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com).
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder apiBaseUrl(@Nullable Output<String> apiBaseUrl) {
             $.apiBaseUrl = apiBaseUrl;
@@ -116,19 +180,40 @@ public final class ProviderArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param apiBaseUrl Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com).
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder apiBaseUrl(String apiBaseUrl) {
             return apiBaseUrl(Output.of(apiBaseUrl));
         }
 
         /**
-         * @param osanoApiKey Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
-         * 
+         * @param customerBaseUrl Override base URL for the Customer REST API (default: https://api.osano.com).
+         *
          * @return builder
-         * 
+         *
+         */
+        public Builder customerBaseUrl(@Nullable Output<String> customerBaseUrl) {
+            $.customerBaseUrl = customerBaseUrl;
+            return this;
+        }
+
+        /**
+         * @param customerBaseUrl Override base URL for the Customer REST API (default: https://api.osano.com).
+         *
+         * @return builder
+         *
+         */
+        public Builder customerBaseUrl(String customerBaseUrl) {
+            return customerBaseUrl(Output.of(customerBaseUrl));
+        }
+
+        /**
+         * @param osanoApiKey Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
+         *
+         * @return builder
+         *
          */
         public Builder osanoApiKey(@Nullable Output<String> osanoApiKey) {
             $.osanoApiKey = osanoApiKey;
@@ -137,9 +222,9 @@ public final class ProviderArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param osanoApiKey Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder osanoApiKey(String osanoApiKey) {
             return osanoApiKey(Output.of(osanoApiKey));
@@ -147,9 +232,9 @@ public final class ProviderArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param requestTimeoutSeconds HTTP request timeout in seconds for Osano API calls (default 60).
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder requestTimeoutSeconds(@Nullable Output<Integer> requestTimeoutSeconds) {
             $.requestTimeoutSeconds = requestTimeoutSeconds;
@@ -158,19 +243,77 @@ public final class ProviderArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param requestTimeoutSeconds HTTP request timeout in seconds for Osano API calls (default 60).
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder requestTimeoutSeconds(Integer requestTimeoutSeconds) {
             return requestTimeoutSeconds(Output.of(requestTimeoutSeconds));
         }
 
         /**
-         * @param unifiedConsentApiKey Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret or OSANO_UC_API_KEY).
-         * 
+         * @param ucApiKey Unified Consent API key for the Unified Consent Core API (x-uc-api-key).
+         *
          * @return builder
-         * 
+         *
+         * @deprecated
+         * use unifiedConsentApiKey instead
+         *
+         */
+        @Deprecated /* use unifiedConsentApiKey instead */
+        public Builder ucApiKey(@Nullable Output<String> ucApiKey) {
+            $.ucApiKey = ucApiKey;
+            return this;
+        }
+
+        /**
+         * @param ucApiKey Unified Consent API key for the Unified Consent Core API (x-uc-api-key).
+         *
+         * @return builder
+         *
+         * @deprecated
+         * use unifiedConsentApiKey instead
+         *
+         */
+        @Deprecated /* use unifiedConsentApiKey instead */
+        public Builder ucApiKey(String ucApiKey) {
+            return ucApiKey(Output.of(ucApiKey));
+        }
+
+        /**
+         * @param ucBaseUrl Override base URL for the Unified Consent Core API (default: https://uc.api.osano.com).
+         *
+         * @return builder
+         *
+         * @deprecated
+         * use apiBaseUrl instead
+         *
+         */
+        @Deprecated /* use apiBaseUrl instead */
+        public Builder ucBaseUrl(@Nullable Output<String> ucBaseUrl) {
+            $.ucBaseUrl = ucBaseUrl;
+            return this;
+        }
+
+        /**
+         * @param ucBaseUrl Override base URL for the Unified Consent Core API (default: https://uc.api.osano.com).
+         *
+         * @return builder
+         *
+         * @deprecated
+         * use apiBaseUrl instead
+         *
+         */
+        @Deprecated /* use apiBaseUrl instead */
+        public Builder ucBaseUrl(String ucBaseUrl) {
+            return ucBaseUrl(Output.of(ucBaseUrl));
+        }
+
+        /**
+         * @param unifiedConsentApiKey Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret or OSANO_UC_API_KEY).
+         *
+         * @return builder
+         *
          */
         public Builder unifiedConsentApiKey(@Nullable Output<String> unifiedConsentApiKey) {
             $.unifiedConsentApiKey = unifiedConsentApiKey;
@@ -179,9 +322,9 @@ public final class ProviderArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param unifiedConsentApiKey Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret or OSANO_UC_API_KEY).
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder unifiedConsentApiKey(String unifiedConsentApiKey) {
             return unifiedConsentApiKey(Output.of(unifiedConsentApiKey));

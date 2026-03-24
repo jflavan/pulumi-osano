@@ -34,6 +34,10 @@
         "type": "string",
         "description": "Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com)."
       },
+      "customerBaseUrl": {
+        "type": "string",
+        "description": "Override base URL for the Customer REST API (default: https://api.osano.com)."
+      },
       "osanoApiKey": {
         "type": "string",
         "description": "Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).",
@@ -42,6 +46,17 @@
       "requestTimeoutSeconds": {
         "type": "integer",
         "description": "HTTP request timeout in seconds for Osano API calls (default 60)."
+      },
+      "ucApiKey": {
+        "type": "string",
+        "description": "Unified Consent API key for the Unified Consent Core API (x-uc-api-key).",
+        "deprecationMessage": "use unifiedConsentApiKey instead",
+        "secret": true
+      },
+      "ucBaseUrl": {
+        "type": "string",
+        "description": "Override base URL for the Unified Consent Core API (default: https://uc.api.osano.com).",
+        "deprecationMessage": "use apiBaseUrl instead"
       },
       "unifiedConsentApiKey": {
         "type": "string",
@@ -116,6 +131,10 @@
         "type": "string",
         "description": "Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com)."
       },
+      "customerBaseUrl": {
+        "type": "string",
+        "description": "Override base URL for the Customer REST API (default: https://api.osano.com)."
+      },
       "osanoApiKey": {
         "type": "string",
         "description": "Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).",
@@ -124,6 +143,17 @@
       "requestTimeoutSeconds": {
         "type": "integer",
         "description": "HTTP request timeout in seconds for Osano API calls (default 60)."
+      },
+      "ucApiKey": {
+        "type": "string",
+        "description": "Unified Consent API key for the Unified Consent Core API (x-uc-api-key).",
+        "deprecationMessage": "use unifiedConsentApiKey instead",
+        "secret": true
+      },
+      "ucBaseUrl": {
+        "type": "string",
+        "description": "Override base URL for the Unified Consent Core API (default: https://uc.api.osano.com).",
+        "deprecationMessage": "use apiBaseUrl instead"
       },
       "unifiedConsentApiKey": {
         "type": "string",
@@ -136,6 +166,10 @@
         "type": "string",
         "description": "Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com)."
       },
+      "customerBaseUrl": {
+        "type": "string",
+        "description": "Override base URL for the Customer REST API (default: https://api.osano.com)."
+      },
       "osanoApiKey": {
         "type": "string",
         "description": "Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).",
@@ -144,6 +178,17 @@
       "requestTimeoutSeconds": {
         "type": "integer",
         "description": "HTTP request timeout in seconds for Osano API calls (default 60)."
+      },
+      "ucApiKey": {
+        "type": "string",
+        "description": "Unified Consent API key for the Unified Consent Core API (x-uc-api-key).",
+        "deprecationMessage": "use unifiedConsentApiKey instead",
+        "secret": true
+      },
+      "ucBaseUrl": {
+        "type": "string",
+        "description": "Override base URL for the Unified Consent Core API (default: https://uc.api.osano.com).",
+        "deprecationMessage": "use apiBaseUrl instead"
       },
       "unifiedConsentApiKey": {
         "type": "string",
@@ -161,17 +206,20 @@
           "items": {
             "$ref": "#/types/osano:index:ConsentAction"
           },
-          "description": "Consent actions referencing privacy protocols (target) within a configuration (vendor)."
+          "description": "Consent actions referencing privacy protocols (target) within a configuration (vendor).",
+          "replaceOnChanges": true
         },
         "attributes": {
           "type": "object",
           "additionalProperties": {
             "type": "string"
           },
-          "description": "Optional key/value attributes stored with the consent record (e.g., ipAddress overrides)."
+          "description": "Optional key/value attributes stored with the consent record (e.g., ipAddress overrides).",
+          "replaceOnChanges": true
         },
         "compliance": {
-          "$ref": "#/types/osano:index:ConsentCompliance"
+          "$ref": "#/types/osano:index:ConsentCompliance",
+          "replaceOnChanges": true
         },
         "consentId": {
           "type": "string",
@@ -179,7 +227,8 @@
         },
         "jurisdiction": {
           "type": "string",
-          "description": "Optional jurisdiction override matching one of the configuration's jurisdictions."
+          "description": "Optional jurisdiction override matching one of the configuration's jurisdictions.",
+          "replaceOnChanges": true
         },
         "lastSynced": {
           "type": "string",
@@ -187,33 +236,28 @@
         },
         "origin": {
           "type": "string",
-          "description": "Origin metadata for the consent, typically 'api' or 'gpc'."
-        },
-        "response": {
-          "type": "object",
-          "additionalProperties": {
-            "$ref": "pulumi.json#/Any"
-          },
-          "description": "Latest raw response payload returned by Osano."
+          "description": "Origin metadata for the consent, typically 'api' or 'gpc'.",
+          "replaceOnChanges": true
         },
         "subject": {
           "$ref": "#/types/osano:index:ConsentSubject",
-          "description": "Subject identifiers used for the consent (verifiedId or anonymousId)."
+          "description": "Subject identifiers used for the consent (verifiedId or anonymousId).",
+          "replaceOnChanges": true
         },
         "tags": {
           "type": "array",
           "items": {
             "type": "string"
           },
-          "description": "Custom tags that Osano associates with the consent record."
+          "description": "Custom tags that Osano associates with the consent record.",
+          "replaceOnChanges": true
         }
       },
       "required": [
         "subject",
         "actions",
         "consentId",
-        "lastSynced",
-        "response"
+        "lastSynced"
       ],
       "inputProperties": {
         "actions": {
@@ -221,41 +265,239 @@
           "items": {
             "$ref": "#/types/osano:index:ConsentAction"
           },
-          "description": "Consent actions referencing privacy protocols (target) within a configuration (vendor)."
+          "description": "Consent actions referencing privacy protocols (target) within a configuration (vendor).",
+          "replaceOnChanges": true
         },
         "attributes": {
           "type": "object",
           "additionalProperties": {
             "type": "string"
           },
-          "description": "Optional key/value attributes stored with the consent record (e.g., ipAddress overrides)."
+          "description": "Optional key/value attributes stored with the consent record (e.g., ipAddress overrides).",
+          "replaceOnChanges": true
         },
         "compliance": {
-          "$ref": "#/types/osano:index:ConsentCompliance"
+          "$ref": "#/types/osano:index:ConsentCompliance",
+          "replaceOnChanges": true
         },
         "jurisdiction": {
           "type": "string",
-          "description": "Optional jurisdiction override matching one of the configuration's jurisdictions."
+          "description": "Optional jurisdiction override matching one of the configuration's jurisdictions.",
+          "replaceOnChanges": true
         },
         "origin": {
           "type": "string",
-          "description": "Origin metadata for the consent, typically 'api' or 'gpc'."
+          "description": "Origin metadata for the consent, typically 'api' or 'gpc'.",
+          "replaceOnChanges": true
         },
         "subject": {
           "$ref": "#/types/osano:index:ConsentSubject",
-          "description": "Subject identifiers used for the consent (verifiedId or anonymousId)."
+          "description": "Subject identifiers used for the consent (verifiedId or anonymousId).",
+          "replaceOnChanges": true
         },
         "tags": {
           "type": "array",
           "items": {
             "type": "string"
           },
-          "description": "Custom tags that Osano associates with the consent record."
+          "description": "Custom tags that Osano associates with the consent record.",
+          "replaceOnChanges": true
         }
       },
       "requiredInputs": [
         "subject",
         "actions"
+      ]
+    },
+    "osano:index:CookieConsentConfig": {
+      "description": "Manages an Osano Cookie Consent (CMP) configuration.",
+      "properties": {
+        "configId": {
+          "type": "string",
+          "description": "The Osano configId (UUID)."
+        },
+        "configuration": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "pulumi.json#/Any"
+          },
+          "description": "CMP configuration object. At minimum, must include storagePolicyHref."
+        },
+        "created": {
+          "type": "integer"
+        },
+        "customerId": {
+          "type": "string"
+        },
+        "domains": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Domains permitted to host the configuration."
+        },
+        "lastPublished": {
+          "type": "integer"
+        },
+        "mode": {
+          "type": "string",
+          "description": "Compliance mode: debug, permissive, or production."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the configuration."
+        },
+        "orgIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Optional organization IDs associated with the config."
+        },
+        "publishStatus": {
+          "type": "string"
+        },
+        "publishedRevision": {
+          "type": "integer"
+        },
+        "tattleRecordStopped": {
+          "type": "boolean"
+        },
+        "updated": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "name",
+        "domains",
+        "mode",
+        "configuration",
+        "configId"
+      ],
+      "inputProperties": {
+        "configuration": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "pulumi.json#/Any"
+          },
+          "description": "CMP configuration object. At minimum, must include storagePolicyHref."
+        },
+        "domains": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Domains permitted to host the configuration."
+        },
+        "mode": {
+          "type": "string",
+          "description": "Compliance mode: debug, permissive, or production."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the configuration."
+        },
+        "orgIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Optional organization IDs associated with the config."
+        }
+      },
+      "requiredInputs": [
+        "name",
+        "domains",
+        "mode",
+        "configuration"
+      ]
+    },
+    "osano:index:CookieConsentRule": {
+      "description": "Manages an Osano Cookie Consent (CMP) rule within a configuration.",
+      "properties": {
+        "classification": {
+          "type": "string",
+          "description": "Classification: ANALYTICS, BLACKLISTED, ESSENTIAL, HIDDEN, MARKETING, or PERSONALIZATION."
+        },
+        "configId": {
+          "type": "string",
+          "description": "The configId of the Cookie Consent Configuration this rule belongs to."
+        },
+        "created": {
+          "type": "string",
+          "description": "Timestamp when the rule was created."
+        },
+        "disclosure": {
+          "type": "boolean",
+          "description": "Whether the rule should be disclosed. Defaults to false."
+        },
+        "rule": {
+          "type": "string",
+          "description": "The rule pattern (e.g. a cookie name pattern). Min 3, max 1000 characters."
+        },
+        "ruleId": {
+          "type": "integer",
+          "description": "The server-assigned integer rule ID."
+        },
+        "storeType": {
+          "type": "string",
+          "description": "The storage type category: cookies, scripts, iframes, or localStorage."
+        },
+        "title": {
+          "type": "string",
+          "description": "Optional title for the rule, used in consent disclosure."
+        },
+        "updated": {
+          "type": "string",
+          "description": "Timestamp when the rule was last updated."
+        },
+        "vendorName": {
+          "type": "string",
+          "description": "Optional vendor name for the rule."
+        }
+      },
+      "required": [
+        "configId",
+        "storeType",
+        "classification",
+        "rule",
+        "ruleId"
+      ],
+      "inputProperties": {
+        "classification": {
+          "type": "string",
+          "description": "Classification: ANALYTICS, BLACKLISTED, ESSENTIAL, HIDDEN, MARKETING, or PERSONALIZATION."
+        },
+        "configId": {
+          "type": "string",
+          "description": "The configId of the Cookie Consent Configuration this rule belongs to."
+        },
+        "disclosure": {
+          "type": "boolean",
+          "description": "Whether the rule should be disclosed. Defaults to false."
+        },
+        "rule": {
+          "type": "string",
+          "description": "The rule pattern (e.g. a cookie name pattern). Min 3, max 1000 characters."
+        },
+        "storeType": {
+          "type": "string",
+          "description": "The storage type category: cookies, scripts, iframes, or localStorage."
+        },
+        "title": {
+          "type": "string",
+          "description": "Optional title for the rule, used in consent disclosure."
+        },
+        "vendorName": {
+          "type": "string",
+          "description": "Optional vendor name for the rule."
+        }
+      },
+      "requiredInputs": [
+        "configId",
+        "storeType",
+        "classification",
+        "rule"
       ]
     }
   },

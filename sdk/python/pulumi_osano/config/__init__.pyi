@@ -19,6 +19,11 @@ apiBaseUrl: Optional[str]
 Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com).
 """
 
+customerBaseUrl: Optional[str]
+"""
+Override base URL for the Customer REST API (default: https://api.osano.com).
+"""
+
 osanoApiKey: Optional[str]
 """
 Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
@@ -27,6 +32,16 @@ Osano API key used for subject profile routes (set via pulumi config set osano:o
 requestTimeoutSeconds: Optional[int]
 """
 HTTP request timeout in seconds for Osano API calls (default 60).
+"""
+
+ucApiKey: Optional[str]
+"""
+Unified Consent API key for the Unified Consent Core API (x-uc-api-key).
+"""
+
+ucBaseUrl: Optional[str]
+"""
+Override base URL for the Unified Consent Core API (default: https://uc.api.osano.com).
 """
 
 unifiedConsentApiKey: Optional[str]

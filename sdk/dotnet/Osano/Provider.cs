@@ -20,10 +20,28 @@ namespace Community.Pulumi.Osano
         public Output<string?> ApiBaseUrl { get; private set; } = null!;
 
         /// <summary>
+        /// Override base URL for the Customer REST API (default: https://api.osano.com).
+        /// </summary>
+        [Output("customerBaseUrl")]
+        public Output<string?> CustomerBaseUrl { get; private set; } = null!;
+
+        /// <summary>
         /// Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
         /// </summary>
         [Output("osanoApiKey")]
         public Output<string?> OsanoApiKey { get; private set; } = null!;
+
+        /// <summary>
+        /// Unified Consent API key for the Unified Consent Core API (x-uc-api-key).
+        /// </summary>
+        [Output("ucApiKey")]
+        public Output<string?> UcApiKey { get; private set; } = null!;
+
+        /// <summary>
+        /// Override base URL for the Unified Consent Core API (default: https://uc.api.osano.com).
+        /// </summary>
+        [Output("ucBaseUrl")]
+        public Output<string?> UcBaseUrl { get; private set; } = null!;
 
         /// <summary>
         /// Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret or OSANO_UC_API_KEY).
@@ -53,6 +71,7 @@ namespace Community.Pulumi.Osano
                 AdditionalSecretOutputs =
                 {
                     "osanoApiKey",
+                    "ucApiKey",
                     "unifiedConsentApiKey",
                 },
             };
@@ -70,6 +89,12 @@ namespace Community.Pulumi.Osano
         /// </summary>
         [Input("apiBaseUrl")]
         public Input<string>? ApiBaseUrl { get; set; }
+
+        /// <summary>
+        /// Override base URL for the Customer REST API (default: https://api.osano.com).
+        /// </summary>
+        [Input("customerBaseUrl")]
+        public Input<string>? CustomerBaseUrl { get; set; }
 
         [Input("osanoApiKey")]
         private Input<string>? _osanoApiKey;
@@ -92,6 +117,29 @@ namespace Community.Pulumi.Osano
         /// </summary>
         [Input("requestTimeoutSeconds", json: true)]
         public Input<int>? RequestTimeoutSeconds { get; set; }
+
+        [Input("ucApiKey")]
+        private Input<string>? _ucApiKey;
+
+        /// <summary>
+        /// Unified Consent API key for the Unified Consent Core API (x-uc-api-key).
+        /// </summary>
+        [Obsolete(@"use unifiedConsentApiKey instead")]
+        public Input<string>? UcApiKey
+        {
+            get => _ucApiKey;
+            set
+            {
+                var emptySecret = Output.CreateSecret(0);
+                _ucApiKey = Output.Tuple<Input<string>?, int>(value, emptySecret).Apply(t => t.Item1);
+            }
+        }
+
+        /// <summary>
+        /// Override base URL for the Unified Consent Core API (default: https://uc.api.osano.com).
+        /// </summary>
+        [Input("ucBaseUrl")]
+        public Input<string>? UcBaseUrl { get; set; }
 
         [Input("unifiedConsentApiKey")]
         private Input<string>? _unifiedConsentApiKey;

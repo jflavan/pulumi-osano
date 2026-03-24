@@ -13,28 +13,49 @@ public final class Config {
     private static final com.pulumi.Config config = com.pulumi.Config.of("osano");
 /**
  * Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com).
- * 
+ *
  */
     public Optional<String> apiBaseUrl() {
         return Codegen.stringProp("apiBaseUrl").config(config).get();
     }
 /**
+ * Override base URL for the Customer REST API (default: https://api.osano.com).
+ *
+ */
+    public Optional<String> customerBaseUrl() {
+        return Codegen.stringProp("customerBaseUrl").config(config).get();
+    }
+/**
  * Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
- * 
+ *
  */
     public Optional<String> osanoApiKey() {
         return Codegen.stringProp("osanoApiKey").config(config).get();
     }
 /**
  * HTTP request timeout in seconds for Osano API calls (default 60).
- * 
+ *
  */
     public Optional<Integer> requestTimeoutSeconds() {
         return Codegen.integerProp("requestTimeoutSeconds").config(config).get();
     }
 /**
+ * Unified Consent API key for the Unified Consent Core API (x-uc-api-key).
+ *
+ */
+    public Optional<String> ucApiKey() {
+        return Codegen.stringProp("ucApiKey").config(config).get();
+    }
+/**
+ * Override base URL for the Unified Consent Core API (default: https://uc.api.osano.com).
+ *
+ */
+    public Optional<String> ucBaseUrl() {
+        return Codegen.stringProp("ucBaseUrl").config(config).get();
+    }
+/**
  * Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret or OSANO_UC_API_KEY).
- * 
+ *
  */
     public Optional<String> unifiedConsentApiKey() {
         return Codegen.stringProp("unifiedConsentApiKey").config(config).get();

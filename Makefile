@@ -78,6 +78,7 @@ sdk/nodejs: $(SCHEMA_FILE)
 sdk/java: $(SCHEMA_FILE)
 	rm -rf $@
 	$(PULUMI) package gen-sdk --language java $(SCHEMA_FILE)
+	find sdk/java -name '*.java' -type f -exec perl -pi -e 's/[ \t]+$$//' {} +
 	# Generated settings.gradle references a non-existent 'lib' module; drop it for a single-module build.
 	@if [ "$$(uname)" = "Darwin" ]; then \
 		sed -i '' '/^include("lib")/d' sdk/java/settings.gradle; \

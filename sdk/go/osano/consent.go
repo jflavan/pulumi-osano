@@ -29,8 +29,6 @@ type Consent struct {
 	LastSynced pulumi.StringOutput `pulumi:"lastSynced"`
 	// Origin metadata for the consent, typically 'api' or 'gpc'.
 	Origin pulumi.StringPtrOutput `pulumi:"origin"`
-	// Latest raw response payload returned by Osano.
-	Response pulumi.MapOutput `pulumi:"response"`
 	// Subject identifiers used for the consent (verifiedId or anonymousId).
 	Subject ConsentSubjectOutput `pulumi:"subject"`
 	// Custom tags that Osano associates with the consent record.
@@ -50,6 +48,16 @@ func NewConsent(ctx *pulumi.Context,
 	if args.Subject == nil {
 		return nil, errors.New("invalid value for required argument 'Subject'")
 	}
+	replaceOnChanges := pulumi.ReplaceOnChanges([]string{
+		"actions[*]",
+		"attributes.*",
+		"compliance",
+		"jurisdiction",
+		"origin",
+		"subject",
+		"tags[*]",
+	})
+	opts = append(opts, replaceOnChanges)
 	opts = internal.PkgResourceDefaultOpts(opts)
 	var resource Consent
 	err := ctx.RegisterResource("osano:index:Consent", name, args, &resource, opts...)
@@ -184,11 +192,6 @@ func (o ConsentOutput) LastSynced() pulumi.StringOutput {
 // Origin metadata for the consent, typically 'api' or 'gpc'.
 func (o ConsentOutput) Origin() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Consent) pulumi.StringPtrOutput { return v.Origin }).(pulumi.StringPtrOutput)
-}
-
-// Latest raw response payload returned by Osano.
-func (o ConsentOutput) Response() pulumi.MapOutput {
-	return o.ApplyT(func(v *Consent) pulumi.MapOutput { return v.Response }).(pulumi.MapOutput)
 }
 
 // Subject identifiers used for the consent (verifiedId or anonymousId).

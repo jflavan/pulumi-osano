@@ -15,6 +15,16 @@ export type Consent = import("./consent").Consent;
 export const Consent: typeof import("./consent").Consent = null as any;
 utilities.lazyLoad(exports, ["Consent"], () => require("./consent"));
 
+export { CookieConsentConfigArgs } from "./cookieConsentConfig";
+export type CookieConsentConfig = import("./cookieConsentConfig").CookieConsentConfig;
+export const CookieConsentConfig: typeof import("./cookieConsentConfig").CookieConsentConfig = null as any;
+utilities.lazyLoad(exports, ["CookieConsentConfig"], () => require("./cookieConsentConfig"));
+
+export { CookieConsentRuleArgs } from "./cookieConsentRule";
+export type CookieConsentRule = import("./cookieConsentRule").CookieConsentRule;
+export const CookieConsentRule: typeof import("./cookieConsentRule").CookieConsentRule = null as any;
+utilities.lazyLoad(exports, ["CookieConsentRule"], () => require("./cookieConsentRule"));
+
 export { GetCollectionArgs, GetCollectionResult, GetCollectionOutputArgs } from "./getCollection";
 export const getCollection: typeof import("./getCollection").getCollection = null as any;
 export const getCollectionOutput: typeof import("./getCollection").getCollectionOutput = null as any;
@@ -76,6 +86,10 @@ const _module = {
         switch (type) {
             case "osano:index:Consent":
                 return new Consent(name, <any>undefined, { urn })
+            case "osano:index:CookieConsentConfig":
+                return new CookieConsentConfig(name, <any>undefined, { urn })
+            case "osano:index:CookieConsentRule":
+                return new CookieConsentRule(name, <any>undefined, { urn })
             default:
                 throw new Error(`unknown resource type ${type}`);
         }

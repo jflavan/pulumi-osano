@@ -8,6 +8,8 @@ import typing
 # Export this package's modules as members:
 from .check_consent import *
 from .consent import *
+from .cookie_consent_config import *
+from .cookie_consent_rule import *
 from .get_collection import *
 from .get_collections import *
 from .get_config import *
@@ -35,7 +37,9 @@ _utilities.register(
   "mod": "index",
   "fqn": "pulumi_osano",
   "classes": {
-   "osano:index:Consent": "Consent"
+   "osano:index:Consent": "Consent",
+   "osano:index:CookieConsentConfig": "CookieConsentConfig",
+   "osano:index:CookieConsentRule": "CookieConsentRule"
   }
  }
 ]

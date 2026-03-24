@@ -42,6 +42,16 @@ namespace Community.Pulumi.Osano
             set => _apiBaseUrl.Set(value);
         }
 
+        private static readonly __Value<string?> _customerBaseUrl = new __Value<string?>(() => __config.Get("customerBaseUrl"));
+        /// <summary>
+        /// Override base URL for the Customer REST API (default: https://api.osano.com).
+        /// </summary>
+        public static string? CustomerBaseUrl
+        {
+            get => _customerBaseUrl.Get();
+            set => _customerBaseUrl.Set(value);
+        }
+
         private static readonly __Value<string?> _osanoApiKey = new __Value<string?>(() => __config.Get("osanoApiKey"));
         /// <summary>
         /// Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
@@ -60,6 +70,26 @@ namespace Community.Pulumi.Osano
         {
             get => _requestTimeoutSeconds.Get();
             set => _requestTimeoutSeconds.Set(value);
+        }
+
+        private static readonly __Value<string?> _ucApiKey = new __Value<string?>(() => __config.Get("ucApiKey"));
+        /// <summary>
+        /// Unified Consent API key for the Unified Consent Core API (x-uc-api-key).
+        /// </summary>
+        public static string? UcApiKey
+        {
+            get => _ucApiKey.Get();
+            set => _ucApiKey.Set(value);
+        }
+
+        private static readonly __Value<string?> _ucBaseUrl = new __Value<string?>(() => __config.Get("ucBaseUrl"));
+        /// <summary>
+        /// Override base URL for the Unified Consent Core API (default: https://uc.api.osano.com).
+        /// </summary>
+        public static string? UcBaseUrl
+        {
+            get => _ucBaseUrl.Get();
+            set => _ucBaseUrl.Set(value);
         }
 
         private static readonly __Value<string?> _unifiedConsentApiKey = new __Value<string?>(() => __config.Get("unifiedConsentApiKey"));

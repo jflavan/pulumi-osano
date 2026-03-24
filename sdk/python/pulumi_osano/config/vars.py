@@ -28,6 +28,13 @@ class _ExportableConfig(types.ModuleType):
         return __config__.get('apiBaseUrl')
 
     @_builtins.property
+    def customer_base_url(self) -> Optional[str]:
+        """
+        Override base URL for the Customer REST API (default: https://api.osano.com).
+        """
+        return __config__.get('customerBaseUrl')
+
+    @_builtins.property
     def osano_api_key(self) -> Optional[str]:
         """
         Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
@@ -40,6 +47,20 @@ class _ExportableConfig(types.ModuleType):
         HTTP request timeout in seconds for Osano API calls (default 60).
         """
         return __config__.get_int('requestTimeoutSeconds')
+
+    @_builtins.property
+    def uc_api_key(self) -> Optional[str]:
+        """
+        Unified Consent API key for the Unified Consent Core API (x-uc-api-key).
+        """
+        return __config__.get('ucApiKey')
+
+    @_builtins.property
+    def uc_base_url(self) -> Optional[str]:
+        """
+        Override base URL for the Unified Consent Core API (default: https://uc.api.osano.com).
+        """
+        return __config__.get('ucBaseUrl')
 
     @_builtins.property
     def unified_consent_api_key(self) -> Optional[str]:

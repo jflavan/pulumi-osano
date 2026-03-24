@@ -77,15 +77,20 @@ jobs:
 
       - if: github.event_name == 'pull_request'
         name: Check Schema is Valid
+        shell: bash
         run: |
-          schema-tools compare -r github://api.github.com/${{ github.repository_owner }} -p ${{ env.PROVIDER }} -o ${{ github.event.repository.default_branch }} -n --local-path=provider/cmd/pulumi-resource-${{ env.PROVIDER }}/schema.json 2>&1 | tee schema-check.txt || true
+          set +e
+          schema-tools compare -r github://api.github.com/${{ github.repository_owner }} -p ${{ env.PROVIDER }} -o ${{ github.event.repository.default_branch }} -n --local-path=provider/cmd/pulumi-resource-${{ env.PROVIDER }}/schema.json 2>&1 | tee schema-check.txt
+          status=${PIPESTATUS[0]}
+          set -e
           echo "SCHEMA_CHANGES<<EOF" >> "$GITHUB_ENV"
           cat schema-check.txt >> "$GITHUB_ENV"
           echo "EOF" >> "$GITHUB_ENV"
+          exit $status
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - if: github.event_name == 'pull_request' && github.actor != 'dependabot[bot]'
+      - if: always() && github.event_name == 'pull_request' && github.actor != 'dependabot[bot]'
         name: Comment on PR with Details of Schema Check
         uses: thollander/actions-comment-pull-request@v3
         with:

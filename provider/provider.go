@@ -37,6 +37,8 @@ func Provider() p.Provider {
 		WithNamespace(Name).
 		WithConfig(infer.Config(&Config{})).
 		WithResources(
+			infer.Resource(&CookieConsentConfig{}),
+			infer.Resource(&CookieConsentRule{}),
 			infer.Resource(&ConsentResource{}),
 		).
 		WithFunctions(

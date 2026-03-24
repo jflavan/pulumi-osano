@@ -56,12 +56,6 @@ namespace Community.Pulumi.Osano
         public Output<string?> Origin { get; private set; } = null!;
 
         /// <summary>
-        /// Latest raw response payload returned by Osano.
-        /// </summary>
-        [Output("response")]
-        public Output<ImmutableDictionary<string, object>> Response { get; private set; } = null!;
-
-        /// <summary>
         /// Subject identifiers used for the consent (verifiedId or anonymousId).
         /// </summary>
         [Output("subject")]
@@ -97,6 +91,16 @@ namespace Community.Pulumi.Osano
             {
                 Version = Utilities.Version,
                 PluginDownloadURL = "github://api.github.com/jflavan/pulumi-osano",
+                ReplaceOnChanges =
+                {
+                    "actions[*]",
+                    "attributes.*",
+                    "compliance",
+                    "jurisdiction",
+                    "origin",
+                    "subject",
+                    "tags[*]",
+                },
             };
             var merged = CustomResourceOptions.Merge(defaultOptions, options);
             // Override the ID if one was specified for consistency with other language SDKs.

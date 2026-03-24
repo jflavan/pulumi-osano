@@ -211,7 +211,8 @@ class Consent(pulumi.CustomResource):
             __props__.__dict__["tags"] = tags
             __props__.__dict__["consent_id"] = None
             __props__.__dict__["last_synced"] = None
-            __props__.__dict__["response"] = None
+        replace_on_changes = pulumi.ResourceOptions(replace_on_changes=["actions[*]", "attributes.*", "compliance", "jurisdiction", "origin", "subject", "tags[*]"])
+        opts = pulumi.ResourceOptions.merge(opts, replace_on_changes)
         super(Consent, __self__).__init__(
             'osano:index:Consent',
             resource_name,
@@ -241,7 +242,6 @@ class Consent(pulumi.CustomResource):
         __props__.__dict__["jurisdiction"] = None
         __props__.__dict__["last_synced"] = None
         __props__.__dict__["origin"] = None
-        __props__.__dict__["response"] = None
         __props__.__dict__["subject"] = None
         __props__.__dict__["tags"] = None
         return Consent(resource_name, opts=opts, __props__=__props__)
@@ -298,14 +298,6 @@ class Consent(pulumi.CustomResource):
         Origin metadata for the consent, typically 'api' or 'gpc'.
         """
         return pulumi.get(self, "origin")
-
-    @_builtins.property
-    @pulumi.getter
-    def response(self) -> pulumi.Output[Mapping[str, Any]]:
-        """
-        Latest raw response payload returned by Osano.
-        """
-        return pulumi.get(self, "response")
 
     @_builtins.property
     @pulumi.getter

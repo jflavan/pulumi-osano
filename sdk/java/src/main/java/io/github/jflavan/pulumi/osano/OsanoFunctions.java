@@ -41,343 +41,343 @@ import java.util.concurrent.CompletableFuture;
 public final class OsanoFunctions {
     /**
      * Checks whether a unified consent record exists for a given subject ID.
-     * 
+     *
      */
     public static Output<CheckConsentResult> checkConsent(CheckConsentArgs args) {
         return checkConsent(args, InvokeOptions.Empty);
     }
     /**
      * Checks whether a unified consent record exists for a given subject ID.
-     * 
+     *
      */
     public static CompletableFuture<CheckConsentResult> checkConsentPlain(CheckConsentPlainArgs args) {
         return checkConsentPlain(args, InvokeOptions.Empty);
     }
     /**
      * Checks whether a unified consent record exists for a given subject ID.
-     * 
+     *
      */
     public static Output<CheckConsentResult> checkConsent(CheckConsentArgs args, InvokeOptions options) {
         return Deployment.getInstance().invoke("osano:index:checkConsent", TypeShape.of(CheckConsentResult.class), args, Utilities.withVersion(options));
     }
     /**
      * Checks whether a unified consent record exists for a given subject ID.
-     * 
+     *
      */
     public static Output<CheckConsentResult> checkConsent(CheckConsentArgs args, InvokeOutputOptions options) {
         return Deployment.getInstance().invoke("osano:index:checkConsent", TypeShape.of(CheckConsentResult.class), args, Utilities.withVersion(options));
     }
     /**
      * Checks whether a unified consent record exists for a given subject ID.
-     * 
+     *
      */
     public static CompletableFuture<CheckConsentResult> checkConsentPlain(CheckConsentPlainArgs args, InvokeOptions options) {
         return Deployment.getInstance().invokeAsync("osano:index:checkConsent", TypeShape.of(CheckConsentResult.class), args, Utilities.withVersion(options));
     }
     /**
      * Retrieves a specific privacy protocol collection by ID.
-     * 
+     *
      */
     public static Output<GetCollectionResult> getCollection(GetCollectionArgs args) {
         return getCollection(args, InvokeOptions.Empty);
     }
     /**
      * Retrieves a specific privacy protocol collection by ID.
-     * 
+     *
      */
     public static CompletableFuture<GetCollectionResult> getCollectionPlain(GetCollectionPlainArgs args) {
         return getCollectionPlain(args, InvokeOptions.Empty);
     }
     /**
      * Retrieves a specific privacy protocol collection by ID.
-     * 
+     *
      */
     public static Output<GetCollectionResult> getCollection(GetCollectionArgs args, InvokeOptions options) {
         return Deployment.getInstance().invoke("osano:index:getCollection", TypeShape.of(GetCollectionResult.class), args, Utilities.withVersion(options));
     }
     /**
      * Retrieves a specific privacy protocol collection by ID.
-     * 
+     *
      */
     public static Output<GetCollectionResult> getCollection(GetCollectionArgs args, InvokeOutputOptions options) {
         return Deployment.getInstance().invoke("osano:index:getCollection", TypeShape.of(GetCollectionResult.class), args, Utilities.withVersion(options));
     }
     /**
      * Retrieves a specific privacy protocol collection by ID.
-     * 
+     *
      */
     public static CompletableFuture<GetCollectionResult> getCollectionPlain(GetCollectionPlainArgs args, InvokeOptions options) {
         return Deployment.getInstance().invokeAsync("osano:index:getCollection", TypeShape.of(GetCollectionResult.class), args, Utilities.withVersion(options));
     }
     /**
      * Retrieves the aggregated privacy protocol collections for an optional jurisdiction and version (published/draft).
-     * 
+     *
      */
     public static Output<GetCollectionsResult> getCollections() {
         return getCollections(GetCollectionsArgs.Empty, InvokeOptions.Empty);
     }
     /**
      * Retrieves the aggregated privacy protocol collections for an optional jurisdiction and version (published/draft).
-     * 
+     *
      */
     public static CompletableFuture<GetCollectionsResult> getCollectionsPlain() {
         return getCollectionsPlain(GetCollectionsPlainArgs.Empty, InvokeOptions.Empty);
     }
     /**
      * Retrieves the aggregated privacy protocol collections for an optional jurisdiction and version (published/draft).
-     * 
+     *
      */
     public static Output<GetCollectionsResult> getCollections(GetCollectionsArgs args) {
         return getCollections(args, InvokeOptions.Empty);
     }
     /**
      * Retrieves the aggregated privacy protocol collections for an optional jurisdiction and version (published/draft).
-     * 
+     *
      */
     public static CompletableFuture<GetCollectionsResult> getCollectionsPlain(GetCollectionsPlainArgs args) {
         return getCollectionsPlain(args, InvokeOptions.Empty);
     }
     /**
      * Retrieves the aggregated privacy protocol collections for an optional jurisdiction and version (published/draft).
-     * 
+     *
      */
     public static Output<GetCollectionsResult> getCollections(GetCollectionsArgs args, InvokeOptions options) {
         return Deployment.getInstance().invoke("osano:index:getCollections", TypeShape.of(GetCollectionsResult.class), args, Utilities.withVersion(options));
     }
     /**
      * Retrieves the aggregated privacy protocol collections for an optional jurisdiction and version (published/draft).
-     * 
+     *
      */
     public static Output<GetCollectionsResult> getCollections(GetCollectionsArgs args, InvokeOutputOptions options) {
         return Deployment.getInstance().invoke("osano:index:getCollections", TypeShape.of(GetCollectionsResult.class), args, Utilities.withVersion(options));
     }
     /**
      * Retrieves the aggregated privacy protocol collections for an optional jurisdiction and version (published/draft).
-     * 
+     *
      */
     public static CompletableFuture<GetCollectionsResult> getCollectionsPlain(GetCollectionsPlainArgs args, InvokeOptions options) {
         return Deployment.getInstance().invokeAsync("osano:index:getCollections", TypeShape.of(GetCollectionsResult.class), args, Utilities.withVersion(options));
     }
     /**
      * Retrieves the Unified Consent configuration referenced by the API key.
-     * 
+     *
      */
     public static Output<GetConfigResult> getConfig() {
         return getConfig(GetConfigArgs.Empty, InvokeOptions.Empty);
     }
     /**
      * Retrieves the Unified Consent configuration referenced by the API key.
-     * 
+     *
      */
     public static CompletableFuture<GetConfigResult> getConfigPlain() {
         return getConfigPlain(GetConfigPlainArgs.Empty, InvokeOptions.Empty);
     }
     /**
      * Retrieves the Unified Consent configuration referenced by the API key.
-     * 
+     *
      */
     public static Output<GetConfigResult> getConfig(GetConfigArgs args) {
         return getConfig(args, InvokeOptions.Empty);
     }
     /**
      * Retrieves the Unified Consent configuration referenced by the API key.
-     * 
+     *
      */
     public static CompletableFuture<GetConfigResult> getConfigPlain(GetConfigPlainArgs args) {
         return getConfigPlain(args, InvokeOptions.Empty);
     }
     /**
      * Retrieves the Unified Consent configuration referenced by the API key.
-     * 
+     *
      */
     public static Output<GetConfigResult> getConfig(GetConfigArgs args, InvokeOptions options) {
         return Deployment.getInstance().invoke("osano:index:getConfig", TypeShape.of(GetConfigResult.class), args, Utilities.withVersion(options));
     }
     /**
      * Retrieves the Unified Consent configuration referenced by the API key.
-     * 
+     *
      */
     public static Output<GetConfigResult> getConfig(GetConfigArgs args, InvokeOutputOptions options) {
         return Deployment.getInstance().invoke("osano:index:getConfig", TypeShape.of(GetConfigResult.class), args, Utilities.withVersion(options));
     }
     /**
      * Retrieves the Unified Consent configuration referenced by the API key.
-     * 
+     *
      */
     public static CompletableFuture<GetConfigResult> getConfigPlain(GetConfigPlainArgs args, InvokeOptions options) {
         return Deployment.getInstance().invokeAsync("osano:index:getConfig", TypeShape.of(GetConfigResult.class), args, Utilities.withVersion(options));
     }
     /**
      * Retrieves a consent profile for a hashed subject identifier and config ID.
-     * 
+     *
      */
     public static Output<GetConsentProfileResult> getConsentProfile(GetConsentProfileArgs args) {
         return getConsentProfile(args, InvokeOptions.Empty);
     }
     /**
      * Retrieves a consent profile for a hashed subject identifier and config ID.
-     * 
+     *
      */
     public static CompletableFuture<GetConsentProfileResult> getConsentProfilePlain(GetConsentProfilePlainArgs args) {
         return getConsentProfilePlain(args, InvokeOptions.Empty);
     }
     /**
      * Retrieves a consent profile for a hashed subject identifier and config ID.
-     * 
+     *
      */
     public static Output<GetConsentProfileResult> getConsentProfile(GetConsentProfileArgs args, InvokeOptions options) {
         return Deployment.getInstance().invoke("osano:index:getConsentProfile", TypeShape.of(GetConsentProfileResult.class), args, Utilities.withVersion(options));
     }
     /**
      * Retrieves a consent profile for a hashed subject identifier and config ID.
-     * 
+     *
      */
     public static Output<GetConsentProfileResult> getConsentProfile(GetConsentProfileArgs args, InvokeOutputOptions options) {
         return Deployment.getInstance().invoke("osano:index:getConsentProfile", TypeShape.of(GetConsentProfileResult.class), args, Utilities.withVersion(options));
     }
     /**
      * Retrieves a consent profile for a hashed subject identifier and config ID.
-     * 
+     *
      */
     public static CompletableFuture<GetConsentProfileResult> getConsentProfilePlain(GetConsentProfilePlainArgs args, InvokeOptions options) {
         return Deployment.getInstance().invokeAsync("osano:index:getConsentProfile", TypeShape.of(GetConsentProfileResult.class), args, Utilities.withVersion(options));
     }
     /**
      * Fetches subject identifiers (subject, verified, anonymous IDs) for a reference or session ID.
-     * 
+     *
      */
     public static Output<GetSubjectResult> getSubject(GetSubjectArgs args) {
         return getSubject(args, InvokeOptions.Empty);
     }
     /**
      * Fetches subject identifiers (subject, verified, anonymous IDs) for a reference or session ID.
-     * 
+     *
      */
     public static CompletableFuture<GetSubjectResult> getSubjectPlain(GetSubjectPlainArgs args) {
         return getSubjectPlain(args, InvokeOptions.Empty);
     }
     /**
      * Fetches subject identifiers (subject, verified, anonymous IDs) for a reference or session ID.
-     * 
+     *
      */
     public static Output<GetSubjectResult> getSubject(GetSubjectArgs args, InvokeOptions options) {
         return Deployment.getInstance().invoke("osano:index:getSubject", TypeShape.of(GetSubjectResult.class), args, Utilities.withVersion(options));
     }
     /**
      * Fetches subject identifiers (subject, verified, anonymous IDs) for a reference or session ID.
-     * 
+     *
      */
     public static Output<GetSubjectResult> getSubject(GetSubjectArgs args, InvokeOutputOptions options) {
         return Deployment.getInstance().invoke("osano:index:getSubject", TypeShape.of(GetSubjectResult.class), args, Utilities.withVersion(options));
     }
     /**
      * Fetches subject identifiers (subject, verified, anonymous IDs) for a reference or session ID.
-     * 
+     *
      */
     public static CompletableFuture<GetSubjectResult> getSubjectPlain(GetSubjectPlainArgs args, InvokeOptions options) {
         return Deployment.getInstance().invokeAsync("osano:index:getSubject", TypeShape.of(GetSubjectResult.class), args, Utilities.withVersion(options));
     }
     /**
      * Fetches the unified consent state for a subject reference using the Unified Consent API key.
-     * 
+     *
      */
     public static Output<GetUnifiedConsentResult> getUnifiedConsent(GetUnifiedConsentArgs args) {
         return getUnifiedConsent(args, InvokeOptions.Empty);
     }
     /**
      * Fetches the unified consent state for a subject reference using the Unified Consent API key.
-     * 
+     *
      */
     public static CompletableFuture<GetUnifiedConsentResult> getUnifiedConsentPlain(GetUnifiedConsentPlainArgs args) {
         return getUnifiedConsentPlain(args, InvokeOptions.Empty);
     }
     /**
      * Fetches the unified consent state for a subject reference using the Unified Consent API key.
-     * 
+     *
      */
     public static Output<GetUnifiedConsentResult> getUnifiedConsent(GetUnifiedConsentArgs args, InvokeOptions options) {
         return Deployment.getInstance().invoke("osano:index:getUnifiedConsent", TypeShape.of(GetUnifiedConsentResult.class), args, Utilities.withVersion(options));
     }
     /**
      * Fetches the unified consent state for a subject reference using the Unified Consent API key.
-     * 
+     *
      */
     public static Output<GetUnifiedConsentResult> getUnifiedConsent(GetUnifiedConsentArgs args, InvokeOutputOptions options) {
         return Deployment.getInstance().invoke("osano:index:getUnifiedConsent", TypeShape.of(GetUnifiedConsentResult.class), args, Utilities.withVersion(options));
     }
     /**
      * Fetches the unified consent state for a subject reference using the Unified Consent API key.
-     * 
+     *
      */
     public static CompletableFuture<GetUnifiedConsentResult> getUnifiedConsentPlain(GetUnifiedConsentPlainArgs args, InvokeOptions options) {
         return Deployment.getInstance().invokeAsync("osano:index:getUnifiedConsent", TypeShape.of(GetUnifiedConsentResult.class), args, Utilities.withVersion(options));
     }
     /**
      * Sends a verification code to a subject&#39;s email or phone using the Osano API key.
-     * 
+     *
      */
     public static Output<SendSubjectCodeResult> sendSubjectCode(SendSubjectCodeArgs args) {
         return sendSubjectCode(args, InvokeOptions.Empty);
     }
     /**
      * Sends a verification code to a subject&#39;s email or phone using the Osano API key.
-     * 
+     *
      */
     public static CompletableFuture<SendSubjectCodeResult> sendSubjectCodePlain(SendSubjectCodePlainArgs args) {
         return sendSubjectCodePlain(args, InvokeOptions.Empty);
     }
     /**
      * Sends a verification code to a subject&#39;s email or phone using the Osano API key.
-     * 
+     *
      */
     public static Output<SendSubjectCodeResult> sendSubjectCode(SendSubjectCodeArgs args, InvokeOptions options) {
         return Deployment.getInstance().invoke("osano:index:sendSubjectCode", TypeShape.of(SendSubjectCodeResult.class), args, Utilities.withVersion(options));
     }
     /**
      * Sends a verification code to a subject&#39;s email or phone using the Osano API key.
-     * 
+     *
      */
     public static Output<SendSubjectCodeResult> sendSubjectCode(SendSubjectCodeArgs args, InvokeOutputOptions options) {
         return Deployment.getInstance().invoke("osano:index:sendSubjectCode", TypeShape.of(SendSubjectCodeResult.class), args, Utilities.withVersion(options));
     }
     /**
      * Sends a verification code to a subject&#39;s email or phone using the Osano API key.
-     * 
+     *
      */
     public static CompletableFuture<SendSubjectCodeResult> sendSubjectCodePlain(SendSubjectCodePlainArgs args, InvokeOptions options) {
         return Deployment.getInstance().invokeAsync("osano:index:sendSubjectCode", TypeShape.of(SendSubjectCodeResult.class), args, Utilities.withVersion(options));
     }
     /**
      * Verifies a subject profile using the code sent via email or SMS.
-     * 
+     *
      */
     public static Output<VerifySubjectCodeResult> verifySubjectCode(VerifySubjectCodeArgs args) {
         return verifySubjectCode(args, InvokeOptions.Empty);
     }
     /**
      * Verifies a subject profile using the code sent via email or SMS.
-     * 
+     *
      */
     public static CompletableFuture<VerifySubjectCodeResult> verifySubjectCodePlain(VerifySubjectCodePlainArgs args) {
         return verifySubjectCodePlain(args, InvokeOptions.Empty);
     }
     /**
      * Verifies a subject profile using the code sent via email or SMS.
-     * 
+     *
      */
     public static Output<VerifySubjectCodeResult> verifySubjectCode(VerifySubjectCodeArgs args, InvokeOptions options) {
         return Deployment.getInstance().invoke("osano:index:verifySubjectCode", TypeShape.of(VerifySubjectCodeResult.class), args, Utilities.withVersion(options));
     }
     /**
      * Verifies a subject profile using the code sent via email or SMS.
-     * 
+     *
      */
     public static Output<VerifySubjectCodeResult> verifySubjectCode(VerifySubjectCodeArgs args, InvokeOutputOptions options) {
         return Deployment.getInstance().invoke("osano:index:verifySubjectCode", TypeShape.of(VerifySubjectCodeResult.class), args, Utilities.withVersion(options));
     }
     /**
      * Verifies a subject profile using the code sent via email or SMS.
-     * 
+     *
      */
     public static CompletableFuture<VerifySubjectCodeResult> verifySubjectCodePlain(VerifySubjectCodePlainArgs args, InvokeOptions options) {
         return Deployment.getInstance().invokeAsync("osano:index:verifySubjectCode", TypeShape.of(VerifySubjectCodeResult.class), args, Utilities.withVersion(options));

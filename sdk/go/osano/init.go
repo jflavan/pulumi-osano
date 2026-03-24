@@ -23,6 +23,10 @@ func (m *module) Construct(ctx *pulumi.Context, name, typ, urn string) (r pulumi
 	switch typ {
 	case "osano:index:Consent":
 		r = &Consent{}
+	case "osano:index:CookieConsentConfig":
+		r = &CookieConsentConfig{}
+	case "osano:index:CookieConsentRule":
+		r = &CookieConsentRule{}
 	default:
 		return nil, fmt.Errorf("unknown resource type: %s", typ)
 	}

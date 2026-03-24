@@ -23,14 +23,14 @@ public final class ConsentArgs extends com.pulumi.resources.ResourceArgs {
 
     /**
      * Consent actions referencing privacy protocols (target) within a configuration (vendor).
-     * 
+     *
      */
     @Import(name="actions", required=true)
     private Output<List<ConsentActionArgs>> actions;
 
     /**
      * @return Consent actions referencing privacy protocols (target) within a configuration (vendor).
-     * 
+     *
      */
     public Output<List<ConsentActionArgs>> actions() {
         return this.actions;
@@ -38,14 +38,14 @@ public final class ConsentArgs extends com.pulumi.resources.ResourceArgs {
 
     /**
      * Optional key/value attributes stored with the consent record (e.g., ipAddress overrides).
-     * 
+     *
      */
     @Import(name="attributes")
     private @Nullable Output<Map<String,String>> attributes;
 
     /**
      * @return Optional key/value attributes stored with the consent record (e.g., ipAddress overrides).
-     * 
+     *
      */
     public Optional<Output<Map<String,String>>> attributes() {
         return Optional.ofNullable(this.attributes);
@@ -60,14 +60,14 @@ public final class ConsentArgs extends com.pulumi.resources.ResourceArgs {
 
     /**
      * Optional jurisdiction override matching one of the configuration&#39;s jurisdictions.
-     * 
+     *
      */
     @Import(name="jurisdiction")
     private @Nullable Output<String> jurisdiction;
 
     /**
      * @return Optional jurisdiction override matching one of the configuration&#39;s jurisdictions.
-     * 
+     *
      */
     public Optional<Output<String>> jurisdiction() {
         return Optional.ofNullable(this.jurisdiction);
@@ -75,14 +75,14 @@ public final class ConsentArgs extends com.pulumi.resources.ResourceArgs {
 
     /**
      * Origin metadata for the consent, typically &#39;api&#39; or &#39;gpc&#39;.
-     * 
+     *
      */
     @Import(name="origin")
     private @Nullable Output<String> origin;
 
     /**
      * @return Origin metadata for the consent, typically &#39;api&#39; or &#39;gpc&#39;.
-     * 
+     *
      */
     public Optional<Output<String>> origin() {
         return Optional.ofNullable(this.origin);
@@ -90,14 +90,14 @@ public final class ConsentArgs extends com.pulumi.resources.ResourceArgs {
 
     /**
      * Subject identifiers used for the consent (verifiedId or anonymousId).
-     * 
+     *
      */
     @Import(name="subject", required=true)
     private Output<ConsentSubjectArgs> subject;
 
     /**
      * @return Subject identifiers used for the consent (verifiedId or anonymousId).
-     * 
+     *
      */
     public Output<ConsentSubjectArgs> subject() {
         return this.subject;
@@ -105,14 +105,14 @@ public final class ConsentArgs extends com.pulumi.resources.ResourceArgs {
 
     /**
      * Custom tags that Osano associates with the consent record.
-     * 
+     *
      */
     @Import(name="tags")
     private @Nullable Output<List<String>> tags;
 
     /**
      * @return Custom tags that Osano associates with the consent record.
-     * 
+     *
      */
     public Optional<Output<List<String>>> tags() {
         return Optional.ofNullable(this.tags);
@@ -150,9 +150,9 @@ public final class ConsentArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param actions Consent actions referencing privacy protocols (target) within a configuration (vendor).
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder actions(Output<List<ConsentActionArgs>> actions) {
             $.actions = actions;
@@ -161,9 +161,9 @@ public final class ConsentArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param actions Consent actions referencing privacy protocols (target) within a configuration (vendor).
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder actions(List<ConsentActionArgs> actions) {
             return actions(Output.of(actions));
@@ -171,9 +171,9 @@ public final class ConsentArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param actions Consent actions referencing privacy protocols (target) within a configuration (vendor).
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder actions(ConsentActionArgs... actions) {
             return actions(List.of(actions));
@@ -181,9 +181,9 @@ public final class ConsentArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param attributes Optional key/value attributes stored with the consent record (e.g., ipAddress overrides).
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder attributes(@Nullable Output<Map<String,String>> attributes) {
             $.attributes = attributes;
@@ -192,9 +192,9 @@ public final class ConsentArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param attributes Optional key/value attributes stored with the consent record (e.g., ipAddress overrides).
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder attributes(Map<String,String> attributes) {
             return attributes(Output.of(attributes));
@@ -211,9 +211,9 @@ public final class ConsentArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param jurisdiction Optional jurisdiction override matching one of the configuration&#39;s jurisdictions.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder jurisdiction(@Nullable Output<String> jurisdiction) {
             $.jurisdiction = jurisdiction;
@@ -222,9 +222,9 @@ public final class ConsentArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param jurisdiction Optional jurisdiction override matching one of the configuration&#39;s jurisdictions.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder jurisdiction(String jurisdiction) {
             return jurisdiction(Output.of(jurisdiction));
@@ -232,9 +232,9 @@ public final class ConsentArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param origin Origin metadata for the consent, typically &#39;api&#39; or &#39;gpc&#39;.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder origin(@Nullable Output<String> origin) {
             $.origin = origin;
@@ -243,9 +243,9 @@ public final class ConsentArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param origin Origin metadata for the consent, typically &#39;api&#39; or &#39;gpc&#39;.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder origin(String origin) {
             return origin(Output.of(origin));
@@ -253,9 +253,9 @@ public final class ConsentArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param subject Subject identifiers used for the consent (verifiedId or anonymousId).
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder subject(Output<ConsentSubjectArgs> subject) {
             $.subject = subject;
@@ -264,9 +264,9 @@ public final class ConsentArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param subject Subject identifiers used for the consent (verifiedId or anonymousId).
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder subject(ConsentSubjectArgs subject) {
             return subject(Output.of(subject));
@@ -274,9 +274,9 @@ public final class ConsentArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param tags Custom tags that Osano associates with the consent record.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder tags(@Nullable Output<List<String>> tags) {
             $.tags = tags;
@@ -285,9 +285,9 @@ public final class ConsentArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param tags Custom tags that Osano associates with the consent record.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder tags(List<String> tags) {
             return tags(Output.of(tags));
@@ -295,9 +295,9 @@ public final class ConsentArgs extends com.pulumi.resources.ResourceArgs {
 
         /**
          * @param tags Custom tags that Osano associates with the consent record.
-         * 
+         *
          * @return builder
-         * 
+         *
          */
         public Builder tags(String... tags) {
             return tags(List.of(tags));

@@ -19,6 +19,17 @@ Object.defineProperty(exports, "apiBaseUrl", {
 });
 
 /**
+ * Override base URL for the Customer REST API (default: https://api.osano.com).
+ */
+export declare const customerBaseUrl: string | undefined;
+Object.defineProperty(exports, "customerBaseUrl", {
+    get() {
+        return __config.get("customerBaseUrl");
+    },
+    enumerable: true,
+});
+
+/**
  * Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
  */
 export declare const osanoApiKey: string | undefined;
@@ -36,6 +47,28 @@ export declare const requestTimeoutSeconds: number | undefined;
 Object.defineProperty(exports, "requestTimeoutSeconds", {
     get() {
         return __config.getObject<number>("requestTimeoutSeconds");
+    },
+    enumerable: true,
+});
+
+/**
+ * Unified Consent API key for the Unified Consent Core API (x-uc-api-key).
+ */
+export declare const ucApiKey: string | undefined;
+Object.defineProperty(exports, "ucApiKey", {
+    get() {
+        return __config.get("ucApiKey");
+    },
+    enumerable: true,
+});
+
+/**
+ * Override base URL for the Unified Consent Core API (default: https://uc.api.osano.com).
+ */
+export declare const ucBaseUrl: string | undefined;
+Object.defineProperty(exports, "ucBaseUrl", {
+    get() {
+        return __config.get("ucBaseUrl");
     },
     enumerable: true,
 });

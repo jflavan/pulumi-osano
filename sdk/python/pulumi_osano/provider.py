@@ -20,22 +20,40 @@ __all__ = ['ProviderArgs', 'Provider']
 class ProviderArgs:
     def __init__(__self__, *,
                  api_base_url: Optional[pulumi.Input[_builtins.str]] = None,
+                 customer_base_url: Optional[pulumi.Input[_builtins.str]] = None,
                  osano_api_key: Optional[pulumi.Input[_builtins.str]] = None,
                  request_timeout_seconds: Optional[pulumi.Input[_builtins.int]] = None,
+                 uc_api_key: Optional[pulumi.Input[_builtins.str]] = None,
+                 uc_base_url: Optional[pulumi.Input[_builtins.str]] = None,
                  unified_consent_api_key: Optional[pulumi.Input[_builtins.str]] = None):
         """
         The set of arguments for constructing a Provider resource.
         :param pulumi.Input[_builtins.str] api_base_url: Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com).
+        :param pulumi.Input[_builtins.str] customer_base_url: Override base URL for the Customer REST API (default: https://api.osano.com).
         :param pulumi.Input[_builtins.str] osano_api_key: Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
         :param pulumi.Input[_builtins.int] request_timeout_seconds: HTTP request timeout in seconds for Osano API calls (default 60).
+        :param pulumi.Input[_builtins.str] uc_api_key: Unified Consent API key for the Unified Consent Core API (x-uc-api-key).
+        :param pulumi.Input[_builtins.str] uc_base_url: Override base URL for the Unified Consent Core API (default: https://uc.api.osano.com).
         :param pulumi.Input[_builtins.str] unified_consent_api_key: Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret or OSANO_UC_API_KEY).
         """
         if api_base_url is not None:
             pulumi.set(__self__, "api_base_url", api_base_url)
+        if customer_base_url is not None:
+            pulumi.set(__self__, "customer_base_url", customer_base_url)
         if osano_api_key is not None:
             pulumi.set(__self__, "osano_api_key", osano_api_key)
         if request_timeout_seconds is not None:
             pulumi.set(__self__, "request_timeout_seconds", request_timeout_seconds)
+        if uc_api_key is not None:
+            warnings.warn("""use unifiedConsentApiKey instead""", DeprecationWarning)
+            pulumi.log.warn("""uc_api_key is deprecated: use unifiedConsentApiKey instead""")
+        if uc_api_key is not None:
+            pulumi.set(__self__, "uc_api_key", uc_api_key)
+        if uc_base_url is not None:
+            warnings.warn("""use apiBaseUrl instead""", DeprecationWarning)
+            pulumi.log.warn("""uc_base_url is deprecated: use apiBaseUrl instead""")
+        if uc_base_url is not None:
+            pulumi.set(__self__, "uc_base_url", uc_base_url)
         if unified_consent_api_key is not None:
             pulumi.set(__self__, "unified_consent_api_key", unified_consent_api_key)
 
@@ -50,6 +68,18 @@ class ProviderArgs:
     @api_base_url.setter
     def api_base_url(self, value: Optional[pulumi.Input[_builtins.str]]):
         pulumi.set(self, "api_base_url", value)
+
+    @_builtins.property
+    @pulumi.getter(name="customerBaseUrl")
+    def customer_base_url(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        Override base URL for the Customer REST API (default: https://api.osano.com).
+        """
+        return pulumi.get(self, "customer_base_url")
+
+    @customer_base_url.setter
+    def customer_base_url(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "customer_base_url", value)
 
     @_builtins.property
     @pulumi.getter(name="osanoApiKey")
@@ -76,6 +106,32 @@ class ProviderArgs:
         pulumi.set(self, "request_timeout_seconds", value)
 
     @_builtins.property
+    @pulumi.getter(name="ucApiKey")
+    @_utilities.deprecated("""use unifiedConsentApiKey instead""")
+    def uc_api_key(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        Unified Consent API key for the Unified Consent Core API (x-uc-api-key).
+        """
+        return pulumi.get(self, "uc_api_key")
+
+    @uc_api_key.setter
+    def uc_api_key(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "uc_api_key", value)
+
+    @_builtins.property
+    @pulumi.getter(name="ucBaseUrl")
+    @_utilities.deprecated("""use apiBaseUrl instead""")
+    def uc_base_url(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        Override base URL for the Unified Consent Core API (default: https://uc.api.osano.com).
+        """
+        return pulumi.get(self, "uc_base_url")
+
+    @uc_base_url.setter
+    def uc_base_url(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "uc_base_url", value)
+
+    @_builtins.property
     @pulumi.getter(name="unifiedConsentApiKey")
     def unified_consent_api_key(self) -> Optional[pulumi.Input[_builtins.str]]:
         """
@@ -95,8 +151,11 @@ class Provider(pulumi.ProviderResource):
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
                  api_base_url: Optional[pulumi.Input[_builtins.str]] = None,
+                 customer_base_url: Optional[pulumi.Input[_builtins.str]] = None,
                  osano_api_key: Optional[pulumi.Input[_builtins.str]] = None,
                  request_timeout_seconds: Optional[pulumi.Input[_builtins.int]] = None,
+                 uc_api_key: Optional[pulumi.Input[_builtins.str]] = None,
+                 uc_base_url: Optional[pulumi.Input[_builtins.str]] = None,
                  unified_consent_api_key: Optional[pulumi.Input[_builtins.str]] = None,
                  __props__=None):
         """
@@ -104,8 +163,11 @@ class Provider(pulumi.ProviderResource):
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
         :param pulumi.Input[_builtins.str] api_base_url: Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com).
+        :param pulumi.Input[_builtins.str] customer_base_url: Override base URL for the Customer REST API (default: https://api.osano.com).
         :param pulumi.Input[_builtins.str] osano_api_key: Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
         :param pulumi.Input[_builtins.int] request_timeout_seconds: HTTP request timeout in seconds for Osano API calls (default 60).
+        :param pulumi.Input[_builtins.str] uc_api_key: Unified Consent API key for the Unified Consent Core API (x-uc-api-key).
+        :param pulumi.Input[_builtins.str] uc_base_url: Override base URL for the Unified Consent Core API (default: https://uc.api.osano.com).
         :param pulumi.Input[_builtins.str] unified_consent_api_key: Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret or OSANO_UC_API_KEY).
         """
         ...
@@ -132,8 +194,11 @@ class Provider(pulumi.ProviderResource):
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
                  api_base_url: Optional[pulumi.Input[_builtins.str]] = None,
+                 customer_base_url: Optional[pulumi.Input[_builtins.str]] = None,
                  osano_api_key: Optional[pulumi.Input[_builtins.str]] = None,
                  request_timeout_seconds: Optional[pulumi.Input[_builtins.int]] = None,
+                 uc_api_key: Optional[pulumi.Input[_builtins.str]] = None,
+                 uc_base_url: Optional[pulumi.Input[_builtins.str]] = None,
                  unified_consent_api_key: Optional[pulumi.Input[_builtins.str]] = None,
                  __props__=None):
         opts = pulumi.ResourceOptions.merge(_utilities.get_resource_opts_defaults(), opts)
@@ -145,10 +210,13 @@ class Provider(pulumi.ProviderResource):
             __props__ = ProviderArgs.__new__(ProviderArgs)
 
             __props__.__dict__["api_base_url"] = api_base_url
+            __props__.__dict__["customer_base_url"] = customer_base_url
             __props__.__dict__["osano_api_key"] = None if osano_api_key is None else pulumi.Output.secret(osano_api_key)
             __props__.__dict__["request_timeout_seconds"] = pulumi.Output.from_input(request_timeout_seconds).apply(pulumi.runtime.to_json) if request_timeout_seconds is not None else None
+            __props__.__dict__["uc_api_key"] = None if uc_api_key is None else pulumi.Output.secret(uc_api_key)
+            __props__.__dict__["uc_base_url"] = uc_base_url
             __props__.__dict__["unified_consent_api_key"] = None if unified_consent_api_key is None else pulumi.Output.secret(unified_consent_api_key)
-        secret_opts = pulumi.ResourceOptions(additional_secret_outputs=["osanoApiKey", "unifiedConsentApiKey"])
+        secret_opts = pulumi.ResourceOptions(additional_secret_outputs=["osanoApiKey", "ucApiKey", "unifiedConsentApiKey"])
         opts = pulumi.ResourceOptions.merge(opts, secret_opts)
         super(Provider, __self__).__init__(
             'osano',
@@ -165,12 +233,38 @@ class Provider(pulumi.ProviderResource):
         return pulumi.get(self, "api_base_url")
 
     @_builtins.property
+    @pulumi.getter(name="customerBaseUrl")
+    def customer_base_url(self) -> pulumi.Output[Optional[_builtins.str]]:
+        """
+        Override base URL for the Customer REST API (default: https://api.osano.com).
+        """
+        return pulumi.get(self, "customer_base_url")
+
+    @_builtins.property
     @pulumi.getter(name="osanoApiKey")
     def osano_api_key(self) -> pulumi.Output[Optional[_builtins.str]]:
         """
         Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
         """
         return pulumi.get(self, "osano_api_key")
+
+    @_builtins.property
+    @pulumi.getter(name="ucApiKey")
+    @_utilities.deprecated("""use unifiedConsentApiKey instead""")
+    def uc_api_key(self) -> pulumi.Output[Optional[_builtins.str]]:
+        """
+        Unified Consent API key for the Unified Consent Core API (x-uc-api-key).
+        """
+        return pulumi.get(self, "uc_api_key")
+
+    @_builtins.property
+    @pulumi.getter(name="ucBaseUrl")
+    @_utilities.deprecated("""use apiBaseUrl instead""")
+    def uc_base_url(self) -> pulumi.Output[Optional[_builtins.str]]:
+        """
+        Override base URL for the Unified Consent Core API (default: https://uc.api.osano.com).
+        """
+        return pulumi.get(self, "uc_base_url")
 
     @_builtins.property
     @pulumi.getter(name="unifiedConsentApiKey")

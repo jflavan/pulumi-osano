@@ -5,12 +5,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"reflect"
 	"time"
 
 	"github.com/google/uuid"
 
-	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/infer"
 )
 
@@ -19,21 +17,20 @@ type ConsentResource struct{}
 
 // ConsentArgs represents the inputs for creating a consent record.
 type ConsentArgs struct {
-	Subject      ConsentSubject     `pulumi:"subject"`
-	Compliance   *ConsentCompliance `pulumi:"compliance,optional"`
-	Actions      []ConsentAction    `pulumi:"actions"`
-	Attributes   map[string]string  `pulumi:"attributes,optional"`
-	Origin       string             `pulumi:"origin,optional"`
-	Jurisdiction string             `pulumi:"jurisdiction,optional"`
-	Tags         []string           `pulumi:"tags,optional"`
+	Subject      ConsentSubject     `pulumi:"subject" provider:"replaceOnChanges"`
+	Compliance   *ConsentCompliance `pulumi:"compliance,optional" provider:"replaceOnChanges"`
+	Actions      []ConsentAction    `pulumi:"actions" provider:"replaceOnChanges"`
+	Attributes   map[string]string  `pulumi:"attributes,optional" provider:"replaceOnChanges"`
+	Origin       string             `pulumi:"origin,optional" provider:"replaceOnChanges"`
+	Jurisdiction string             `pulumi:"jurisdiction,optional" provider:"replaceOnChanges"`
+	Tags         []string           `pulumi:"tags,optional" provider:"replaceOnChanges"`
 }
 
-// ConsentState stores persisted consent metadata and the latest API response.
+// ConsentState stores persisted consent metadata for an immutable consent submission.
 type ConsentState struct {
 	ConsentArgs
-	ConsentID  string         `pulumi:"consentId"`
-	LastSynced string         `pulumi:"lastSynced"`
-	Response   map[string]any `pulumi:"response"`
+	ConsentID  string `pulumi:"consentId"`
+	LastSynced string `pulumi:"lastSynced"`
 }
 
 // ConsentSubject identifies the subject for whom consent is recorded.
@@ -88,29 +85,6 @@ func (args *ConsentArgs) Annotate(a infer.Annotator) {
 func (state *ConsentState) Annotate(a infer.Annotator) {
 	a.Describe(&state.ConsentID, "Synthetic identifier used by Pulumi to track consent submissions.")
 	a.Describe(&state.LastSynced, "Timestamp of the last refresh from the Osano API (RFC3339).")
-	a.Describe(&state.Response, "Latest raw response payload returned by Osano.")
-}
-
-// Diff reports when a consent resource update should submit a new consent record.
-func (r *ConsentResource) Diff(
-	ctx context.Context, req infer.DiffRequest[ConsentArgs, ConsentState],
-) (infer.DiffResponse, error) {
-	if fingerprintsEqual(req.Inputs, req.State.ConsentArgs) {
-		return infer.DiffResponse{}, nil
-	}
-
-	return infer.DiffResponse{
-		HasChanges: true,
-		DetailedDiff: map[string]p.PropertyDiff{
-			"subject":      {Kind: p.Update},
-			"actions":      {Kind: p.Update},
-			"attributes":   {Kind: p.Update},
-			"compliance":   {Kind: p.Update},
-			"jurisdiction": {Kind: p.Update},
-			"origin":       {Kind: p.Update},
-			"tags":         {Kind: p.Update},
-		},
-	}, nil
 }
 
 // Create submits a new consent record to Osano.
@@ -132,13 +106,13 @@ func (r *ConsentResource) Create(
 func (r *ConsentResource) Read(
 	ctx context.Context, req infer.ReadRequest[ConsentArgs, ConsentState],
 ) (infer.ReadResponse[ConsentArgs, ConsentState], error) {
-	subjectRef, err := req.State.Subject.reference()
+	subjectRef, referenceType, err := req.State.Subject.referenceAndType()
 	if err != nil {
 		return infer.ReadResponse[ConsentArgs, ConsentState]{}, err
 	}
 
 	client := newAPIClient(ctx)
-	payload, found, err := client.FetchUnifiedConsent(ctx, subjectRef, "subject")
+	payload, found, err := client.FetchUnifiedConsent(ctx, subjectRef, referenceType)
 	if err != nil {
 		return infer.ReadResponse[ConsentArgs, ConsentState]{}, err
 	}
@@ -148,10 +122,6 @@ func (r *ConsentResource) Read(
 
 	updatedState := req.State
 	updatedState.LastSynced = time.Now().UTC().Format(time.RFC3339)
-	updatedState.Response = map[string]any{
-		"unifiedConsent": payload.UnifiedConsent,
-		"conflicts":      payload.Conflicts,
-	}
 
 	if payload.UnifiedConsent != nil {
 		updatedState.Actions = convertActionsFromPayload(payload.UnifiedConsent.Actions)
@@ -162,19 +132,6 @@ func (r *ConsentResource) Read(
 		ID:     req.ID,
 		Inputs: updatedState.ConsentArgs,
 		State:  updatedState,
-	}, nil
-}
-
-// Update submits a replacement consent record for the tracked subject state.
-func (r *ConsentResource) Update(
-	ctx context.Context, req infer.UpdateRequest[ConsentArgs, ConsentState],
-) (infer.UpdateResponse[ConsentState], error) {
-	state, _, err := applyConsent(ctx, req.Inputs, req.ID, req.DryRun)
-	if err != nil {
-		return infer.UpdateResponse[ConsentState]{}, err
-	}
-	return infer.UpdateResponse[ConsentState]{
-		Output: state,
 	}, nil
 }
 
@@ -204,7 +161,6 @@ func applyConsent(
 		ConsentArgs: inputs,
 		ConsentID:   id,
 		LastSynced:  time.Now().UTC().Format(time.RFC3339),
-		Response:    map[string]any{},
 	}
 
 	if dryRun {
@@ -213,11 +169,9 @@ func applyConsent(
 
 	client := newAPIClient(ctx)
 	payload := inputs.toPayload()
-	resp, err := client.CreateConsent(ctx, payload)
-	if err != nil {
+	if _, err := client.CreateConsent(ctx, payload); err != nil {
 		return ConsentState{}, "", err
 	}
-	state.Response = resp
 	return state, id, nil
 }
 
@@ -251,13 +205,18 @@ func validateConsentArgs(args ConsentArgs) error {
 }
 
 func (s ConsentSubject) reference() (string, error) {
+	ref, _, err := s.referenceAndType()
+	return ref, err
+}
+
+func (s ConsentSubject) referenceAndType() (reference, referenceType string, err error) {
 	if s.VerifiedID != "" {
-		return s.VerifiedID, nil
+		return s.VerifiedID, "subject", nil
 	}
 	if s.AnonymousID != "" {
-		return s.AnonymousID, nil
+		return s.AnonymousID, "anonymous", nil
 	}
-	return "", errors.New("either subject.verifiedId or subject.anonymousId must be set")
+	return "", "", errors.New("either subject.verifiedId or subject.anonymousId must be set")
 }
 
 func (args ConsentArgs) toPayload() consentRequestPayload {
@@ -270,10 +229,6 @@ func (args ConsentArgs) toPayload() consentRequestPayload {
 		Jurisdiction: args.Jurisdiction,
 		Tags:         args.Tags,
 	}
-}
-
-func fingerprintsEqual(a, b ConsentArgs) bool {
-	return reflect.DeepEqual(a, b)
 }
 
 func convertActionsFromPayload(actions []unifiedConsentAction) []ConsentAction {

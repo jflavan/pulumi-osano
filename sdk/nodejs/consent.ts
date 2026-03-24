@@ -62,10 +62,6 @@ export class Consent extends pulumi.CustomResource {
      */
     declare public readonly origin: pulumi.Output<string | undefined>;
     /**
-     * Latest raw response payload returned by Osano.
-     */
-    declare public /*out*/ readonly response: pulumi.Output<{[key: string]: any}>;
-    /**
      * Subject identifiers used for the consent (verifiedId or anonymousId).
      */
     declare public readonly subject: pulumi.Output<outputs.ConsentSubject>;
@@ -100,7 +96,6 @@ export class Consent extends pulumi.CustomResource {
             resourceInputs["tags"] = args?.tags;
             resourceInputs["consentId"] = undefined /*out*/;
             resourceInputs["lastSynced"] = undefined /*out*/;
-            resourceInputs["response"] = undefined /*out*/;
         } else {
             resourceInputs["actions"] = undefined /*out*/;
             resourceInputs["attributes"] = undefined /*out*/;
@@ -109,11 +104,12 @@ export class Consent extends pulumi.CustomResource {
             resourceInputs["jurisdiction"] = undefined /*out*/;
             resourceInputs["lastSynced"] = undefined /*out*/;
             resourceInputs["origin"] = undefined /*out*/;
-            resourceInputs["response"] = undefined /*out*/;
             resourceInputs["subject"] = undefined /*out*/;
             resourceInputs["tags"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
+        const replaceOnChanges = { replaceOnChanges: ["actions[*]", "attributes.*", "compliance", "jurisdiction", "origin", "subject", "tags[*]"] };
+        opts = pulumi.mergeOptions(opts, replaceOnChanges);
         super(Consent.__pulumiType, name, resourceInputs, opts);
     }
 }

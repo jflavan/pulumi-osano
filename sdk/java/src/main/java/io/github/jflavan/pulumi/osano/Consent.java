@@ -12,7 +12,6 @@ import io.github.jflavan.pulumi.osano.Utilities;
 import io.github.jflavan.pulumi.osano.outputs.ConsentAction;
 import io.github.jflavan.pulumi.osano.outputs.ConsentCompliance;
 import io.github.jflavan.pulumi.osano.outputs.ConsentSubject;
-import java.lang.Object;
 import java.lang.String;
 import java.util.List;
 import java.util.Map;
@@ -21,34 +20,34 @@ import javax.annotation.Nullable;
 
 /**
  * Creates unified consent decisions within Osano for a given subject.
- * 
+ *
  */
 @ResourceType(type="osano:index:Consent")
 public class Consent extends com.pulumi.resources.CustomResource {
     /**
      * Consent actions referencing privacy protocols (target) within a configuration (vendor).
-     * 
+     *
      */
     @Export(name="actions", refs={List.class,ConsentAction.class}, tree="[0,1]")
     private Output<List<ConsentAction>> actions;
 
     /**
      * @return Consent actions referencing privacy protocols (target) within a configuration (vendor).
-     * 
+     *
      */
     public Output<List<ConsentAction>> actions() {
         return this.actions;
     }
     /**
      * Optional key/value attributes stored with the consent record (e.g., ipAddress overrides).
-     * 
+     *
      */
     @Export(name="attributes", refs={Map.class,String.class}, tree="[0,1,1]")
     private Output</* @Nullable */ Map<String,String>> attributes;
 
     /**
      * @return Optional key/value attributes stored with the consent record (e.g., ipAddress overrides).
-     * 
+     *
      */
     public Output<Optional<Map<String,String>>> attributes() {
         return Codegen.optional(this.attributes);
@@ -61,98 +60,84 @@ public class Consent extends com.pulumi.resources.CustomResource {
     }
     /**
      * Synthetic identifier used by Pulumi to track consent submissions.
-     * 
+     *
      */
     @Export(name="consentId", refs={String.class}, tree="[0]")
     private Output<String> consentId;
 
     /**
      * @return Synthetic identifier used by Pulumi to track consent submissions.
-     * 
+     *
      */
     public Output<String> consentId() {
         return this.consentId;
     }
     /**
      * Optional jurisdiction override matching one of the configuration&#39;s jurisdictions.
-     * 
+     *
      */
     @Export(name="jurisdiction", refs={String.class}, tree="[0]")
     private Output</* @Nullable */ String> jurisdiction;
 
     /**
      * @return Optional jurisdiction override matching one of the configuration&#39;s jurisdictions.
-     * 
+     *
      */
     public Output<Optional<String>> jurisdiction() {
         return Codegen.optional(this.jurisdiction);
     }
     /**
      * Timestamp of the last refresh from the Osano API (RFC3339).
-     * 
+     *
      */
     @Export(name="lastSynced", refs={String.class}, tree="[0]")
     private Output<String> lastSynced;
 
     /**
      * @return Timestamp of the last refresh from the Osano API (RFC3339).
-     * 
+     *
      */
     public Output<String> lastSynced() {
         return this.lastSynced;
     }
     /**
      * Origin metadata for the consent, typically &#39;api&#39; or &#39;gpc&#39;.
-     * 
+     *
      */
     @Export(name="origin", refs={String.class}, tree="[0]")
     private Output</* @Nullable */ String> origin;
 
     /**
      * @return Origin metadata for the consent, typically &#39;api&#39; or &#39;gpc&#39;.
-     * 
+     *
      */
     public Output<Optional<String>> origin() {
         return Codegen.optional(this.origin);
     }
     /**
-     * Latest raw response payload returned by Osano.
-     * 
-     */
-    @Export(name="response", refs={Map.class,String.class,Object.class}, tree="[0,1,2]")
-    private Output<Map<String,Object>> response;
-
-    /**
-     * @return Latest raw response payload returned by Osano.
-     * 
-     */
-    public Output<Map<String,Object>> response() {
-        return this.response;
-    }
-    /**
      * Subject identifiers used for the consent (verifiedId or anonymousId).
-     * 
+     *
      */
     @Export(name="subject", refs={ConsentSubject.class}, tree="[0]")
     private Output<ConsentSubject> subject;
 
     /**
      * @return Subject identifiers used for the consent (verifiedId or anonymousId).
-     * 
+     *
      */
     public Output<ConsentSubject> subject() {
         return this.subject;
     }
     /**
      * Custom tags that Osano associates with the consent record.
-     * 
+     *
      */
     @Export(name="tags", refs={List.class,String.class}, tree="[0,1]")
     private Output</* @Nullable */ List<String>> tags;
 
     /**
      * @return Custom tags that Osano associates with the consent record.
-     * 
+     *
      */
     public Output<Optional<List<String>>> tags() {
         return Codegen.optional(this.tags);

@@ -13,6 +13,7 @@ import (
 )
 
 const (
+	defaultCustomerBaseURL    = "https://api.osano.com"
 	defaultAPIBaseURL         = "https://uc.api.osano.com"
 	defaultRequestTimeoutSecs = 60
 
@@ -26,7 +27,10 @@ const (
 type Config struct {
 	OsanoAPIKey           string `pulumi:"osanoApiKey,optional" provider:"secret"`
 	UnifiedConsentAPIKey  string `pulumi:"unifiedConsentApiKey,optional" provider:"secret"`
+	UCAPIKey              string `pulumi:"ucApiKey,optional" provider:"secret"`
+	CustomerBaseURL       string `pulumi:"customerBaseUrl,optional"`
 	APIBaseURL            string `pulumi:"apiBaseUrl,optional"`
+	UCBaseURL             string `pulumi:"ucBaseUrl,optional"`
 	RequestTimeoutSeconds int    `pulumi:"requestTimeoutSeconds,optional"`
 }
 
@@ -42,11 +46,19 @@ func (c *Config) Annotate(a infer.Annotator) {
 		"Unified Consent API key used for consent collection routes "+
 			"(set via pulumi config set osano:unifiedConsentApiKey --secret or OSANO_UC_API_KEY).",
 	)
+	a.Describe(&c.UCAPIKey, "Unified Consent API key for the Unified Consent Core API (x-uc-api-key).")
+	a.Deprecate(&c.UCAPIKey, "use unifiedConsentApiKey instead")
+	a.Describe(
+		&c.CustomerBaseURL,
+		"Override base URL for the Customer REST API (default: https://api.osano.com).",
+	)
 	a.Describe(
 		&c.APIBaseURL,
 		"Base URL for the Osano Unified Consent API. Override only when targeting a custom domain "+
 			"(default https://uc.api.osano.com).",
 	)
+	a.Describe(&c.UCBaseURL, "Override base URL for the Unified Consent Core API (default: https://uc.api.osano.com).")
+	a.Deprecate(&c.UCBaseURL, "use apiBaseUrl instead")
 	a.Describe(&c.RequestTimeoutSeconds,
 		"HTTP request timeout in seconds for Osano API calls (default 60).",
 	)
@@ -54,8 +66,13 @@ func (c *Config) Annotate(a infer.Annotator) {
 
 // Configure ensures sane defaults for optional configuration values.
 func (c *Config) Configure(ctx context.Context) error {
+	_ = ctx
+
+	if c.CustomerBaseURL == "" {
+		c.CustomerBaseURL = defaultCustomerBaseURL
+	}
 	if c.APIBaseURL == "" {
-		c.APIBaseURL = defaultAPIBaseURL
+		c.APIBaseURL = c.unifiedConsentBaseURL()
 	}
 	if c.RequestTimeoutSeconds <= 0 {
 		c.RequestTimeoutSeconds = defaultRequestTimeoutSecs
@@ -78,8 +95,8 @@ func loadAPISettings(ctx context.Context) *apiSettings {
 	cfg := infer.GetConfig[*Config](ctx)
 
 	baseURL := getFirstNonEmpty(os.Getenv(envAPIBaseURL))
-	if baseURL == "" && cfg != nil && cfg.APIBaseURL != "" {
-		baseURL = cfg.APIBaseURL
+	if baseURL == "" && cfg != nil {
+		baseURL = cfg.unifiedConsentBaseURL()
 	}
 	if baseURL == "" {
 		baseURL = defaultAPIBaseURL
@@ -92,7 +109,7 @@ func loadAPISettings(ctx context.Context) *apiSettings {
 
 	ucKey := getFirstNonEmpty(os.Getenv(envUnifiedConsent))
 	if ucKey == "" && cfg != nil {
-		ucKey = cfg.UnifiedConsentAPIKey
+		ucKey = cfg.unifiedConsentAPIKey()
 	}
 
 	timeout := defaultRequestTimeoutSecs
@@ -120,6 +137,18 @@ func getFirstNonEmpty(values ...string) string {
 		}
 	}
 	return ""
+}
+
+func (c *Config) unifiedConsentAPIKey() string {
+	return getFirstNonEmpty(c.UnifiedConsentAPIKey, c.UCAPIKey)
+}
+
+func (c *Config) unifiedConsentBaseURL() string {
+	return getFirstNonEmpty(c.APIBaseURL, c.UCBaseURL, defaultAPIBaseURL)
+}
+
+func (c *Config) customerBaseURL() string {
+	return getFirstNonEmpty(c.CustomerBaseURL, defaultCustomerBaseURL)
 }
 
 func newHTTPClient(timeout time.Duration) *http.Client {
