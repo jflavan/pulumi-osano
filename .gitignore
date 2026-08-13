@@ -30,3 +30,6 @@ coverage.txt
 
 # Auto Claude data directory
 .auto-claude/
+
+# Local feature worktrees
+.worktrees/
