@@ -28,7 +28,7 @@
 > Pulumi stores resource inputs and outputs. Mark subject IDs, tags, attributes, and other PII as secrets. Provider API-key configuration inferred into provider state is marked `secret: true`; keep source config encrypted with `pulumi config set --secret`. Public CMP `scriptSrc` and `scriptTag` outputs intentionally are not secrets.
 
 **How are API errors surfaced?**
-> Diagnostics identify the operation, status, and relevant resource ID without including API keys. Use the status-specific guidance in [troubleshooting.md](./troubleshooting.md).
+> Publication terminal-status diagnostics contain `status`, `lastPublished`, and `publishedRevision`; they contain neither the config ID nor the API key. Other request diagnostics vary by operation. Use the status-specific guidance in [troubleshooting.md](./troubleshooting.md).
 
 **Where can I ask more questions?**
 > Open a GitHub Discussion or an issue. Never share real subject identifiers or API keys.

@@ -104,7 +104,7 @@ If you're working from a repository clone instead of published packages, the rep
 
 ## Cookie Consent end to end
 
-The canonical [C# Cookie Consent example](./examples/cookie-consent) creates a CMP configuration and its rules, then uses `CookieConsentPublication` to publish only after those resources settle. The companion TypeScript example implements the same lifecycle. Both compute a deterministic `changeToken`, declare explicit [`dependsOn`](https://www.pulumi.com/docs/iac/concepts/resources/options/dependson/) relationships, and allow a twenty-minute [`customTimeouts`](https://www.pulumi.com/docs/iac/concepts/resources/options/customtimeouts/) window.
+The canonical [C# Cookie Consent example](https://github.com/jflavan/pulumi-osano/tree/main/examples/cookie-consent) creates a CMP configuration and its rules, then uses `CookieConsentPublication` to publish only after those resources settle. The companion TypeScript example implements the same lifecycle. Both compute a deterministic `changeToken`, declare explicit [`dependsOn`](https://www.pulumi.com/docs/iac/concepts/resources/options/dependson/) relationships, and allow a twenty-minute [`customTimeouts`](https://www.pulumi.com/docs/iac/concepts/resources/options/customtimeouts/) window.
 
 Cookie Consent resources require a Customer REST API key:
 
@@ -126,7 +126,7 @@ return new Dictionary<string, object?>
 
 `scriptSrc` has the form `https://cmp.osano.com/{customerId}/{configId}/osano.js`; `scriptTag` is exactly `<script src="{scriptSrc}"></script>`. These installation values are deliberately non-secret. Put the returned tag first in the site `<head>` without `async` or `defer`, so the CMP loads before scripts it may control. Publication completion and CDN propagation are separate; the latest revision may take up to 15 minutes to reach every edge location.
 
-See the [Osano Customer REST API](https://developers.osano.com/customer-rest-api), [Consent JavaScript API](https://developers.osano.com/cmp/javascript-api/developer-documentation-consent-javascript-api), and [publish or republish guide](https://docs.osano.com/hc/en-us/articles/24425173212308-Publish-or-Republish-Cookie-Consent) for the upstream contracts.
+See Osano's [Consent JavaScript API](https://developers.osano.com/cmp/javascript-api/developer-documentation-consent-javascript-api) and direct Customer REST API [`publishConfig` operation](https://developers.osano.com/customer-rest-api#tag/cmp/operation/publishConfig) for the upstream contracts.
 
 ## Authentication
 
@@ -170,7 +170,7 @@ Resource-level inputs are documented in the auto-generated SDK docs (see the GoD
 - [examples/quickstart/typescript](./examples/quickstart/typescript)
 - [examples/quickstart/python](./examples/quickstart/python)
 - [examples/quickstart/go](./examples/quickstart/go)
-- [examples/cookie-consent](./examples/cookie-consent) (canonical C# and companion TypeScript)
+- [examples/cookie-consent](https://github.com/jflavan/pulumi-osano/tree/main/examples/cookie-consent) (canonical C# and companion TypeScript)
 
 These repo-local examples contain `Pulumi.yaml` plus language-specific dependency files. The shared quickstart README documents the local SDK setup required when running them from a clone.
 

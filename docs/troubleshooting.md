@@ -57,8 +57,9 @@ submissions. Avoid concurrent publication resources for the same config.
 to poll. Open the configuration in Osano, inspect its publication/configuration
 validation details, and correct the configuration or rules. Then change the
 publish-relevant desired state (and therefore `changeToken`) and run one new
-`pulumi up`. The diagnostic includes the config ID and observed publication
-metadata but never the API key.
+`pulumi up`. The terminal diagnostic contains `status`, `lastPublished`, and
+`publishedRevision` from the current response (the metadata values are zero when
+Osano does not provide them). It contains neither the config ID nor the API key.
 
 ### Publication timeout or cancellation
 
@@ -103,7 +104,7 @@ is `published`. Osano's CDN may take up to 15 minutes after that point to serve
 the newest script revision at every edge. Keep the exact returned tag first in
 the site `<head>` with no `async` or `defer`, and allow the propagation window
 before diagnosing the script as stale. See Osano's
-[publish/republish guide](https://docs.osano.com/hc/en-us/articles/24425173212308-Publish-or-Republish-Cookie-Consent)
+[direct Customer REST API `publishConfig` operation](https://developers.osano.com/customer-rest-api#tag/cmp/operation/publishConfig)
 and [Consent JavaScript API](https://developers.osano.com/cmp/javascript-api/developer-documentation-consent-javascript-api).
 
 ## Other API errors
