@@ -5,12 +5,8 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
-	"fmt"
 	"net/url"
 	"slices"
-
-	osanoclient "github.com/jflavan/pulumi-osano/provider/internal/osano"
 
 	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/infer"
@@ -79,19 +75,6 @@ type cmpConfigResponse struct {
 	LastPublished       int    `json:"lastPublished"`
 	PublishedRevision   int    `json:"publishedRevision"`
 	TattleRecordStopped bool   `json:"tattleRecordStopped"`
-}
-
-func customerClientFromConfig(cfg Config) (*osanoclient.Client, error) {
-	if cfg.OsanoAPIKey == "" {
-		return nil, errors.New("provider config osanoApiKey is required for Customer REST API operations")
-	}
-
-	baseURL, err := url.Parse(cfg.customerBaseURL())
-	if err != nil {
-		return nil, fmt.Errorf("invalid customerBaseUrl: %w", err)
-	}
-
-	return osanoclient.NewClient(baseURL, "x-osano-api-key", cfg.OsanoAPIKey), nil
 }
 
 // Check validates CookieConsentConfig inputs before create or update.

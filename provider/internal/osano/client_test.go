@@ -51,6 +51,20 @@ func TestNewClientOptions(t *testing.T) {
 	}
 }
 
+func TestNewClientUsesProvidedHTTPClient(t *testing.T) {
+	t.Parallel()
+
+	baseURL, err := url.Parse("https://api.example.com")
+	if err != nil {
+		t.Fatal(err)
+	}
+	httpClient := &http.Client{Timeout: 17 * time.Second}
+	client := NewClient(baseURL, "x-osano-api-key", "key", WithHTTPClient(httpClient))
+	if client.http != httpClient {
+		t.Fatal("expected NewClient to retain the provided HTTP client")
+	}
+}
+
 func TestShouldRetry(t *testing.T) {
 	t.Parallel()
 
@@ -113,6 +127,19 @@ func TestRetryAfterDelay(t *testing.T) {
 				t.Fatalf("retryAfterDelay(%q) delay = %v, want %v", tc.value, delay, tc.wantDelay)
 			}
 		})
+	}
+}
+
+func TestRetryAfterDelayHTTPDate(t *testing.T) {
+	t.Parallel()
+
+	retryAt := time.Now().Add(time.Hour).UTC().Format(http.TimeFormat)
+	delay, ok := retryAfterDelay(retryAt)
+	if !ok {
+		t.Fatal("expected HTTP-date Retry-After to be accepted")
+	}
+	if delay < 59*time.Minute || delay > time.Hour {
+		t.Fatalf("expected delay close to one hour, got %s", delay)
 	}
 }
 

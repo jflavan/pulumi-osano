@@ -50,6 +50,15 @@ func WithInitialBackoff(backoff time.Duration) ClientOption {
 	}
 }
 
+// WithHTTPClient uses httpClient for requests when it is non-nil.
+func WithHTTPClient(httpClient *http.Client) ClientOption {
+	return func(c *Client) {
+		if httpClient != nil {
+			c.http = httpClient
+		}
+	}
+}
+
 // NewClient builds an Osano HTTP client using the provided base URL and API key header.
 func NewClient(baseURL *url.URL, headerName, apiKey string, opts ...ClientOption) *Client {
 	client := &Client{
