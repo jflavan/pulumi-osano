@@ -2,6 +2,10 @@ package provider
 
 import (
 	"context"
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"reflect"
 	"testing"
 
 	p "github.com/pulumi/pulumi-go-provider"
@@ -138,6 +142,249 @@ func TestCookieConsentConfigDiff(t *testing.T) {
 		}
 		assertDiffKind(t, resp, "configuration", p.Update)
 	})
+
+	t.Run("removed configuration key", func(t *testing.T) {
+		state := baseConfigState()
+		inputs := baseConfigArgs()
+		inputs.Configuration = map[string]any{
+			"storagePolicyHref": "https://example.com/storage-policy",
+		}
+		resp, err := resource.Diff(ctx, infer.DiffRequest[CookieConsentConfigArgs, CookieConsentConfigState]{
+			State: state, Inputs: inputs,
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		assertDiffKind(t, resp, "configuration", p.Update)
+	})
+}
+
+func TestCookieConsentConfigReadLifecycle(t *testing.T) {
+	t.Run("read returns empty ID when config is missing", func(t *testing.T) {
+		api := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			assertCMPRequest(t, r, http.MethodGet, "/v1/cookie-consent/configs/config-404")
+			w.WriteHeader(http.StatusNotFound)
+		}))
+		defer api.Close()
+
+		server := newCMPProviderServer(t, api.URL)
+		resp, err := server.Read(p.ReadRequest{
+			ID:         "config-404",
+			Urn:        cmpURN("CookieConsentConfig", "missing"),
+			Properties: configStateProperties(),
+			Inputs:     emptyConfigInputProperties(),
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if resp.ID != "" {
+			t.Fatalf("expected missing resource ID, got %q", resp.ID)
+		}
+	})
+
+	t.Run("import read reconstructs inputs and state", func(t *testing.T) {
+		api := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			assertCMPRequest(t, r, http.MethodGet, "/v1/cookie-consent/configs/config-123")
+			writeCMPConfigResponse(t, w)
+		}))
+		defer api.Close()
+
+		server := newCMPProviderServer(t, api.URL)
+		resp, err := server.Read(p.ReadRequest{
+			ID:         "config-123",
+			Urn:        cmpURN("CookieConsentConfig", "imported"),
+			Properties: configStateProperties(),
+			Inputs:     emptyConfigInputProperties(),
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if resp.ID != "config-123" {
+			t.Fatalf("expected config ID, got %q", resp.ID)
+		}
+		assertCMPConfigProperties(t, resp.Properties)
+		assertCMPConfigInputs(t, resp.Inputs)
+	})
+
+	t.Run("create sends config payload and returns response metadata", func(t *testing.T) {
+		api := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			assertCMPRequest(t, r, http.MethodPost, "/v1/cookie-consent/configs")
+			assertCMPRequestBody(t, r)
+			writeCMPConfigResponse(t, w)
+		}))
+		defer api.Close()
+
+		server := newCMPProviderServer(t, api.URL)
+		resp, err := server.Create(p.CreateRequest{
+			Urn:        cmpURN("CookieConsentConfig", "created"),
+			Properties: configInputProperties(),
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if resp.ID != "config-123" {
+			t.Fatalf("expected config ID, got %q", resp.ID)
+		}
+		assertCMPConfigProperties(t, resp.Properties)
+	})
+
+	t.Run("update sends config payload and returns response metadata", func(t *testing.T) {
+		api := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			assertCMPRequest(t, r, http.MethodPatch, "/v1/cookie-consent/configs/config-123")
+			assertCMPRequestBody(t, r)
+			writeCMPConfigResponse(t, w)
+		}))
+		defer api.Close()
+
+		server := newCMPProviderServer(t, api.URL)
+		resp, err := server.Update(p.UpdateRequest{
+			ID:     "config-123",
+			Urn:    cmpURN("CookieConsentConfig", "updated"),
+			State:  configStateProperties(),
+			Inputs: configInputProperties(),
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		assertCMPConfigProperties(t, resp.Properties)
+	})
+
+	t.Run("delete makes no upstream request", func(t *testing.T) {
+		api := httptest.NewServer(http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
+			t.Fatalf("delete must not call upstream, received %s %s", r.Method, r.URL.Path)
+		}))
+		defer api.Close()
+
+		server := newCMPProviderServer(t, api.URL)
+		err := server.Delete(p.DeleteRequest{
+			ID:         "config-123",
+			Urn:        cmpURN("CookieConsentConfig", "deleted"),
+			Properties: configStateProperties(),
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+	})
+}
+
+func assertCMPRequest(t *testing.T, r *http.Request, method, path string) {
+	t.Helper()
+	if r.Method != method {
+		t.Fatalf("expected %s request, got %s", method, r.Method)
+	}
+	if r.URL.Path != path {
+		t.Fatalf("expected path %q, got %q", path, r.URL.Path)
+	}
+	if got := r.Header.Get("x-osano-api-key"); got != "test-osano-key" {
+		t.Fatalf("expected x-osano-api-key header, got %q", got)
+	}
+}
+
+func assertCMPRequestBody(t *testing.T, r *http.Request) {
+	t.Helper()
+	var body map[string]any
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		t.Fatal(err)
+	}
+	want := map[string]any{
+		"name":    "cookie-consent",
+		"domains": []any{"example.com"},
+		"mode":    "debug",
+		"orgIds":  []any{"org-123"},
+		"configuration": map[string]any{
+			"storagePolicyHref": "https://example.com/storage-policy",
+			"flag":              true,
+		},
+	}
+	if !reflect.DeepEqual(body, want) {
+		t.Fatalf("unexpected request body: %#v", body)
+	}
+}
+
+func writeCMPConfigResponse(t *testing.T, w http.ResponseWriter) {
+	t.Helper()
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(cmpConfigResponseFixture()); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func assertCMPConfigProperties(t *testing.T, properties property.Map) {
+	t.Helper()
+	assertCMPConfigInputs(t, properties)
+	if got := properties.Get("configId").AsString(); got != "config-123" {
+		t.Fatalf("expected config ID metadata, got %q", got)
+	}
+	if got := properties.Get("customerId").AsString(); got != "customer-123" {
+		t.Fatalf("expected customer ID metadata, got %q", got)
+	}
+	if got := int(properties.Get("publishedRevision").AsNumber()); got != 7 {
+		t.Fatalf("expected published revision metadata, got %d", got)
+	}
+}
+
+func assertCMPConfigInputs(t *testing.T, properties property.Map) {
+	t.Helper()
+	if got := properties.Get("name").AsString(); got != "cookie-consent" {
+		t.Fatalf("expected name, got %q", got)
+	}
+	if got := properties.Get("domains").AsArray().Get(0).AsString(); got != "example.com" {
+		t.Fatalf("expected domain, got %q", got)
+	}
+	if got := properties.Get("mode").AsString(); got != "debug" {
+		t.Fatalf("expected mode, got %q", got)
+	}
+	if got := properties.Get("orgIds").AsArray().Get(0).AsString(); got != "org-123" {
+		t.Fatalf("expected organization ID, got %q", got)
+	}
+	if got := properties.Get("configuration").AsMap().Get("storagePolicyHref").AsString(); got != "https://example.com/storage-policy" {
+		t.Fatalf("expected configuration storage policy URL, got %q", got)
+	}
+}
+
+func configInputProperties() property.Map {
+	return property.NewMap(map[string]property.Value{
+		"name":    property.New("cookie-consent"),
+		"domains": property.New([]property.Value{property.New("example.com")}),
+		"mode":    property.New("debug"),
+		"orgIds":  property.New([]property.Value{property.New("org-123")}),
+		"configuration": property.New(property.NewMap(map[string]property.Value{
+			"storagePolicyHref": property.New("https://example.com/storage-policy"),
+			"flag":              property.New(true),
+		})),
+	})
+}
+
+func configStateProperties() property.Map {
+	return configInputProperties().Set("configId", property.New("config-123"))
+}
+
+func emptyConfigInputProperties() property.Map {
+	return property.NewMap(map[string]property.Value{
+		"name":          {},
+		"domains":       {},
+		"mode":          {},
+		"orgIds":        {},
+		"configuration": {},
+	})
+}
+
+func cmpConfigResponseFixture() cmpConfigResponse {
+	return cmpConfigResponse{
+		Name:                "cookie-consent",
+		Domains:             []string{"example.com"},
+		Mode:                "debug",
+		OrgIDs:              []string{"org-123"},
+		Configuration:       map[string]any{"storagePolicyHref": "https://example.com/storage-policy", "flag": true},
+		ConfigID:            "config-123",
+		CustomerID:          "customer-123",
+		Created:             100,
+		Updated:             200,
+		PublishStatus:       "published",
+		LastPublished:       300,
+		PublishedRevision:   7,
+		TattleRecordStopped: true,
+	}
 }
 
 func validConfigCheckInputValues() map[string]property.Value {
