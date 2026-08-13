@@ -133,13 +133,12 @@ func TestRetryAfterDelay(t *testing.T) {
 func TestRetryAfterDelayHTTPDate(t *testing.T) {
 	t.Parallel()
 
-	retryAt := time.Now().Add(time.Hour).UTC().Format(http.TimeFormat)
-	delay, ok := retryAfterDelay(retryAt)
+	delay, ok := retryAfterDelay("Wed, 21 Oct 2015 07:28:00 GMT")
 	if !ok {
 		t.Fatal("expected HTTP-date Retry-After to be accepted")
 	}
-	if delay < 59*time.Minute || delay > time.Hour {
-		t.Fatalf("expected delay close to one hour, got %s", delay)
+	if delay != 0 {
+		t.Fatalf("expected a past HTTP-date Retry-After delay of 0, got %s", delay)
 	}
 }
 
