@@ -6,12 +6,12 @@ export the hosted CMP script URL and complete script tag. C# is the canonical
 example; TypeScript is a companion for this repository's baseline language
 policy.
 
-Compilation is offline with respect to Osano: `dotnet build`, `tsc`, and
-`pulumi preview` do not publish. Only an opted-in `pulumi up` creates the
-configuration and rules and then queues publication. The publication depends
-on the configuration and every rule. Its deterministic `changeToken` is the
-SHA-256 hash of the complete desired configuration/rule descriptor, so an
-unchanged `pulumi up` does not publish again.
+Compilation, local provider installation, and `pulumi preview` do not publish
+to Osano. Only an opted-in `pulumi up` creates the configuration and rules and
+then queues publication. The publication depends on the configuration and
+every rule. Its deterministic `changeToken` is the SHA-256 hash of the complete
+desired configuration/rule descriptor, so an unchanged `pulumi up` does not
+publish again.
 
 ## C# from a clone
 
@@ -19,10 +19,15 @@ The committed C# project references the generated SDK at
 `sdk/dotnet/Community.Pulumi.Osano.csproj`. From the repository root:
 
 ```bash
-mise exec -- dotnet build examples/cookie-consent/csharp/CookieConsent.csproj
+mise exec -- make build_cookie_consent_examples PROVIDER_VERSION=1.0.0-alpha.0+dev
 cd examples/cookie-consent/csharp
 pulumi stack init dev
 ```
+
+The Make target builds the generated .NET and Node.js SDKs, creates ignored
+local artifacts including `sdk/dotnet/version.txt` and `sdk/nodejs/bin`, and
+compiles both examples. It does not install a provider plugin, run a Pulumi
+deployment, or contact Osano.
 
 ## C# with the released NuGet package
 
@@ -34,8 +39,11 @@ its local `<ProjectReference>` with the released package reference:
 ```
 
 Keep the existing Pulumi package reference, then run `dotnet restore` and
-`pulumi stack init dev`. Use an actual published version in place of
-`RELEASED_VERSION`.
+`dotnet build`, followed by `pulumi stack init dev`. Use an actual published
+version in place of `RELEASED_VERSION`. In this released-package workflow, the
+SDK requests its matching released provider plugin and Pulumi downloads that
+plugin automatically when the program runs; do not install the checkout's dev
+binary for it.
 
 ## TypeScript companion
 
@@ -44,17 +52,39 @@ The TypeScript project references the generated Node.js SDK at
 dependencies, and 20-minute create/update timeouts:
 
 ```bash
+mise exec -- make build_cookie_consent_examples PROVIDER_VERSION=1.0.0-alpha.0+dev
 cd examples/cookie-consent/typescript
-mise exec -- yarn install --frozen-lockfile
-mise exec -- yarn run tsc --noEmit
 pulumi stack init dev
 ```
+
+Run the Make command from the repository root. It materializes the ignored
+`sdk/nodejs/bin` package before the example's frozen install and TypeScript
+compile, as described in the C# section, without publishing to Osano.
 
 ## Opt-in live smoke test
 
 The following commands create and publish real resources in the Osano customer
 account associated with the API key. Do not run them against an account where
 that is not intended.
+
+For either checkout/dev example, return to the repository root after the clone
+setup above and build and install the provider at the same exact version as the
+local SDK:
+
+```bash
+mise exec -- make provider PROVIDER_VERSION=1.0.0-alpha.0+dev
+mise exec -- pulumi plugin install resource osano 1.0.0-alpha.0+dev --file ./bin/pulumi-resource-osano --exact --reinstall
+cd examples/cookie-consent/csharp # or examples/cookie-consent/typescript
+```
+
+The explicit `--file` installs the just-built executable rather than
+downloading a provider. These commands do not contact Osano. They deliberately
+avoid `make install`, whose SDK linking/package-copy steps are unrelated to
+this example. If you are using the released NuGet workflow instead, skip these
+checkout-only commands; Pulumi downloads the matching released plugin declared
+by that SDK.
+
+From the selected example directory, set the inputs and explicitly deploy:
 
 ```bash
 export OSANO_API_KEY="replace-with-a-customer-rest-api-key"
