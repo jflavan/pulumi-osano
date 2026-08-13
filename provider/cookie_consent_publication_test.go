@@ -41,6 +41,41 @@ func TestCookieConsentPublicationCheck(t *testing.T) {
 	})
 
 	for _, tc := range []struct {
+		name        string
+		computedKey string
+		values      map[string]property.Value
+	}{
+		{
+			name:        "computed configId is valid during preview",
+			computedKey: "configId",
+			values: map[string]property.Value{
+				"configId":    property.New(property.Computed),
+				"changeToken": property.New("desired-state-v1"),
+			},
+		},
+		{
+			name:        "computed changeToken is valid during preview",
+			computedKey: "changeToken",
+			values: map[string]property.Value{
+				"configId":    property.New("config-id"),
+				"changeToken": property.New(property.Computed),
+			},
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			resp, err := resource.Check(ctx, infer.CheckRequest{NewInputs: property.NewMap(tc.values)})
+			if err != nil {
+				t.Fatal(err)
+			}
+			for _, failure := range resp.Failures {
+				if failure.Property == tc.computedKey {
+					t.Fatalf("computed %s must not fail validation: %#v", tc.computedKey, resp.Failures)
+				}
+			}
+		})
+	}
+
+	for _, tc := range []struct {
 		name       string
 		values     map[string]property.Value
 		failureKey string
@@ -301,6 +336,9 @@ func TestPublishCookieConsentJoinsConflict(t *testing.T) {
 		assertCMPRequest(t, r, r.Method, r.URL.Path)
 		if r.Method == http.MethodPost {
 			postCount++
+			assertPublicationBody(t, r, map[string]any{
+				"keepUnclassifiedTattles": true,
+			})
 			w.WriteHeader(http.StatusConflict)
 			return
 		}
@@ -317,9 +355,10 @@ func TestPublishCookieConsentJoinsConflict(t *testing.T) {
 	}))
 	defer api.Close()
 
-	_, err := publishCookieConsent(
-		t.Context(), newCMPJSONClient(t, api.URL), publicationArgsFixture(), zeroPublicationPollOptions(),
-	)
+	args := publicationArgsFixture()
+	args.Description = nil
+	args.WebhookURL = nil
+	_, err := publishCookieConsent(t.Context(), newCMPJSONClient(t, api.URL), args, zeroPublicationPollOptions())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -387,6 +426,43 @@ func TestPublishCookieConsentErrors(t *testing.T) {
 			!strings.Contains(err.Error(), "lastPublished=100") ||
 			!strings.Contains(err.Error(), "publishedRevision=3") {
 			t.Fatalf("expected terminal status diagnostic, got %v", err)
+		}
+	})
+
+	t.Run("terminal error status after accepted publish", func(t *testing.T) {
+		requests := make([]string, 0, 3)
+		getCount := 0
+		api := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			requests = append(requests, r.Method+" "+r.URL.Path)
+			assertCMPRequest(t, r, r.Method, r.URL.Path)
+			if r.Method == http.MethodPost {
+				w.WriteHeader(http.StatusNoContent)
+				return
+			}
+			getCount++
+			if getCount == 1 {
+				writePublicationConfigResponse(t, w, "outdated", 100, 3)
+				return
+			}
+			writePublicationConfigResponse(t, w, "error", 101, 3)
+		}))
+		defer api.Close()
+
+		_, err := publishCookieConsent(
+			t.Context(), newCMPJSONClient(t, api.URL), publicationArgsFixture(), zeroPublicationPollOptions(),
+		)
+		if err == nil || !strings.Contains(err.Error(), "status=error") ||
+			!strings.Contains(err.Error(), "lastPublished=101") ||
+			!strings.Contains(err.Error(), "publishedRevision=3") {
+			t.Fatalf("expected polled terminal status diagnostic, got %v", err)
+		}
+		wantRequests := []string{
+			"GET /v1/cookie-consent/configs/config-id",
+			"POST /v1/cookie-consent/configs/config-id/publish",
+			"GET /v1/cookie-consent/configs/config-id",
+		}
+		if !reflect.DeepEqual(requests, wantRequests) {
+			t.Fatalf("unexpected request order: got %#v, want %#v", requests, wantRequests)
 		}
 	})
 
@@ -629,6 +705,51 @@ func TestCookieConsentPublicationLifecycle(t *testing.T) {
 			t.Fatalf("delete made %d HTTP requests", requestCount)
 		}
 	})
+}
+
+func TestCookieConsentPublicationUpdatePreviewOverlaysInputs(t *testing.T) {
+	t.Parallel()
+
+	oldArgs := publicationArgsFixture()
+	state := CookieConsentPublicationState{
+		CookieConsentPublicationArgs: oldArgs,
+		CustomerID:                   "customer-id",
+		PublishStatus:                "published",
+		LastPublished:                100,
+		PublishedRevision:            3,
+		ScriptSrc:                    "https://cmp.osano.com/customer-id/config-id/osano.js",
+		ScriptTag:                    `<script src="https://cmp.osano.com/customer-id/config-id/osano.js"></script>`,
+	}
+	inputs := publicationArgsFixture()
+	inputs.ChangeToken = "desired-state-v2"
+	keep := false
+	inputs.KeepUnclassifiedTattles = &keep
+	description := "previewed publication options"
+	inputs.Description = &description
+	inputs.WebhookURL = nil
+
+	resp, err := (&CookieConsentPublication{}).Update(
+		t.Context(),
+		infer.UpdateRequest[CookieConsentPublicationArgs, CookieConsentPublicationState]{
+			State:  state,
+			Inputs: inputs,
+			DryRun: true,
+		},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(resp.Output.CookieConsentPublicationArgs, inputs) {
+		t.Fatalf("preview inputs were not overlaid: got %#v, want %#v", resp.Output.CookieConsentPublicationArgs, inputs)
+	}
+	if resp.Output.CustomerID != state.CustomerID ||
+		resp.Output.PublishStatus != state.PublishStatus ||
+		resp.Output.LastPublished != state.LastPublished ||
+		resp.Output.PublishedRevision != state.PublishedRevision ||
+		resp.Output.ScriptSrc != state.ScriptSrc ||
+		resp.Output.ScriptTag != state.ScriptTag {
+		t.Fatalf("preview did not retain computed outputs: got %#v, want outputs from %#v", resp.Output, state)
+	}
 }
 
 func TestCookieConsentPublicationTimeoutRetainsEarlierDeadline(t *testing.T) {

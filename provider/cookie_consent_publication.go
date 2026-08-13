@@ -92,10 +92,10 @@ func (r *CookieConsentPublication) Check(
 		return infer.CheckResponse[CookieConsentPublicationArgs]{Inputs: args, Failures: failures}, err
 	}
 
-	if strings.TrimSpace(args.ConfigID) == "" {
+	if !req.NewInputs.Get("configId").HasComputed() && strings.TrimSpace(args.ConfigID) == "" {
 		failures = append(failures, p.CheckFailure{Property: "configId", Reason: "configId is required"})
 	}
-	if strings.TrimSpace(args.ChangeToken) == "" {
+	if !req.NewInputs.Get("changeToken").HasComputed() && strings.TrimSpace(args.ChangeToken) == "" {
 		failures = append(failures, p.CheckFailure{Property: "changeToken", Reason: "changeToken is required"})
 	}
 	if args.KeepUnclassifiedTattles == nil {
@@ -182,7 +182,9 @@ func (r *CookieConsentPublication) Update(
 	req infer.UpdateRequest[CookieConsentPublicationArgs, CookieConsentPublicationState],
 ) (infer.UpdateResponse[CookieConsentPublicationState], error) {
 	if req.DryRun {
-		return infer.UpdateResponse[CookieConsentPublicationState]{Output: req.State}, nil
+		preview := req.State
+		preview.CookieConsentPublicationArgs = req.Inputs
+		return infer.UpdateResponse[CookieConsentPublicationState]{Output: preview}, nil
 	}
 
 	client, err := customerClientFromConfig(infer.GetConfig[Config](ctx))
