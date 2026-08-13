@@ -2,6 +2,11 @@ package provider
 
 import (
 	"context"
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"reflect"
+	"strings"
 	"testing"
 
 	p "github.com/pulumi/pulumi-go-provider"
@@ -25,6 +30,22 @@ func TestCookieConsentRuleCheck(t *testing.T) {
 			t.Fatalf("expected no failures, got: %#v", resp.Failures)
 		}
 	})
+
+	for _, ruleType := range []string{
+		"FILENAME", "DOMAIN", "PATH", "REGEXP", "STARTS_WITH", "ENDS_WITH", "CONTAINS", "EXACT_MATCH",
+	} {
+		t.Run("valid ruleType "+ruleType, func(t *testing.T) {
+			values := validRuleCheckInputValues()
+			values["ruleType"] = property.New(ruleType)
+			resp, err := resource.Check(ctx, infer.CheckRequest{NewInputs: property.NewMap(values)})
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			if len(resp.Failures) != 0 {
+				t.Fatalf("expected no failures, got: %#v", resp.Failures)
+			}
+		})
+	}
 
 	cases := []struct {
 		name       string
@@ -77,6 +98,69 @@ func TestCookieConsentRuleCheck(t *testing.T) {
 				return values
 			}()),
 			failureKey: "rule",
+		},
+		{
+			name: "invalid ruleType",
+			inputs: property.NewMap(func() map[string]property.Value {
+				values := validRuleCheckInputValues()
+				values["ruleType"] = property.New("INVALID")
+				return values
+			}()),
+			failureKey: "ruleType",
+		},
+		{
+			name: "title too long",
+			inputs: property.NewMap(func() map[string]property.Value {
+				values := validRuleCheckInputValues()
+				values["title"] = property.New(strings.Repeat("t", 65))
+				return values
+			}()),
+			failureKey: "title",
+		},
+		{
+			name: "vendorName too long",
+			inputs: property.NewMap(func() map[string]property.Value {
+				values := validRuleCheckInputValues()
+				values["vendorName"] = property.New(strings.Repeat("v", 101))
+				return values
+			}()),
+			failureKey: "vendorName",
+		},
+		{
+			name: "description too long",
+			inputs: property.NewMap(func() map[string]property.Value {
+				values := validRuleCheckInputValues()
+				values["description"] = property.New(strings.Repeat("d", 1001))
+				return values
+			}()),
+			failureKey: "description",
+		},
+		{
+			name: "expiry too long",
+			inputs: property.NewMap(func() map[string]property.Value {
+				values := validRuleCheckInputValues()
+				values["expiry"] = property.New(strings.Repeat("e", 51))
+				return values
+			}()),
+			failureKey: "expiry",
+		},
+		{
+			name: "description rejected for scripts",
+			inputs: property.NewMap(func() map[string]property.Value {
+				values := validRuleCheckInputValues()
+				values["storeType"] = property.New("scripts")
+				return values
+			}()),
+			failureKey: "description",
+		},
+		{
+			name: "expiry rejected for scripts",
+			inputs: property.NewMap(func() map[string]property.Value {
+				values := validRuleCheckInputValues()
+				values["storeType"] = property.New("scripts")
+				return values
+			}()),
+			failureKey: "expiry",
 		},
 	}
 
@@ -146,7 +230,7 @@ func TestCookieConsentRuleDiff(t *testing.T) {
 	t.Run("changed disclosure", func(t *testing.T) {
 		state := baseRuleState()
 		inputs := baseRuleArgs()
-		inputs.Disclosure = true
+		inputs.Disclosure = false
 		resp, err := resource.Diff(ctx, infer.DiffRequest[CookieConsentRuleArgs, CookieConsentRuleState]{
 			State:  state,
 			Inputs: inputs,
@@ -184,6 +268,309 @@ func TestCookieConsentRuleDiff(t *testing.T) {
 		}
 		assertDiffKind(t, resp, "storeType", p.UpdateReplace)
 	})
+
+	for _, tc := range []struct {
+		name   string
+		key    string
+		mutate func(*CookieConsentRuleArgs)
+	}{
+		{name: "changed ruleType", key: "ruleType", mutate: func(args *CookieConsentRuleArgs) {
+			value := "DOMAIN"
+			args.RuleType = &value
+		}},
+		{name: "changed description", key: "description", mutate: func(args *CookieConsentRuleArgs) {
+			value := "updated description"
+			args.Description = &value
+		}},
+		{name: "changed expiry", key: "expiry", mutate: func(args *CookieConsentRuleArgs) {
+			value := "session"
+			args.Expiry = &value
+		}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			state := baseRuleState()
+			inputs := baseRuleArgs()
+			tc.mutate(&inputs)
+			resp, err := resource.Diff(ctx, infer.DiffRequest[CookieConsentRuleArgs, CookieConsentRuleState]{
+				State:  state,
+				Inputs: inputs,
+			})
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			assertDiffKind(t, resp, tc.key, p.Update)
+		})
+	}
+}
+
+func TestCookieConsentRuleLifecycle(t *testing.T) {
+	t.Run("create sends all supported fields and returns a composite ID", func(t *testing.T) {
+		api := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			assertCMPRequest(t, r, http.MethodPost, "/v1/cookie-consent/rules")
+			assertCMPRuleCreateBody(t, r)
+			writeCMPRulesListResponse(t, w, cmpRulesListResponse{Items: []cmpRuleResponse{cmpRuleResponseFixture()}})
+		}))
+		defer api.Close()
+
+		server := newCMPProviderServer(t, api.URL)
+		resp, err := server.Create(p.CreateRequest{
+			Urn:        cmpURN("CookieConsentRule", "created"),
+			Properties: ruleInputProperties(),
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if resp.ID != "config-abc/42" {
+			t.Fatalf("expected composite rule ID, got %q", resp.ID)
+		}
+		assertCMPRuleProperties(t, resp.Properties)
+	})
+
+	t.Run("update clears nullable fields explicitly", func(t *testing.T) {
+		api := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			assertCMPRequest(t, r, http.MethodPatch, "/v1/cookie-consent/rules/42")
+			assertCMPRuleClearBody(t, r)
+			fixture := cmpRuleResponseFixture()
+			fixture.Title = nil
+			fixture.VendorName = nil
+			fixture.RuleType = nil
+			fixture.Description = nil
+			fixture.Expiry = nil
+			writeCMPRuleResponse(t, w, fixture)
+		}))
+		defer api.Close()
+
+		server := newCMPProviderServer(t, api.URL)
+		resp, err := server.Update(p.UpdateRequest{
+			ID:     "config-abc/42",
+			Urn:    cmpURN("CookieConsentRule", "updated"),
+			State:  ruleStateProperties(),
+			Inputs: clearedRuleInputProperties(),
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, key := range []string{"title", "vendorName", "ruleType", "description", "expiry"} {
+			if !resp.Properties.Get(key).IsNull() {
+				t.Fatalf("expected %s to be null, got %#v", key, resp.Properties.Get(key))
+			}
+		}
+	})
+
+	t.Run("import reconstructs every input from Osano", func(t *testing.T) {
+		api := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			assertCMPRequest(t, r, http.MethodGet, "/v1/cookie-consent/configs/config-abc/rules")
+			if got := r.URL.Query().Get("limit"); got != "500" {
+				t.Fatalf("expected limit=500, got %q", got)
+			}
+			writeCMPRulesListResponse(t, w, cmpRulesListResponse{Items: []cmpRuleResponse{cmpRuleResponseFixture()}})
+		}))
+		defer api.Close()
+
+		server := newCMPProviderServer(t, api.URL)
+		resp, err := server.Read(p.ReadRequest{
+			ID:         "config-abc/42",
+			Urn:        cmpURN("CookieConsentRule", "imported"),
+			Properties: emptyRuleStateProperties(),
+			Inputs:     emptyRuleInputProperties(),
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if resp.ID != "config-abc/42" {
+			t.Fatalf("expected canonical rule ID, got %q", resp.ID)
+		}
+		assertCMPRuleProperties(t, resp.Properties)
+		assertCMPRuleInputs(t, resp.Inputs)
+	})
+
+	t.Run("legacy ID read normalizes to a composite ID", func(t *testing.T) {
+		api := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			assertCMPRequest(t, r, http.MethodGet, "/v1/cookie-consent/configs/config-abc/rules")
+			writeCMPRulesListResponse(t, w, cmpRulesListResponse{Items: []cmpRuleResponse{cmpRuleResponseFixture()}})
+		}))
+		defer api.Close()
+
+		server := newCMPProviderServer(t, api.URL)
+		resp, err := server.Read(p.ReadRequest{
+			ID:         "42",
+			Urn:        cmpURN("CookieConsentRule", "legacy"),
+			Properties: ruleStateProperties(),
+			Inputs:     ruleInputProperties(),
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if resp.ID != "config-abc/42" {
+			t.Fatalf("expected canonical rule ID, got %q", resp.ID)
+		}
+	})
+
+	t.Run("read returns empty ID when the rules endpoint returns 404", func(t *testing.T) {
+		api := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			assertCMPRequest(t, r, http.MethodGet, "/v1/cookie-consent/configs/config-abc/rules")
+			w.WriteHeader(http.StatusNotFound)
+		}))
+		defer api.Close()
+
+		server := newCMPProviderServer(t, api.URL)
+		resp, err := server.Read(p.ReadRequest{
+			ID:         "config-abc/42",
+			Urn:        cmpURN("CookieConsentRule", "missing"),
+			Properties: ruleStateProperties(),
+			Inputs:     ruleInputProperties(),
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if resp.ID != "" {
+			t.Fatalf("expected missing resource ID, got %q", resp.ID)
+		}
+	})
+
+	t.Run("delete treats 404 as success", func(t *testing.T) {
+		api := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			assertCMPRequest(t, r, http.MethodDelete, "/v1/cookie-consent/rules/42")
+			w.WriteHeader(http.StatusNotFound)
+		}))
+		defer api.Close()
+
+		server := newCMPProviderServer(t, api.URL)
+		if err := server.Delete(p.DeleteRequest{
+			ID:         "config-abc/42",
+			Urn:        cmpURN("CookieConsentRule", "missing"),
+			Properties: ruleStateProperties(),
+		}); err != nil {
+			t.Fatal(err)
+		}
+	})
+
+	t.Run("delete accepts a legacy ID", func(t *testing.T) {
+		api := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			assertCMPRequest(t, r, http.MethodDelete, "/v1/cookie-consent/rules/42")
+			w.WriteHeader(http.StatusNoContent)
+		}))
+		defer api.Close()
+
+		server := newCMPProviderServer(t, api.URL)
+		if err := server.Delete(p.DeleteRequest{
+			ID:         "42",
+			Urn:        cmpURN("CookieConsentRule", "legacy-delete"),
+			Properties: ruleStateProperties(),
+		}); err != nil {
+			t.Fatal(err)
+		}
+	})
+
+	t.Run("delete propagates non-404 errors", func(t *testing.T) {
+		api := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusBadRequest)
+		}))
+		defer api.Close()
+
+		server := newCMPProviderServer(t, api.URL)
+		err := server.Delete(p.DeleteRequest{
+			ID:         "config-abc/42",
+			Urn:        cmpURN("CookieConsentRule", "bad-delete"),
+			Properties: ruleStateProperties(),
+		})
+		if err == nil {
+			t.Fatal("expected delete error")
+		}
+	})
+}
+
+func TestParseRuleResourceID(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		name          string
+		id            string
+		stateConfigID string
+		wantConfigID  string
+		wantRuleID    int
+		wantCanonical string
+		wantError     bool
+	}{
+		{name: "composite", id: "config-abc/42", wantConfigID: "config-abc", wantRuleID: 42, wantCanonical: "config-abc/42"},
+		{name: "opaque config ID", id: "customer/config/abc/42", wantConfigID: "customer/config/abc", wantRuleID: 42, wantCanonical: "customer/config/abc/42"},
+		{name: "legacy", id: "42", stateConfigID: "config-abc", wantConfigID: "config-abc", wantRuleID: 42, wantCanonical: "config-abc/42"},
+		{name: "legacy missing config", id: "42", wantError: true},
+		{name: "missing rule ID", id: "config-abc/", wantError: true},
+		{name: "non-numeric rule ID", id: "config-abc/not-a-number", wantError: true},
+		{name: "missing config ID", id: "/42", wantError: true},
+		{name: "empty", id: "", wantError: true},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			configID, ruleID, canonicalID, err := parseRuleResourceID(tc.id, tc.stateConfigID)
+			if tc.wantError {
+				if err == nil {
+					t.Fatal("expected error")
+				}
+				return
+			}
+			if err != nil {
+				t.Fatal(err)
+			}
+			if configID != tc.wantConfigID || ruleID != tc.wantRuleID || canonicalID != tc.wantCanonical {
+				t.Fatalf("got (%q, %d, %q), want (%q, %d, %q)",
+					configID, ruleID, canonicalID, tc.wantConfigID, tc.wantRuleID, tc.wantCanonical)
+			}
+		})
+	}
+}
+
+func TestFindCookieConsentRule(t *testing.T) {
+	t.Run("follows cursor pagination", func(t *testing.T) {
+		requestCount := 0
+		api := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			requestCount++
+			assertCMPRequest(t, r, http.MethodGet, "/v1/cookie-consent/configs/config-abc/rules")
+			if got := r.URL.Query().Get("limit"); got != "500" {
+				t.Fatalf("expected limit=500, got %q", got)
+			}
+			switch requestCount {
+			case 1:
+				if got := r.URL.Query().Get("next"); got != "" {
+					t.Fatalf("expected no initial cursor, got %q", got)
+				}
+				writeCMPRulesListResponse(t, w, cmpRulesListResponse{Next: "page-2"})
+			case 2:
+				if got := r.URL.Query().Get("next"); got != "page-2" {
+					t.Fatalf("expected next=page-2, got %q", got)
+				}
+				writeCMPRulesListResponse(t, w, cmpRulesListResponse{Items: []cmpRuleResponse{cmpRuleResponseFixture()}})
+			default:
+				t.Fatalf("unexpected request %d", requestCount)
+			}
+		}))
+		defer api.Close()
+
+		found, ok, err := findCookieConsentRule(t.Context(), newCMPJSONClient(t, api.URL), "config-abc", 42)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !ok || found.RuleID != 42 {
+			t.Fatalf("expected rule 42, got %#v, found=%v", found, ok)
+		}
+		if requestCount != 2 {
+			t.Fatalf("expected two requests, got %d", requestCount)
+		}
+	})
+
+	t.Run("rejects a repeated cursor", func(t *testing.T) {
+		api := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			writeCMPRulesListResponse(t, w, cmpRulesListResponse{Next: "repeat"})
+		}))
+		defer api.Close()
+
+		_, _, err := findCookieConsentRule(t.Context(), newCMPJSONClient(t, api.URL), "config-abc", 42)
+		if err == nil || !strings.Contains(err.Error(), "repeated cursor") {
+			t.Fatalf("expected repeated cursor error, got %v", err)
+		}
+	})
 }
 
 func TestPtrStringEqual(t *testing.T) {
@@ -217,21 +604,36 @@ func TestPtrStringEqual(t *testing.T) {
 
 func validRuleCheckInputValues() map[string]property.Value {
 	return map[string]property.Value{
-		"configId":       property.New("config-abc-123"),
-		"storeType":      property.New("scripts"),
+		"configId":       property.New("config-abc"),
+		"storeType":      property.New("cookies"),
 		"classification": property.New("ANALYTICS"),
-		"rule":           property.New("google-analytics*"),
-		"disclosure":     property.New(false),
+		"rule":           property.New("_ga"),
+		"disclosure":     property.New(true),
+		"title":          property.New("Google Analytics"),
+		"vendorName":     property.New("Google"),
+		"ruleType":       property.New("EXACT_MATCH"),
+		"description":    property.New("Measures site usage"),
+		"expiry":         property.New("2 years"),
 	}
 }
 
 func baseRuleArgs() CookieConsentRuleArgs {
+	title := "Google Analytics"
+	vendorName := "Google"
+	ruleType := "EXACT_MATCH"
+	description := "Measures site usage"
+	expiry := "2 years"
 	return CookieConsentRuleArgs{
-		ConfigID:       "config-abc-123",
-		StoreType:      "scripts",
+		ConfigID:       "config-abc",
+		StoreType:      "cookies",
 		Classification: "ANALYTICS",
-		Rule:           "google-analytics*",
-		Disclosure:     false,
+		Rule:           "_ga",
+		Disclosure:     true,
+		Title:          &title,
+		VendorName:     &vendorName,
+		RuleType:       &ruleType,
+		Description:    &description,
+		Expiry:         &expiry,
 	}
 }
 
@@ -239,5 +641,158 @@ func baseRuleState() CookieConsentRuleState {
 	return CookieConsentRuleState{
 		CookieConsentRuleArgs: baseRuleArgs(),
 		RuleID:                42,
+		Created:               "2026-08-13T12:00:00Z",
+		Updated:               "2026-08-13T13:00:00Z",
+	}
+}
+
+func assertCMPRuleCreateBody(t *testing.T, r *http.Request) {
+	t.Helper()
+	var body map[string]any
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		t.Fatal(err)
+	}
+	want := map[string]any{
+		"configIds": []any{"config-abc"},
+		"cookies": []any{map[string]any{
+			"classification": "ANALYTICS",
+			"rule":           "_ga",
+			"disclosure":     true,
+			"title":          "Google Analytics",
+			"vendorName":     "Google",
+			"ruleType":       "EXACT_MATCH",
+			"description":    "Measures site usage",
+			"expiry":         "2 years",
+		}},
+	}
+	if !reflect.DeepEqual(body, want) {
+		t.Fatalf("unexpected create body: %#v", body)
+	}
+}
+
+func assertCMPRuleClearBody(t *testing.T, r *http.Request) {
+	t.Helper()
+	var body map[string]any
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		t.Fatal(err)
+	}
+	want := map[string]any{
+		"classification": "ANALYTICS",
+		"rule":           "_ga",
+		"disclosure":     true,
+		"title":          nil,
+		"vendorName":     nil,
+		"ruleType":       nil,
+		"description":    nil,
+		"expiry":         nil,
+	}
+	if !reflect.DeepEqual(body, want) {
+		t.Fatalf("unexpected update body: %#v", body)
+	}
+}
+
+func assertCMPRuleProperties(t *testing.T, properties property.Map) {
+	t.Helper()
+	assertCMPRuleInputs(t, properties)
+	if got := int(properties.Get("ruleId").AsNumber()); got != 42 {
+		t.Fatalf("expected rule ID 42, got %d", got)
+	}
+	if got := properties.Get("created").AsString(); got != "2026-08-13T12:00:00Z" {
+		t.Fatalf("unexpected created timestamp %q", got)
+	}
+	if got := properties.Get("updated").AsString(); got != "2026-08-13T13:00:00Z" {
+		t.Fatalf("unexpected updated timestamp %q", got)
+	}
+}
+
+func assertCMPRuleInputs(t *testing.T, inputs property.Map) {
+	t.Helper()
+	wantStrings := map[string]string{
+		"configId":       "config-abc",
+		"storeType":      "cookies",
+		"classification": "ANALYTICS",
+		"rule":           "_ga",
+		"title":          "Google Analytics",
+		"vendorName":     "Google",
+		"ruleType":       "EXACT_MATCH",
+		"description":    "Measures site usage",
+		"expiry":         "2 years",
+	}
+	for key, want := range wantStrings {
+		if got := inputs.Get(key).AsString(); got != want {
+			t.Fatalf("expected %s %q, got %q", key, want, got)
+		}
+	}
+	if got := inputs.Get("disclosure").AsBool(); !got {
+		t.Fatal("expected disclosure=true")
+	}
+}
+
+func ruleInputProperties() property.Map {
+	return property.NewMap(validRuleCheckInputValues())
+}
+
+func clearedRuleInputProperties() property.Map {
+	values := validRuleCheckInputValues()
+	for _, key := range []string{"title", "vendorName", "ruleType", "description", "expiry"} {
+		delete(values, key)
+	}
+	return property.NewMap(values)
+}
+
+func ruleStateProperties() property.Map {
+	return ruleInputProperties().
+		Set("ruleId", property.New(42.0)).
+		Set("created", property.New("2026-08-13T12:00:00Z")).
+		Set("updated", property.New("2026-08-13T13:00:00Z"))
+}
+
+func emptyRuleInputProperties() property.Map {
+	return property.NewMap(map[string]property.Value{
+		"configId": {}, "storeType": {}, "classification": {}, "rule": {}, "disclosure": {},
+		"title": {}, "vendorName": {}, "ruleType": {}, "description": {}, "expiry": {},
+	})
+}
+
+func emptyRuleStateProperties() property.Map {
+	return emptyRuleInputProperties().
+		Set("ruleId", property.Value{}).
+		Set("created", property.Value{}).
+		Set("updated", property.Value{})
+}
+
+func cmpRuleResponseFixture() cmpRuleResponse {
+	args := baseRuleArgs()
+	return cmpRuleResponse{
+		Classification: args.Classification,
+		Rule:           args.Rule,
+		Disclosure:     args.Disclosure,
+		Title:          args.Title,
+		VendorName:     args.VendorName,
+		RuleType:       args.RuleType,
+		Description:    args.Description,
+		Expiry:         args.Expiry,
+		Type:           "cookie",
+		RuleID:         42,
+		ConfigID:       "config-abc",
+		VendorID:       "vendor-123",
+		Created:        "2026-08-13T12:00:00Z",
+		Updated:        "2026-08-13T13:00:00Z",
+	}
+}
+
+func writeCMPRulesListResponse(t *testing.T, w http.ResponseWriter, response cmpRulesListResponse) {
+	t.Helper()
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func writeCMPRuleResponse(t *testing.T, w http.ResponseWriter, response cmpRuleResponse) {
+	t.Helper()
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		t.Fatal(err)
 	}
 }
