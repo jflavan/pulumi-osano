@@ -28,7 +28,7 @@ func Provider() p.Provider {
 	prov, err := infer.NewProviderBuilder().
 		WithDisplayName("Osano (Unofficial)").
 		WithDescription(
-			"Unofficial Pulumi provider for managing Osano Unified Consent resources. "+
+			"Unofficial Pulumi provider for managing Osano Cookie Consent and Unified Consent resources. "+
 				"Not affiliated with Pulumi Corporation or Osano, Inc.",
 		).
 		WithHomepage("https://github.com/jflavan/pulumi-osano").
@@ -39,6 +39,7 @@ func Provider() p.Provider {
 		WithResources(
 			infer.Resource(&CookieConsentConfig{}),
 			infer.Resource(&CookieConsentRule{}),
+			infer.Resource(&CookieConsentPublication{}),
 			infer.Resource(&ConsentResource{}),
 		).
 		WithFunctions(
@@ -66,12 +67,12 @@ func Provider() p.Provider {
 			},
 			"nodejs": map[string]any{
 				"packageName":          "@jflavan/pulumi-osano",
-				"packageDescription":   "Pulumi provider for the Osano Unified Consent API.",
+				"packageDescription":   "Pulumi provider for Osano Cookie Consent and Unified Consent APIs.",
 				"respectSchemaVersion": true,
 			},
 			"python": map[string]any{
 				"packageName":        "pulumi_osano",
-				"packageDescription": "Pulumi provider for the Osano Unified Consent API.",
+				"packageDescription": "Pulumi provider for Osano Cookie Consent and Unified Consent APIs.",
 			},
 		}).
 		Build()

@@ -22,6 +22,17 @@ func newCMPJSONClient(t *testing.T, baseURL string) *osanoclient.Client {
 	return osanoclient.NewClient(parsed, "x-osano-api-key", "test-osano-key")
 }
 
+func newCMPJSONClientWithOptions(
+	t *testing.T, baseURL string, opts ...osanoclient.ClientOption,
+) *osanoclient.Client {
+	t.Helper()
+	parsed, err := url.Parse(baseURL)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return osanoclient.NewClient(parsed, "x-osano-api-key", "test-osano-key", opts...)
+}
+
 func cmpURN(resourceType, name string) resource.URN {
 	return resource.NewURN(
 		"test-stack", "test-project", "",
