@@ -166,6 +166,13 @@ build:: provider build_sdks
 .PHONY: build_sdks
 build_sdks: dotnet_sdk go_sdk nodejs_sdk python_sdk java_sdk
 
+.PHONY: build_cookie_consent_examples build_examples
+build_cookie_consent_examples: dotnet_sdk nodejs_sdk
+	dotnet build examples/cookie-consent/csharp/CookieConsent.csproj
+	cd examples/cookie-consent/typescript && yarn install --frozen-lockfile && yarn run tsc --noEmit
+
+build_examples: build_cookie_consent_examples
+
 # Required for the codegen action that runs in pulumi/pulumi
 only_build:: build
 
