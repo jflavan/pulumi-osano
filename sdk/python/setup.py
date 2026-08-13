@@ -21,7 +21,7 @@ def readme():
 setup(name='pulumi_osano',
       python_requires='>=3.9',
       version=VERSION,
-      description="Unofficial Pulumi provider for managing Osano Unified Consent resources. Not affiliated with Pulumi Corporation or Osano, Inc.",
+      description="Unofficial Pulumi provider for managing Osano Cookie Consent and Unified Consent resources. Not affiliated with Pulumi Corporation or Osano, Inc.",
       long_description=readme(),
       long_description_content_type='text/markdown',
       url='https://github.com/jflavan/pulumi-osano',

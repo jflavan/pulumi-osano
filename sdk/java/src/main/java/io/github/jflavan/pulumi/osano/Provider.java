@@ -45,14 +45,14 @@ public class Provider extends com.pulumi.resources.ProviderResource {
         return Codegen.optional(this.customerBaseUrl);
     }
     /**
-     * Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
+     * Osano API key used for subject profile routes and Customer REST API/CMP operations (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
      *
      */
     @Export(name="osanoApiKey", refs={String.class}, tree="[0]")
     private Output</* @Nullable */ String> osanoApiKey;
 
     /**
-     * @return Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
+     * @return Osano API key used for subject profile routes and Customer REST API/CMP operations (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
      *
      */
     public Output<Optional<String>> osanoApiKey() {

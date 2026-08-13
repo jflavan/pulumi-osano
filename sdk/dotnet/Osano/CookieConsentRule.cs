@@ -35,10 +35,22 @@ namespace Community.Pulumi.Osano
         public Output<string?> Created { get; private set; } = null!;
 
         /// <summary>
+        /// Optional cookie description. Only supported for cookies; max 1000 characters.
+        /// </summary>
+        [Output("description")]
+        public Output<string?> Description { get; private set; } = null!;
+
+        /// <summary>
         /// Whether the rule should be disclosed. Defaults to false.
         /// </summary>
         [Output("disclosure")]
         public Output<bool?> Disclosure { get; private set; } = null!;
+
+        /// <summary>
+        /// Optional cookie expiry description. Only supported for cookies; max 50 characters.
+        /// </summary>
+        [Output("expiry")]
+        public Output<string?> Expiry { get; private set; } = null!;
 
         /// <summary>
         /// The rule pattern (e.g. a cookie name pattern). Min 3, max 1000 characters.
@@ -53,13 +65,19 @@ namespace Community.Pulumi.Osano
         public Output<int> RuleId { get; private set; } = null!;
 
         /// <summary>
+        /// Optional matching mode: FILENAME, DOMAIN, PATH, REGEXP, STARTS_WITH, ENDS_WITH, CONTAINS, or EXACT_MATCH.
+        /// </summary>
+        [Output("ruleType")]
+        public Output<string?> RuleType { get; private set; } = null!;
+
+        /// <summary>
         /// The storage type category: cookies, scripts, iframes, or localStorage.
         /// </summary>
         [Output("storeType")]
         public Output<string> StoreType { get; private set; } = null!;
 
         /// <summary>
-        /// Optional title for the rule, used in consent disclosure.
+        /// Optional title for the rule, used in consent disclosure. Max 64 characters.
         /// </summary>
         [Output("title")]
         public Output<string?> Title { get; private set; } = null!;
@@ -71,7 +89,7 @@ namespace Community.Pulumi.Osano
         public Output<string?> Updated { get; private set; } = null!;
 
         /// <summary>
-        /// Optional vendor name for the rule.
+        /// Optional vendor name for the rule. Max 100 characters.
         /// </summary>
         [Output("vendorName")]
         public Output<string?> VendorName { get; private set; } = null!;
@@ -135,10 +153,22 @@ namespace Community.Pulumi.Osano
         public Input<string> ConfigId { get; set; } = null!;
 
         /// <summary>
+        /// Optional cookie description. Only supported for cookies; max 1000 characters.
+        /// </summary>
+        [Input("description")]
+        public Input<string>? Description { get; set; }
+
+        /// <summary>
         /// Whether the rule should be disclosed. Defaults to false.
         /// </summary>
         [Input("disclosure")]
         public Input<bool>? Disclosure { get; set; }
+
+        /// <summary>
+        /// Optional cookie expiry description. Only supported for cookies; max 50 characters.
+        /// </summary>
+        [Input("expiry")]
+        public Input<string>? Expiry { get; set; }
 
         /// <summary>
         /// The rule pattern (e.g. a cookie name pattern). Min 3, max 1000 characters.
@@ -147,19 +177,25 @@ namespace Community.Pulumi.Osano
         public Input<string> Rule { get; set; } = null!;
 
         /// <summary>
+        /// Optional matching mode: FILENAME, DOMAIN, PATH, REGEXP, STARTS_WITH, ENDS_WITH, CONTAINS, or EXACT_MATCH.
+        /// </summary>
+        [Input("ruleType")]
+        public Input<string>? RuleType { get; set; }
+
+        /// <summary>
         /// The storage type category: cookies, scripts, iframes, or localStorage.
         /// </summary>
         [Input("storeType", required: true)]
         public Input<string> StoreType { get; set; } = null!;
 
         /// <summary>
-        /// Optional title for the rule, used in consent disclosure.
+        /// Optional title for the rule, used in consent disclosure. Max 64 characters.
         /// </summary>
         [Input("title")]
         public Input<string>? Title { get; set; }
 
         /// <summary>
-        /// Optional vendor name for the rule.
+        /// Optional vendor name for the rule. Max 100 characters.
         /// </summary>
         [Input("vendorName")]
         public Input<string>? VendorName { get; set; }

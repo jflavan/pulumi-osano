@@ -30,7 +30,7 @@ Object.defineProperty(exports, "customerBaseUrl", {
 });
 
 /**
- * Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
+ * Osano API key used for subject profile routes and Customer REST API/CMP operations (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
  */
 export declare const osanoApiKey: string | undefined;
 Object.defineProperty(exports, "osanoApiKey", {
@@ -41,7 +41,7 @@ Object.defineProperty(exports, "osanoApiKey", {
 });
 
 /**
- * HTTP request timeout in seconds for Osano API calls (default 60).
+ * HTTP request timeout in seconds for Customer REST API and Unified Consent calls (default 60).
  */
 export declare const requestTimeoutSeconds: number | undefined;
 Object.defineProperty(exports, "requestTimeoutSeconds", {

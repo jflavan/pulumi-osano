@@ -48,6 +48,21 @@ public final class CookieConsentRuleArgs extends com.pulumi.resources.ResourceAr
     }
 
     /**
+     * Optional cookie description. Only supported for cookies; max 1000 characters.
+     *
+     */
+    @Import(name="description")
+    private @Nullable Output<String> description;
+
+    /**
+     * @return Optional cookie description. Only supported for cookies; max 1000 characters.
+     *
+     */
+    public Optional<Output<String>> description() {
+        return Optional.ofNullable(this.description);
+    }
+
+    /**
      * Whether the rule should be disclosed. Defaults to false.
      *
      */
@@ -60,6 +75,21 @@ public final class CookieConsentRuleArgs extends com.pulumi.resources.ResourceAr
      */
     public Optional<Output<Boolean>> disclosure() {
         return Optional.ofNullable(this.disclosure);
+    }
+
+    /**
+     * Optional cookie expiry description. Only supported for cookies; max 50 characters.
+     *
+     */
+    @Import(name="expiry")
+    private @Nullable Output<String> expiry;
+
+    /**
+     * @return Optional cookie expiry description. Only supported for cookies; max 50 characters.
+     *
+     */
+    public Optional<Output<String>> expiry() {
+        return Optional.ofNullable(this.expiry);
     }
 
     /**
@@ -78,6 +108,21 @@ public final class CookieConsentRuleArgs extends com.pulumi.resources.ResourceAr
     }
 
     /**
+     * Optional matching mode: FILENAME, DOMAIN, PATH, REGEXP, STARTS_WITH, ENDS_WITH, CONTAINS, or EXACT_MATCH.
+     *
+     */
+    @Import(name="ruleType")
+    private @Nullable Output<String> ruleType;
+
+    /**
+     * @return Optional matching mode: FILENAME, DOMAIN, PATH, REGEXP, STARTS_WITH, ENDS_WITH, CONTAINS, or EXACT_MATCH.
+     *
+     */
+    public Optional<Output<String>> ruleType() {
+        return Optional.ofNullable(this.ruleType);
+    }
+
+    /**
      * The storage type category: cookies, scripts, iframes, or localStorage.
      *
      */
@@ -93,14 +138,14 @@ public final class CookieConsentRuleArgs extends com.pulumi.resources.ResourceAr
     }
 
     /**
-     * Optional title for the rule, used in consent disclosure.
+     * Optional title for the rule, used in consent disclosure. Max 64 characters.
      *
      */
     @Import(name="title")
     private @Nullable Output<String> title;
 
     /**
-     * @return Optional title for the rule, used in consent disclosure.
+     * @return Optional title for the rule, used in consent disclosure. Max 64 characters.
      *
      */
     public Optional<Output<String>> title() {
@@ -108,14 +153,14 @@ public final class CookieConsentRuleArgs extends com.pulumi.resources.ResourceAr
     }
 
     /**
-     * Optional vendor name for the rule.
+     * Optional vendor name for the rule. Max 100 characters.
      *
      */
     @Import(name="vendorName")
     private @Nullable Output<String> vendorName;
 
     /**
-     * @return Optional vendor name for the rule.
+     * @return Optional vendor name for the rule. Max 100 characters.
      *
      */
     public Optional<Output<String>> vendorName() {
@@ -127,8 +172,11 @@ public final class CookieConsentRuleArgs extends com.pulumi.resources.ResourceAr
     private CookieConsentRuleArgs(CookieConsentRuleArgs $) {
         this.classification = $.classification;
         this.configId = $.configId;
+        this.description = $.description;
         this.disclosure = $.disclosure;
+        this.expiry = $.expiry;
         this.rule = $.rule;
+        this.ruleType = $.ruleType;
         this.storeType = $.storeType;
         this.title = $.title;
         this.vendorName = $.vendorName;
@@ -195,6 +243,27 @@ public final class CookieConsentRuleArgs extends com.pulumi.resources.ResourceAr
         }
 
         /**
+         * @param description Optional cookie description. Only supported for cookies; max 1000 characters.
+         *
+         * @return builder
+         *
+         */
+        public Builder description(@Nullable Output<String> description) {
+            $.description = description;
+            return this;
+        }
+
+        /**
+         * @param description Optional cookie description. Only supported for cookies; max 1000 characters.
+         *
+         * @return builder
+         *
+         */
+        public Builder description(String description) {
+            return description(Output.of(description));
+        }
+
+        /**
          * @param disclosure Whether the rule should be disclosed. Defaults to false.
          *
          * @return builder
@@ -213,6 +282,27 @@ public final class CookieConsentRuleArgs extends com.pulumi.resources.ResourceAr
          */
         public Builder disclosure(Boolean disclosure) {
             return disclosure(Output.of(disclosure));
+        }
+
+        /**
+         * @param expiry Optional cookie expiry description. Only supported for cookies; max 50 characters.
+         *
+         * @return builder
+         *
+         */
+        public Builder expiry(@Nullable Output<String> expiry) {
+            $.expiry = expiry;
+            return this;
+        }
+
+        /**
+         * @param expiry Optional cookie expiry description. Only supported for cookies; max 50 characters.
+         *
+         * @return builder
+         *
+         */
+        public Builder expiry(String expiry) {
+            return expiry(Output.of(expiry));
         }
 
         /**
@@ -237,6 +327,27 @@ public final class CookieConsentRuleArgs extends com.pulumi.resources.ResourceAr
         }
 
         /**
+         * @param ruleType Optional matching mode: FILENAME, DOMAIN, PATH, REGEXP, STARTS_WITH, ENDS_WITH, CONTAINS, or EXACT_MATCH.
+         *
+         * @return builder
+         *
+         */
+        public Builder ruleType(@Nullable Output<String> ruleType) {
+            $.ruleType = ruleType;
+            return this;
+        }
+
+        /**
+         * @param ruleType Optional matching mode: FILENAME, DOMAIN, PATH, REGEXP, STARTS_WITH, ENDS_WITH, CONTAINS, or EXACT_MATCH.
+         *
+         * @return builder
+         *
+         */
+        public Builder ruleType(String ruleType) {
+            return ruleType(Output.of(ruleType));
+        }
+
+        /**
          * @param storeType The storage type category: cookies, scripts, iframes, or localStorage.
          *
          * @return builder
@@ -258,7 +369,7 @@ public final class CookieConsentRuleArgs extends com.pulumi.resources.ResourceAr
         }
 
         /**
-         * @param title Optional title for the rule, used in consent disclosure.
+         * @param title Optional title for the rule, used in consent disclosure. Max 64 characters.
          *
          * @return builder
          *
@@ -269,7 +380,7 @@ public final class CookieConsentRuleArgs extends com.pulumi.resources.ResourceAr
         }
 
         /**
-         * @param title Optional title for the rule, used in consent disclosure.
+         * @param title Optional title for the rule, used in consent disclosure. Max 64 characters.
          *
          * @return builder
          *
@@ -279,7 +390,7 @@ public final class CookieConsentRuleArgs extends com.pulumi.resources.ResourceAr
         }
 
         /**
-         * @param vendorName Optional vendor name for the rule.
+         * @param vendorName Optional vendor name for the rule. Max 100 characters.
          *
          * @return builder
          *
@@ -290,7 +401,7 @@ public final class CookieConsentRuleArgs extends com.pulumi.resources.ResourceAr
         }
 
         /**
-         * @param vendorName Optional vendor name for the rule.
+         * @param vendorName Optional vendor name for the rule. Max 100 characters.
          *
          * @return builder
          *

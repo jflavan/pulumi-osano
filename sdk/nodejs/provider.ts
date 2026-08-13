@@ -28,7 +28,7 @@ export class Provider extends pulumi.ProviderResource {
      */
     declare public readonly customerBaseUrl: pulumi.Output<string | undefined>;
     /**
-     * Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
+     * Osano API key used for subject profile routes and Customer REST API/CMP operations (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
      */
     declare public readonly osanoApiKey: pulumi.Output<string | undefined>;
     /**
@@ -87,11 +87,11 @@ export interface ProviderArgs {
      */
     customerBaseUrl?: pulumi.Input<string>;
     /**
-     * Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
+     * Osano API key used for subject profile routes and Customer REST API/CMP operations (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
      */
     osanoApiKey?: pulumi.Input<string>;
     /**
-     * HTTP request timeout in seconds for Osano API calls (default 60).
+     * HTTP request timeout in seconds for Customer REST API and Unified Consent calls (default 60).
      */
     requestTimeoutSeconds?: pulumi.Input<number>;
     /**

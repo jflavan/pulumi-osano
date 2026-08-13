@@ -238,11 +238,17 @@ class CookieConsentConfig(pulumi.CustomResource):
     @_builtins.property
     @pulumi.getter
     def created(self) -> pulumi.Output[Optional[_builtins.int]]:
+        """
+        Unix timestamp when Osano created the configuration.
+        """
         return pulumi.get(self, "created")
 
     @_builtins.property
     @pulumi.getter(name="customerId")
     def customer_id(self) -> pulumi.Output[Optional[_builtins.str]]:
+        """
+        The Osano customer ID that owns the configuration.
+        """
         return pulumi.get(self, "customer_id")
 
     @_builtins.property
@@ -256,6 +262,9 @@ class CookieConsentConfig(pulumi.CustomResource):
     @_builtins.property
     @pulumi.getter(name="lastPublished")
     def last_published(self) -> pulumi.Output[Optional[_builtins.int]]:
+        """
+        Unix timestamp when Osano last published the configuration.
+        """
         return pulumi.get(self, "last_published")
 
     @_builtins.property
@@ -285,20 +294,31 @@ class CookieConsentConfig(pulumi.CustomResource):
     @_builtins.property
     @pulumi.getter(name="publishStatus")
     def publish_status(self) -> pulumi.Output[Optional[_builtins.str]]:
+        """
+        Current Osano publication status for the configuration.
+        """
         return pulumi.get(self, "publish_status")
 
     @_builtins.property
     @pulumi.getter(name="publishedRevision")
     def published_revision(self) -> pulumi.Output[Optional[_builtins.int]]:
+        """
+        Revision number most recently published by Osano.
+        """
         return pulumi.get(self, "published_revision")
 
     @_builtins.property
     @pulumi.getter(name="tattleRecordStopped")
     def tattle_record_stopped(self) -> pulumi.Output[Optional[_builtins.bool]]:
+        """
+        Whether Osano stopped the tattle record. Deleting this Pulumi resource retains the upstream configuration.
+        """
         return pulumi.get(self, "tattle_record_stopped")
 
     @_builtins.property
     @pulumi.getter
     def updated(self) -> pulumi.Output[Optional[_builtins.int]]:
+        """
+        Unix timestamp when Osano last updated the configuration.
+        """
         return pulumi.get(self, "updated")
-

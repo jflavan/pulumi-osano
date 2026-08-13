@@ -54,7 +54,7 @@ namespace Community.Pulumi.Osano
 
         private static readonly __Value<string?> _osanoApiKey = new __Value<string?>(() => __config.Get("osanoApiKey"));
         /// <summary>
-        /// Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
+        /// Osano API key used for subject profile routes and Customer REST API/CMP operations (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
         /// </summary>
         public static string? OsanoApiKey
         {
@@ -64,7 +64,7 @@ namespace Community.Pulumi.Osano
 
         private static readonly __Value<int?> _requestTimeoutSeconds = new __Value<int?>(() => __config.GetInt32("requestTimeoutSeconds"));
         /// <summary>
-        /// HTTP request timeout in seconds for Osano API calls (default 60).
+        /// HTTP request timeout in seconds for Customer REST API and Unified Consent calls (default 60).
         /// </summary>
         public static int? RequestTimeoutSeconds
         {

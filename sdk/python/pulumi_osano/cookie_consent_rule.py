@@ -23,7 +23,10 @@ class CookieConsentRuleArgs:
                  config_id: pulumi.Input[_builtins.str],
                  rule: pulumi.Input[_builtins.str],
                  store_type: pulumi.Input[_builtins.str],
+                 description: Optional[pulumi.Input[_builtins.str]] = None,
                  disclosure: Optional[pulumi.Input[_builtins.bool]] = None,
+                 expiry: Optional[pulumi.Input[_builtins.str]] = None,
+                 rule_type: Optional[pulumi.Input[_builtins.str]] = None,
                  title: Optional[pulumi.Input[_builtins.str]] = None,
                  vendor_name: Optional[pulumi.Input[_builtins.str]] = None):
         """
@@ -32,16 +35,25 @@ class CookieConsentRuleArgs:
         :param pulumi.Input[_builtins.str] config_id: The configId of the Cookie Consent Configuration this rule belongs to.
         :param pulumi.Input[_builtins.str] rule: The rule pattern (e.g. a cookie name pattern). Min 3, max 1000 characters.
         :param pulumi.Input[_builtins.str] store_type: The storage type category: cookies, scripts, iframes, or localStorage.
+        :param pulumi.Input[_builtins.str] description: Optional cookie description. Only supported for cookies; max 1000 characters.
         :param pulumi.Input[_builtins.bool] disclosure: Whether the rule should be disclosed. Defaults to false.
-        :param pulumi.Input[_builtins.str] title: Optional title for the rule, used in consent disclosure.
-        :param pulumi.Input[_builtins.str] vendor_name: Optional vendor name for the rule.
+        :param pulumi.Input[_builtins.str] expiry: Optional cookie expiry description. Only supported for cookies; max 50 characters.
+        :param pulumi.Input[_builtins.str] rule_type: Optional matching mode: FILENAME, DOMAIN, PATH, REGEXP, STARTS_WITH, ENDS_WITH, CONTAINS, or EXACT_MATCH.
+        :param pulumi.Input[_builtins.str] title: Optional title for the rule, used in consent disclosure. Max 64 characters.
+        :param pulumi.Input[_builtins.str] vendor_name: Optional vendor name for the rule. Max 100 characters.
         """
         pulumi.set(__self__, "classification", classification)
         pulumi.set(__self__, "config_id", config_id)
         pulumi.set(__self__, "rule", rule)
         pulumi.set(__self__, "store_type", store_type)
+        if description is not None:
+            pulumi.set(__self__, "description", description)
         if disclosure is not None:
             pulumi.set(__self__, "disclosure", disclosure)
+        if expiry is not None:
+            pulumi.set(__self__, "expiry", expiry)
+        if rule_type is not None:
+            pulumi.set(__self__, "rule_type", rule_type)
         if title is not None:
             pulumi.set(__self__, "title", title)
         if vendor_name is not None:
@@ -97,6 +109,18 @@ class CookieConsentRuleArgs:
 
     @_builtins.property
     @pulumi.getter
+    def description(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        Optional cookie description. Only supported for cookies; max 1000 characters.
+        """
+        return pulumi.get(self, "description")
+
+    @description.setter
+    def description(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "description", value)
+
+    @_builtins.property
+    @pulumi.getter
     def disclosure(self) -> Optional[pulumi.Input[_builtins.bool]]:
         """
         Whether the rule should be disclosed. Defaults to false.
@@ -109,9 +133,33 @@ class CookieConsentRuleArgs:
 
     @_builtins.property
     @pulumi.getter
+    def expiry(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        Optional cookie expiry description. Only supported for cookies; max 50 characters.
+        """
+        return pulumi.get(self, "expiry")
+
+    @expiry.setter
+    def expiry(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "expiry", value)
+
+    @_builtins.property
+    @pulumi.getter(name="ruleType")
+    def rule_type(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        Optional matching mode: FILENAME, DOMAIN, PATH, REGEXP, STARTS_WITH, ENDS_WITH, CONTAINS, or EXACT_MATCH.
+        """
+        return pulumi.get(self, "rule_type")
+
+    @rule_type.setter
+    def rule_type(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "rule_type", value)
+
+    @_builtins.property
+    @pulumi.getter
     def title(self) -> Optional[pulumi.Input[_builtins.str]]:
         """
-        Optional title for the rule, used in consent disclosure.
+        Optional title for the rule, used in consent disclosure. Max 64 characters.
         """
         return pulumi.get(self, "title")
 
@@ -123,7 +171,7 @@ class CookieConsentRuleArgs:
     @pulumi.getter(name="vendorName")
     def vendor_name(self) -> Optional[pulumi.Input[_builtins.str]]:
         """
-        Optional vendor name for the rule.
+        Optional vendor name for the rule. Max 100 characters.
         """
         return pulumi.get(self, "vendor_name")
 
@@ -140,8 +188,11 @@ class CookieConsentRule(pulumi.CustomResource):
                  opts: Optional[pulumi.ResourceOptions] = None,
                  classification: Optional[pulumi.Input[_builtins.str]] = None,
                  config_id: Optional[pulumi.Input[_builtins.str]] = None,
+                 description: Optional[pulumi.Input[_builtins.str]] = None,
                  disclosure: Optional[pulumi.Input[_builtins.bool]] = None,
+                 expiry: Optional[pulumi.Input[_builtins.str]] = None,
                  rule: Optional[pulumi.Input[_builtins.str]] = None,
+                 rule_type: Optional[pulumi.Input[_builtins.str]] = None,
                  store_type: Optional[pulumi.Input[_builtins.str]] = None,
                  title: Optional[pulumi.Input[_builtins.str]] = None,
                  vendor_name: Optional[pulumi.Input[_builtins.str]] = None,
@@ -153,11 +204,14 @@ class CookieConsentRule(pulumi.CustomResource):
         :param pulumi.ResourceOptions opts: Options for the resource.
         :param pulumi.Input[_builtins.str] classification: Classification: ANALYTICS, BLACKLISTED, ESSENTIAL, HIDDEN, MARKETING, or PERSONALIZATION.
         :param pulumi.Input[_builtins.str] config_id: The configId of the Cookie Consent Configuration this rule belongs to.
+        :param pulumi.Input[_builtins.str] description: Optional cookie description. Only supported for cookies; max 1000 characters.
         :param pulumi.Input[_builtins.bool] disclosure: Whether the rule should be disclosed. Defaults to false.
+        :param pulumi.Input[_builtins.str] expiry: Optional cookie expiry description. Only supported for cookies; max 50 characters.
         :param pulumi.Input[_builtins.str] rule: The rule pattern (e.g. a cookie name pattern). Min 3, max 1000 characters.
+        :param pulumi.Input[_builtins.str] rule_type: Optional matching mode: FILENAME, DOMAIN, PATH, REGEXP, STARTS_WITH, ENDS_WITH, CONTAINS, or EXACT_MATCH.
         :param pulumi.Input[_builtins.str] store_type: The storage type category: cookies, scripts, iframes, or localStorage.
-        :param pulumi.Input[_builtins.str] title: Optional title for the rule, used in consent disclosure.
-        :param pulumi.Input[_builtins.str] vendor_name: Optional vendor name for the rule.
+        :param pulumi.Input[_builtins.str] title: Optional title for the rule, used in consent disclosure. Max 64 characters.
+        :param pulumi.Input[_builtins.str] vendor_name: Optional vendor name for the rule. Max 100 characters.
         """
         ...
     @overload
@@ -185,8 +239,11 @@ class CookieConsentRule(pulumi.CustomResource):
                  opts: Optional[pulumi.ResourceOptions] = None,
                  classification: Optional[pulumi.Input[_builtins.str]] = None,
                  config_id: Optional[pulumi.Input[_builtins.str]] = None,
+                 description: Optional[pulumi.Input[_builtins.str]] = None,
                  disclosure: Optional[pulumi.Input[_builtins.bool]] = None,
+                 expiry: Optional[pulumi.Input[_builtins.str]] = None,
                  rule: Optional[pulumi.Input[_builtins.str]] = None,
+                 rule_type: Optional[pulumi.Input[_builtins.str]] = None,
                  store_type: Optional[pulumi.Input[_builtins.str]] = None,
                  title: Optional[pulumi.Input[_builtins.str]] = None,
                  vendor_name: Optional[pulumi.Input[_builtins.str]] = None,
@@ -205,10 +262,13 @@ class CookieConsentRule(pulumi.CustomResource):
             if config_id is None and not opts.urn:
                 raise TypeError("Missing required property 'config_id'")
             __props__.__dict__["config_id"] = config_id
+            __props__.__dict__["description"] = description
             __props__.__dict__["disclosure"] = disclosure
+            __props__.__dict__["expiry"] = expiry
             if rule is None and not opts.urn:
                 raise TypeError("Missing required property 'rule'")
             __props__.__dict__["rule"] = rule
+            __props__.__dict__["rule_type"] = rule_type
             if store_type is None and not opts.urn:
                 raise TypeError("Missing required property 'store_type'")
             __props__.__dict__["store_type"] = store_type
@@ -242,9 +302,12 @@ class CookieConsentRule(pulumi.CustomResource):
         __props__.__dict__["classification"] = None
         __props__.__dict__["config_id"] = None
         __props__.__dict__["created"] = None
+        __props__.__dict__["description"] = None
         __props__.__dict__["disclosure"] = None
+        __props__.__dict__["expiry"] = None
         __props__.__dict__["rule"] = None
         __props__.__dict__["rule_id"] = None
+        __props__.__dict__["rule_type"] = None
         __props__.__dict__["store_type"] = None
         __props__.__dict__["title"] = None
         __props__.__dict__["updated"] = None
@@ -277,11 +340,27 @@ class CookieConsentRule(pulumi.CustomResource):
 
     @_builtins.property
     @pulumi.getter
+    def description(self) -> pulumi.Output[Optional[_builtins.str]]:
+        """
+        Optional cookie description. Only supported for cookies; max 1000 characters.
+        """
+        return pulumi.get(self, "description")
+
+    @_builtins.property
+    @pulumi.getter
     def disclosure(self) -> pulumi.Output[Optional[_builtins.bool]]:
         """
         Whether the rule should be disclosed. Defaults to false.
         """
         return pulumi.get(self, "disclosure")
+
+    @_builtins.property
+    @pulumi.getter
+    def expiry(self) -> pulumi.Output[Optional[_builtins.str]]:
+        """
+        Optional cookie expiry description. Only supported for cookies; max 50 characters.
+        """
+        return pulumi.get(self, "expiry")
 
     @_builtins.property
     @pulumi.getter
@@ -300,6 +379,14 @@ class CookieConsentRule(pulumi.CustomResource):
         return pulumi.get(self, "rule_id")
 
     @_builtins.property
+    @pulumi.getter(name="ruleType")
+    def rule_type(self) -> pulumi.Output[Optional[_builtins.str]]:
+        """
+        Optional matching mode: FILENAME, DOMAIN, PATH, REGEXP, STARTS_WITH, ENDS_WITH, CONTAINS, or EXACT_MATCH.
+        """
+        return pulumi.get(self, "rule_type")
+
+    @_builtins.property
     @pulumi.getter(name="storeType")
     def store_type(self) -> pulumi.Output[_builtins.str]:
         """
@@ -311,7 +398,7 @@ class CookieConsentRule(pulumi.CustomResource):
     @pulumi.getter
     def title(self) -> pulumi.Output[Optional[_builtins.str]]:
         """
-        Optional title for the rule, used in consent disclosure.
+        Optional title for the rule, used in consent disclosure. Max 64 characters.
         """
         return pulumi.get(self, "title")
 
@@ -327,7 +414,6 @@ class CookieConsentRule(pulumi.CustomResource):
     @pulumi.getter(name="vendorName")
     def vendor_name(self) -> pulumi.Output[Optional[_builtins.str]]:
         """
-        Optional vendor name for the rule.
+        Optional vendor name for the rule. Max 100 characters.
         """
         return pulumi.get(self, "vendor_name")
-

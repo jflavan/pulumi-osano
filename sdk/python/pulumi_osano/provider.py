@@ -30,8 +30,8 @@ class ProviderArgs:
         The set of arguments for constructing a Provider resource.
         :param pulumi.Input[_builtins.str] api_base_url: Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com).
         :param pulumi.Input[_builtins.str] customer_base_url: Override base URL for the Customer REST API (default: https://api.osano.com).
-        :param pulumi.Input[_builtins.str] osano_api_key: Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
-        :param pulumi.Input[_builtins.int] request_timeout_seconds: HTTP request timeout in seconds for Osano API calls (default 60).
+        :param pulumi.Input[_builtins.str] osano_api_key: Osano API key used for subject profile routes and Customer REST API/CMP operations (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
+        :param pulumi.Input[_builtins.int] request_timeout_seconds: HTTP request timeout in seconds for Customer REST API and Unified Consent calls (default 60).
         :param pulumi.Input[_builtins.str] uc_api_key: Unified Consent API key for the Unified Consent Core API (x-uc-api-key).
         :param pulumi.Input[_builtins.str] uc_base_url: Override base URL for the Unified Consent Core API (default: https://uc.api.osano.com).
         :param pulumi.Input[_builtins.str] unified_consent_api_key: Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret or OSANO_UC_API_KEY).
@@ -85,7 +85,7 @@ class ProviderArgs:
     @pulumi.getter(name="osanoApiKey")
     def osano_api_key(self) -> Optional[pulumi.Input[_builtins.str]]:
         """
-        Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
+        Osano API key used for subject profile routes and Customer REST API/CMP operations (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
         """
         return pulumi.get(self, "osano_api_key")
 
@@ -97,7 +97,7 @@ class ProviderArgs:
     @pulumi.getter(name="requestTimeoutSeconds")
     def request_timeout_seconds(self) -> Optional[pulumi.Input[_builtins.int]]:
         """
-        HTTP request timeout in seconds for Osano API calls (default 60).
+        HTTP request timeout in seconds for Customer REST API and Unified Consent calls (default 60).
         """
         return pulumi.get(self, "request_timeout_seconds")
 
@@ -164,8 +164,8 @@ class Provider(pulumi.ProviderResource):
         :param pulumi.ResourceOptions opts: Options for the resource.
         :param pulumi.Input[_builtins.str] api_base_url: Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com).
         :param pulumi.Input[_builtins.str] customer_base_url: Override base URL for the Customer REST API (default: https://api.osano.com).
-        :param pulumi.Input[_builtins.str] osano_api_key: Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
-        :param pulumi.Input[_builtins.int] request_timeout_seconds: HTTP request timeout in seconds for Osano API calls (default 60).
+        :param pulumi.Input[_builtins.str] osano_api_key: Osano API key used for subject profile routes and Customer REST API/CMP operations (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
+        :param pulumi.Input[_builtins.int] request_timeout_seconds: HTTP request timeout in seconds for Customer REST API and Unified Consent calls (default 60).
         :param pulumi.Input[_builtins.str] uc_api_key: Unified Consent API key for the Unified Consent Core API (x-uc-api-key).
         :param pulumi.Input[_builtins.str] uc_base_url: Override base URL for the Unified Consent Core API (default: https://uc.api.osano.com).
         :param pulumi.Input[_builtins.str] unified_consent_api_key: Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret or OSANO_UC_API_KEY).
@@ -244,7 +244,7 @@ class Provider(pulumi.ProviderResource):
     @pulumi.getter(name="osanoApiKey")
     def osano_api_key(self) -> pulumi.Output[Optional[_builtins.str]]:
         """
-        Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
+        Osano API key used for subject profile routes and Customer REST API/CMP operations (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
         """
         return pulumi.get(self, "osano_api_key")
 
@@ -273,4 +273,3 @@ class Provider(pulumi.ProviderResource):
         Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret or OSANO_UC_API_KEY).
         """
         return pulumi.get(self, "unified_consent_api_key")
-

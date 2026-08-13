@@ -1,7 +1,7 @@
 {
     "name": "@jflavan/pulumi-osano",
     "version": "1.0.0-alpha.0+dev",
-    "description": "Pulumi provider for the Osano Unified Consent API.",
+    "description": "Pulumi provider for Osano Cookie Consent and Unified Consent APIs.",
     "homepage": "https://github.com/jflavan/pulumi-osano",
     "repository": "https://github.com/jflavan/pulumi-osano",
     "scripts": {

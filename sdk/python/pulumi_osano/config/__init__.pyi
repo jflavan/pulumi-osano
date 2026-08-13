@@ -26,12 +26,12 @@ Override base URL for the Customer REST API (default: https://api.osano.com).
 
 osanoApiKey: Optional[str]
 """
-Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
+Osano API key used for subject profile routes and Customer REST API/CMP operations (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
 """
 
 requestTimeoutSeconds: Optional[int]
 """
-HTTP request timeout in seconds for Osano API calls (default 60).
+HTTP request timeout in seconds for Customer REST API and Unified Consent calls (default 60).
 """
 
 ucApiKey: Optional[str]
@@ -48,4 +48,3 @@ unifiedConsentApiKey: Optional[str]
 """
 Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret or OSANO_UC_API_KEY).
 """
-

@@ -1,7 +1,7 @@
 {
   "name": "osano",
   "displayName": "Osano (Unofficial)",
-  "description": "Unofficial Pulumi provider for managing Osano Unified Consent resources. Not affiliated with Pulumi Corporation or Osano, Inc.",
+  "description": "Unofficial Pulumi provider for managing Osano Cookie Consent and Unified Consent resources. Not affiliated with Pulumi Corporation or Osano, Inc.",
   "homepage": "https://github.com/jflavan/pulumi-osano",
   "repository": "https://github.com/jflavan/pulumi-osano",
   "pluginDownloadURL": "github://api.github.com/jflavan/pulumi-osano",
@@ -19,12 +19,12 @@
       "buildFiles": "gradle"
     },
     "nodejs": {
-      "packageDescription": "Pulumi provider for the Osano Unified Consent API.",
+      "packageDescription": "Pulumi provider for Osano Cookie Consent and Unified Consent APIs.",
       "packageName": "@jflavan/pulumi-osano",
       "respectSchemaVersion": true
     },
     "python": {
-      "packageDescription": "Pulumi provider for the Osano Unified Consent API.",
+      "packageDescription": "Pulumi provider for Osano Cookie Consent and Unified Consent APIs.",
       "packageName": "pulumi_osano"
     }
   },
@@ -40,12 +40,12 @@
       },
       "osanoApiKey": {
         "type": "string",
-        "description": "Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).",
+        "description": "Osano API key used for subject profile routes and Customer REST API/CMP operations (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).",
         "secret": true
       },
       "requestTimeoutSeconds": {
         "type": "integer",
-        "description": "HTTP request timeout in seconds for Osano API calls (default 60)."
+        "description": "HTTP request timeout in seconds for Customer REST API and Unified Consent calls (default 60)."
       },
       "ucApiKey": {
         "type": "string",
@@ -137,12 +137,12 @@
       },
       "osanoApiKey": {
         "type": "string",
-        "description": "Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).",
+        "description": "Osano API key used for subject profile routes and Customer REST API/CMP operations (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).",
         "secret": true
       },
       "requestTimeoutSeconds": {
         "type": "integer",
-        "description": "HTTP request timeout in seconds for Osano API calls (default 60)."
+        "description": "HTTP request timeout in seconds for Customer REST API and Unified Consent calls (default 60)."
       },
       "ucApiKey": {
         "type": "string",
@@ -172,12 +172,12 @@
       },
       "osanoApiKey": {
         "type": "string",
-        "description": "Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).",
+        "description": "Osano API key used for subject profile routes and Customer REST API/CMP operations (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).",
         "secret": true
       },
       "requestTimeoutSeconds": {
         "type": "integer",
-        "description": "HTTP request timeout in seconds for Osano API calls (default 60)."
+        "description": "HTTP request timeout in seconds for Customer REST API and Unified Consent calls (default 60)."
       },
       "ucApiKey": {
         "type": "string",
@@ -324,10 +324,12 @@
           "description": "CMP configuration object. At minimum, must include storagePolicyHref."
         },
         "created": {
-          "type": "integer"
+          "type": "integer",
+          "description": "Unix timestamp when Osano created the configuration."
         },
         "customerId": {
-          "type": "string"
+          "type": "string",
+          "description": "The Osano customer ID that owns the configuration."
         },
         "domains": {
           "type": "array",
@@ -337,7 +339,8 @@
           "description": "Domains permitted to host the configuration."
         },
         "lastPublished": {
-          "type": "integer"
+          "type": "integer",
+          "description": "Unix timestamp when Osano last published the configuration."
         },
         "mode": {
           "type": "string",
@@ -355,16 +358,20 @@
           "description": "Optional organization IDs associated with the config."
         },
         "publishStatus": {
-          "type": "string"
+          "type": "string",
+          "description": "Current Osano publication status for the configuration."
         },
         "publishedRevision": {
-          "type": "integer"
+          "type": "integer",
+          "description": "Revision number most recently published by Osano."
         },
         "tattleRecordStopped": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Whether Osano stopped the tattle record. Deleting this Pulumi resource retains the upstream configuration."
         },
         "updated": {
-          "type": "integer"
+          "type": "integer",
+          "description": "Unix timestamp when Osano last updated the configuration."
         }
       },
       "required": [
@@ -412,6 +419,93 @@
         "configuration"
       ]
     },
+    "osano:index:CookieConsentPublication": {
+      "description": "Publishes an Osano Cookie Consent configuration, waits for completion, and returns its hosted CMP script. Import with the Osano config ID; deleting this resource only removes Pulumi state and does not unpublish the config.",
+      "properties": {
+        "changeToken": {
+          "type": "string",
+          "description": "A caller-managed desired-state token. Changing it queues a new publication; an unchanged token is a no-op."
+        },
+        "configId": {
+          "type": "string",
+          "description": "The Osano Cookie Consent config ID to publish. This is also the import ID."
+        },
+        "customerId": {
+          "type": "string",
+          "description": "The Osano customer ID that owns the published configuration."
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional description sent with the publication request."
+        },
+        "keepUnclassifiedTattles": {
+          "type": "boolean",
+          "description": "Whether publication preserves unclassified discoveries. Defaults to true to avoid unexpected deletion.",
+          "default": true
+        },
+        "lastPublished": {
+          "type": "integer",
+          "description": "Unix timestamp of the completed Osano publication."
+        },
+        "publishStatus": {
+          "type": "string",
+          "description": "The publication status returned by Osano after completion."
+        },
+        "publishedRevision": {
+          "type": "integer",
+          "description": "The configuration revision most recently published by Osano."
+        },
+        "scriptSrc": {
+          "type": "string",
+          "description": "The public hosted Osano CMP JavaScript URL for this customer and config."
+        },
+        "scriptTag": {
+          "type": "string",
+          "description": "The complete public CMP script tag to place first in the site head, without async or defer attributes."
+        },
+        "webhookUrl": {
+          "type": "string",
+          "description": "Optional absolute HTTP or HTTPS URL notified by Osano after publication."
+        }
+      },
+      "required": [
+        "configId",
+        "changeToken",
+        "customerId",
+        "publishStatus",
+        "lastPublished",
+        "publishedRevision",
+        "scriptSrc",
+        "scriptTag"
+      ],
+      "inputProperties": {
+        "changeToken": {
+          "type": "string",
+          "description": "A caller-managed desired-state token. Changing it queues a new publication; an unchanged token is a no-op."
+        },
+        "configId": {
+          "type": "string",
+          "description": "The Osano Cookie Consent config ID to publish. This is also the import ID."
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional description sent with the publication request."
+        },
+        "keepUnclassifiedTattles": {
+          "type": "boolean",
+          "description": "Whether publication preserves unclassified discoveries. Defaults to true to avoid unexpected deletion.",
+          "default": true
+        },
+        "webhookUrl": {
+          "type": "string",
+          "description": "Optional absolute HTTP or HTTPS URL notified by Osano after publication."
+        }
+      },
+      "requiredInputs": [
+        "configId",
+        "changeToken"
+      ]
+    },
     "osano:index:CookieConsentRule": {
       "description": "Manages an Osano Cookie Consent (CMP) rule within a configuration.",
       "properties": {
@@ -427,9 +521,17 @@
           "type": "string",
           "description": "Timestamp when the rule was created."
         },
+        "description": {
+          "type": "string",
+          "description": "Optional cookie description. Only supported for cookies; max 1000 characters."
+        },
         "disclosure": {
           "type": "boolean",
           "description": "Whether the rule should be disclosed. Defaults to false."
+        },
+        "expiry": {
+          "type": "string",
+          "description": "Optional cookie expiry description. Only supported for cookies; max 50 characters."
         },
         "rule": {
           "type": "string",
@@ -439,13 +541,17 @@
           "type": "integer",
           "description": "The server-assigned integer rule ID."
         },
+        "ruleType": {
+          "type": "string",
+          "description": "Optional matching mode: FILENAME, DOMAIN, PATH, REGEXP, STARTS_WITH, ENDS_WITH, CONTAINS, or EXACT_MATCH."
+        },
         "storeType": {
           "type": "string",
           "description": "The storage type category: cookies, scripts, iframes, or localStorage."
         },
         "title": {
           "type": "string",
-          "description": "Optional title for the rule, used in consent disclosure."
+          "description": "Optional title for the rule, used in consent disclosure. Max 64 characters."
         },
         "updated": {
           "type": "string",
@@ -453,7 +559,7 @@
         },
         "vendorName": {
           "type": "string",
-          "description": "Optional vendor name for the rule."
+          "description": "Optional vendor name for the rule. Max 100 characters."
         }
       },
       "required": [
@@ -472,13 +578,25 @@
           "type": "string",
           "description": "The configId of the Cookie Consent Configuration this rule belongs to."
         },
+        "description": {
+          "type": "string",
+          "description": "Optional cookie description. Only supported for cookies; max 1000 characters."
+        },
         "disclosure": {
           "type": "boolean",
           "description": "Whether the rule should be disclosed. Defaults to false."
         },
+        "expiry": {
+          "type": "string",
+          "description": "Optional cookie expiry description. Only supported for cookies; max 50 characters."
+        },
         "rule": {
           "type": "string",
           "description": "The rule pattern (e.g. a cookie name pattern). Min 3, max 1000 characters."
+        },
+        "ruleType": {
+          "type": "string",
+          "description": "Optional matching mode: FILENAME, DOMAIN, PATH, REGEXP, STARTS_WITH, ENDS_WITH, CONTAINS, or EXACT_MATCH."
         },
         "storeType": {
           "type": "string",
@@ -486,11 +604,11 @@
         },
         "title": {
           "type": "string",
-          "description": "Optional title for the rule, used in consent disclosure."
+          "description": "Optional title for the rule, used in consent disclosure. Max 64 characters."
         },
         "vendorName": {
           "type": "string",
-          "description": "Optional vendor name for the rule."
+          "description": "Optional vendor name for the rule. Max 100 characters."
         }
       },
       "requiredInputs": [

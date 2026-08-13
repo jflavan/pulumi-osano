@@ -52,15 +52,31 @@ public class CookieConsentConfig extends com.pulumi.resources.CustomResource {
     public Output<Map<String,Object>> configuration() {
         return this.configuration;
     }
+    /**
+     * Unix timestamp when Osano created the configuration.
+     *
+     */
     @Export(name="created", refs={Integer.class}, tree="[0]")
     private Output</* @Nullable */ Integer> created;
 
+    /**
+     * @return Unix timestamp when Osano created the configuration.
+     *
+     */
     public Output<Optional<Integer>> created() {
         return Codegen.optional(this.created);
     }
+    /**
+     * The Osano customer ID that owns the configuration.
+     *
+     */
     @Export(name="customerId", refs={String.class}, tree="[0]")
     private Output</* @Nullable */ String> customerId;
 
+    /**
+     * @return The Osano customer ID that owns the configuration.
+     *
+     */
     public Output<Optional<String>> customerId() {
         return Codegen.optional(this.customerId);
     }
@@ -78,9 +94,17 @@ public class CookieConsentConfig extends com.pulumi.resources.CustomResource {
     public Output<List<String>> domains() {
         return this.domains;
     }
+    /**
+     * Unix timestamp when Osano last published the configuration.
+     *
+     */
     @Export(name="lastPublished", refs={Integer.class}, tree="[0]")
     private Output</* @Nullable */ Integer> lastPublished;
 
+    /**
+     * @return Unix timestamp when Osano last published the configuration.
+     *
+     */
     public Output<Optional<Integer>> lastPublished() {
         return Codegen.optional(this.lastPublished);
     }
@@ -126,27 +150,59 @@ public class CookieConsentConfig extends com.pulumi.resources.CustomResource {
     public Output<Optional<List<String>>> orgIds() {
         return Codegen.optional(this.orgIds);
     }
+    /**
+     * Current Osano publication status for the configuration.
+     *
+     */
     @Export(name="publishStatus", refs={String.class}, tree="[0]")
     private Output</* @Nullable */ String> publishStatus;
 
+    /**
+     * @return Current Osano publication status for the configuration.
+     *
+     */
     public Output<Optional<String>> publishStatus() {
         return Codegen.optional(this.publishStatus);
     }
+    /**
+     * Revision number most recently published by Osano.
+     *
+     */
     @Export(name="publishedRevision", refs={Integer.class}, tree="[0]")
     private Output</* @Nullable */ Integer> publishedRevision;
 
+    /**
+     * @return Revision number most recently published by Osano.
+     *
+     */
     public Output<Optional<Integer>> publishedRevision() {
         return Codegen.optional(this.publishedRevision);
     }
+    /**
+     * Whether Osano stopped the tattle record. Deleting this Pulumi resource retains the upstream configuration.
+     *
+     */
     @Export(name="tattleRecordStopped", refs={Boolean.class}, tree="[0]")
     private Output</* @Nullable */ Boolean> tattleRecordStopped;
 
+    /**
+     * @return Whether Osano stopped the tattle record. Deleting this Pulumi resource retains the upstream configuration.
+     *
+     */
     public Output<Optional<Boolean>> tattleRecordStopped() {
         return Codegen.optional(this.tattleRecordStopped);
     }
+    /**
+     * Unix timestamp when Osano last updated the configuration.
+     *
+     */
     @Export(name="updated", refs={Integer.class}, tree="[0]")
     private Output</* @Nullable */ Integer> updated;
 
+    /**
+     * @return Unix timestamp when Osano last updated the configuration.
+     *
+     */
     public Output<Optional<Integer>> updated() {
         return Codegen.optional(this.updated);
     }
