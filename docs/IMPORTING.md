@@ -1,20 +1,51 @@
 # Importing Existing Osano Resources
 
-The Osano Unified Consent API records immutable consent events rather than mutable resources. That means there is no canonical "consent resource" that can be imported into Pulumi after it has been recorded inside Osano. Instead, Pulumi programs typically replay the desired consent payload with the latest configuration so that the history stored in Osano matches the infrastructure definition.
+## Cookie Consent resources
 
-## Consent Records
+Existing Cookie Consent configurations, rules, and publications can be adopted
+with these exact ID formats:
 
-- `osano:index:Consent` represents a single API submission (for example, a visitor updating preferences). Importing those records is not supported because Osano does not expose identifiers for individual consent actions that can be mapped back to Pulumi resources.
-- When adopting Pulumi for existing environments, we recommend creating logical representations (for example, a Pulumi stack per product or brand) and using the provider to submit **new** events. Historical records remain untouched in Osano and continue to be queryable.
+```bash
+pulumi import osano:index:CookieConsentConfig consentConfig <configId>
+pulumi import osano:index:CookieConsentRule analyticsRule <configId>/<ruleId>
+pulumi import osano:index:CookieConsentPublication publication <configId>
+```
 
-## Configuration Objects
+A configuration import reads the remote configuration into state. It does not
+publish. A rule import requires the composite `<configId>/<ruleId>` identity;
+older tracked rules with numeric IDs remain readable, and refresh normalizes
+their identity without replacing the upstream rule.
 
-Future roadmap versions of this provider may expose additional configuration resources (privacy protocols, collections, or configurations). Once those resources are available you will be able to import them with `pulumi import osano:index:ResourceName identifier`. Each resource will document the exact identifier format (typically the Osano-internal UUID).
+A publication import also performs only a read and never queues publication.
+Because Osano cannot reconstruct the caller's prior desired-state token, the
+provider adopts the observed publication with:
 
-## Recommended Approach Today
+```text
+import:<lastPublished>:<publishedRevision>
+```
 
-1. **Model the desired steady state** – describe the consent actions or helper functions that your applications should perform going forward.
-2. **Leave historical data in place** – Osano keeps authoritative history; Pulumi only submits future state transitions.
-3. **Use invokes for discovery** – the `osano:index:getUnifiedConsent` function lets you read the latest view for a subject so you can seed your automations without importing anything.
+After adding the imported resource to a program, supply the program's intended
+deterministic `changeToken`. If it differs from the adoption token, the first
+`pulumi up` may perform one controlled republish. Include every
+publish-relevant configuration and rule value in the token, but do not include
+API keys or other secrets.
 
-If you have a concrete importing scenario we have not covered, open a GitHub Discussion with the details. It will help prioritize future resource coverage.
+Before importing, ensure the program models the remote values and run
+`pulumi preview`. Import and preview do not mutate Osano.
+
+## Unified Consent records
+
+The Osano Unified Consent API records immutable consent events rather than
+mutable resources. There is no canonical consent resource that can be imported
+after it has been recorded inside Osano.
+
+- `osano:index:Consent` represents a single API submission. Osano does not
+  expose identifiers for individual consent actions that map back to Pulumi,
+  so these immutable records are not importable.
+- Adopt Pulumi by submitting new desired consent events. Historical records
+  remain untouched and queryable in Osano.
+- Use `osano:index:getUnifiedConsent` to read the latest view for a subject and
+  seed automations without importing a record.
+
+For an importing scenario not covered here, open a GitHub Discussion without
+including real subject identifiers or API keys.

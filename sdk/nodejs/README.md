@@ -11,8 +11,9 @@
 >
 > This repo is not affiliated with Osano or Pulumi. It is maintained by the community and provided "as is" under the MIT license. Use GitHub Issues/Discussions for support.
 
-The provider lets you manage Osano Unified Consent workflows alongside the rest of your infrastructure-as-code. You can:
+The provider lets you manage Osano Cookie Consent and Unified Consent workflows alongside the rest of your infrastructure-as-code. You can:
 
+- Create Cookie Consent configurations and rules, publish them after all dependencies settle, and export the hosted CMP script URL and exact HTML tag.
 - Submit consent decisions programmatically from Pulumi deployments.
 - Query unified consent state for a subject using Pulumi invokes.
 - Resolve anonymous vs. verified subject identifiers via the `osano.getSubject` invoke when stitching identity flows.
@@ -36,7 +37,7 @@ The provider lets you manage Osano Unified Consent workflows alongside the rest 
 ## Prerequisites
 
 - Pulumi CLI v3+
-- API access to an Osano tenant (Unified Consent API key, optionally an Osano API key)
+- API access to an Osano tenant (a Customer REST API key for Cookie Consent, a Unified Consent API key for Unified Consent, or both for mixed workloads)
 - Runtime for your preferred language (Node.js 18+, Python 3.9+, Go 1.24+, .NET 8, or Java 11)
 
 ## Installation
@@ -101,6 +102,32 @@ Run `pulumi up` to submit the consent. Destroying the stack removes the logical 
 
 If you're working from a repository clone instead of published packages, the repo-local examples under [examples/quickstart](./examples/quickstart) are aimed at contributors. Run `mise exec -- make build_sdks` once before using the TypeScript example so the local Node.js package exists.
 
+## Cookie Consent end to end
+
+The canonical [C# Cookie Consent example](./examples/cookie-consent) creates a CMP configuration and its rules, then uses `CookieConsentPublication` to publish only after those resources settle. The companion TypeScript example implements the same lifecycle. Both compute a deterministic `changeToken`, declare explicit [`dependsOn`](https://www.pulumi.com/docs/iac/concepts/resources/options/dependson/) relationships, and allow a twenty-minute [`customTimeouts`](https://www.pulumi.com/docs/iac/concepts/resources/options/customtimeouts/) window.
+
+Cookie Consent resources require a Customer REST API key:
+
+```bash
+export OSANO_API_KEY="replace-with-a-customer-rest-api-key"
+```
+
+After publication succeeds, the resource exposes these exact public outputs:
+
+```csharp
+var publication = new CookieConsentPublication(/* ... */);
+
+return new Dictionary<string, object?>
+{
+    ["cookieConsentScriptSrc"] = publication.ScriptSrc, // scriptSrc
+    ["cookieConsentScriptTag"] = publication.ScriptTag, // scriptTag
+};
+```
+
+`scriptSrc` has the form `https://cmp.osano.com/{customerId}/{configId}/osano.js`; `scriptTag` is exactly `<script src="{scriptSrc}"></script>`. These installation values are deliberately non-secret. Put the returned tag first in the site `<head>` without `async` or `defer`, so the CMP loads before scripts it may control. Publication completion and CDN propagation are separate; the latest revision may take up to 15 minutes to reach every edge location.
+
+See the [Osano Customer REST API](https://developers.osano.com/customer-rest-api), [Consent JavaScript API](https://developers.osano.com/cmp/javascript-api/developer-documentation-consent-javascript-api), and [publish or republish guide](https://docs.osano.com/hc/en-us/articles/24425173212308-Publish-or-Republish-Cookie-Consent) for the upstream contracts.
+
 ## Authentication
 
 Two API keys exist:
@@ -108,13 +135,13 @@ Two API keys exist:
 | Key | Header | Usage |
 | --- | --- | --- |
 | Unified Consent API key | `x-uc-api-key` | Required for consent submissions and read operations |
-| Osano API key | `x-osano-api-key` | Needed for administrative endpoints (subjects, merges, verification) |
+| Osano Customer REST API key | `x-osano-api-key` | Required for CMP configuration, rule, and publication resources; also used by administrative subject, merge, profile, and verification routes |
 
 Configure them with Pulumi config:
 
 ```bash
 pulumi config set osano:unifiedConsentApiKey --secret
-pulumi config set osano:osanoApiKey --secret   # optional today
+pulumi config set osano:osanoApiKey --secret   # required for Cookie Consent and administrative routes
 ```
 
 Or set environment variables for CI:
@@ -131,9 +158,10 @@ Provider-level settings (all optional unless noted):
 | Key | Description |
 | --- | --- |
 | `osano:unifiedConsentApiKey` | Unified Consent API key (secret) |
-| `osano:osanoApiKey` | Osano API key (secret) |
+| `osano:osanoApiKey` | Customer REST API/CMP and administrative-route key (secret); `OSANO_API_KEY` takes precedence when set |
 | `osano:apiBaseUrl` | Override the API base URL; defaults to `https://uc.api.osano.com` |
-| `osano:requestTimeoutSeconds` | HTTP timeout, default 60 seconds |
+| `osano:customerBaseUrl` | Override the Customer REST API base URL; defaults to `https://api.osano.com` |
+| `osano:requestTimeoutSeconds` | HTTP timeout for Customer REST and Unified Consent calls, default 60 seconds; `OSANO_API_TIMEOUT_SECONDS` takes precedence when valid |
 
 Resource-level inputs are documented in the auto-generated SDK docs (see the GoDoc badge above).
 
@@ -142,6 +170,7 @@ Resource-level inputs are documented in the auto-generated SDK docs (see the GoD
 - [examples/quickstart/typescript](./examples/quickstart/typescript)
 - [examples/quickstart/python](./examples/quickstart/python)
 - [examples/quickstart/go](./examples/quickstart/go)
+- [examples/cookie-consent](./examples/cookie-consent) (canonical C# and companion TypeScript)
 
 These repo-local examples contain `Pulumi.yaml` plus language-specific dependency files. The shared quickstart README documents the local SDK setup required when running them from a clone.
 
