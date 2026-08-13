@@ -11,6 +11,7 @@ import (
 	"time"
 
 	osanoclient "github.com/jflavan/pulumi-osano/provider/internal/osano"
+
 	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/infer"
 )
@@ -50,7 +51,8 @@ func (r *CookieConsentPublication) Annotate(a infer.Annotator) {
 	a.Describe(
 		r,
 		"Publishes an Osano Cookie Consent configuration, waits for completion, and returns its hosted CMP script. "+
-			"Import with the Osano config ID; deleting this resource only removes Pulumi state and does not unpublish the config.",
+			"Import with the Osano config ID; deleting this resource only removes Pulumi state and "+
+			"does not unpublish the config.",
 	)
 }
 
@@ -374,7 +376,7 @@ func cookieConsentPublicationState(
 	}, nil
 }
 
-func cookieConsentScript(customerID, configID string) (string, string, error) {
+func cookieConsentScript(customerID, configID string) (scriptSrc, scriptTag string, err error) {
 	if strings.TrimSpace(customerID) == "" || strings.TrimSpace(configID) == "" {
 		return "", "", errors.New("customerId and configId are required to build the CMP script")
 	}

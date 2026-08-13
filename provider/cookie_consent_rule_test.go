@@ -493,8 +493,14 @@ func TestParseRuleResourceID(t *testing.T) {
 		wantError     bool
 	}{
 		{name: "composite", id: "config-abc/42", wantConfigID: "config-abc", wantRuleID: 42, wantCanonical: "config-abc/42"},
-		{name: "opaque config ID", id: "customer/config/abc/42", wantConfigID: "customer/config/abc", wantRuleID: 42, wantCanonical: "customer/config/abc/42"},
-		{name: "legacy", id: "42", stateConfigID: "config-abc", wantConfigID: "config-abc", wantRuleID: 42, wantCanonical: "config-abc/42"},
+		{
+			name: "opaque config ID", id: "customer/config/abc/42", wantConfigID: "customer/config/abc",
+			wantRuleID: 42, wantCanonical: "customer/config/abc/42",
+		},
+		{
+			name: "legacy", id: "42", stateConfigID: "config-abc", wantConfigID: "config-abc",
+			wantRuleID: 42, wantCanonical: "config-abc/42",
+		},
 		{name: "legacy missing config", id: "42", wantError: true},
 		{name: "missing rule ID", id: "config-abc/", wantError: true},
 		{name: "non-numeric rule ID", id: "config-abc/not-a-number", wantError: true},

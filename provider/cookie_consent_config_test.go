@@ -337,7 +337,8 @@ func assertCMPConfigInputs(t *testing.T, properties property.Map) {
 	if got := properties.Get("orgIds").AsArray().Get(0).AsString(); got != "org-123" {
 		t.Fatalf("expected organization ID, got %q", got)
 	}
-	if got := properties.Get("configuration").AsMap().Get("storagePolicyHref").AsString(); got != "https://example.com/storage-policy" {
+	configuration := properties.Get("configuration").AsMap()
+	if got := configuration.Get("storagePolicyHref").AsString(); got != "https://example.com/storage-policy" {
 		t.Fatalf("expected configuration storage policy URL, got %q", got)
 	}
 }

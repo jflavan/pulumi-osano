@@ -6,6 +6,7 @@ import (
 
 	"github.com/blang/semver"
 	osanoclient "github.com/jflavan/pulumi-osano/provider/internal/osano"
+
 	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/integration"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/resource"

@@ -11,6 +11,7 @@ import (
 	"slices"
 
 	osanoclient "github.com/jflavan/pulumi-osano/provider/internal/osano"
+
 	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/infer"
 )
