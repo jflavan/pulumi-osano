@@ -31,15 +31,21 @@ class NormalizePythonSDKTests(unittest.TestCase):
             nested_root.mkdir()
             python_file = sdk_root / "resource.py"
             stub_file = nested_root / "resource.pyi"
+            no_newline_file = nested_root / "no_newline.py"
+            empty_file = nested_root / "empty.pyi"
             text_file = nested_root / "notes.txt"
             python_file.write_bytes(b"publication surface\n\n\n")
             stub_file.write_bytes(b"typed surface\n\n")
+            no_newline_file.write_bytes(b"missing final newline")
+            empty_file.write_bytes(b"")
             text_file.write_bytes(b"leave this alone\n\n\n")
 
             normalizer.normalize_python_sdk(sdk_root)
 
             self.assertEqual(python_file.read_bytes(), b"publication surface\n")
             self.assertEqual(stub_file.read_bytes(), b"typed surface\n")
+            self.assertEqual(no_newline_file.read_bytes(), b"missing final newline\n")
+            self.assertEqual(empty_file.read_bytes(), b"")
             self.assertEqual(text_file.read_bytes(), b"leave this alone\n\n\n")
 
 

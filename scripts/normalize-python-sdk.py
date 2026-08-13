@@ -19,8 +19,14 @@ def normalize_python_sdk(sdk_root: Path) -> None:
             continue
 
         original = path.read_bytes()
+        if not original:
+            continue
         newline = b"\r\n" if original.endswith(b"\r\n") else b"\n"
-        normalized = TRAILING_NEWLINES.sub(newline, original)
+        normalized = (
+            TRAILING_NEWLINES.sub(newline, original)
+            if TRAILING_NEWLINES.search(original)
+            else original + newline
+        )
         if normalized != original:
             path.write_bytes(normalized)
 
