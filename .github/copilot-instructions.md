@@ -3,15 +3,15 @@
 Concise, task-agnostic instructions so an agent can work efficiently without extra repo exploration. Trust these steps first; search only when something here is missing or incorrect. Keep changes minimal and follow the Pulumi provider boilerplate patterns.
 
 ## What this repo is
-- Unofficial Pulumi **native provider** for Osano's Unified Consent API (Go provider + generated SDKs for Node/TS, Python, Go, .NET, Java).
+- Unofficial Pulumi **native provider** for Osano's Cookie Consent Customer REST API and Unified Consent API (Go provider + generated SDKs for Node/TS, Python, Go, .NET, Java).
 - Large repo with many docs/examples; core source lives in `provider/`, generated SDKs in `sdk/`, examples in `examples/`, docs in `docs/`.
-- Toolchain versions managed by **mise** (`.config/mise.toml`): Go `latest`, Node `20.19.5`, Python `3.11.8`, .NET `8.0.414`, Java `corretto-11`, Pulumi `latest`, pulumictl `0.0.50`, schema-tools `0.6.0`, golangci-lint `2.7.2`, yarn `1.22.22`. Pulumi home pinned to `.pulumi` in repo.
+- Toolchain versions managed by **mise** (`.config/mise.toml`): Go `latest`, Node `24.13.0`, Python `3.11.8`, .NET `8.0.414`, Java `corretto-11`, Pulumi `latest`, pulumictl `0.0.50`, schema-tools `0.6.0`, golangci-lint `2.7.2`, yarn `1.22.22`. Pulumi home pinned to `.pulumi` in repo.
 
 ## Bootstrap (do this first)
 1. From repo root, activate tools: `eval "$(mise activate bash)" && mise install`. This installs pulumictl/schema-tools etc. and avoids “pulumictl: not found” during builds.
 2. Ensure Go/Pulumi in PATH: `go version`, `pulumi version`.
 3. For IDE/tests, export Osano credentials if needed:
-  - `export OSANO_API_KEY="subject-profile-key"`
+  - `export OSANO_API_KEY="customer-rest-cmp-key"`
   - `export OSANO_UC_API_KEY="unified-consent-key"`
   These are required only for examples or integration tests that hit the real API.
 
@@ -22,7 +22,7 @@ Concise, task-agnostic instructions so an agent can work efficiently without ext
 - **Build provider only:** `make provider` (outputs `bin/pulumi-resource-osano`).
 - **Full build (provider + SDKs):** `make build` (calls `make build_sdks`; heavier).
 - **Lint:** `make lint` (golangci-lint using `.golangci.yml`; workflow temporarily rewrites `go:embed` to ` goembed`).
-- **Examples:** Example programs in `examples/` serve as documentation. Test manually with `pulumi up` if needed.
+- **Examples:** Example programs in `examples/` serve as documentation. `make build_cookie_consent_examples` compiles the Cookie Consent examples without contacting Osano; run `pulumi up` only for an intentional live test with customer credentials.
 - **Language SDK builds (after codegen):** `make build_nodejs|build_python|build_go|build_dotnet|build_java`; they expect dependencies from mise and may write artifacts under `sdk/*`.
 
 ## Project layout shortcuts

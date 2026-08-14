@@ -64,6 +64,20 @@ public class CookieConsentRule extends com.pulumi.resources.CustomResource {
         return Codegen.optional(this.created);
     }
     /**
+     * Optional cookie description. Only supported for cookies; max 1000 characters.
+     *
+     */
+    @Export(name="description", refs={String.class}, tree="[0]")
+    private Output</* @Nullable */ String> description;
+
+    /**
+     * @return Optional cookie description. Only supported for cookies; max 1000 characters.
+     *
+     */
+    public Output<Optional<String>> description() {
+        return Codegen.optional(this.description);
+    }
+    /**
      * Whether the rule should be disclosed. Defaults to false.
      *
      */
@@ -76,6 +90,20 @@ public class CookieConsentRule extends com.pulumi.resources.CustomResource {
      */
     public Output<Optional<Boolean>> disclosure() {
         return Codegen.optional(this.disclosure);
+    }
+    /**
+     * Optional cookie expiry description. Only supported for cookies; max 50 characters.
+     *
+     */
+    @Export(name="expiry", refs={String.class}, tree="[0]")
+    private Output</* @Nullable */ String> expiry;
+
+    /**
+     * @return Optional cookie expiry description. Only supported for cookies; max 50 characters.
+     *
+     */
+    public Output<Optional<String>> expiry() {
+        return Codegen.optional(this.expiry);
     }
     /**
      * The rule pattern (e.g. a cookie name pattern). Min 3, max 1000 characters.
@@ -106,6 +134,20 @@ public class CookieConsentRule extends com.pulumi.resources.CustomResource {
         return this.ruleId;
     }
     /**
+     * Optional matching mode: FILENAME, DOMAIN, PATH, REGEXP, STARTS_WITH, ENDS_WITH, CONTAINS, or EXACT_MATCH.
+     *
+     */
+    @Export(name="ruleType", refs={String.class}, tree="[0]")
+    private Output</* @Nullable */ String> ruleType;
+
+    /**
+     * @return Optional matching mode: FILENAME, DOMAIN, PATH, REGEXP, STARTS_WITH, ENDS_WITH, CONTAINS, or EXACT_MATCH.
+     *
+     */
+    public Output<Optional<String>> ruleType() {
+        return Codegen.optional(this.ruleType);
+    }
+    /**
      * The storage type category: cookies, scripts, iframes, or localStorage.
      *
      */
@@ -120,14 +162,14 @@ public class CookieConsentRule extends com.pulumi.resources.CustomResource {
         return this.storeType;
     }
     /**
-     * Optional title for the rule, used in consent disclosure.
+     * Optional title for the rule, used in consent disclosure. Max 64 characters.
      *
      */
     @Export(name="title", refs={String.class}, tree="[0]")
     private Output</* @Nullable */ String> title;
 
     /**
-     * @return Optional title for the rule, used in consent disclosure.
+     * @return Optional title for the rule, used in consent disclosure. Max 64 characters.
      *
      */
     public Output<Optional<String>> title() {
@@ -148,14 +190,14 @@ public class CookieConsentRule extends com.pulumi.resources.CustomResource {
         return Codegen.optional(this.updated);
     }
     /**
-     * Optional vendor name for the rule.
+     * Optional vendor name for the rule. Max 100 characters.
      *
      */
     @Export(name="vendorName", refs={String.class}, tree="[0]")
     private Output</* @Nullable */ String> vendorName;
 
     /**
-     * @return Optional vendor name for the rule.
+     * @return Optional vendor name for the rule. Max 100 characters.
      *
      */
     public Output<Optional<String>> vendorName() {

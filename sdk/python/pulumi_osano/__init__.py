@@ -9,6 +9,7 @@ import typing
 from .check_consent import *
 from .consent import *
 from .cookie_consent_config import *
+from .cookie_consent_publication import *
 from .cookie_consent_rule import *
 from .get_collection import *
 from .get_collections import *
@@ -39,6 +40,7 @@ _utilities.register(
   "classes": {
    "osano:index:Consent": "Consent",
    "osano:index:CookieConsentConfig": "CookieConsentConfig",
+   "osano:index:CookieConsentPublication": "CookieConsentPublication",
    "osano:index:CookieConsentRule": "CookieConsentRule"
   }
  }

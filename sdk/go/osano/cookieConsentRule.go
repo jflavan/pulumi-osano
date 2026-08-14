@@ -22,19 +22,25 @@ type CookieConsentRule struct {
 	ConfigId pulumi.StringOutput `pulumi:"configId"`
 	// Timestamp when the rule was created.
 	Created pulumi.StringPtrOutput `pulumi:"created"`
+	// Optional cookie description. Only supported for cookies; max 1000 characters.
+	Description pulumi.StringPtrOutput `pulumi:"description"`
 	// Whether the rule should be disclosed. Defaults to false.
 	Disclosure pulumi.BoolPtrOutput `pulumi:"disclosure"`
+	// Optional cookie expiry description. Only supported for cookies; max 50 characters.
+	Expiry pulumi.StringPtrOutput `pulumi:"expiry"`
 	// The rule pattern (e.g. a cookie name pattern). Min 3, max 1000 characters.
 	Rule pulumi.StringOutput `pulumi:"rule"`
 	// The server-assigned integer rule ID.
 	RuleId pulumi.IntOutput `pulumi:"ruleId"`
+	// Optional matching mode: FILENAME, DOMAIN, PATH, REGEXP, STARTS_WITH, ENDS_WITH, CONTAINS, or EXACT_MATCH.
+	RuleType pulumi.StringPtrOutput `pulumi:"ruleType"`
 	// The storage type category: cookies, scripts, iframes, or localStorage.
 	StoreType pulumi.StringOutput `pulumi:"storeType"`
-	// Optional title for the rule, used in consent disclosure.
+	// Optional title for the rule, used in consent disclosure. Max 64 characters.
 	Title pulumi.StringPtrOutput `pulumi:"title"`
 	// Timestamp when the rule was last updated.
 	Updated pulumi.StringPtrOutput `pulumi:"updated"`
-	// Optional vendor name for the rule.
+	// Optional vendor name for the rule. Max 100 characters.
 	VendorName pulumi.StringPtrOutput `pulumi:"vendorName"`
 }
 
@@ -94,15 +100,21 @@ type cookieConsentRuleArgs struct {
 	Classification string `pulumi:"classification"`
 	// The configId of the Cookie Consent Configuration this rule belongs to.
 	ConfigId string `pulumi:"configId"`
+	// Optional cookie description. Only supported for cookies; max 1000 characters.
+	Description *string `pulumi:"description"`
 	// Whether the rule should be disclosed. Defaults to false.
 	Disclosure *bool `pulumi:"disclosure"`
+	// Optional cookie expiry description. Only supported for cookies; max 50 characters.
+	Expiry *string `pulumi:"expiry"`
 	// The rule pattern (e.g. a cookie name pattern). Min 3, max 1000 characters.
 	Rule string `pulumi:"rule"`
+	// Optional matching mode: FILENAME, DOMAIN, PATH, REGEXP, STARTS_WITH, ENDS_WITH, CONTAINS, or EXACT_MATCH.
+	RuleType *string `pulumi:"ruleType"`
 	// The storage type category: cookies, scripts, iframes, or localStorage.
 	StoreType string `pulumi:"storeType"`
-	// Optional title for the rule, used in consent disclosure.
+	// Optional title for the rule, used in consent disclosure. Max 64 characters.
 	Title *string `pulumi:"title"`
-	// Optional vendor name for the rule.
+	// Optional vendor name for the rule. Max 100 characters.
 	VendorName *string `pulumi:"vendorName"`
 }
 
@@ -112,15 +124,21 @@ type CookieConsentRuleArgs struct {
 	Classification pulumi.StringInput
 	// The configId of the Cookie Consent Configuration this rule belongs to.
 	ConfigId pulumi.StringInput
+	// Optional cookie description. Only supported for cookies; max 1000 characters.
+	Description pulumi.StringPtrInput
 	// Whether the rule should be disclosed. Defaults to false.
 	Disclosure pulumi.BoolPtrInput
+	// Optional cookie expiry description. Only supported for cookies; max 50 characters.
+	Expiry pulumi.StringPtrInput
 	// The rule pattern (e.g. a cookie name pattern). Min 3, max 1000 characters.
 	Rule pulumi.StringInput
+	// Optional matching mode: FILENAME, DOMAIN, PATH, REGEXP, STARTS_WITH, ENDS_WITH, CONTAINS, or EXACT_MATCH.
+	RuleType pulumi.StringPtrInput
 	// The storage type category: cookies, scripts, iframes, or localStorage.
 	StoreType pulumi.StringInput
-	// Optional title for the rule, used in consent disclosure.
+	// Optional title for the rule, used in consent disclosure. Max 64 characters.
 	Title pulumi.StringPtrInput
-	// Optional vendor name for the rule.
+	// Optional vendor name for the rule. Max 100 characters.
 	VendorName pulumi.StringPtrInput
 }
 
@@ -176,9 +194,19 @@ func (o CookieConsentRuleOutput) Created() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *CookieConsentRule) pulumi.StringPtrOutput { return v.Created }).(pulumi.StringPtrOutput)
 }
 
+// Optional cookie description. Only supported for cookies; max 1000 characters.
+func (o CookieConsentRuleOutput) Description() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *CookieConsentRule) pulumi.StringPtrOutput { return v.Description }).(pulumi.StringPtrOutput)
+}
+
 // Whether the rule should be disclosed. Defaults to false.
 func (o CookieConsentRuleOutput) Disclosure() pulumi.BoolPtrOutput {
 	return o.ApplyT(func(v *CookieConsentRule) pulumi.BoolPtrOutput { return v.Disclosure }).(pulumi.BoolPtrOutput)
+}
+
+// Optional cookie expiry description. Only supported for cookies; max 50 characters.
+func (o CookieConsentRuleOutput) Expiry() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *CookieConsentRule) pulumi.StringPtrOutput { return v.Expiry }).(pulumi.StringPtrOutput)
 }
 
 // The rule pattern (e.g. a cookie name pattern). Min 3, max 1000 characters.
@@ -191,12 +219,17 @@ func (o CookieConsentRuleOutput) RuleId() pulumi.IntOutput {
 	return o.ApplyT(func(v *CookieConsentRule) pulumi.IntOutput { return v.RuleId }).(pulumi.IntOutput)
 }
 
+// Optional matching mode: FILENAME, DOMAIN, PATH, REGEXP, STARTS_WITH, ENDS_WITH, CONTAINS, or EXACT_MATCH.
+func (o CookieConsentRuleOutput) RuleType() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *CookieConsentRule) pulumi.StringPtrOutput { return v.RuleType }).(pulumi.StringPtrOutput)
+}
+
 // The storage type category: cookies, scripts, iframes, or localStorage.
 func (o CookieConsentRuleOutput) StoreType() pulumi.StringOutput {
 	return o.ApplyT(func(v *CookieConsentRule) pulumi.StringOutput { return v.StoreType }).(pulumi.StringOutput)
 }
 
-// Optional title for the rule, used in consent disclosure.
+// Optional title for the rule, used in consent disclosure. Max 64 characters.
 func (o CookieConsentRuleOutput) Title() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *CookieConsentRule) pulumi.StringPtrOutput { return v.Title }).(pulumi.StringPtrOutput)
 }
@@ -206,7 +239,7 @@ func (o CookieConsentRuleOutput) Updated() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *CookieConsentRule) pulumi.StringPtrOutput { return v.Updated }).(pulumi.StringPtrOutput)
 }
 
-// Optional vendor name for the rule.
+// Optional vendor name for the rule. Max 100 characters.
 func (o CookieConsentRuleOutput) VendorName() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *CookieConsentRule) pulumi.StringPtrOutput { return v.VendorName }).(pulumi.StringPtrOutput)
 }

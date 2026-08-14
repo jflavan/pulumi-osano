@@ -26,7 +26,7 @@ namespace Community.Pulumi.Osano
         public Output<string?> CustomerBaseUrl { get; private set; } = null!;
 
         /// <summary>
-        /// Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
+        /// Osano API key used for subject profile routes and Customer REST API/CMP operations (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
         /// </summary>
         [Output("osanoApiKey")]
         public Output<string?> OsanoApiKey { get; private set; } = null!;
@@ -100,7 +100,7 @@ namespace Community.Pulumi.Osano
         private Input<string>? _osanoApiKey;
 
         /// <summary>
-        /// Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
+        /// Osano API key used for subject profile routes and Customer REST API/CMP operations (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
         /// </summary>
         public Input<string>? OsanoApiKey
         {
@@ -113,7 +113,7 @@ namespace Community.Pulumi.Osano
         }
 
         /// <summary>
-        /// HTTP request timeout in seconds for Osano API calls (default 60).
+        /// HTTP request timeout in seconds for Customer REST API and Unified Consent calls (default 60).
         /// </summary>
         [Input("requestTimeoutSeconds", json: true)]
         public Input<int>? RequestTimeoutSeconds { get; set; }

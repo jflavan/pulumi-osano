@@ -38,7 +38,7 @@ type Config struct {
 func (c *Config) Annotate(a infer.Annotator) {
 	a.Describe(
 		&c.OsanoAPIKey,
-		"Osano API key used for subject profile routes "+
+		"Osano API key used for subject profile routes and Customer REST API/CMP operations "+
 			"(set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).",
 	)
 	a.Describe(
@@ -60,7 +60,7 @@ func (c *Config) Annotate(a infer.Annotator) {
 	a.Describe(&c.UCBaseURL, "Override base URL for the Unified Consent Core API (default: https://uc.api.osano.com).")
 	a.Deprecate(&c.UCBaseURL, "use apiBaseUrl instead")
 	a.Describe(&c.RequestTimeoutSeconds,
-		"HTTP request timeout in seconds for Osano API calls (default 60).",
+		"HTTP request timeout in seconds for Customer REST API and Unified Consent calls (default 60).",
 	)
 }
 

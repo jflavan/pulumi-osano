@@ -95,6 +95,7 @@ sdk/python: $(SCHEMA_FILE)
 	$(PULUMI) package gen-sdk --language python $(SCHEMA_FILE) --version "${VERSION_GENERIC}"
 	# Pulumi SDK generator doesn't set version in setup.py, so we patch it manually
 	sed -i.bak 's/VERSION = "0.0.0"/VERSION = "${VERSION_GENERIC}"/' ${PACKDIR}/python/setup.py && rm ${PACKDIR}/python/setup.py.bak
+	@python3 scripts/normalize-python-sdk.py ${PACKDIR}/python
 	cp README.md ${PACKDIR}/python/
 
 sdk/dotnet: $(SCHEMA_FILE)
@@ -164,6 +165,13 @@ build:: provider build_sdks
 
 .PHONY: build_sdks
 build_sdks: dotnet_sdk go_sdk nodejs_sdk python_sdk java_sdk
+
+.PHONY: build_cookie_consent_examples build_examples
+build_cookie_consent_examples: dotnet_sdk nodejs_sdk
+	dotnet build examples/cookie-consent/csharp/CookieConsent.csproj
+	cd examples/cookie-consent/typescript && yarn install --frozen-lockfile && yarn run tsc --noEmit
+
+build_examples: build_cookie_consent_examples
 
 # Required for the codegen action that runs in pulumi/pulumi
 only_build:: build

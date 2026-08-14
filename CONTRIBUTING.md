@@ -11,7 +11,7 @@ Thanks for helping improve the Pulumi Osano provider! The project mirrors the Pu
    ```
 3. **Export credentials** when running examples or manual tests:
    ```bash
-   export OSANO_API_KEY="subject-profile-key"
+   export OSANO_API_KEY="customer-rest-cmp-key"
    export OSANO_UC_API_KEY="unified-consent-key"
    ```
 4. **Make your changes** (see workflow below).
@@ -26,7 +26,7 @@ Thanks for helping improve the Pulumi Osano provider! The project mirrors the Pu
 ### Prerequisites
 
 - Go (managed by mise, currently Go 1.24)
-- Node.js 20.x
+- Node.js 24.x (mise currently pins 24.13.0)
 - Python 3.11
 - .NET 8.0
 - Java 11+
@@ -51,6 +51,7 @@ Thanks for helping improve the Pulumi Osano provider! The project mirrors the Pu
    ```bash
    make lint
    make test_provider
+   make build_cookie_consent_examples
    ```
 6. Document behavior changes in `docs/` and/or `README.md` as appropriate.
 
@@ -63,6 +64,7 @@ Thanks for helping improve the Pulumi Osano provider! The project mirrors the Pu
 | `make build` | Build provider **and** SDKs |
 | `make test_provider` | Run Go unit tests (mocked HTTP, no tokens needed) |
 | `make lint` | Run golangci-lint with repo defaults |
+| `make build_cookie_consent_examples` | Compile the canonical C# and companion TypeScript CMP examples without contacting Osano |
 
 ### Commit Message Guidance
 

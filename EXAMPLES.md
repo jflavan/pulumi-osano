@@ -18,6 +18,11 @@ Every resource or invoke exported by the provider MUST have:
 
 When adding new features, update or create examples in the same PR.
 
+TypeScript remains the repository-wide baseline. The multi-resource Cookie
+Consent publication workflow additionally uses C# as its canonical example so
+the complete configuration, rule, dependency, timeout, publication, and output
+contract is validated against the generated .NET SDK.
+
 ## Recommended Coverage Levels
 
 | Tier | Applies To | Requirement |
@@ -35,7 +40,11 @@ examples/
     typescript/
     python/
     go/
-  <future-resource>/
+  cookie-consent/
+    README.md
+    csharp/
+    typescript/
+  <resource>/
     README.md
     typescript/
     ...
@@ -89,6 +98,7 @@ Repeat for each language offered.
 | Area | Languages | Notes |
 | --- | --- | --- |
 | `examples/quickstart` | TypeScript, Python, Go | Demonstrates the `osano:index:Consent` resource and unified consent invoke |
+| `examples/cookie-consent` | C# (canonical), TypeScript | Creates configuration and rules, publishes with `CookieConsentPublication`, and exports `scriptSrc`/`scriptTag` using an explicit `changeToken` |
 
 Add new rows as additional resources or workflows are introduced.
 
@@ -96,7 +106,9 @@ Add new rows as additional resources or workflows are introduced.
 
 1. Build / update provider code.
 2. Create or update the example directory.
-3. Run the example locally (`pulumi preview` at minimum) to ensure it succeeds.
+3. Compile the example locally and run `pulumi preview` when credentials and a
+   matching provider plugin are available. Compilation and preview must not
+   mutate Osano.
 4. Document any new config keys in the example README.
 5. Commit the example code alongside provider changes and regenerated SDKs.
 

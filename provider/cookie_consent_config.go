@@ -5,8 +5,8 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
+	"net/http"
 	"net/url"
 	"slices"
 
@@ -62,6 +62,16 @@ func (args *CookieConsentConfigArgs) Annotate(a infer.Annotator) {
 // Annotate documents the CookieConsentConfig state fields.
 func (state *CookieConsentConfigState) Annotate(a infer.Annotator) {
 	a.Describe(&state.ConfigID, "The Osano configId (UUID).")
+	a.Describe(&state.CustomerID, "The Osano customer ID that owns the configuration.")
+	a.Describe(&state.Created, "Unix timestamp when Osano created the configuration.")
+	a.Describe(&state.Updated, "Unix timestamp when Osano last updated the configuration.")
+	a.Describe(&state.PublishStatus, "Current Osano publication status for the configuration.")
+	a.Describe(&state.LastPublished, "Unix timestamp when Osano last published the configuration.")
+	a.Describe(&state.PublishedRevision, "Revision number most recently published by Osano.")
+	a.Describe(
+		&state.TattleRecordStopped,
+		"Whether Osano stopped the tattle record. Deleting this Pulumi resource retains the upstream configuration.",
+	)
 }
 
 type cmpConfigResponse struct {
@@ -79,19 +89,6 @@ type cmpConfigResponse struct {
 	LastPublished       int    `json:"lastPublished"`
 	PublishedRevision   int    `json:"publishedRevision"`
 	TattleRecordStopped bool   `json:"tattleRecordStopped"`
-}
-
-func customerClientFromConfig(cfg Config) (*osanoclient.Client, error) {
-	if cfg.OsanoAPIKey == "" {
-		return nil, errors.New("provider config osanoApiKey is required for Customer REST API operations")
-	}
-
-	baseURL, err := url.Parse(cfg.customerBaseURL())
-	if err != nil {
-		return nil, fmt.Errorf("invalid customerBaseUrl: %w", err)
-	}
-
-	return osanoclient.NewClient(baseURL, "x-osano-api-key", cfg.OsanoAPIKey), nil
 }
 
 // Check validates CookieConsentConfig inputs before create or update.
@@ -158,7 +155,7 @@ func (r *CookieConsentConfig) Create(
 	}
 
 	var out cmpConfigResponse
-	if err := client.DoJSON(ctx, "POST", "/v1/cookie-consent/configs", nil, body, &out); err != nil {
+	if err := client.DoJSON(ctx, http.MethodPost, cookieConsentConfigsPath, nil, body, &out); err != nil {
 		return infer.CreateResponse[CookieConsentConfigState]{}, err
 	}
 
@@ -177,21 +174,20 @@ func (r *CookieConsentConfig) Read(
 	}
 
 	var out cmpConfigResponse
-	if err := client.DoJSON(
-		ctx,
-		"GET",
-		"/v1/cookie-consent/configs/"+url.PathEscape(req.ID),
-		nil,
-		nil,
-		&out,
-	); err != nil {
-		return infer.ReadResponse[CookieConsentConfigArgs, CookieConsentConfigState]{}, err
+	err = client.DoJSON(ctx, http.MethodGet, cookieConsentConfigPath(req.ID), nil, nil, &out)
+	if osanoclient.IsHTTPStatus(err, http.StatusNotFound) {
+		return infer.ReadResponse[CookieConsentConfigArgs, CookieConsentConfigState]{ID: ""}, nil
+	}
+	if err != nil {
+		return infer.ReadResponse[CookieConsentConfigArgs, CookieConsentConfigState]{},
+			fmt.Errorf("read Cookie Consent config %q: %w", req.ID, err)
 	}
 
+	state := cookieConsentConfigStateFromResponse(out)
 	return infer.ReadResponse[CookieConsentConfigArgs, CookieConsentConfigState]{
 		ID:     out.ConfigID,
-		Inputs: req.Inputs,
-		State:  cookieConsentConfigStateFromResponse(out),
+		Inputs: state.CookieConsentConfigArgs,
+		State:  state,
 	}, nil
 }
 
@@ -220,8 +216,8 @@ func (r *CookieConsentConfig) Update(
 	var out cmpConfigResponse
 	if err := client.DoJSON(
 		ctx,
-		"PATCH",
-		"/v1/cookie-consent/configs/"+url.PathEscape(req.ID),
+		http.MethodPatch,
+		cookieConsentConfigPath(req.ID),
 		nil,
 		body,
 		&out,
@@ -261,23 +257,23 @@ func (r *CookieConsentConfig) Diff(
 		diff["orgIds"] = p.PropertyDiff{Kind: p.Update}
 	}
 
-	if req.Inputs.Configuration != nil {
-		for key, desired := range req.Inputs.Configuration {
-			current, ok := req.State.Configuration[key]
-			if !ok {
-				diff["configuration"] = p.PropertyDiff{Kind: p.Update}
-				break
-			}
-			desiredBytes, errDesired := json.Marshal(desired)
-			currentBytes, errCurrent := json.Marshal(current)
-			if errDesired != nil || errCurrent != nil || !bytes.Equal(desiredBytes, currentBytes) {
-				diff["configuration"] = p.PropertyDiff{Kind: p.Update}
-				break
-			}
-		}
+	if !jsonValuesEqual(req.Inputs.Configuration, req.State.Configuration) {
+		diff["configuration"] = p.PropertyDiff{Kind: p.Update}
 	}
 
 	return infer.DiffResponse{HasChanges: len(diff) > 0, DetailedDiff: diff}, nil
+}
+
+const cookieConsentConfigsPath = "/v1/cookie-consent/configs"
+
+func cookieConsentConfigPath(configID string) string {
+	return cookieConsentConfigsPath + "/" + url.PathEscape(configID)
+}
+
+func jsonValuesEqual(left, right any) bool {
+	leftJSON, leftErr := json.Marshal(left)
+	rightJSON, rightErr := json.Marshal(right)
+	return leftErr == nil && rightErr == nil && bytes.Equal(leftJSON, rightJSON)
 }
 
 func cookieConsentConfigStateFromResponse(resp cmpConfigResponse) CookieConsentConfigState {

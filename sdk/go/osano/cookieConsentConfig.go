@@ -19,22 +19,29 @@ type CookieConsentConfig struct {
 	// The Osano configId (UUID).
 	ConfigId pulumi.StringOutput `pulumi:"configId"`
 	// CMP configuration object. At minimum, must include storagePolicyHref.
-	Configuration pulumi.MapOutput       `pulumi:"configuration"`
-	Created       pulumi.IntPtrOutput    `pulumi:"created"`
-	CustomerId    pulumi.StringPtrOutput `pulumi:"customerId"`
+	Configuration pulumi.MapOutput `pulumi:"configuration"`
+	// Unix timestamp when Osano created the configuration.
+	Created pulumi.IntPtrOutput `pulumi:"created"`
+	// The Osano customer ID that owns the configuration.
+	CustomerId pulumi.StringPtrOutput `pulumi:"customerId"`
 	// Domains permitted to host the configuration.
-	Domains       pulumi.StringArrayOutput `pulumi:"domains"`
-	LastPublished pulumi.IntPtrOutput      `pulumi:"lastPublished"`
+	Domains pulumi.StringArrayOutput `pulumi:"domains"`
+	// Unix timestamp when Osano last published the configuration.
+	LastPublished pulumi.IntPtrOutput `pulumi:"lastPublished"`
 	// Compliance mode: debug, permissive, or production.
 	Mode pulumi.StringOutput `pulumi:"mode"`
 	// The name of the configuration.
 	Name pulumi.StringOutput `pulumi:"name"`
 	// Optional organization IDs associated with the config.
-	OrgIds              pulumi.StringArrayOutput `pulumi:"orgIds"`
-	PublishStatus       pulumi.StringPtrOutput   `pulumi:"publishStatus"`
-	PublishedRevision   pulumi.IntPtrOutput      `pulumi:"publishedRevision"`
-	TattleRecordStopped pulumi.BoolPtrOutput     `pulumi:"tattleRecordStopped"`
-	Updated             pulumi.IntPtrOutput      `pulumi:"updated"`
+	OrgIds pulumi.StringArrayOutput `pulumi:"orgIds"`
+	// Current Osano publication status for the configuration.
+	PublishStatus pulumi.StringPtrOutput `pulumi:"publishStatus"`
+	// Revision number most recently published by Osano.
+	PublishedRevision pulumi.IntPtrOutput `pulumi:"publishedRevision"`
+	// Whether Osano stopped the tattle record. Deleting this Pulumi resource retains the upstream configuration.
+	TattleRecordStopped pulumi.BoolPtrOutput `pulumi:"tattleRecordStopped"`
+	// Unix timestamp when Osano last updated the configuration.
+	Updated pulumi.IntPtrOutput `pulumi:"updated"`
 }
 
 // NewCookieConsentConfig registers a new resource with the given unique name, arguments, and options.
@@ -162,10 +169,12 @@ func (o CookieConsentConfigOutput) Configuration() pulumi.MapOutput {
 	return o.ApplyT(func(v *CookieConsentConfig) pulumi.MapOutput { return v.Configuration }).(pulumi.MapOutput)
 }
 
+// Unix timestamp when Osano created the configuration.
 func (o CookieConsentConfigOutput) Created() pulumi.IntPtrOutput {
 	return o.ApplyT(func(v *CookieConsentConfig) pulumi.IntPtrOutput { return v.Created }).(pulumi.IntPtrOutput)
 }
 
+// The Osano customer ID that owns the configuration.
 func (o CookieConsentConfigOutput) CustomerId() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *CookieConsentConfig) pulumi.StringPtrOutput { return v.CustomerId }).(pulumi.StringPtrOutput)
 }
@@ -175,6 +184,7 @@ func (o CookieConsentConfigOutput) Domains() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v *CookieConsentConfig) pulumi.StringArrayOutput { return v.Domains }).(pulumi.StringArrayOutput)
 }
 
+// Unix timestamp when Osano last published the configuration.
 func (o CookieConsentConfigOutput) LastPublished() pulumi.IntPtrOutput {
 	return o.ApplyT(func(v *CookieConsentConfig) pulumi.IntPtrOutput { return v.LastPublished }).(pulumi.IntPtrOutput)
 }
@@ -194,18 +204,22 @@ func (o CookieConsentConfigOutput) OrgIds() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v *CookieConsentConfig) pulumi.StringArrayOutput { return v.OrgIds }).(pulumi.StringArrayOutput)
 }
 
+// Current Osano publication status for the configuration.
 func (o CookieConsentConfigOutput) PublishStatus() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *CookieConsentConfig) pulumi.StringPtrOutput { return v.PublishStatus }).(pulumi.StringPtrOutput)
 }
 
+// Revision number most recently published by Osano.
 func (o CookieConsentConfigOutput) PublishedRevision() pulumi.IntPtrOutput {
 	return o.ApplyT(func(v *CookieConsentConfig) pulumi.IntPtrOutput { return v.PublishedRevision }).(pulumi.IntPtrOutput)
 }
 
+// Whether Osano stopped the tattle record. Deleting this Pulumi resource retains the upstream configuration.
 func (o CookieConsentConfigOutput) TattleRecordStopped() pulumi.BoolPtrOutput {
 	return o.ApplyT(func(v *CookieConsentConfig) pulumi.BoolPtrOutput { return v.TattleRecordStopped }).(pulumi.BoolPtrOutput)
 }
 
+// Unix timestamp when Osano last updated the configuration.
 func (o CookieConsentConfigOutput) Updated() pulumi.IntPtrOutput {
 	return o.ApplyT(func(v *CookieConsentConfig) pulumi.IntPtrOutput { return v.Updated }).(pulumi.IntPtrOutput)
 }

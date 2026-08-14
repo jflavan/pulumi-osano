@@ -47,14 +47,14 @@ public final class ProviderArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
+     * Osano API key used for subject profile routes and Customer REST API/CMP operations (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
      *
      */
     @Import(name="osanoApiKey")
     private @Nullable Output<String> osanoApiKey;
 
     /**
-     * @return Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
+     * @return Osano API key used for subject profile routes and Customer REST API/CMP operations (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
      *
      */
     public Optional<Output<String>> osanoApiKey() {
@@ -62,14 +62,14 @@ public final class ProviderArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * HTTP request timeout in seconds for Osano API calls (default 60).
+     * HTTP request timeout in seconds for Customer REST API and Unified Consent calls (default 60).
      *
      */
     @Import(name="requestTimeoutSeconds", json=true)
     private @Nullable Output<Integer> requestTimeoutSeconds;
 
     /**
-     * @return HTTP request timeout in seconds for Osano API calls (default 60).
+     * @return HTTP request timeout in seconds for Customer REST API and Unified Consent calls (default 60).
      *
      */
     public Optional<Output<Integer>> requestTimeoutSeconds() {
@@ -210,7 +210,7 @@ public final class ProviderArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param osanoApiKey Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
+         * @param osanoApiKey Osano API key used for subject profile routes and Customer REST API/CMP operations (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
          *
          * @return builder
          *
@@ -221,7 +221,7 @@ public final class ProviderArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param osanoApiKey Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
+         * @param osanoApiKey Osano API key used for subject profile routes and Customer REST API/CMP operations (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
          *
          * @return builder
          *
@@ -231,7 +231,7 @@ public final class ProviderArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param requestTimeoutSeconds HTTP request timeout in seconds for Osano API calls (default 60).
+         * @param requestTimeoutSeconds HTTP request timeout in seconds for Customer REST API and Unified Consent calls (default 60).
          *
          * @return builder
          *
@@ -242,7 +242,7 @@ public final class ProviderArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param requestTimeoutSeconds HTTP request timeout in seconds for Osano API calls (default 60).
+         * @param requestTimeoutSeconds HTTP request timeout in seconds for Customer REST API and Unified Consent calls (default 60).
          *
          * @return builder
          *

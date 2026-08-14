@@ -28,9 +28,15 @@ namespace Community.Pulumi.Osano
         [Output("configuration")]
         public Output<ImmutableDictionary<string, object>> Configuration { get; private set; } = null!;
 
+        /// <summary>
+        /// Unix timestamp when Osano created the configuration.
+        /// </summary>
         [Output("created")]
         public Output<int?> Created { get; private set; } = null!;
 
+        /// <summary>
+        /// The Osano customer ID that owns the configuration.
+        /// </summary>
         [Output("customerId")]
         public Output<string?> CustomerId { get; private set; } = null!;
 
@@ -40,6 +46,9 @@ namespace Community.Pulumi.Osano
         [Output("domains")]
         public Output<ImmutableArray<string>> Domains { get; private set; } = null!;
 
+        /// <summary>
+        /// Unix timestamp when Osano last published the configuration.
+        /// </summary>
         [Output("lastPublished")]
         public Output<int?> LastPublished { get; private set; } = null!;
 
@@ -61,15 +70,27 @@ namespace Community.Pulumi.Osano
         [Output("orgIds")]
         public Output<ImmutableArray<string>> OrgIds { get; private set; } = null!;
 
+        /// <summary>
+        /// Current Osano publication status for the configuration.
+        /// </summary>
         [Output("publishStatus")]
         public Output<string?> PublishStatus { get; private set; } = null!;
 
+        /// <summary>
+        /// Revision number most recently published by Osano.
+        /// </summary>
         [Output("publishedRevision")]
         public Output<int?> PublishedRevision { get; private set; } = null!;
 
+        /// <summary>
+        /// Whether Osano stopped the tattle record. Deleting this Pulumi resource retains the upstream configuration.
+        /// </summary>
         [Output("tattleRecordStopped")]
         public Output<bool?> TattleRecordStopped { get; private set; } = null!;
 
+        /// <summary>
+        /// Unix timestamp when Osano last updated the configuration.
+        /// </summary>
         [Output("updated")]
         public Output<int?> Updated { get; private set; } = null!;
 

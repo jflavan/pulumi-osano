@@ -21,12 +21,12 @@ func GetCustomerBaseUrl(ctx *pulumi.Context) string {
 	return config.Get(ctx, "osano:customerBaseUrl")
 }
 
-// Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
+// Osano API key used for subject profile routes and Customer REST API/CMP operations (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
 func GetOsanoApiKey(ctx *pulumi.Context) string {
 	return config.Get(ctx, "osano:osanoApiKey")
 }
 
-// HTTP request timeout in seconds for Osano API calls (default 60).
+// HTTP request timeout in seconds for Customer REST API and Unified Consent calls (default 60).
 func GetRequestTimeoutSeconds(ctx *pulumi.Context) int {
 	return config.GetInt(ctx, "osano:requestTimeoutSeconds")
 }

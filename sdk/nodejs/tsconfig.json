@@ -18,6 +18,7 @@
         "config/vars.ts",
         "consent.ts",
         "cookieConsentConfig.ts",
+        "cookieConsentPublication.ts",
         "cookieConsentRule.ts",
         "getCollection.ts",
         "getCollections.ts",

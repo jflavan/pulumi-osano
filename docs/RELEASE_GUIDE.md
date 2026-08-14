@@ -19,17 +19,27 @@ git checkout -b release/vX.Y.Z
 ```bash
 mise exec -- gofmt -w $(find provider tests -name '*.go')
 make lint
+make codegen
 make test_provider
 make build_sdks
+make build_cookie_consent_examples
+git diff --exit-code
 ```
 
-If any step fails, fix the issue, rerun the command, and amend the branch.
+The Cookie Consent example target compiles canonical C# and companion
+TypeScript without contacting Osano. The final diff check proves generation and
+copied package READMEs are current. If any step fails, fix the issue and rerun
+the complete gate before updating the branch.
 
 ## 4. Draft the release PR
 
 - Summarize the key changes.
 - Include links to the Osano API docs that motivated the work.
 - Tag maintainers for review.
+- For a Cookie Consent release, explicitly describe the public `scriptSrc` and
+  `scriptTag` outputs; deterministic `changeToken`; default preservation of
+  unclassified discoveries; composite `<configId>/<ruleId>` imports; and
+  configurations/publications retained upstream after `pulumi destroy`.
 
 ## 5. Tag and publish
 

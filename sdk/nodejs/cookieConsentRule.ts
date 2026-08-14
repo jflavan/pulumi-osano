@@ -47,9 +47,17 @@ export class CookieConsentRule extends pulumi.CustomResource {
      */
     declare public /*out*/ readonly created: pulumi.Output<string | undefined>;
     /**
+     * Optional cookie description. Only supported for cookies; max 1000 characters.
+     */
+    declare public readonly description: pulumi.Output<string | undefined>;
+    /**
      * Whether the rule should be disclosed. Defaults to false.
      */
     declare public readonly disclosure: pulumi.Output<boolean | undefined>;
+    /**
+     * Optional cookie expiry description. Only supported for cookies; max 50 characters.
+     */
+    declare public readonly expiry: pulumi.Output<string | undefined>;
     /**
      * The rule pattern (e.g. a cookie name pattern). Min 3, max 1000 characters.
      */
@@ -59,11 +67,15 @@ export class CookieConsentRule extends pulumi.CustomResource {
      */
     declare public /*out*/ readonly ruleId: pulumi.Output<number>;
     /**
+     * Optional matching mode: FILENAME, DOMAIN, PATH, REGEXP, STARTS_WITH, ENDS_WITH, CONTAINS, or EXACT_MATCH.
+     */
+    declare public readonly ruleType: pulumi.Output<string | undefined>;
+    /**
      * The storage type category: cookies, scripts, iframes, or localStorage.
      */
     declare public readonly storeType: pulumi.Output<string>;
     /**
-     * Optional title for the rule, used in consent disclosure.
+     * Optional title for the rule, used in consent disclosure. Max 64 characters.
      */
     declare public readonly title: pulumi.Output<string | undefined>;
     /**
@@ -71,7 +83,7 @@ export class CookieConsentRule extends pulumi.CustomResource {
      */
     declare public /*out*/ readonly updated: pulumi.Output<string | undefined>;
     /**
-     * Optional vendor name for the rule.
+     * Optional vendor name for the rule. Max 100 characters.
      */
     declare public readonly vendorName: pulumi.Output<string | undefined>;
 
@@ -100,8 +112,11 @@ export class CookieConsentRule extends pulumi.CustomResource {
             }
             resourceInputs["classification"] = args?.classification;
             resourceInputs["configId"] = args?.configId;
+            resourceInputs["description"] = args?.description;
             resourceInputs["disclosure"] = args?.disclosure;
+            resourceInputs["expiry"] = args?.expiry;
             resourceInputs["rule"] = args?.rule;
+            resourceInputs["ruleType"] = args?.ruleType;
             resourceInputs["storeType"] = args?.storeType;
             resourceInputs["title"] = args?.title;
             resourceInputs["vendorName"] = args?.vendorName;
@@ -112,9 +127,12 @@ export class CookieConsentRule extends pulumi.CustomResource {
             resourceInputs["classification"] = undefined /*out*/;
             resourceInputs["configId"] = undefined /*out*/;
             resourceInputs["created"] = undefined /*out*/;
+            resourceInputs["description"] = undefined /*out*/;
             resourceInputs["disclosure"] = undefined /*out*/;
+            resourceInputs["expiry"] = undefined /*out*/;
             resourceInputs["rule"] = undefined /*out*/;
             resourceInputs["ruleId"] = undefined /*out*/;
+            resourceInputs["ruleType"] = undefined /*out*/;
             resourceInputs["storeType"] = undefined /*out*/;
             resourceInputs["title"] = undefined /*out*/;
             resourceInputs["updated"] = undefined /*out*/;
@@ -138,23 +156,35 @@ export interface CookieConsentRuleArgs {
      */
     configId: pulumi.Input<string>;
     /**
+     * Optional cookie description. Only supported for cookies; max 1000 characters.
+     */
+    description?: pulumi.Input<string>;
+    /**
      * Whether the rule should be disclosed. Defaults to false.
      */
     disclosure?: pulumi.Input<boolean>;
+    /**
+     * Optional cookie expiry description. Only supported for cookies; max 50 characters.
+     */
+    expiry?: pulumi.Input<string>;
     /**
      * The rule pattern (e.g. a cookie name pattern). Min 3, max 1000 characters.
      */
     rule: pulumi.Input<string>;
     /**
+     * Optional matching mode: FILENAME, DOMAIN, PATH, REGEXP, STARTS_WITH, ENDS_WITH, CONTAINS, or EXACT_MATCH.
+     */
+    ruleType?: pulumi.Input<string>;
+    /**
      * The storage type category: cookies, scripts, iframes, or localStorage.
      */
     storeType: pulumi.Input<string>;
     /**
-     * Optional title for the rule, used in consent disclosure.
+     * Optional title for the rule, used in consent disclosure. Max 64 characters.
      */
     title?: pulumi.Input<string>;
     /**
-     * Optional vendor name for the rule.
+     * Optional vendor name for the rule. Max 100 characters.
      */
     vendorName?: pulumi.Input<string>;
 }

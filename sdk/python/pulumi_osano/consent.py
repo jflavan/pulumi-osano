@@ -314,4 +314,3 @@ class Consent(pulumi.CustomResource):
         Custom tags that Osano associates with the consent record.
         """
         return pulumi.get(self, "tags")
-

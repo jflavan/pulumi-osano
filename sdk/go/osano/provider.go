@@ -18,7 +18,7 @@ type Provider struct {
 	ApiBaseUrl pulumi.StringPtrOutput `pulumi:"apiBaseUrl"`
 	// Override base URL for the Customer REST API (default: https://api.osano.com).
 	CustomerBaseUrl pulumi.StringPtrOutput `pulumi:"customerBaseUrl"`
-	// Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
+	// Osano API key used for subject profile routes and Customer REST API/CMP operations (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
 	OsanoApiKey pulumi.StringPtrOutput `pulumi:"osanoApiKey"`
 	// Unified Consent API key for the Unified Consent Core API (x-uc-api-key).
 	//
@@ -68,9 +68,9 @@ type providerArgs struct {
 	ApiBaseUrl *string `pulumi:"apiBaseUrl"`
 	// Override base URL for the Customer REST API (default: https://api.osano.com).
 	CustomerBaseUrl *string `pulumi:"customerBaseUrl"`
-	// Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
+	// Osano API key used for subject profile routes and Customer REST API/CMP operations (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
 	OsanoApiKey *string `pulumi:"osanoApiKey"`
-	// HTTP request timeout in seconds for Osano API calls (default 60).
+	// HTTP request timeout in seconds for Customer REST API and Unified Consent calls (default 60).
 	RequestTimeoutSeconds *int `pulumi:"requestTimeoutSeconds"`
 	// Unified Consent API key for the Unified Consent Core API (x-uc-api-key).
 	//
@@ -90,9 +90,9 @@ type ProviderArgs struct {
 	ApiBaseUrl pulumi.StringPtrInput
 	// Override base URL for the Customer REST API (default: https://api.osano.com).
 	CustomerBaseUrl pulumi.StringPtrInput
-	// Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
+	// Osano API key used for subject profile routes and Customer REST API/CMP operations (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
 	OsanoApiKey pulumi.StringPtrInput
-	// HTTP request timeout in seconds for Osano API calls (default 60).
+	// HTTP request timeout in seconds for Customer REST API and Unified Consent calls (default 60).
 	RequestTimeoutSeconds pulumi.IntPtrInput
 	// Unified Consent API key for the Unified Consent Core API (x-uc-api-key).
 	//
@@ -153,7 +153,7 @@ func (o ProviderOutput) CustomerBaseUrl() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Provider) pulumi.StringPtrOutput { return v.CustomerBaseUrl }).(pulumi.StringPtrOutput)
 }
 
-// Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
+// Osano API key used for subject profile routes and Customer REST API/CMP operations (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
 func (o ProviderOutput) OsanoApiKey() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Provider) pulumi.StringPtrOutput { return v.OsanoApiKey }).(pulumi.StringPtrOutput)
 }
