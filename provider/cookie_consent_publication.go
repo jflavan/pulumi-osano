@@ -283,8 +283,10 @@ func publishCookieConsent(
 	if _, _, err := cookieConsentScript(baselineResponse.CustomerID, baselineResponse.ConfigID); err != nil {
 		return CookieConsentPublicationState{}, fmt.Errorf("read publication baseline for config %q: %w", args.ConfigID, err)
 	}
-	if err := publicationStatusError(baselineResponse); err != nil {
-		return CookieConsentPublicationState{}, err
+	switch baselineResponse.PublishStatus {
+	case "published", "in-progress", "unpublished", "outdated", "error":
+	default:
+		return CookieConsentPublicationState{}, publicationStatusError(baselineResponse)
 	}
 	baseline := publicationBaseline{
 		Status:            baselineResponse.PublishStatus,
@@ -340,7 +342,13 @@ func publishCookieConsent(
 			seenInProgress = true
 		case "unpublished", "outdated":
 		case "error":
-			return CookieConsentPublicationState{}, publicationStatusError(current)
+			freshError := baseline.Status != "error" ||
+				seenInProgress ||
+				current.LastPublished != baseline.LastPublished ||
+				current.PublishedRevision != baseline.PublishedRevision
+			if freshError {
+				return CookieConsentPublicationState{}, publicationStatusError(current)
+			}
 		default:
 			return CookieConsentPublicationState{}, publicationStatusError(current)
 		}

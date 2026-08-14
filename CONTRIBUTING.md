@@ -26,7 +26,7 @@ Thanks for helping improve the Pulumi Osano provider! The project mirrors the Pu
 ### Prerequisites
 
 - Go (managed by mise, currently Go 1.24)
-- Node.js 20.x
+- Node.js 24.x (mise currently pins 24.13.0)
 - Python 3.11
 - .NET 8.0
 - Java 11+

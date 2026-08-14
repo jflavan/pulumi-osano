@@ -133,12 +133,17 @@ func (r *CookieConsentRule) Check(
 		return infer.CheckResponse[CookieConsentRuleArgs]{Inputs: args, Failures: failures}, err
 	}
 
-	if args.ConfigID == "" {
+	propertyKnown := func(name string) bool {
+		return !req.NewInputs.Get(name).HasComputed()
+	}
+	storeTypeKnown := propertyKnown("storeType")
+
+	if propertyKnown("configId") && args.ConfigID == "" {
 		failures = append(failures, p.CheckFailure{Property: "configId", Reason: "configId is required"})
 	}
-	if args.StoreType == "" {
+	if storeTypeKnown && args.StoreType == "" {
 		failures = append(failures, p.CheckFailure{Property: "storeType", Reason: "storeType is required"})
-	} else if !validStoreTypes[args.StoreType] {
+	} else if storeTypeKnown && !validStoreTypes[args.StoreType] {
 		failures = append(
 			failures,
 			p.CheckFailure{
@@ -147,9 +152,9 @@ func (r *CookieConsentRule) Check(
 			},
 		)
 	}
-	if args.Classification == "" {
+	if propertyKnown("classification") && args.Classification == "" {
 		failures = append(failures, p.CheckFailure{Property: "classification", Reason: "classification is required"})
-	} else if !validClassifications[args.Classification] {
+	} else if propertyKnown("classification") && !validClassifications[args.Classification] {
 		failures = append(
 			failures,
 			p.CheckFailure{
@@ -159,6 +164,7 @@ func (r *CookieConsentRule) Check(
 		)
 	}
 	switch {
+	case !propertyKnown("rule"):
 	case args.Rule == "":
 		failures = append(failures, p.CheckFailure{Property: "rule", Reason: "rule is required"})
 	case len(args.Rule) < 3:
@@ -166,16 +172,16 @@ func (r *CookieConsentRule) Check(
 	case len(args.Rule) > 1000:
 		failures = append(failures, p.CheckFailure{Property: "rule", Reason: "rule must be at most 1000 characters"})
 	}
-	if args.Title != nil && len(*args.Title) > 64 {
+	if propertyKnown("title") && args.Title != nil && len(*args.Title) > 64 {
 		failures = append(failures, p.CheckFailure{Property: "title", Reason: "title must be at most 64 characters"})
 	}
-	if args.VendorName != nil && len(*args.VendorName) > 100 {
+	if propertyKnown("vendorName") && args.VendorName != nil && len(*args.VendorName) > 100 {
 		failures = append(
 			failures,
 			p.CheckFailure{Property: "vendorName", Reason: "vendorName must be at most 100 characters"},
 		)
 	}
-	if args.RuleType != nil && !validRuleTypes[*args.RuleType] {
+	if propertyKnown("ruleType") && args.RuleType != nil && !validRuleTypes[*args.RuleType] {
 		failures = append(
 			failures,
 			p.CheckFailure{
@@ -184,25 +190,25 @@ func (r *CookieConsentRule) Check(
 			},
 		)
 	}
-	if args.Description != nil {
+	if propertyKnown("description") && args.Description != nil {
 		if len(*args.Description) > 1000 {
 			failures = append(
 				failures,
 				p.CheckFailure{Property: "description", Reason: "description must be at most 1000 characters"},
 			)
 		}
-		if args.StoreType != "cookies" {
+		if storeTypeKnown && args.StoreType != "cookies" {
 			failures = append(
 				failures,
 				p.CheckFailure{Property: "description", Reason: "description is only supported for cookies"},
 			)
 		}
 	}
-	if args.Expiry != nil {
+	if propertyKnown("expiry") && args.Expiry != nil {
 		if len(*args.Expiry) > 50 {
 			failures = append(failures, p.CheckFailure{Property: "expiry", Reason: "expiry must be at most 50 characters"})
 		}
-		if args.StoreType != "cookies" {
+		if storeTypeKnown && args.StoreType != "cookies" {
 			failures = append(
 				failures,
 				p.CheckFailure{Property: "expiry", Reason: "expiry is only supported for cookies"},

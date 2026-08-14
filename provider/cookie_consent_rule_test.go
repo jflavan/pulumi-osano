@@ -47,6 +47,23 @@ func TestCookieConsentRuleCheck(t *testing.T) {
 		})
 	}
 
+	for _, propertyName := range []string{
+		"configId", "storeType", "classification", "rule",
+		"title", "vendorName", "ruleType", "description", "expiry",
+	} {
+		t.Run("computed "+propertyName+" defers validation", func(t *testing.T) {
+			values := validRuleCheckInputValues()
+			values[propertyName] = property.New(property.Computed)
+			resp, err := resource.Check(ctx, infer.CheckRequest{NewInputs: property.NewMap(values)})
+			if err != nil {
+				t.Fatal(err)
+			}
+			if len(resp.Failures) != 0 {
+				t.Fatalf("computed %s must not fail validation: %#v", propertyName, resp.Failures)
+			}
+		})
+	}
+
 	cases := []struct {
 		name       string
 		inputs     property.Map
@@ -175,6 +192,23 @@ func TestCookieConsentRuleCheck(t *testing.T) {
 			}
 			assertFailureProperty(t, resp.Failures, tc.failureKey)
 		})
+	}
+}
+
+func TestCookieConsentRuleProviderCheckAcceptsComputedConfigID(t *testing.T) {
+	server := newCMPProviderServer(t, "https://customer.example.test")
+	values := validRuleCheckInputValues()
+	values["configId"] = property.New(property.Computed)
+
+	resp, err := server.Check(p.CheckRequest{
+		Urn:    cmpURN("CookieConsentRule", "computed-config"),
+		Inputs: property.NewMap(values),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(resp.Failures) != 0 {
+		t.Fatalf("computed configId must be accepted by provider Check: %#v", resp.Failures)
 	}
 }
 

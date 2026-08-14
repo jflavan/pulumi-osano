@@ -413,23 +413,55 @@ func TestPublishCookieConsentUsesClientRetries(t *testing.T) {
 	}
 }
 
-func TestPublishCookieConsentErrors(t *testing.T) {
-	t.Run("terminal error status", func(t *testing.T) {
-		api := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-			writePublicationConfigResponse(t, w, "error", 100, 3)
-		}))
-		defer api.Close()
-
-		_, err := publishCookieConsent(
-			t.Context(), newCMPJSONClient(t, api.URL), publicationArgsFixture(), zeroPublicationPollOptions(),
-		)
-		if err == nil || !strings.Contains(err.Error(), "status=error") ||
-			!strings.Contains(err.Error(), "lastPublished=100") ||
-			!strings.Contains(err.Error(), "publishedRevision=3") {
-			t.Fatalf("expected terminal status diagnostic, got %v", err)
+func TestPublishCookieConsentRecoversFromStaleBaselineError(t *testing.T) {
+	requests := make([]string, 0, 5)
+	getCount := 0
+	postCount := 0
+	api := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requests = append(requests, r.Method+" "+r.URL.Path)
+		assertCMPRequest(t, r, r.Method, r.URL.Path)
+		if r.Method == http.MethodPost {
+			postCount++
+			w.WriteHeader(http.StatusNoContent)
+			return
 		}
-	})
 
+		getCount++
+		switch getCount {
+		case 1, 2:
+			writePublicationConfigResponse(t, w, "error", 100, 3)
+		case 3:
+			writePublicationConfigResponse(t, w, "in-progress", 100, 3)
+		case 4:
+			writePublicationConfigResponse(t, w, "published", 200, 4)
+		default:
+			t.Fatalf("unexpected GET %d", getCount)
+		}
+	}))
+	defer api.Close()
+
+	args := publicationArgsFixture()
+	state, err := publishCookieConsent(t.Context(), newCMPJSONClient(t, api.URL), args, zeroPublicationPollOptions())
+	if err != nil {
+		t.Fatal(err)
+	}
+	assertPublishedState(t, state, args, 200, 4)
+	if postCount != 1 {
+		t.Fatalf("expected one POST, got %d", postCount)
+	}
+	wantRequests := []string{
+		"GET /v1/cookie-consent/configs/config-id",
+		"POST /v1/cookie-consent/configs/config-id/publish",
+		"GET /v1/cookie-consent/configs/config-id",
+		"GET /v1/cookie-consent/configs/config-id",
+		"GET /v1/cookie-consent/configs/config-id",
+	}
+	if !reflect.DeepEqual(requests, wantRequests) {
+		t.Fatalf("unexpected request order: got %#v, want %#v", requests, wantRequests)
+	}
+}
+
+func TestPublishCookieConsentErrors(t *testing.T) {
 	t.Run("terminal error status after accepted publish", func(t *testing.T) {
 		requests := make([]string, 0, 3)
 		getCount := 0
