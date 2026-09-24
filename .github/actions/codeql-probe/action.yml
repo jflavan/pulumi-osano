@@ -1,0 +1,8 @@
+# Deliberate CodeQL finding (actions/unpinned-tag, medium) used only to verify the CodeQL gate.
+# Nothing references this composite action, so it never runs. Throwaway branch; never merge.
+name: CodeQL probe
+description: Unused composite action with a tag-pinned third-party action
+runs:
+  using: composite
+  steps:
+    - uses: codecov/codecov-action@v4

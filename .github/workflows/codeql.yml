@@ -88,7 +88,7 @@ jobs:
       - name: Fail on new CodeQL alerts
         if: github.event_name == 'pull_request'
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: probe-invalid-token # PROBE ONLY: force the unreadable-API fallback
           CATEGORY: /language:${{ matrix.language }}
           PR_REF: refs/pull/${{ github.event.pull_request.number }}/merge
           BASE_REF: refs/heads/${{ github.base_ref }}
