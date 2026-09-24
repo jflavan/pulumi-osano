@@ -454,3 +454,51 @@ func TestRetryDelayCapsRetryAfter(t *testing.T) {
 		t.Fatalf("expected Retry-After to be capped at %s, got %s", maxRetryAfterDelay, delay)
 	}
 }
+
+func TestDoJSONRetriesTransportErrorsForGetOnly(t *testing.T) {
+	t.Parallel()
+
+	newFlakyServer := func(attempts *atomic.Int32) *httptest.Server {
+		return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			if attempts.Add(1) == 1 {
+				conn, _, err := w.(http.Hijacker).Hijack()
+				if err == nil {
+					_ = conn.Close()
+				}
+				return
+			}
+			w.WriteHeader(http.StatusNoContent)
+		}))
+	}
+
+	t.Run("GET retries after a dropped connection", func(t *testing.T) {
+		t.Parallel()
+		var attempts atomic.Int32
+		server := newFlakyServer(&attempts)
+		defer server.Close()
+		baseURL, _ := url.Parse(server.URL)
+		client := NewClient(baseURL, "x-api-key", "key", WithInitialBackoff(time.Millisecond))
+		if err := client.DoJSON(context.Background(), http.MethodGet, "/poll", nil, nil, nil); err != nil {
+			t.Fatalf("expected GET to recover, got %v", err)
+		}
+		if got := attempts.Load(); got != 2 {
+			t.Fatalf("expected 2 attempts, got %d", got)
+		}
+	})
+
+	t.Run("POST does not replay after a dropped connection", func(t *testing.T) {
+		t.Parallel()
+		var attempts atomic.Int32
+		server := newFlakyServer(&attempts)
+		defer server.Close()
+		baseURL, _ := url.Parse(server.URL)
+		client := NewClient(baseURL, "x-api-key", "key", WithInitialBackoff(time.Millisecond))
+		err := client.DoJSON(context.Background(), http.MethodPost, "/create", nil, map[string]string{"a": "b"}, nil)
+		if err == nil {
+			t.Fatal("expected POST transport error")
+		}
+		if got := attempts.Load(); got != 1 {
+			t.Fatalf("expected a single POST attempt, got %d", got)
+		}
+	})
+}

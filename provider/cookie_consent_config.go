@@ -236,10 +236,32 @@ func (r *CookieConsentConfig) Update(
 	); err != nil {
 		return infer.UpdateResponse[CookieConsentConfigState]{}, err
 	}
+	if out.ConfigID == "" {
+		// An empty PATCH response carries no config, so keep the applied inputs and prior metadata.
+		state := req.State
+		state.CookieConsentConfigArgs = req.Inputs
+		return infer.UpdateResponse[CookieConsentConfigState]{Output: state}, nil
+	}
 
 	return infer.UpdateResponse[CookieConsentConfigState]{
 		Output: cookieConsentConfigStateFromResponse(out),
 	}, nil
+}
+
+// WireDependencies keeps configId and customerId known during update previews. They never change
+// in place, and marking them unknown would make every dependent rule and publication preview as a
+// replacement. Server metadata still depends on every input.
+func (r *CookieConsentConfig) WireDependencies(
+	f infer.FieldSelector, args *CookieConsentConfigArgs, state *CookieConsentConfigState,
+) {
+	inputs := f.InputField(args).Computed()
+	for _, output := range []any{
+		&state.Name, &state.Domains, &state.Mode, &state.OrgIDs, &state.Configuration,
+		&state.Created, &state.Updated, &state.PublishStatus, &state.LastPublished,
+		&state.PublishedRevision, &state.TattleRecordStopped,
+	} {
+		f.OutputField(output).DependsOn(inputs)
+	}
 }
 
 // Delete forgets the local CookieConsentConfig state without removing the upstream config.
@@ -259,13 +281,13 @@ func (r *CookieConsentConfig) Diff(
 	if req.Inputs.Name != req.State.Name {
 		diff["name"] = p.PropertyDiff{Kind: p.Update}
 	}
-	if !slices.Equal(req.Inputs.Domains, req.State.Domains) {
+	if !stringSlicesEqual(req.Inputs.Domains, req.State.Domains) {
 		diff["domains"] = p.PropertyDiff{Kind: p.Update}
 	}
 	if req.Inputs.Mode != req.State.Mode {
 		diff["mode"] = p.PropertyDiff{Kind: p.Update}
 	}
-	if !slices.Equal(req.Inputs.OrgIDs, req.State.OrgIDs) {
+	if !stringSlicesEqual(req.Inputs.OrgIDs, req.State.OrgIDs) {
 		diff["orgIds"] = p.PropertyDiff{Kind: p.Update}
 	}
 
@@ -280,6 +302,14 @@ const cookieConsentConfigsPath = "/v1/cookie-consent/configs"
 
 func cookieConsentConfigPath(configID string) string {
 	return cookieConsentConfigsPath + "/" + url.PathEscape(configID)
+}
+
+// stringSlicesEqual treats nil and empty as equal, since Osano may echo an unset list as [].
+func stringSlicesEqual(left, right []string) bool {
+	if len(left) == 0 && len(right) == 0 {
+		return true
+	}
+	return slices.Equal(left, right)
 }
 
 func jsonValuesEqual(left, right any) bool {

@@ -21,10 +21,6 @@ const Name = "osano"
 
 // Provider wires up the Pulumi provider with its config, resources, and functions.
 func Provider() p.Provider {
-	if Version != "" {
-		providerVersion = Version
-	}
-
 	prov, err := infer.NewProviderBuilder().
 		WithDisplayName("Osano (Unofficial)").
 		WithDescription(

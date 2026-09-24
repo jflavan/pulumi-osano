@@ -23,6 +23,16 @@ These fixes change behavior without changing resource tokens:
 - `verifySubjectCode.code` is now a secret input.
 - `CookieConsentConfig` preview accepts inputs that are unknown until apply, and
   rule limits count characters rather than bytes.
+- Update previews keep `configId`, `customerId`, `ruleId`, `scriptSrc`, and
+  `scriptTag` known. Earlier builds marked them unknown whenever any input
+  changed, so editing a config previewed every dependent rule and publication as
+  a replacement (the real update did not replace them).
+- `Consent` validation runs in `Check` and skips inputs that are unknown until
+  apply, so a `vendor` or `target` wired from another resource's output no longer
+  fails preview.
+- Cookie Consent GET requests retry transport failures (for example a dropped
+  connection during a long publication wait); writes still never replay after a
+  transport failure.
 
 ## Cookie Consent publication release
 

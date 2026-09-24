@@ -9,6 +9,7 @@ import (
 
 	"github.com/google/uuid"
 
+	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/infer"
 )
 
@@ -147,8 +148,11 @@ func applyConsent(
 	existingID string,
 	dryRun bool,
 ) (ConsentState, string, error) {
-	if err := validateConsentArgs(inputs); err != nil {
-		return ConsentState{}, "", err
+	// Check already validated known inputs; values unknown during preview are validated on apply.
+	if !dryRun {
+		if err := validateConsentArgs(inputs); err != nil {
+			return ConsentState{}, "", err
+		}
 	}
 
 	id := existingID
@@ -174,7 +178,46 @@ func applyConsent(
 	return state, id, nil
 }
 
+// Check validates consent inputs, deferring any section that is unknown until apply.
+func (r *ConsentResource) Check(
+	ctx context.Context, req infer.CheckRequest,
+) (infer.CheckResponse[ConsentArgs], error) {
+	args, failures, err := infer.DefaultCheck[ConsentArgs](ctx, req.NewInputs)
+	if err != nil {
+		return infer.CheckResponse[ConsentArgs]{Inputs: args, Failures: failures}, err
+	}
+
+	checks := []struct {
+		property string
+		validate func(ConsentArgs) error
+	}{
+		{"actions", validateConsentActions},
+		{"subject", validateConsentSubject},
+		{"compliance", validateConsentCompliance},
+	}
+	for _, check := range checks {
+		if req.NewInputs.Get(check.property).HasComputed() {
+			continue
+		}
+		if err := check.validate(args); err != nil {
+			failures = append(failures, p.CheckFailure{Property: check.property, Reason: err.Error()})
+		}
+	}
+	return infer.CheckResponse[ConsentArgs]{Inputs: args, Failures: failures}, nil
+}
+
 func validateConsentArgs(args ConsentArgs) error {
+	for _, validate := range []func(ConsentArgs) error{
+		validateConsentActions, validateConsentSubject, validateConsentCompliance,
+	} {
+		if err := validate(args); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func validateConsentActions(args ConsentArgs) error {
 	if len(args.Actions) == 0 {
 		return errors.New("at least one consent action is required")
 	}
@@ -189,17 +232,18 @@ func validateConsentArgs(args ConsentArgs) error {
 			return fmt.Errorf("actions[%d].action is required", idx)
 		}
 	}
+	return nil
+}
 
-	if _, err := args.Subject.reference(); err != nil {
-		return err
+func validateConsentSubject(args ConsentArgs) error {
+	_, err := args.Subject.reference()
+	return err
+}
+
+func validateConsentCompliance(args ConsentArgs) error {
+	if args.Compliance != nil && args.Compliance.PrivacyPolicy != nil && args.Compliance.PrivacyPolicy.URL == "" {
+		return errors.New("compliance.privacyPolicy.url is required when privacyPolicy is provided")
 	}
-
-	if args.Compliance != nil && args.Compliance.PrivacyPolicy != nil {
-		if args.Compliance.PrivacyPolicy.URL == "" {
-			return errors.New("compliance.privacyPolicy.url is required when privacyPolicy is provided")
-		}
-	}
-
 	return nil
 }
 

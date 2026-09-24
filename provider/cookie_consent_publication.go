@@ -210,6 +210,20 @@ func (r *CookieConsentPublication) Update(
 	return infer.UpdateResponse[CookieConsentPublicationState]{Output: state}, nil
 }
 
+// WireDependencies keeps customerId and the script outputs known during update previews: they are
+// derived from the customer and config IDs, which only change on replacement.
+func (r *CookieConsentPublication) WireDependencies(
+	f infer.FieldSelector, args *CookieConsentPublicationArgs, state *CookieConsentPublicationState,
+) {
+	inputs := f.InputField(args).Computed()
+	for _, output := range []any{
+		&state.ConfigID, &state.ChangeToken, &state.KeepUnclassifiedTattles, &state.Description,
+		&state.WebhookURL, &state.PublishStatus, &state.LastPublished, &state.PublishedRevision,
+	} {
+		f.OutputField(output).DependsOn(inputs)
+	}
+}
+
 // Delete forgets publication state without calling Osano or unpublishing the config.
 func (r *CookieConsentPublication) Delete(
 	_ context.Context, _ infer.DeleteRequest[CookieConsentPublicationState],

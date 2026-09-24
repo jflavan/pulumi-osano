@@ -12,6 +12,7 @@ import (
 	"github.com/blang/semver"
 
 	p "github.com/pulumi/pulumi-go-provider"
+	"github.com/pulumi/pulumi-go-provider/infer"
 	"github.com/pulumi/pulumi-go-provider/integration"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/tokens"
 	"github.com/pulumi/pulumi/sdk/v3/go/property"
@@ -366,4 +367,147 @@ func configInputPropertiesForErrors() property.Map {
 			"storagePolicyHref": property.New("https://example.com/storage-policy"),
 		}),
 	})
+}
+
+func TestUpdatePreviewsKeepIdentityOutputsKnown(t *testing.T) {
+	api := httptest.NewServer(http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
+		t.Errorf("preview must not call Osano: %s %s", r.Method, r.URL.Path)
+	}))
+	defer api.Close()
+	server := newCMPProviderServer(t, api.URL)
+
+	configState := configInputPropertiesForErrors().
+		Set("configId", property.New("config-id")).
+		Set("customerId", property.New("customer-id")).
+		Set("created", property.New(1.0)).
+		Set("updated", property.New(1.0))
+	configResp, err := server.Update(p.UpdateRequest{
+		ID: "config-id", Urn: cmpURN("CookieConsentConfig", "renamed"), State: configState,
+		Inputs: configInputPropertiesForErrors().Set("name", property.New("renamed")), DryRun: true,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	assertKnownString(t, configResp.Properties, "configId", "config-id")
+	assertKnownString(t, configResp.Properties, "customerId", "customer-id")
+	assertKnownString(t, configResp.Properties, "name", "renamed")
+	if !configResp.Properties.Get("updated").IsComputed() {
+		t.Fatalf("expected server metadata to be unknown after an input change, got %#v",
+			configResp.Properties.Get("updated"))
+	}
+
+	ruleResp, err := server.Update(p.UpdateRequest{
+		ID: "config-abc/42", Urn: cmpURN("CookieConsentRule", "retitled"), State: ruleStateProperties(),
+		Inputs: ruleInputProperties().Set("title", property.New("Retitled")), DryRun: true,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := ruleResp.Properties.Get("ruleId"); got.IsComputed() || got.AsNumber() != 42 {
+		t.Fatalf("expected ruleId to stay known as 42, got %#v", got)
+	}
+
+	publicationResp, err := server.Update(p.UpdateRequest{
+		ID: "config-id", Urn: cmpURN("CookieConsentPublication", "republished"), State: publicationStateProperties(),
+		Inputs: publicationInputProperties().Set("changeToken", property.New("desired-state-v2")), DryRun: true,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	assertKnownString(t, publicationResp.Properties, "customerId", "customer-id")
+	assertKnownString(t, publicationResp.Properties, "scriptSrc", "https://cmp.osano.com/customer-id/config-id/osano.js")
+	if !publicationResp.Properties.Get("lastPublished").IsComputed() {
+		t.Fatal("expected lastPublished to be unknown before republishing")
+	}
+}
+
+func TestCookieConsentConfigUpdateWithEmptyResponseKeepsState(t *testing.T) {
+	api := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assertCMPRequest(t, r, http.MethodPatch, "/v1/cookie-consent/configs/config-id")
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	defer api.Close()
+
+	server := newCMPProviderServer(t, api.URL)
+	resp, err := server.Update(p.UpdateRequest{
+		ID: "config-id", Urn: cmpURN("CookieConsentConfig", "empty-patch"),
+		State:  configInputPropertiesForErrors().Set("configId", property.New("config-id")),
+		Inputs: configInputPropertiesForErrors().Set("name", property.New("renamed")),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	assertKnownString(t, resp.Properties, "configId", "config-id")
+	assertKnownString(t, resp.Properties, "name", "renamed")
+}
+
+func TestConsentCheckDefersUnknownInputs(t *testing.T) {
+	server := newUCProviderServer(t, "http://127.0.0.1:1")
+	action := func(vendor property.Value) property.Value {
+		return property.New([]property.Value{property.New(map[string]property.Value{
+			"target": property.New("t"), "vendor": vendor, "action": property.New("ACCEPT"),
+		})})
+	}
+	inputs := func(actions property.Value) property.Map {
+		return property.NewMap(map[string]property.Value{
+			"subject": property.New(map[string]property.Value{"verifiedId": property.New("user-1")}),
+			"actions": actions,
+		})
+	}
+
+	resp, err := server.Check(p.CheckRequest{
+		Urn: cmpURN("Consent", "computed"), Inputs: inputs(action(property.New(property.Computed))),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(resp.Failures) != 0 {
+		t.Fatalf("an unknown vendor must not fail Check: %#v", resp.Failures)
+	}
+	if _, err := server.Create(p.CreateRequest{
+		Urn: cmpURN("Consent", "computed"), Properties: inputs(action(property.New(property.Computed))), DryRun: true,
+	}); err != nil {
+		t.Fatalf("preview with an unknown vendor must succeed, got %v", err)
+	}
+
+	resp, err = server.Check(p.CheckRequest{Urn: cmpURN("Consent", "invalid"), Inputs: inputs(action(property.New("")))})
+	if err != nil {
+		t.Fatal(err)
+	}
+	assertFailureProperty(t, resp.Failures, "actions")
+
+	resp, err = server.Check(p.CheckRequest{
+		Urn: cmpURN("Consent", "no-subject"),
+		Inputs: property.NewMap(map[string]property.Value{
+			"subject": property.New(map[string]property.Value{}), "actions": action(property.New("v")),
+		}),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	assertFailureProperty(t, resp.Failures, "subject")
+}
+
+func assertKnownString(t *testing.T, m property.Map, key, want string) {
+	t.Helper()
+	got := m.Get(key)
+	if got.IsComputed() || !got.IsString() || got.AsString() != want {
+		t.Fatalf("expected known %s=%q, got %#v", key, want, got)
+	}
+}
+
+func TestCookieConsentConfigDiffTreatsEmptyListsAsUnset(t *testing.T) {
+	t.Parallel()
+	state := baseConfigState()
+	state.OrgIDs = []string{}
+	inputs := baseConfigArgs()
+	inputs.OrgIDs = nil
+	resp, err := (&CookieConsentConfig{}).Diff(context.Background(),
+		infer.DiffRequest[CookieConsentConfigArgs, CookieConsentConfigState]{State: state, Inputs: inputs})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp.HasChanges {
+		t.Fatalf("an echoed empty orgIds list must not produce a diff: %#v", resp.DetailedDiff)
+	}
 }

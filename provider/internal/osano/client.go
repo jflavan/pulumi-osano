@@ -136,6 +136,13 @@ func (c *Client) DoJSON(
 
 		resp, err := c.http.Do(req)
 		if err != nil {
+			// Reads are safe to repeat after a transport failure, such as a reset during a long publish poll.
+			if method == http.MethodGet && ctx.Err() == nil && attempt < maxRetries {
+				if sleepErr := sleepWithContext(ctx, c.retryDelay(nil, attempt)); sleepErr != nil {
+					return sleepErr
+				}
+				continue
+			}
 			return fmt.Errorf("do request: %w", err)
 		}
 

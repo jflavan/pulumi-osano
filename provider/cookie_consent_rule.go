@@ -349,6 +349,20 @@ func (r *CookieConsentRule) Update(
 	return infer.UpdateResponse[CookieConsentRuleState]{Output: state}, nil
 }
 
+// WireDependencies keeps ruleId known during update previews; it only changes on replacement.
+func (r *CookieConsentRule) WireDependencies(
+	f infer.FieldSelector, args *CookieConsentRuleArgs, state *CookieConsentRuleState,
+) {
+	inputs := f.InputField(args).Computed()
+	for _, output := range []any{
+		&state.ConfigID, &state.StoreType, &state.Classification, &state.Rule, &state.Disclosure,
+		&state.Title, &state.VendorName, &state.RuleType, &state.Description, &state.Expiry,
+		&state.Created, &state.Updated,
+	} {
+		f.OutputField(output).DependsOn(inputs)
+	}
+}
+
 // Delete removes the tracked CookieConsentRule from the Customer REST API.
 func (r *CookieConsentRule) Delete(
 	ctx context.Context, req infer.DeleteRequest[CookieConsentRuleState],

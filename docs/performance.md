@@ -5,7 +5,7 @@ The provider is lightweight: it serializes Pulumi inputs and calls the Osano RES
 ## Throughput
 
 - Osano enforces rate limits per API key. Batch multiple consent actions into a single `Consent` resource when possible to minimize calls.
-- Cookie Consent calls retry `429` and `503` responses with bounded backoff (honoring `Retry-After`, capped at one minute per wait). Reads and updates also retry other `5xx` responses; creates do not, so an ambiguous server error never creates a duplicate config or rule.
+- Cookie Consent calls retry `429` and `503` responses with bounded backoff (honoring `Retry-After`, capped at one minute per wait). Reads and updates also retry other `5xx` responses, and reads retry dropped connections; creates do not, so an ambiguous server error never creates a duplicate config or rule.
 - Separate workloads into distinct stacks (for example, `consents-eu`, `consents-us`) to avoid throttling large previews.
 
 ## Latency
