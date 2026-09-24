@@ -7,9 +7,13 @@
 # alerts do not count, so after dismissing a false positive in Security and quality > Code scanning,
 # re-running the job clears it.
 #
-# Environment: GH_TOKEN, GITHUB_REPOSITORY, GITHUB_SHA (the PR merge commit), CATEGORY (for example
-# /language:go), PR_REF (refs/pull/<n>/merge), BASE_REF (refs/heads/<base>), SARIF_DIR (the analyze
-# step's sarif-output), and optionally GITHUB_STEP_SUMMARY.
+# If the code scanning API cannot be read (for example with a fork pull request's read-only token), the
+# script falls back to the local SARIF: it fails when any result is on a line the pull request adds or
+# changes, the same filter codeql-action applies before uploading. That fallback cannot see dismissals.
+#
+# Environment: GH_TOKEN, GITHUB_REPOSITORY, GITHUB_SHA (the PR merge commit, checked out with its two
+# parents, fetch-depth 2), CATEGORY (for example /language:go), PR_REF (refs/pull/<n>/merge), BASE_REF
+# (refs/heads/<base>), SARIF_DIR (the analyze step's sarif-output), and optionally GITHUB_STEP_SUMMARY.
 set -euo pipefail
 
 : "${GITHUB_REPOSITORY:?}" "${GITHUB_SHA:?}" "${CATEGORY:?}" "${PR_REF:?}" "${BASE_REF:?}" "${SARIF_DIR:?}"
@@ -32,6 +36,48 @@ open_alerts() {
     jq --arg cat "$category" '[.[] | select(((.most_recent_instance.category // "") | rtrimstr("/")) == $cat)]'
 }
 
+# Lines the pull request adds or changes, as [{path, start, end}], from the merge commit against its
+# first parent (the base branch).
+changed_ranges() {
+  git diff --unified=0 --no-color --no-ext-diff HEAD^1 HEAD |
+    awk '
+      /^\+\+\+ / { path = ($2 == "/dev/null") ? "" : substr($0, 7); next }
+      /^@@ / && path != "" {
+        match($0, /\+[0-9]+(,[0-9]+)?/)
+        split(substr($0, RSTART + 1, RLENGTH - 1), hunk, ",")
+        count = (hunk[2] == "") ? 1 : hunk[2]
+        if (count > 0) printf "%s\t%d\t%d\n", path, hunk[1], hunk[1] + count - 1
+      }' |
+    jq -R -s '[split("\n")[] | select(length > 0) | split("\t") | {path: .[0], start: (.[1] | tonumber), end: (.[2] | tonumber)}]'
+}
+
+# Fallback when the code scanning API is unreadable: fail on local SARIF results on changed lines.
+check_local_sarif() {
+  echo "::warning::Could not read the code scanning API for ${PR_REF} (expected on some fork pull requests). Checking the local CodeQL results on the lines this pull request changes instead; dismissed alerts cannot be taken into account."
+  if ! git rev-parse --verify --quiet 'HEAD^2' >/dev/null; then
+    echo "::error::Cannot work out the lines this pull request changes: the checkout is not the pull request merge commit with both parents."
+    exit 1
+  fi
+  local ranges hits count
+  ranges=$(changed_ranges)
+  hits=$(jq -s --argjson ranges "$ranges" '[.[] | .runs[]? | .results[]? | select(
+      [(.locations // [])[], (.relatedLocations // [])[]] | any(.physicalLocation as $p
+        | ($p.artifactLocation.uri // "") as $uri | ($p.region.startLine // 0) as $line
+        | $ranges | any(.path == $uri and $line >= .start and $line <= .end)))]' "${sarif_files[@]}")
+  count=$(jq 'length' <<<"$hits")
+  if [ "$count" -eq 0 ]; then
+    echo "No CodeQL results on the lines this pull request changes."
+    summary "### CodeQL ${category}" "" "No CodeQL results on the lines this pull request changes (checked locally)."
+    exit 0
+  fi
+  jq -r '.[] | (.locations[0].physicalLocation // {}) as $p
+    | "::error file=\($p.artifactLocation.uri // ""),line=\($p.region.startLine // 1),title=CodeQL \(.ruleId)::\(.message.text | gsub("%"; "%25") | gsub("\r?\n"; " "))"' \
+    <<<"$hits"
+  summary "### CodeQL ${category}: ${count} result(s) on changed lines" "" "Checked locally because the code scanning API was unreadable."
+  echo "::error::This pull request has ${count} CodeQL result(s) for ${category} on the lines it changes. Fix them; a maintainer can review false positives."
+  exit 1
+}
+
 shopt -s nullglob
 sarif_files=("$SARIF_DIR"/*.sarif)
 if [ "${#sarif_files[@]}" -eq 0 ]; then
@@ -49,11 +95,10 @@ if [ "$results" -eq 0 ]; then
   exit 0
 fi
 
-# Only trust the alert list once GitHub has processed this exact commit's analysis.
 if ! analyses=$(api_list "repos/${GITHUB_REPOSITORY}/code-scanning/analyses?ref=${PR_REF}&tool_name=CodeQL&per_page=100"); then
-  echo "::error::Could not read the code scanning analyses for ${PR_REF}."
-  exit 1
+  check_local_sarif
 fi
+# Only trust the alert list once GitHub has processed this exact commit's analysis.
 if ! jq -e --arg cat "$category" --arg sha "$GITHUB_SHA" \
   'any(.[]; ((.category // "") | rtrimstr("/")) == $cat and .commit_sha == $sha)' <<<"$analyses" >/dev/null; then
   echo "::error::GitHub has not finished processing the ${category} analysis of ${GITHUB_SHA}. Re-run this job."
@@ -61,8 +106,7 @@ if ! jq -e --arg cat "$category" --arg sha "$GITHUB_SHA" \
 fi
 
 if ! pr_alerts=$(open_alerts "$PR_REF"); then
-  echo "::error::Could not read the code scanning alerts for ${PR_REF}."
-  exit 1
+  check_local_sarif
 fi
 # Alerts already open on the base branch are existing debt, not something this pull request added.
 if ! base_alerts=$(open_alerts "$BASE_REF"); then

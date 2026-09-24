@@ -50,6 +50,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          fetch-depth: 2 # the PR merge commit and both parents, for the new-alert check's local fallback
 
       # Must run before init. Installs the go.mod toolchain (go1.24.10) and exports GOTOOLCHAIN=local,
       # so no nested go.mod may require a newer Go than the root go.mod toolchain line. A module that
