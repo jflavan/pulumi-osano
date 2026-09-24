@@ -28,6 +28,7 @@ setup(name='pulumi_osano',
       project_urls={
           'Repository': 'https://github.com/jflavan/pulumi-osano'
       },
+      license='MIT',
       packages=find_packages(),
       package_data={
           'pulumi_osano': [

@@ -33,6 +33,7 @@ func Provider() p.Provider {
 		).
 		WithHomepage("https://github.com/jflavan/pulumi-osano").
 		WithRepository("https://github.com/jflavan/pulumi-osano").
+		WithLicense("MIT").
 		WithPluginDownloadURL("github://api.github.com/jflavan/pulumi-osano").
 		WithNamespace(Name).
 		WithConfig(infer.Config(&Config{})).

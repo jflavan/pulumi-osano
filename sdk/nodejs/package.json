@@ -4,6 +4,7 @@
     "description": "Pulumi provider for Osano Cookie Consent and Unified Consent APIs.",
     "homepage": "https://github.com/jflavan/pulumi-osano",
     "repository": "https://github.com/jflavan/pulumi-osano",
+    "license": "MIT",
     "scripts": {
         "build": "tsc"
     },
