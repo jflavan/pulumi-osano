@@ -1,7 +1,8 @@
 # CodeQL code scanning (advanced setup). Maintainer notes: CONTRIBUTING.md, "Code Scanning (CodeQL)".
 # - Keep code scanning "default setup" disabled in the repository settings; enabling it turns this workflow off.
 # - Keep this file name, the `analyze` job id, the matrix languages and the categories stable. Renaming any of
-#   them orphans existing alerts, and PR results show "configuration not found" until main is re-analyzed.
+#   them orphans existing alerts, and PR results show "configuration not found" until main is re-analyzed and
+#   the old configuration is deleted (Security and quality > Code scanning > Tool status).
 # - init and analyze must stay on the same github/codeql-action commit. Bump them together.
 name: CodeQL Advanced
 
@@ -49,7 +50,8 @@ jobs:
           persist-credentials: false
 
       # Must run before init. Installs the go.mod toolchain (go1.24.10) and exports GOTOOLCHAIN=local,
-      # so no nested go.mod may require a newer Go than the root go.mod toolchain line.
+      # so no nested go.mod may require a newer Go than the root go.mod toolchain line. A module that
+      # does is skipped with only a Tool status warning, and Analyze (go) stays green.
       - name: Set up Go
         if: matrix.language == 'go'
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0

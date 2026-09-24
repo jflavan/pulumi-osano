@@ -27,7 +27,7 @@ Use this checklist whenever publishing a new `pulumi-osano` provider release.
      `make lint` to execute `golangci-lint` with repository defaults.
    - The final diff check proves schema, SDKs, and copied package READMEs are current.
    - Confirm the latest `CodeQL Advanced` run on `main` succeeded and that
-     **Security > Code scanning** shows no open critical or high alerts.
+     **Security and quality > Code scanning** shows no open critical or high alerts.
    - Check that `github/codeql-action` in `.github/workflows/codeql.yml` is on the
      latest v4 release. If it is not, bump `init` and `analyze` to the same commit
      SHA in one change, and update the `# vX.Y.Z` comments.
