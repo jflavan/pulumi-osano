@@ -39,8 +39,9 @@ if [ "${#sarif_files[@]}" -eq 0 ]; then
   exit 1
 fi
 
-# On pull requests CodeQL restricts results to the lines the pull request changes, so zero results
-# means nothing new; skip the API in that case.
+# The local SARIF can contain results anywhere in the code (the Actions queries do not restrict
+# themselves to the diff); the upload keeps only results on lines the pull request changes. Zero local
+# results therefore means nothing new, so skip the API in that case.
 results=$(jq -s '[.[].runs[]?.results[]?] | length' "${sarif_files[@]}")
 echo "CodeQL reported ${results} result(s) for ${category}."
 if [ "$results" -eq 0 ]; then
@@ -74,8 +75,8 @@ new_alerts=$(jq --argjson base "$base_alerts" \
 count=$(jq 'length' <<<"$new_alerts")
 
 if [ "$count" -eq 0 ]; then
-  echo "No new CodeQL alerts: every result is dismissed or already open on ${BASE_REF}."
-  summary "### CodeQL ${category}" "" "No new CodeQL alerts. Every result is dismissed or already open on \`${BASE_REF}\`."
+  echo "No new CodeQL alerts: every result is outside the lines this pull request changes, dismissed, or already open on ${BASE_REF}."
+  summary "### CodeQL ${category}" "" "No new CodeQL alerts. Every result is outside the lines this pull request changes, dismissed, or already open on \`${BASE_REF}\`."
   exit 0
 fi
 
