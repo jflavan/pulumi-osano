@@ -11,7 +11,7 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-// Sends a verification code to a subject's email or phone using the Osano API key.
+// Sends a verification code to a subject's email or phone using the Osano API key. Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
 func SendSubjectCode(ctx *pulumi.Context, args *SendSubjectCodeArgs, opts ...pulumi.InvokeOption) (*SendSubjectCodeResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv SendSubjectCodeResult
@@ -22,11 +22,13 @@ func SendSubjectCode(ctx *pulumi.Context, args *SendSubjectCodeArgs, opts ...pul
 	return &rv, nil
 }
 
-// Arguments for sendSubjectCode
 type SendSubjectCodeArgs struct {
-	Email           *string `pulumi:"email"`
-	HashedSubjectId string  `pulumi:"hashedSubjectId"`
-	Phone           *string `pulumi:"phone"`
+	// Email address to send the code to. Set exactly one of email or phone.
+	Email *string `pulumi:"email"`
+	// The hashed subject identifier to verify.
+	HashedSubjectId string `pulumi:"hashedSubjectId"`
+	// Phone number to send the code to by SMS. Set exactly one of email or phone.
+	Phone *string `pulumi:"phone"`
 }
 
 type SendSubjectCodeResult struct {
@@ -44,11 +46,13 @@ func SendSubjectCodeOutput(ctx *pulumi.Context, args SendSubjectCodeOutputArgs, 
 		}).(SendSubjectCodeResultOutput)
 }
 
-// Arguments for sendSubjectCode
 type SendSubjectCodeOutputArgs struct {
-	Email           pulumi.StringPtrInput `pulumi:"email"`
-	HashedSubjectId pulumi.StringInput    `pulumi:"hashedSubjectId"`
-	Phone           pulumi.StringPtrInput `pulumi:"phone"`
+	// Email address to send the code to. Set exactly one of email or phone.
+	Email pulumi.StringPtrInput `pulumi:"email"`
+	// The hashed subject identifier to verify.
+	HashedSubjectId pulumi.StringInput `pulumi:"hashedSubjectId"`
+	// Phone number to send the code to by SMS. Set exactly one of email or phone.
+	Phone pulumi.StringPtrInput `pulumi:"phone"`
 }
 
 func (SendSubjectCodeOutputArgs) ElementType() reflect.Type {

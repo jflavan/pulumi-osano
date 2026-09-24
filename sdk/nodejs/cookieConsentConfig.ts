@@ -5,7 +5,7 @@ import * as pulumi from "@pulumi/pulumi";
 import * as utilities from "./utilities";
 
 /**
- * Manages an Osano Cookie Consent (CMP) configuration.
+ * Manages an Osano Cookie Consent (CMP) configuration. Import with the Osano config ID. Osano has no delete endpoint for configs, so deleting this resource only removes it from Pulumi state and retains the upstream configuration.
  */
 export class CookieConsentConfig extends pulumi.CustomResource {
     /**
@@ -79,7 +79,7 @@ export class CookieConsentConfig extends pulumi.CustomResource {
      */
     declare public /*out*/ readonly publishedRevision: pulumi.Output<number | undefined>;
     /**
-     * Whether Osano stopped the tattle record. Deleting this Pulumi resource retains the upstream configuration.
+     * Whether Osano stopped recording discoveries (tattles) for the configuration.
      */
     declare public /*out*/ readonly tattleRecordStopped: pulumi.Output<boolean | undefined>;
     /**

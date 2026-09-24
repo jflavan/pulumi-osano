@@ -12,7 +12,7 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-// Manages an Osano Cookie Consent (CMP) configuration.
+// Manages an Osano Cookie Consent (CMP) configuration. Import with the Osano config ID. Osano has no delete endpoint for configs, so deleting this resource only removes it from Pulumi state and retains the upstream configuration.
 type CookieConsentConfig struct {
 	pulumi.CustomResourceState
 
@@ -38,7 +38,7 @@ type CookieConsentConfig struct {
 	PublishStatus pulumi.StringPtrOutput `pulumi:"publishStatus"`
 	// Revision number most recently published by Osano.
 	PublishedRevision pulumi.IntPtrOutput `pulumi:"publishedRevision"`
-	// Whether Osano stopped the tattle record. Deleting this Pulumi resource retains the upstream configuration.
+	// Whether Osano stopped recording discoveries (tattles) for the configuration.
 	TattleRecordStopped pulumi.BoolPtrOutput `pulumi:"tattleRecordStopped"`
 	// Unix timestamp when Osano last updated the configuration.
 	Updated pulumi.IntPtrOutput `pulumi:"updated"`
@@ -214,7 +214,7 @@ func (o CookieConsentConfigOutput) PublishedRevision() pulumi.IntPtrOutput {
 	return o.ApplyT(func(v *CookieConsentConfig) pulumi.IntPtrOutput { return v.PublishedRevision }).(pulumi.IntPtrOutput)
 }
 
-// Whether Osano stopped the tattle record. Deleting this Pulumi resource retains the upstream configuration.
+// Whether Osano stopped recording discoveries (tattles) for the configuration.
 func (o CookieConsentConfigOutput) TattleRecordStopped() pulumi.BoolPtrOutput {
 	return o.ApplyT(func(v *CookieConsentConfig) pulumi.BoolPtrOutput { return v.TattleRecordStopped }).(pulumi.BoolPtrOutput)
 }

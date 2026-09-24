@@ -13,9 +13,17 @@ public final class GetCollectionPlainArgs extends com.pulumi.resources.InvokeArg
 
     public static final GetCollectionPlainArgs Empty = new GetCollectionPlainArgs();
 
+    /**
+     * The privacy protocol collection ID to fetch.
+     *
+     */
     @Import(name="collectionId", required=true)
     private String collectionId;
 
+    /**
+     * @return The privacy protocol collection ID to fetch.
+     *
+     */
     public String collectionId() {
         return this.collectionId;
     }
@@ -44,6 +52,12 @@ public final class GetCollectionPlainArgs extends com.pulumi.resources.InvokeArg
             $ = new GetCollectionPlainArgs(Objects.requireNonNull(defaults));
         }
 
+        /**
+         * @param collectionId The privacy protocol collection ID to fetch.
+         *
+         * @return builder
+         *
+         */
         public Builder collectionId(String collectionId) {
             $.collectionId = collectionId;
             return this;

@@ -16,16 +16,32 @@ public final class GetUnifiedConsentArgs extends com.pulumi.resources.InvokeArgs
 
     public static final GetUnifiedConsentArgs Empty = new GetUnifiedConsentArgs();
 
+    /**
+     * Reference type: subject (default) for a verified subject ID or anonymous for an anonymous ID.
+     *
+     */
     @Import(name="referenceType")
     private @Nullable Output<String> referenceType;
 
+    /**
+     * @return Reference type: subject (default) for a verified subject ID or anonymous for an anonymous ID.
+     *
+     */
     public Optional<Output<String>> referenceType() {
         return Optional.ofNullable(this.referenceType);
     }
 
+    /**
+     * The subject reference to look up.
+     *
+     */
     @Import(name="subjectRef", required=true)
     private Output<String> subjectRef;
 
+    /**
+     * @return The subject reference to look up.
+     *
+     */
     public Output<String> subjectRef() {
         return this.subjectRef;
     }
@@ -55,20 +71,44 @@ public final class GetUnifiedConsentArgs extends com.pulumi.resources.InvokeArgs
             $ = new GetUnifiedConsentArgs(Objects.requireNonNull(defaults));
         }
 
+        /**
+         * @param referenceType Reference type: subject (default) for a verified subject ID or anonymous for an anonymous ID.
+         *
+         * @return builder
+         *
+         */
         public Builder referenceType(@Nullable Output<String> referenceType) {
             $.referenceType = referenceType;
             return this;
         }
 
+        /**
+         * @param referenceType Reference type: subject (default) for a verified subject ID or anonymous for an anonymous ID.
+         *
+         * @return builder
+         *
+         */
         public Builder referenceType(String referenceType) {
             return referenceType(Output.of(referenceType));
         }
 
+        /**
+         * @param subjectRef The subject reference to look up.
+         *
+         * @return builder
+         *
+         */
         public Builder subjectRef(Output<String> subjectRef) {
             $.subjectRef = subjectRef;
             return this;
         }
 
+        /**
+         * @param subjectRef The subject reference to look up.
+         *
+         * @return builder
+         *
+         */
         public Builder subjectRef(String subjectRef) {
             return subjectRef(Output.of(subjectRef));
         }

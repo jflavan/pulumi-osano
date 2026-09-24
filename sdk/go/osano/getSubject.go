@@ -23,8 +23,10 @@ func GetSubject(ctx *pulumi.Context, args *GetSubjectArgs, opts ...pulumi.Invoke
 }
 
 type GetSubjectArgs struct {
+	// Reference type: subject (default) for a verified subject ID or anonymous for an anonymous ID.
 	ReferenceType *string `pulumi:"referenceType"`
-	SubjectRef    string  `pulumi:"subjectRef"`
+	// The subject reference to resolve.
+	SubjectRef string `pulumi:"subjectRef"`
 }
 
 type GetSubjectResult struct {
@@ -45,8 +47,10 @@ func GetSubjectOutput(ctx *pulumi.Context, args GetSubjectOutputArgs, opts ...pu
 }
 
 type GetSubjectOutputArgs struct {
+	// Reference type: subject (default) for a verified subject ID or anonymous for an anonymous ID.
 	ReferenceType pulumi.StringPtrInput `pulumi:"referenceType"`
-	SubjectRef    pulumi.StringInput    `pulumi:"subjectRef"`
+	// The subject reference to resolve.
+	SubjectRef pulumi.StringInput `pulumi:"subjectRef"`
 }
 
 func (GetSubjectOutputArgs) ElementType() reflect.Type {

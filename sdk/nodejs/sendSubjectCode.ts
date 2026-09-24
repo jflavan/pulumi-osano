@@ -5,7 +5,7 @@ import * as pulumi from "@pulumi/pulumi";
 import * as utilities from "./utilities";
 
 /**
- * Sends a verification code to a subject's email or phone using the Osano API key.
+ * Sends a verification code to a subject's email or phone using the Osano API key. Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
  */
 export function sendSubjectCode(args: SendSubjectCodeArgs, opts?: pulumi.InvokeOptions): Promise<SendSubjectCodeResult> {
     opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts || {});
@@ -16,12 +16,18 @@ export function sendSubjectCode(args: SendSubjectCodeArgs, opts?: pulumi.InvokeO
     }, opts);
 }
 
-/**
- * Arguments for sendSubjectCode
- */
 export interface SendSubjectCodeArgs {
+    /**
+     * Email address to send the code to. Set exactly one of email or phone.
+     */
     email?: string;
+    /**
+     * The hashed subject identifier to verify.
+     */
     hashedSubjectId: string;
+    /**
+     * Phone number to send the code to by SMS. Set exactly one of email or phone.
+     */
     phone?: string;
 }
 
@@ -31,7 +37,7 @@ export interface SendSubjectCodeResult {
     readonly hashedSubjectId: string;
 }
 /**
- * Sends a verification code to a subject's email or phone using the Osano API key.
+ * Sends a verification code to a subject's email or phone using the Osano API key. Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
  */
 export function sendSubjectCodeOutput(args: SendSubjectCodeOutputArgs, opts?: pulumi.InvokeOutputOptions): pulumi.Output<SendSubjectCodeResult> {
     opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts || {});
@@ -42,11 +48,17 @@ export function sendSubjectCodeOutput(args: SendSubjectCodeOutputArgs, opts?: pu
     }, opts);
 }
 
-/**
- * Arguments for sendSubjectCode
- */
 export interface SendSubjectCodeOutputArgs {
+    /**
+     * Email address to send the code to. Set exactly one of email or phone.
+     */
     email?: pulumi.Input<string>;
+    /**
+     * The hashed subject identifier to verify.
+     */
     hashedSubjectId: pulumi.Input<string>;
+    /**
+     * Phone number to send the code to by SMS. Set exactly one of email or phone.
+     */
     phone?: pulumi.Input<string>;
 }

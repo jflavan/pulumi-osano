@@ -26,7 +26,7 @@ class CookieConsentPublicationArgs:
                  webhook_url: Optional[pulumi.Input[_builtins.str]] = None):
         """
         The set of arguments for constructing a CookieConsentPublication resource.
-        :param pulumi.Input[_builtins.str] change_token: A caller-managed desired-state token. Changing it queues a new publication; an unchanged token is a no-op.
+        :param pulumi.Input[_builtins.str] change_token: A caller-managed desired-state token. Changing it queues a new publication. Changing keepUnclassifiedTattles, description, or webhookUrl also republishes; when no input changes, nothing is published.
         :param pulumi.Input[_builtins.str] config_id: The Osano Cookie Consent config ID to publish. This is also the import ID.
         :param pulumi.Input[_builtins.str] description: Optional description sent with the publication request.
         :param pulumi.Input[_builtins.bool] keep_unclassified_tattles: Whether publication preserves unclassified discoveries. Defaults to true to avoid unexpected deletion.
@@ -47,7 +47,7 @@ class CookieConsentPublicationArgs:
     @pulumi.getter(name="changeToken")
     def change_token(self) -> pulumi.Input[_builtins.str]:
         """
-        A caller-managed desired-state token. Changing it queues a new publication; an unchanged token is a no-op.
+        A caller-managed desired-state token. Changing it queues a new publication. Changing keepUnclassifiedTattles, description, or webhookUrl also republishes; when no input changes, nothing is published.
         """
         return pulumi.get(self, "change_token")
 
@@ -121,7 +121,7 @@ class CookieConsentPublication(pulumi.CustomResource):
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input[_builtins.str] change_token: A caller-managed desired-state token. Changing it queues a new publication; an unchanged token is a no-op.
+        :param pulumi.Input[_builtins.str] change_token: A caller-managed desired-state token. Changing it queues a new publication. Changing keepUnclassifiedTattles, description, or webhookUrl also republishes; when no input changes, nothing is published.
         :param pulumi.Input[_builtins.str] config_id: The Osano Cookie Consent config ID to publish. This is also the import ID.
         :param pulumi.Input[_builtins.str] description: Optional description sent with the publication request.
         :param pulumi.Input[_builtins.bool] keep_unclassified_tattles: Whether publication preserves unclassified discoveries. Defaults to true to avoid unexpected deletion.
@@ -221,7 +221,7 @@ class CookieConsentPublication(pulumi.CustomResource):
     @pulumi.getter(name="changeToken")
     def change_token(self) -> pulumi.Output[_builtins.str]:
         """
-        A caller-managed desired-state token. Changing it queues a new publication; an unchanged token is a no-op.
+        A caller-managed desired-state token. Changing it queues a new publication. Changing keepUnclassifiedTattles, description, or webhookUrl also republishes; when no input changes, nothing is published.
         """
         return pulumi.get(self, "change_token")
 
@@ -269,7 +269,7 @@ class CookieConsentPublication(pulumi.CustomResource):
     @pulumi.getter(name="publishStatus")
     def publish_status(self) -> pulumi.Output[_builtins.str]:
         """
-        The publication status returned by Osano after completion.
+        The Osano publication status: published after a completed publish, and possibly outdated after a refresh when the config changed outside a publish.
         """
         return pulumi.get(self, "publish_status")
 

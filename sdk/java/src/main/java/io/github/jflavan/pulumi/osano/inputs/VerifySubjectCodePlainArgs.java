@@ -15,30 +15,62 @@ public final class VerifySubjectCodePlainArgs extends com.pulumi.resources.Invok
 
     public static final VerifySubjectCodePlainArgs Empty = new VerifySubjectCodePlainArgs();
 
+    /**
+     * The one-time verification code the subject received.
+     *
+     */
     @Import(name="code", required=true)
     private String code;
 
+    /**
+     * @return The one-time verification code the subject received.
+     *
+     */
     public String code() {
         return this.code;
     }
 
+    /**
+     * Email address the code was sent to. Set exactly one of email or phone.
+     *
+     */
     @Import(name="email")
     private @Nullable String email;
 
+    /**
+     * @return Email address the code was sent to. Set exactly one of email or phone.
+     *
+     */
     public Optional<String> email() {
         return Optional.ofNullable(this.email);
     }
 
+    /**
+     * The hashed subject identifier being verified.
+     *
+     */
     @Import(name="hashedSubjectId", required=true)
     private String hashedSubjectId;
 
+    /**
+     * @return The hashed subject identifier being verified.
+     *
+     */
     public String hashedSubjectId() {
         return this.hashedSubjectId;
     }
 
+    /**
+     * Phone number the code was sent to. Set exactly one of email or phone.
+     *
+     */
     @Import(name="phone")
     private @Nullable String phone;
 
+    /**
+     * @return Phone number the code was sent to. Set exactly one of email or phone.
+     *
+     */
     public Optional<String> phone() {
         return Optional.ofNullable(this.phone);
     }
@@ -70,21 +102,45 @@ public final class VerifySubjectCodePlainArgs extends com.pulumi.resources.Invok
             $ = new VerifySubjectCodePlainArgs(Objects.requireNonNull(defaults));
         }
 
+        /**
+         * @param code The one-time verification code the subject received.
+         *
+         * @return builder
+         *
+         */
         public Builder code(String code) {
             $.code = code;
             return this;
         }
 
+        /**
+         * @param email Email address the code was sent to. Set exactly one of email or phone.
+         *
+         * @return builder
+         *
+         */
         public Builder email(@Nullable String email) {
             $.email = email;
             return this;
         }
 
+        /**
+         * @param hashedSubjectId The hashed subject identifier being verified.
+         *
+         * @return builder
+         *
+         */
         public Builder hashedSubjectId(String hashedSubjectId) {
             $.hashedSubjectId = hashedSubjectId;
             return this;
         }
 
+        /**
+         * @param phone Phone number the code was sent to. Set exactly one of email or phone.
+         *
+         * @return builder
+         *
+         */
         public Builder phone(@Nullable String phone) {
             $.phone = phone;
             return this;

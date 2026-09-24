@@ -110,49 +110,49 @@ public final class OsanoFunctions {
         return Deployment.getInstance().invokeAsync("osano:index:getCollection", TypeShape.of(GetCollectionResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Retrieves the aggregated privacy protocol collections for an optional jurisdiction and version (published/draft).
+     * Retrieves the aggregated privacy protocol collections, optionally filtered by jurisdiction and type.
      *
      */
     public static Output<GetCollectionsResult> getCollections() {
         return getCollections(GetCollectionsArgs.Empty, InvokeOptions.Empty);
     }
     /**
-     * Retrieves the aggregated privacy protocol collections for an optional jurisdiction and version (published/draft).
+     * Retrieves the aggregated privacy protocol collections, optionally filtered by jurisdiction and type.
      *
      */
     public static CompletableFuture<GetCollectionsResult> getCollectionsPlain() {
         return getCollectionsPlain(GetCollectionsPlainArgs.Empty, InvokeOptions.Empty);
     }
     /**
-     * Retrieves the aggregated privacy protocol collections for an optional jurisdiction and version (published/draft).
+     * Retrieves the aggregated privacy protocol collections, optionally filtered by jurisdiction and type.
      *
      */
     public static Output<GetCollectionsResult> getCollections(GetCollectionsArgs args) {
         return getCollections(args, InvokeOptions.Empty);
     }
     /**
-     * Retrieves the aggregated privacy protocol collections for an optional jurisdiction and version (published/draft).
+     * Retrieves the aggregated privacy protocol collections, optionally filtered by jurisdiction and type.
      *
      */
     public static CompletableFuture<GetCollectionsResult> getCollectionsPlain(GetCollectionsPlainArgs args) {
         return getCollectionsPlain(args, InvokeOptions.Empty);
     }
     /**
-     * Retrieves the aggregated privacy protocol collections for an optional jurisdiction and version (published/draft).
+     * Retrieves the aggregated privacy protocol collections, optionally filtered by jurisdiction and type.
      *
      */
     public static Output<GetCollectionsResult> getCollections(GetCollectionsArgs args, InvokeOptions options) {
         return Deployment.getInstance().invoke("osano:index:getCollections", TypeShape.of(GetCollectionsResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Retrieves the aggregated privacy protocol collections for an optional jurisdiction and version (published/draft).
+     * Retrieves the aggregated privacy protocol collections, optionally filtered by jurisdiction and type.
      *
      */
     public static Output<GetCollectionsResult> getCollections(GetCollectionsArgs args, InvokeOutputOptions options) {
         return Deployment.getInstance().invoke("osano:index:getCollections", TypeShape.of(GetCollectionsResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Retrieves the aggregated privacy protocol collections for an optional jurisdiction and version (published/draft).
+     * Retrieves the aggregated privacy protocol collections, optionally filtered by jurisdiction and type.
      *
      */
     public static CompletableFuture<GetCollectionsResult> getCollectionsPlain(GetCollectionsPlainArgs args, InvokeOptions options) {
@@ -313,70 +313,70 @@ public final class OsanoFunctions {
         return Deployment.getInstance().invokeAsync("osano:index:getUnifiedConsent", TypeShape.of(GetUnifiedConsentResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Sends a verification code to a subject&#39;s email or phone using the Osano API key.
+     * Sends a verification code to a subject&#39;s email or phone using the Osano API key. Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
      *
      */
     public static Output<SendSubjectCodeResult> sendSubjectCode(SendSubjectCodeArgs args) {
         return sendSubjectCode(args, InvokeOptions.Empty);
     }
     /**
-     * Sends a verification code to a subject&#39;s email or phone using the Osano API key.
+     * Sends a verification code to a subject&#39;s email or phone using the Osano API key. Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
      *
      */
     public static CompletableFuture<SendSubjectCodeResult> sendSubjectCodePlain(SendSubjectCodePlainArgs args) {
         return sendSubjectCodePlain(args, InvokeOptions.Empty);
     }
     /**
-     * Sends a verification code to a subject&#39;s email or phone using the Osano API key.
+     * Sends a verification code to a subject&#39;s email or phone using the Osano API key. Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
      *
      */
     public static Output<SendSubjectCodeResult> sendSubjectCode(SendSubjectCodeArgs args, InvokeOptions options) {
         return Deployment.getInstance().invoke("osano:index:sendSubjectCode", TypeShape.of(SendSubjectCodeResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Sends a verification code to a subject&#39;s email or phone using the Osano API key.
+     * Sends a verification code to a subject&#39;s email or phone using the Osano API key. Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
      *
      */
     public static Output<SendSubjectCodeResult> sendSubjectCode(SendSubjectCodeArgs args, InvokeOutputOptions options) {
         return Deployment.getInstance().invoke("osano:index:sendSubjectCode", TypeShape.of(SendSubjectCodeResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Sends a verification code to a subject&#39;s email or phone using the Osano API key.
+     * Sends a verification code to a subject&#39;s email or phone using the Osano API key. Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
      *
      */
     public static CompletableFuture<SendSubjectCodeResult> sendSubjectCodePlain(SendSubjectCodePlainArgs args, InvokeOptions options) {
         return Deployment.getInstance().invokeAsync("osano:index:sendSubjectCode", TypeShape.of(SendSubjectCodeResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Verifies a subject profile using the code sent via email or SMS.
+     * Verifies a subject profile using the code sent via email or SMS. Pulumi runs invokes on every preview, update, and refresh, and one-time codes cannot be reused, so call this from automation rather than from long-lived stack code.
      *
      */
     public static Output<VerifySubjectCodeResult> verifySubjectCode(VerifySubjectCodeArgs args) {
         return verifySubjectCode(args, InvokeOptions.Empty);
     }
     /**
-     * Verifies a subject profile using the code sent via email or SMS.
+     * Verifies a subject profile using the code sent via email or SMS. Pulumi runs invokes on every preview, update, and refresh, and one-time codes cannot be reused, so call this from automation rather than from long-lived stack code.
      *
      */
     public static CompletableFuture<VerifySubjectCodeResult> verifySubjectCodePlain(VerifySubjectCodePlainArgs args) {
         return verifySubjectCodePlain(args, InvokeOptions.Empty);
     }
     /**
-     * Verifies a subject profile using the code sent via email or SMS.
+     * Verifies a subject profile using the code sent via email or SMS. Pulumi runs invokes on every preview, update, and refresh, and one-time codes cannot be reused, so call this from automation rather than from long-lived stack code.
      *
      */
     public static Output<VerifySubjectCodeResult> verifySubjectCode(VerifySubjectCodeArgs args, InvokeOptions options) {
         return Deployment.getInstance().invoke("osano:index:verifySubjectCode", TypeShape.of(VerifySubjectCodeResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Verifies a subject profile using the code sent via email or SMS.
+     * Verifies a subject profile using the code sent via email or SMS. Pulumi runs invokes on every preview, update, and refresh, and one-time codes cannot be reused, so call this from automation rather than from long-lived stack code.
      *
      */
     public static Output<VerifySubjectCodeResult> verifySubjectCode(VerifySubjectCodeArgs args, InvokeOutputOptions options) {
         return Deployment.getInstance().invoke("osano:index:verifySubjectCode", TypeShape.of(VerifySubjectCodeResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Verifies a subject profile using the code sent via email or SMS.
+     * Verifies a subject profile using the code sent via email or SMS. Pulumi runs invokes on every preview, update, and refresh, and one-time codes cannot be reused, so call this from automation rather than from long-lived stack code.
      *
      */
     public static CompletableFuture<VerifySubjectCodeResult> verifySubjectCodePlain(VerifySubjectCodePlainArgs args, InvokeOptions options) {

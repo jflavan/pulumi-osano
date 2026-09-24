@@ -13,16 +13,32 @@ public final class GetConsentProfilePlainArgs extends com.pulumi.resources.Invok
 
     public static final GetConsentProfilePlainArgs Empty = new GetConsentProfilePlainArgs();
 
+    /**
+     * The consent configuration ID the profile belongs to.
+     *
+     */
     @Import(name="configId", required=true)
     private String configId;
 
+    /**
+     * @return The consent configuration ID the profile belongs to.
+     *
+     */
     public String configId() {
         return this.configId;
     }
 
+    /**
+     * The hashed subject identifier whose consent profile is returned.
+     *
+     */
     @Import(name="hashedSubjectId", required=true)
     private String hashedSubjectId;
 
+    /**
+     * @return The hashed subject identifier whose consent profile is returned.
+     *
+     */
     public String hashedSubjectId() {
         return this.hashedSubjectId;
     }
@@ -52,11 +68,23 @@ public final class GetConsentProfilePlainArgs extends com.pulumi.resources.Invok
             $ = new GetConsentProfilePlainArgs(Objects.requireNonNull(defaults));
         }
 
+        /**
+         * @param configId The consent configuration ID the profile belongs to.
+         *
+         * @return builder
+         *
+         */
         public Builder configId(String configId) {
             $.configId = configId;
             return this;
         }
 
+        /**
+         * @param hashedSubjectId The hashed subject identifier whose consent profile is returned.
+         *
+         * @return builder
+         *
+         */
         public Builder hashedSubjectId(String hashedSubjectId) {
             $.hashedSubjectId = hashedSubjectId;
             return this;

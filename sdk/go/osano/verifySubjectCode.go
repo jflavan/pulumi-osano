@@ -11,7 +11,7 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-// Verifies a subject profile using the code sent via email or SMS.
+// Verifies a subject profile using the code sent via email or SMS. Pulumi runs invokes on every preview, update, and refresh, and one-time codes cannot be reused, so call this from automation rather than from long-lived stack code.
 func VerifySubjectCode(ctx *pulumi.Context, args *VerifySubjectCodeArgs, opts ...pulumi.InvokeOption) (*VerifySubjectCodeResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv VerifySubjectCodeResult
@@ -22,12 +22,15 @@ func VerifySubjectCode(ctx *pulumi.Context, args *VerifySubjectCodeArgs, opts ..
 	return &rv, nil
 }
 
-// Arguments for verifySubjectCode
 type VerifySubjectCodeArgs struct {
-	Code            string  `pulumi:"code"`
-	Email           *string `pulumi:"email"`
-	HashedSubjectId string  `pulumi:"hashedSubjectId"`
-	Phone           *string `pulumi:"phone"`
+	// The one-time verification code the subject received.
+	Code string `pulumi:"code"`
+	// Email address the code was sent to. Set exactly one of email or phone.
+	Email *string `pulumi:"email"`
+	// The hashed subject identifier being verified.
+	HashedSubjectId string `pulumi:"hashedSubjectId"`
+	// Phone number the code was sent to. Set exactly one of email or phone.
+	Phone *string `pulumi:"phone"`
 }
 
 type VerifySubjectCodeResult struct {
@@ -47,12 +50,15 @@ func VerifySubjectCodeOutput(ctx *pulumi.Context, args VerifySubjectCodeOutputAr
 		}).(VerifySubjectCodeResultOutput)
 }
 
-// Arguments for verifySubjectCode
 type VerifySubjectCodeOutputArgs struct {
-	Code            pulumi.StringInput    `pulumi:"code"`
-	Email           pulumi.StringPtrInput `pulumi:"email"`
-	HashedSubjectId pulumi.StringInput    `pulumi:"hashedSubjectId"`
-	Phone           pulumi.StringPtrInput `pulumi:"phone"`
+	// The one-time verification code the subject received.
+	Code pulumi.StringInput `pulumi:"code"`
+	// Email address the code was sent to. Set exactly one of email or phone.
+	Email pulumi.StringPtrInput `pulumi:"email"`
+	// The hashed subject identifier being verified.
+	HashedSubjectId pulumi.StringInput `pulumi:"hashedSubjectId"`
+	// Phone number the code was sent to. Set exactly one of email or phone.
+	Phone pulumi.StringPtrInput `pulumi:"phone"`
 }
 
 func (VerifySubjectCodeOutputArgs) ElementType() reflect.Type {

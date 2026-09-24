@@ -198,7 +198,7 @@ class CookieConsentRule(pulumi.CustomResource):
                  vendor_name: Optional[pulumi.Input[_builtins.str]] = None,
                  __props__=None):
         """
-        Manages an Osano Cookie Consent (CMP) rule within a configuration.
+        Manages an Osano Cookie Consent (CMP) rule within a configuration. Import with `<configId>/<ruleId>`. Changing configId or storeType replaces the rule, and deleting this resource deletes the rule in Osano.
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
@@ -220,7 +220,7 @@ class CookieConsentRule(pulumi.CustomResource):
                  args: CookieConsentRuleArgs,
                  opts: Optional[pulumi.ResourceOptions] = None):
         """
-        Manages an Osano Cookie Consent (CMP) rule within a configuration.
+        Manages an Osano Cookie Consent (CMP) rule within a configuration. Import with `<configId>/<ruleId>`. Changing configId or storeType replaces the rule, and deleting this resource deletes the rule in Osano.
 
         :param str resource_name: The name of the resource.
         :param CookieConsentRuleArgs args: The arguments to use to populate this resource's properties.

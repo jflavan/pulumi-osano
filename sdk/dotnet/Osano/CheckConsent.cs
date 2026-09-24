@@ -34,6 +34,9 @@ namespace Community.Pulumi.Osano
 
     public sealed class CheckConsentArgs : global::Pulumi.InvokeArgs
     {
+        /// <summary>
+        /// The subject ID to check.
+        /// </summary>
         [Input("subjectId", required: true)]
         public string SubjectId { get; set; } = null!;
 
@@ -45,6 +48,9 @@ namespace Community.Pulumi.Osano
 
     public sealed class CheckConsentInvokeArgs : global::Pulumi.InvokeArgs
     {
+        /// <summary>
+        /// The subject ID to check.
+        /// </summary>
         [Input("subjectId", required: true)]
         public Input<string> SubjectId { get; set; } = null!;
 

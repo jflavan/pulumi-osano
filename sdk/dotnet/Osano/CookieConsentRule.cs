@@ -11,7 +11,7 @@ using Pulumi;
 namespace Community.Pulumi.Osano
 {
     /// <summary>
-    /// Manages an Osano Cookie Consent (CMP) rule within a configuration.
+    /// Manages an Osano Cookie Consent (CMP) rule within a configuration. Import with `&lt;configId&gt;/&lt;ruleId&gt;`. Changing configId or storeType replaces the rule, and deleting this resource deletes the rule in Osano.
     /// </summary>
     [OsanoResourceType("osano:index:CookieConsentRule")]
     public partial class CookieConsentRule : global::Pulumi.CustomResource

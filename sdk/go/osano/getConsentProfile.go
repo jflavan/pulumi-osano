@@ -22,9 +22,10 @@ func GetConsentProfile(ctx *pulumi.Context, args *GetConsentProfileArgs, opts ..
 	return &rv, nil
 }
 
-// Arguments for getConsentProfile
 type GetConsentProfileArgs struct {
-	ConfigId        string `pulumi:"configId"`
+	// The consent configuration ID the profile belongs to.
+	ConfigId string `pulumi:"configId"`
+	// The hashed subject identifier whose consent profile is returned.
 	HashedSubjectId string `pulumi:"hashedSubjectId"`
 }
 
@@ -44,9 +45,10 @@ func GetConsentProfileOutput(ctx *pulumi.Context, args GetConsentProfileOutputAr
 		}).(GetConsentProfileResultOutput)
 }
 
-// Arguments for getConsentProfile
 type GetConsentProfileOutputArgs struct {
-	ConfigId        pulumi.StringInput `pulumi:"configId"`
+	// The consent configuration ID the profile belongs to.
+	ConfigId pulumi.StringInput `pulumi:"configId"`
+	// The hashed subject identifier whose consent profile is returned.
 	HashedSubjectId pulumi.StringInput `pulumi:"hashedSubjectId"`
 }
 

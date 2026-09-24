@@ -56,7 +56,11 @@ def get_collections(jurisdiction: Optional[_builtins.str] = None,
                     type: Optional[_builtins.str] = None,
                     opts: Optional[pulumi.InvokeOptions] = None) -> AwaitableGetCollectionsResult:
     """
-    Retrieves the aggregated privacy protocol collections for an optional jurisdiction and version (published/draft).
+    Retrieves the aggregated privacy protocol collections, optionally filtered by jurisdiction and type.
+
+
+    :param _builtins.str jurisdiction: Optional jurisdiction filter, sent as the jurisdiction query parameter.
+    :param _builtins.str type: Optional collection type filter, sent as the type query parameter.
     """
     __args__ = dict()
     __args__['jurisdiction'] = jurisdiction
@@ -71,7 +75,11 @@ def get_collections_output(jurisdiction: Optional[pulumi.Input[Optional[_builtin
                            type: Optional[pulumi.Input[Optional[_builtins.str]]] = None,
                            opts: Optional[Union[pulumi.InvokeOptions, pulumi.InvokeOutputOptions]] = None) -> pulumi.Output[GetCollectionsResult]:
     """
-    Retrieves the aggregated privacy protocol collections for an optional jurisdiction and version (published/draft).
+    Retrieves the aggregated privacy protocol collections, optionally filtered by jurisdiction and type.
+
+
+    :param _builtins.str jurisdiction: Optional jurisdiction filter, sent as the jurisdiction query parameter.
+    :param _builtins.str type: Optional collection type filter, sent as the type query parameter.
     """
     __args__ = dict()
     __args__['jurisdiction'] = jurisdiction

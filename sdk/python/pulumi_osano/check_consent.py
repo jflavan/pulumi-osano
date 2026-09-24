@@ -56,6 +56,9 @@ def check_consent(subject_id: Optional[_builtins.str] = None,
                   opts: Optional[pulumi.InvokeOptions] = None) -> AwaitableCheckConsentResult:
     """
     Checks whether a unified consent record exists for a given subject ID.
+
+
+    :param _builtins.str subject_id: The subject ID to check.
     """
     __args__ = dict()
     __args__['subjectId'] = subject_id
@@ -69,6 +72,9 @@ def check_consent_output(subject_id: Optional[pulumi.Input[_builtins.str]] = Non
                          opts: Optional[Union[pulumi.InvokeOptions, pulumi.InvokeOutputOptions]] = None) -> pulumi.Output[CheckConsentResult]:
     """
     Checks whether a unified consent record exists for a given subject ID.
+
+
+    :param _builtins.str subject_id: The subject ID to check.
     """
     __args__ = dict()
     __args__['subjectId'] = subject_id

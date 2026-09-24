@@ -19,14 +19,14 @@ public final class CookieConsentPublicationArgs extends com.pulumi.resources.Res
     public static final CookieConsentPublicationArgs Empty = new CookieConsentPublicationArgs();
 
     /**
-     * A caller-managed desired-state token. Changing it queues a new publication; an unchanged token is a no-op.
+     * A caller-managed desired-state token. Changing it queues a new publication. Changing keepUnclassifiedTattles, description, or webhookUrl also republishes; when no input changes, nothing is published.
      *
      */
     @Import(name="changeToken", required=true)
     private Output<String> changeToken;
 
     /**
-     * @return A caller-managed desired-state token. Changing it queues a new publication; an unchanged token is a no-op.
+     * @return A caller-managed desired-state token. Changing it queues a new publication. Changing keepUnclassifiedTattles, description, or webhookUrl also republishes; when no input changes, nothing is published.
      *
      */
     public Output<String> changeToken() {
@@ -122,7 +122,7 @@ public final class CookieConsentPublicationArgs extends com.pulumi.resources.Res
         }
 
         /**
-         * @param changeToken A caller-managed desired-state token. Changing it queues a new publication; an unchanged token is a no-op.
+         * @param changeToken A caller-managed desired-state token. Changing it queues a new publication. Changing keepUnclassifiedTattles, description, or webhookUrl also republishes; when no input changes, nothing is published.
          *
          * @return builder
          *
@@ -133,7 +133,7 @@ public final class CookieConsentPublicationArgs extends com.pulumi.resources.Res
         }
 
         /**
-         * @param changeToken A caller-managed desired-state token. Changing it queues a new publication; an unchanged token is a no-op.
+         * @param changeToken A caller-managed desired-state token. Changing it queues a new publication. Changing keepUnclassifiedTattles, description, or webhookUrl also republishes; when no input changes, nothing is published.
          *
          * @return builder
          *

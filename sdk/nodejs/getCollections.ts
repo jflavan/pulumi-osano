@@ -5,7 +5,7 @@ import * as pulumi from "@pulumi/pulumi";
 import * as utilities from "./utilities";
 
 /**
- * Retrieves the aggregated privacy protocol collections for an optional jurisdiction and version (published/draft).
+ * Retrieves the aggregated privacy protocol collections, optionally filtered by jurisdiction and type.
  */
 export function getCollections(args?: GetCollectionsArgs, opts?: pulumi.InvokeOptions): Promise<GetCollectionsResult> {
     args = args || {};
@@ -16,11 +16,14 @@ export function getCollections(args?: GetCollectionsArgs, opts?: pulumi.InvokeOp
     }, opts);
 }
 
-/**
- * Arguments for getCollections
- */
 export interface GetCollectionsArgs {
+    /**
+     * Optional jurisdiction filter, sent as the jurisdiction query parameter.
+     */
     jurisdiction?: string;
+    /**
+     * Optional collection type filter, sent as the type query parameter.
+     */
     type?: string;
 }
 
@@ -29,7 +32,7 @@ export interface GetCollectionsResult {
     readonly jurisdictions: string[];
 }
 /**
- * Retrieves the aggregated privacy protocol collections for an optional jurisdiction and version (published/draft).
+ * Retrieves the aggregated privacy protocol collections, optionally filtered by jurisdiction and type.
  */
 export function getCollectionsOutput(args?: GetCollectionsOutputArgs, opts?: pulumi.InvokeOutputOptions): pulumi.Output<GetCollectionsResult> {
     args = args || {};
@@ -40,10 +43,13 @@ export function getCollectionsOutput(args?: GetCollectionsOutputArgs, opts?: pul
     }, opts);
 }
 
-/**
- * Arguments for getCollections
- */
 export interface GetCollectionsOutputArgs {
+    /**
+     * Optional jurisdiction filter, sent as the jurisdiction query parameter.
+     */
     jurisdiction?: pulumi.Input<string>;
+    /**
+     * Optional collection type filter, sent as the type query parameter.
+     */
     type?: pulumi.Input<string>;
 }

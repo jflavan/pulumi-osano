@@ -84,6 +84,10 @@ def get_subject(reference_type: Optional[_builtins.str] = None,
                 opts: Optional[pulumi.InvokeOptions] = None) -> AwaitableGetSubjectResult:
     """
     Fetches subject identifiers (subject, verified, anonymous IDs) for a reference or session ID.
+
+
+    :param _builtins.str reference_type: Reference type: subject (default) for a verified subject ID or anonymous for an anonymous ID.
+    :param _builtins.str subject_ref: The subject reference to resolve.
     """
     __args__ = dict()
     __args__['referenceType'] = reference_type
@@ -102,6 +106,10 @@ def get_subject_output(reference_type: Optional[pulumi.Input[Optional[_builtins.
                        opts: Optional[Union[pulumi.InvokeOptions, pulumi.InvokeOutputOptions]] = None) -> pulumi.Output[GetSubjectResult]:
     """
     Fetches subject identifiers (subject, verified, anonymous IDs) for a reference or session ID.
+
+
+    :param _builtins.str reference_type: Reference type: subject (default) for a verified subject ID or anonymous for an anonymous ID.
+    :param _builtins.str subject_ref: The subject reference to resolve.
     """
     __args__ = dict()
     __args__['referenceType'] = reference_type

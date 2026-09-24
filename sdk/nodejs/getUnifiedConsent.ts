@@ -15,11 +15,14 @@ export function getUnifiedConsent(args: GetUnifiedConsentArgs, opts?: pulumi.Inv
     }, opts);
 }
 
-/**
- * Arguments for getUnifiedConsent
- */
 export interface GetUnifiedConsentArgs {
+    /**
+     * Reference type: subject (default) for a verified subject ID or anonymous for an anonymous ID.
+     */
     referenceType?: string;
+    /**
+     * The subject reference to look up.
+     */
     subjectRef: string;
 }
 
@@ -40,10 +43,13 @@ export function getUnifiedConsentOutput(args: GetUnifiedConsentOutputArgs, opts?
     }, opts);
 }
 
-/**
- * Arguments for getUnifiedConsent
- */
 export interface GetUnifiedConsentOutputArgs {
+    /**
+     * Reference type: subject (default) for a verified subject ID or anonymous for an anonymous ID.
+     */
     referenceType?: pulumi.Input<string>;
+    /**
+     * The subject reference to look up.
+     */
     subjectRef: pulumi.Input<string>;
 }

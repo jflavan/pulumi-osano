@@ -5,7 +5,7 @@ import * as pulumi from "@pulumi/pulumi";
 import * as utilities from "./utilities";
 
 /**
- * Verifies a subject profile using the code sent via email or SMS.
+ * Verifies a subject profile using the code sent via email or SMS. Pulumi runs invokes on every preview, update, and refresh, and one-time codes cannot be reused, so call this from automation rather than from long-lived stack code.
  */
 export function verifySubjectCode(args: VerifySubjectCodeArgs, opts?: pulumi.InvokeOptions): Promise<VerifySubjectCodeResult> {
     opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts || {});
@@ -17,13 +17,22 @@ export function verifySubjectCode(args: VerifySubjectCodeArgs, opts?: pulumi.Inv
     }, opts);
 }
 
-/**
- * Arguments for verifySubjectCode
- */
 export interface VerifySubjectCodeArgs {
+    /**
+     * The one-time verification code the subject received.
+     */
     code: string;
+    /**
+     * Email address the code was sent to. Set exactly one of email or phone.
+     */
     email?: string;
+    /**
+     * The hashed subject identifier being verified.
+     */
     hashedSubjectId: string;
+    /**
+     * Phone number the code was sent to. Set exactly one of email or phone.
+     */
     phone?: string;
 }
 
@@ -35,7 +44,7 @@ export interface VerifySubjectCodeResult {
     readonly verified: boolean;
 }
 /**
- * Verifies a subject profile using the code sent via email or SMS.
+ * Verifies a subject profile using the code sent via email or SMS. Pulumi runs invokes on every preview, update, and refresh, and one-time codes cannot be reused, so call this from automation rather than from long-lived stack code.
  */
 export function verifySubjectCodeOutput(args: VerifySubjectCodeOutputArgs, opts?: pulumi.InvokeOutputOptions): pulumi.Output<VerifySubjectCodeResult> {
     opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts || {});
@@ -47,12 +56,21 @@ export function verifySubjectCodeOutput(args: VerifySubjectCodeOutputArgs, opts?
     }, opts);
 }
 
-/**
- * Arguments for verifySubjectCode
- */
 export interface VerifySubjectCodeOutputArgs {
+    /**
+     * The one-time verification code the subject received.
+     */
     code: pulumi.Input<string>;
+    /**
+     * Email address the code was sent to. Set exactly one of email or phone.
+     */
     email?: pulumi.Input<string>;
+    /**
+     * The hashed subject identifier being verified.
+     */
     hashedSubjectId: pulumi.Input<string>;
+    /**
+     * Phone number the code was sent to. Set exactly one of email or phone.
+     */
     phone?: pulumi.Input<string>;
 }

@@ -14,10 +14,10 @@ export function getCollection(args: GetCollectionArgs, opts?: pulumi.InvokeOptio
     }, opts);
 }
 
-/**
- * Arguments for getCollection
- */
 export interface GetCollectionArgs {
+    /**
+     * The privacy protocol collection ID to fetch.
+     */
     collectionId: string;
 }
 
@@ -36,9 +36,9 @@ export function getCollectionOutput(args: GetCollectionOutputArgs, opts?: pulumi
     }, opts);
 }
 
-/**
- * Arguments for getCollection
- */
 export interface GetCollectionOutputArgs {
+    /**
+     * The privacy protocol collection ID to fetch.
+     */
     collectionId: pulumi.Input<string>;
 }

@@ -33,6 +33,7 @@ class ConsentArgs:
         :param pulumi.Input[Sequence[pulumi.Input['ConsentActionArgs']]] actions: Consent actions referencing privacy protocols (target) within a configuration (vendor).
         :param pulumi.Input['ConsentSubjectArgs'] subject: Subject identifiers used for the consent (verifiedId or anonymousId).
         :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] attributes: Optional key/value attributes stored with the consent record (e.g., ipAddress overrides).
+        :param pulumi.Input['ConsentComplianceArgs'] compliance: Optional compliance metadata such as the privacy policy version and GPC signal.
         :param pulumi.Input[_builtins.str] jurisdiction: Optional jurisdiction override matching one of the configuration's jurisdictions.
         :param pulumi.Input[_builtins.str] origin: Origin metadata for the consent, typically 'api' or 'gpc'.
         :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] tags: Custom tags that Osano associates with the consent record.
@@ -89,6 +90,9 @@ class ConsentArgs:
     @_builtins.property
     @pulumi.getter
     def compliance(self) -> Optional[pulumi.Input['ConsentComplianceArgs']]:
+        """
+        Optional compliance metadata such as the privacy policy version and GPC signal.
+        """
         return pulumi.get(self, "compliance")
 
     @compliance.setter
@@ -153,6 +157,7 @@ class Consent(pulumi.CustomResource):
         :param pulumi.ResourceOptions opts: Options for the resource.
         :param pulumi.Input[Sequence[pulumi.Input[Union['ConsentActionArgs', 'ConsentActionArgsDict']]]] actions: Consent actions referencing privacy protocols (target) within a configuration (vendor).
         :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] attributes: Optional key/value attributes stored with the consent record (e.g., ipAddress overrides).
+        :param pulumi.Input[Union['ConsentComplianceArgs', 'ConsentComplianceArgsDict']] compliance: Optional compliance metadata such as the privacy policy version and GPC signal.
         :param pulumi.Input[_builtins.str] jurisdiction: Optional jurisdiction override matching one of the configuration's jurisdictions.
         :param pulumi.Input[_builtins.str] origin: Origin metadata for the consent, typically 'api' or 'gpc'.
         :param pulumi.Input[Union['ConsentSubjectArgs', 'ConsentSubjectArgsDict']] subject: Subject identifiers used for the consent (verifiedId or anonymousId).
@@ -265,6 +270,9 @@ class Consent(pulumi.CustomResource):
     @_builtins.property
     @pulumi.getter
     def compliance(self) -> pulumi.Output[Optional['outputs.ConsentCompliance']]:
+        """
+        Optional compliance metadata such as the privacy policy version and GPC signal.
+        """
         return pulumi.get(self, "compliance")
 
     @_builtins.property

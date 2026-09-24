@@ -16,7 +16,7 @@ import (
 type CookieConsentPublication struct {
 	pulumi.CustomResourceState
 
-	// A caller-managed desired-state token. Changing it queues a new publication; an unchanged token is a no-op.
+	// A caller-managed desired-state token. Changing it queues a new publication. Changing keepUnclassifiedTattles, description, or webhookUrl also republishes; when no input changes, nothing is published.
 	ChangeToken pulumi.StringOutput `pulumi:"changeToken"`
 	// The Osano Cookie Consent config ID to publish. This is also the import ID.
 	ConfigId pulumi.StringOutput `pulumi:"configId"`
@@ -28,7 +28,7 @@ type CookieConsentPublication struct {
 	KeepUnclassifiedTattles pulumi.BoolPtrOutput `pulumi:"keepUnclassifiedTattles"`
 	// Unix timestamp of the completed Osano publication.
 	LastPublished pulumi.IntOutput `pulumi:"lastPublished"`
-	// The publication status returned by Osano after completion.
+	// The Osano publication status: published after a completed publish, and possibly outdated after a refresh when the config changed outside a publish.
 	PublishStatus pulumi.StringOutput `pulumi:"publishStatus"`
 	// The configuration revision most recently published by Osano.
 	PublishedRevision pulumi.IntOutput `pulumi:"publishedRevision"`
@@ -89,7 +89,7 @@ func (CookieConsentPublicationState) ElementType() reflect.Type {
 }
 
 type cookieConsentPublicationArgs struct {
-	// A caller-managed desired-state token. Changing it queues a new publication; an unchanged token is a no-op.
+	// A caller-managed desired-state token. Changing it queues a new publication. Changing keepUnclassifiedTattles, description, or webhookUrl also republishes; when no input changes, nothing is published.
 	ChangeToken string `pulumi:"changeToken"`
 	// The Osano Cookie Consent config ID to publish. This is also the import ID.
 	ConfigId string `pulumi:"configId"`
@@ -103,7 +103,7 @@ type cookieConsentPublicationArgs struct {
 
 // The set of arguments for constructing a CookieConsentPublication resource.
 type CookieConsentPublicationArgs struct {
-	// A caller-managed desired-state token. Changing it queues a new publication; an unchanged token is a no-op.
+	// A caller-managed desired-state token. Changing it queues a new publication. Changing keepUnclassifiedTattles, description, or webhookUrl also republishes; when no input changes, nothing is published.
 	ChangeToken pulumi.StringInput
 	// The Osano Cookie Consent config ID to publish. This is also the import ID.
 	ConfigId pulumi.StringInput
@@ -152,7 +152,7 @@ func (o CookieConsentPublicationOutput) ToCookieConsentPublicationOutputWithCont
 	return o
 }
 
-// A caller-managed desired-state token. Changing it queues a new publication; an unchanged token is a no-op.
+// A caller-managed desired-state token. Changing it queues a new publication. Changing keepUnclassifiedTattles, description, or webhookUrl also republishes; when no input changes, nothing is published.
 func (o CookieConsentPublicationOutput) ChangeToken() pulumi.StringOutput {
 	return o.ApplyT(func(v *CookieConsentPublication) pulumi.StringOutput { return v.ChangeToken }).(pulumi.StringOutput)
 }
@@ -182,7 +182,7 @@ func (o CookieConsentPublicationOutput) LastPublished() pulumi.IntOutput {
 	return o.ApplyT(func(v *CookieConsentPublication) pulumi.IntOutput { return v.LastPublished }).(pulumi.IntOutput)
 }
 
-// The publication status returned by Osano after completion.
+// The Osano publication status: published after a completed publish, and possibly outdated after a refresh when the config changed outside a publish.
 func (o CookieConsentPublicationOutput) PublishStatus() pulumi.StringOutput {
 	return o.ApplyT(func(v *CookieConsentPublication) pulumi.StringOutput { return v.PublishStatus }).(pulumi.StringOutput)
 }

@@ -11,7 +11,7 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-// Retrieves the aggregated privacy protocol collections for an optional jurisdiction and version (published/draft).
+// Retrieves the aggregated privacy protocol collections, optionally filtered by jurisdiction and type.
 func GetCollections(ctx *pulumi.Context, args *GetCollectionsArgs, opts ...pulumi.InvokeOption) (*GetCollectionsResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv GetCollectionsResult
@@ -22,10 +22,11 @@ func GetCollections(ctx *pulumi.Context, args *GetCollectionsArgs, opts ...pulum
 	return &rv, nil
 }
 
-// Arguments for getCollections
 type GetCollectionsArgs struct {
+	// Optional jurisdiction filter, sent as the jurisdiction query parameter.
 	Jurisdiction *string `pulumi:"jurisdiction"`
-	Type         *string `pulumi:"type"`
+	// Optional collection type filter, sent as the type query parameter.
+	Type *string `pulumi:"type"`
 }
 
 type GetCollectionsResult struct {
@@ -42,10 +43,11 @@ func GetCollectionsOutput(ctx *pulumi.Context, args GetCollectionsOutputArgs, op
 		}).(GetCollectionsResultOutput)
 }
 
-// Arguments for getCollections
 type GetCollectionsOutputArgs struct {
+	// Optional jurisdiction filter, sent as the jurisdiction query parameter.
 	Jurisdiction pulumi.StringPtrInput `pulumi:"jurisdiction"`
-	Type         pulumi.StringPtrInput `pulumi:"type"`
+	// Optional collection type filter, sent as the type query parameter.
+	Type pulumi.StringPtrInput `pulumi:"type"`
 }
 
 func (GetCollectionsOutputArgs) ElementType() reflect.Type {

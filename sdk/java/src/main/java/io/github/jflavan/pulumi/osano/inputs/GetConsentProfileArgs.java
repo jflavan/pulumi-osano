@@ -14,16 +14,32 @@ public final class GetConsentProfileArgs extends com.pulumi.resources.InvokeArgs
 
     public static final GetConsentProfileArgs Empty = new GetConsentProfileArgs();
 
+    /**
+     * The consent configuration ID the profile belongs to.
+     *
+     */
     @Import(name="configId", required=true)
     private Output<String> configId;
 
+    /**
+     * @return The consent configuration ID the profile belongs to.
+     *
+     */
     public Output<String> configId() {
         return this.configId;
     }
 
+    /**
+     * The hashed subject identifier whose consent profile is returned.
+     *
+     */
     @Import(name="hashedSubjectId", required=true)
     private Output<String> hashedSubjectId;
 
+    /**
+     * @return The hashed subject identifier whose consent profile is returned.
+     *
+     */
     public Output<String> hashedSubjectId() {
         return this.hashedSubjectId;
     }
@@ -53,20 +69,44 @@ public final class GetConsentProfileArgs extends com.pulumi.resources.InvokeArgs
             $ = new GetConsentProfileArgs(Objects.requireNonNull(defaults));
         }
 
+        /**
+         * @param configId The consent configuration ID the profile belongs to.
+         *
+         * @return builder
+         *
+         */
         public Builder configId(Output<String> configId) {
             $.configId = configId;
             return this;
         }
 
+        /**
+         * @param configId The consent configuration ID the profile belongs to.
+         *
+         * @return builder
+         *
+         */
         public Builder configId(String configId) {
             return configId(Output.of(configId));
         }
 
+        /**
+         * @param hashedSubjectId The hashed subject identifier whose consent profile is returned.
+         *
+         * @return builder
+         *
+         */
         public Builder hashedSubjectId(Output<String> hashedSubjectId) {
             $.hashedSubjectId = hashedSubjectId;
             return this;
         }
 
+        /**
+         * @param hashedSubjectId The hashed subject identifier whose consent profile is returned.
+         *
+         * @return builder
+         *
+         */
         public Builder hashedSubjectId(String hashedSubjectId) {
             return hashedSubjectId(Output.of(hashedSubjectId));
         }

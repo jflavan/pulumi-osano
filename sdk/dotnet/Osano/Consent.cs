@@ -28,6 +28,9 @@ namespace Community.Pulumi.Osano
         [Output("attributes")]
         public Output<ImmutableDictionary<string, string>?> Attributes { get; private set; } = null!;
 
+        /// <summary>
+        /// Optional compliance metadata such as the privacy policy version and GPC signal.
+        /// </summary>
         [Output("compliance")]
         public Output<Outputs.ConsentCompliance?> Compliance { get; private set; } = null!;
 
@@ -147,6 +150,9 @@ namespace Community.Pulumi.Osano
             set => _attributes = value;
         }
 
+        /// <summary>
+        /// Optional compliance metadata such as the privacy policy version and GPC signal.
+        /// </summary>
         [Input("compliance")]
         public Input<Inputs.ConsentComplianceArgs>? Compliance { get; set; }
 

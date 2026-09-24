@@ -17,7 +17,7 @@ namespace Community.Pulumi.Osano
     public partial class CookieConsentPublication : global::Pulumi.CustomResource
     {
         /// <summary>
-        /// A caller-managed desired-state token. Changing it queues a new publication; an unchanged token is a no-op.
+        /// A caller-managed desired-state token. Changing it queues a new publication. Changing keepUnclassifiedTattles, description, or webhookUrl also republishes; when no input changes, nothing is published.
         /// </summary>
         [Output("changeToken")]
         public Output<string> ChangeToken { get; private set; } = null!;
@@ -53,7 +53,7 @@ namespace Community.Pulumi.Osano
         public Output<int> LastPublished { get; private set; } = null!;
 
         /// <summary>
-        /// The publication status returned by Osano after completion.
+        /// The Osano publication status: published after a completed publish, and possibly outdated after a refresh when the config changed outside a publish.
         /// </summary>
         [Output("publishStatus")]
         public Output<string> PublishStatus { get; private set; } = null!;
@@ -129,7 +129,7 @@ namespace Community.Pulumi.Osano
     public sealed class CookieConsentPublicationArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>
-        /// A caller-managed desired-state token. Changing it queues a new publication; an unchanged token is a no-op.
+        /// A caller-managed desired-state token. Changing it queues a new publication. Changing keepUnclassifiedTattles, description, or webhookUrl also republishes; when no input changes, nothing is published.
         /// </summary>
         [Input("changeToken", required: true)]
         public Input<string> ChangeToken { get; set; } = null!;

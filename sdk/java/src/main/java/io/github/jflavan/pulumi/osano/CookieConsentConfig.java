@@ -19,7 +19,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 
 /**
- * Manages an Osano Cookie Consent (CMP) configuration.
+ * Manages an Osano Cookie Consent (CMP) configuration. Import with the Osano config ID. Osano has no delete endpoint for configs, so deleting this resource only removes it from Pulumi state and retains the upstream configuration.
  *
  */
 @ResourceType(type="osano:index:CookieConsentConfig")
@@ -179,14 +179,14 @@ public class CookieConsentConfig extends com.pulumi.resources.CustomResource {
         return Codegen.optional(this.publishedRevision);
     }
     /**
-     * Whether Osano stopped the tattle record. Deleting this Pulumi resource retains the upstream configuration.
+     * Whether Osano stopped recording discoveries (tattles) for the configuration.
      *
      */
     @Export(name="tattleRecordStopped", refs={Boolean.class}, tree="[0]")
     private Output</* @Nullable */ Boolean> tattleRecordStopped;
 
     /**
-     * @return Whether Osano stopped the tattle record. Deleting this Pulumi resource retains the upstream configuration.
+     * @return Whether Osano stopped recording discoveries (tattles) for the configuration.
      *
      */
     public Output<Optional<Boolean>> tattleRecordStopped() {

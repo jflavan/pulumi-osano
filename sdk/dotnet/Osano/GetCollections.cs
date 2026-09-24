@@ -13,19 +13,19 @@ namespace Community.Pulumi.Osano
     public static class GetCollections
     {
         /// <summary>
-        /// Retrieves the aggregated privacy protocol collections for an optional jurisdiction and version (published/draft).
+        /// Retrieves the aggregated privacy protocol collections, optionally filtered by jurisdiction and type.
         /// </summary>
         public static Task<GetCollectionsResult> InvokeAsync(GetCollectionsArgs? args = null, InvokeOptions? options = null)
             => global::Pulumi.Deployment.Instance.InvokeAsync<GetCollectionsResult>("osano:index:getCollections", args ?? new GetCollectionsArgs(), options.WithDefaults());
 
         /// <summary>
-        /// Retrieves the aggregated privacy protocol collections for an optional jurisdiction and version (published/draft).
+        /// Retrieves the aggregated privacy protocol collections, optionally filtered by jurisdiction and type.
         /// </summary>
         public static Output<GetCollectionsResult> Invoke(GetCollectionsInvokeArgs? args = null, InvokeOptions? options = null)
             => global::Pulumi.Deployment.Instance.Invoke<GetCollectionsResult>("osano:index:getCollections", args ?? new GetCollectionsInvokeArgs(), options.WithDefaults());
 
         /// <summary>
-        /// Retrieves the aggregated privacy protocol collections for an optional jurisdiction and version (published/draft).
+        /// Retrieves the aggregated privacy protocol collections, optionally filtered by jurisdiction and type.
         /// </summary>
         public static Output<GetCollectionsResult> Invoke(GetCollectionsInvokeArgs args, InvokeOutputOptions options)
             => global::Pulumi.Deployment.Instance.Invoke<GetCollectionsResult>("osano:index:getCollections", args ?? new GetCollectionsInvokeArgs(), options.WithDefaults());
@@ -34,9 +34,15 @@ namespace Community.Pulumi.Osano
 
     public sealed class GetCollectionsArgs : global::Pulumi.InvokeArgs
     {
+        /// <summary>
+        /// Optional jurisdiction filter, sent as the jurisdiction query parameter.
+        /// </summary>
         [Input("jurisdiction")]
         public string? Jurisdiction { get; set; }
 
+        /// <summary>
+        /// Optional collection type filter, sent as the type query parameter.
+        /// </summary>
         [Input("type")]
         public string? Type { get; set; }
 
@@ -48,9 +54,15 @@ namespace Community.Pulumi.Osano
 
     public sealed class GetCollectionsInvokeArgs : global::Pulumi.InvokeArgs
     {
+        /// <summary>
+        /// Optional jurisdiction filter, sent as the jurisdiction query parameter.
+        /// </summary>
         [Input("jurisdiction")]
         public Input<string>? Jurisdiction { get; set; }
 
+        /// <summary>
+        /// Optional collection type filter, sent as the type query parameter.
+        /// </summary>
         [Input("type")]
         public Input<string>? Type { get; set; }
 

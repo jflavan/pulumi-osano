@@ -65,6 +65,9 @@ def get_collection(collection_id: Optional[_builtins.str] = None,
                    opts: Optional[pulumi.InvokeOptions] = None) -> AwaitableGetCollectionResult:
     """
     Retrieves a specific privacy protocol collection by ID.
+
+
+    :param _builtins.str collection_id: The privacy protocol collection ID to fetch.
     """
     __args__ = dict()
     __args__['collectionId'] = collection_id
@@ -79,6 +82,9 @@ def get_collection_output(collection_id: Optional[pulumi.Input[_builtins.str]] =
                           opts: Optional[Union[pulumi.InvokeOptions, pulumi.InvokeOutputOptions]] = None) -> pulumi.Output[GetCollectionResult]:
     """
     Retrieves a specific privacy protocol collection by ID.
+
+
+    :param _builtins.str collection_id: The privacy protocol collection ID to fetch.
     """
     __args__ = dict()
     __args__['collectionId'] = collection_id

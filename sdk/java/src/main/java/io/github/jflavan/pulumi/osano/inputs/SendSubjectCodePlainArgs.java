@@ -15,23 +15,47 @@ public final class SendSubjectCodePlainArgs extends com.pulumi.resources.InvokeA
 
     public static final SendSubjectCodePlainArgs Empty = new SendSubjectCodePlainArgs();
 
+    /**
+     * Email address to send the code to. Set exactly one of email or phone.
+     *
+     */
     @Import(name="email")
     private @Nullable String email;
 
+    /**
+     * @return Email address to send the code to. Set exactly one of email or phone.
+     *
+     */
     public Optional<String> email() {
         return Optional.ofNullable(this.email);
     }
 
+    /**
+     * The hashed subject identifier to verify.
+     *
+     */
     @Import(name="hashedSubjectId", required=true)
     private String hashedSubjectId;
 
+    /**
+     * @return The hashed subject identifier to verify.
+     *
+     */
     public String hashedSubjectId() {
         return this.hashedSubjectId;
     }
 
+    /**
+     * Phone number to send the code to by SMS. Set exactly one of email or phone.
+     *
+     */
     @Import(name="phone")
     private @Nullable String phone;
 
+    /**
+     * @return Phone number to send the code to by SMS. Set exactly one of email or phone.
+     *
+     */
     public Optional<String> phone() {
         return Optional.ofNullable(this.phone);
     }
@@ -62,16 +86,34 @@ public final class SendSubjectCodePlainArgs extends com.pulumi.resources.InvokeA
             $ = new SendSubjectCodePlainArgs(Objects.requireNonNull(defaults));
         }
 
+        /**
+         * @param email Email address to send the code to. Set exactly one of email or phone.
+         *
+         * @return builder
+         *
+         */
         public Builder email(@Nullable String email) {
             $.email = email;
             return this;
         }
 
+        /**
+         * @param hashedSubjectId The hashed subject identifier to verify.
+         *
+         * @return builder
+         *
+         */
         public Builder hashedSubjectId(String hashedSubjectId) {
             $.hashedSubjectId = hashedSubjectId;
             return this;
         }
 
+        /**
+         * @param phone Phone number to send the code to by SMS. Set exactly one of email or phone.
+         *
+         * @return builder
+         *
+         */
         public Builder phone(@Nullable String phone) {
             $.phone = phone;
             return this;

@@ -22,8 +22,8 @@ func CheckConsent(ctx *pulumi.Context, args *CheckConsentArgs, opts ...pulumi.In
 	return &rv, nil
 }
 
-// Arguments for checkConsent
 type CheckConsentArgs struct {
+	// The subject ID to check.
 	SubjectId string `pulumi:"subjectId"`
 }
 
@@ -41,8 +41,8 @@ func CheckConsentOutput(ctx *pulumi.Context, args CheckConsentOutputArgs, opts .
 		}).(CheckConsentResultOutput)
 }
 
-// Arguments for checkConsent
 type CheckConsentOutputArgs struct {
+	// The subject ID to check.
 	SubjectId pulumi.StringInput `pulumi:"subjectId"`
 }
 

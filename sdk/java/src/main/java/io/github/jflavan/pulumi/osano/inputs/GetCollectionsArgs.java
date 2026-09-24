@@ -15,16 +15,32 @@ public final class GetCollectionsArgs extends com.pulumi.resources.InvokeArgs {
 
     public static final GetCollectionsArgs Empty = new GetCollectionsArgs();
 
+    /**
+     * Optional jurisdiction filter, sent as the jurisdiction query parameter.
+     *
+     */
     @Import(name="jurisdiction")
     private @Nullable Output<String> jurisdiction;
 
+    /**
+     * @return Optional jurisdiction filter, sent as the jurisdiction query parameter.
+     *
+     */
     public Optional<Output<String>> jurisdiction() {
         return Optional.ofNullable(this.jurisdiction);
     }
 
+    /**
+     * Optional collection type filter, sent as the type query parameter.
+     *
+     */
     @Import(name="type")
     private @Nullable Output<String> type;
 
+    /**
+     * @return Optional collection type filter, sent as the type query parameter.
+     *
+     */
     public Optional<Output<String>> type() {
         return Optional.ofNullable(this.type);
     }
@@ -54,20 +70,44 @@ public final class GetCollectionsArgs extends com.pulumi.resources.InvokeArgs {
             $ = new GetCollectionsArgs(Objects.requireNonNull(defaults));
         }
 
+        /**
+         * @param jurisdiction Optional jurisdiction filter, sent as the jurisdiction query parameter.
+         *
+         * @return builder
+         *
+         */
         public Builder jurisdiction(@Nullable Output<String> jurisdiction) {
             $.jurisdiction = jurisdiction;
             return this;
         }
 
+        /**
+         * @param jurisdiction Optional jurisdiction filter, sent as the jurisdiction query parameter.
+         *
+         * @return builder
+         *
+         */
         public Builder jurisdiction(String jurisdiction) {
             return jurisdiction(Output.of(jurisdiction));
         }
 
+        /**
+         * @param type Optional collection type filter, sent as the type query parameter.
+         *
+         * @return builder
+         *
+         */
         public Builder type(@Nullable Output<String> type) {
             $.type = type;
             return this;
         }
 
+        /**
+         * @param type Optional collection type filter, sent as the type query parameter.
+         *
+         * @return builder
+         *
+         */
         public Builder type(String type) {
             return type(Output.of(type));
         }

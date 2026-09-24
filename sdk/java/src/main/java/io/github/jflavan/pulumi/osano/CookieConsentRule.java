@@ -16,7 +16,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 
 /**
- * Manages an Osano Cookie Consent (CMP) rule within a configuration.
+ * Manages an Osano Cookie Consent (CMP) rule within a configuration. Import with `&lt;configId&gt;/&lt;ruleId&gt;`. Changing configId or storeType replaces the rule, and deleting this resource deletes the rule in Osano.
  *
  */
 @ResourceType(type="osano:index:CookieConsentRule")

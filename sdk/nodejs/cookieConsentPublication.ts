@@ -35,7 +35,7 @@ export class CookieConsentPublication extends pulumi.CustomResource {
     }
 
     /**
-     * A caller-managed desired-state token. Changing it queues a new publication; an unchanged token is a no-op.
+     * A caller-managed desired-state token. Changing it queues a new publication. Changing keepUnclassifiedTattles, description, or webhookUrl also republishes; when no input changes, nothing is published.
      */
     declare public readonly changeToken: pulumi.Output<string>;
     /**
@@ -59,7 +59,7 @@ export class CookieConsentPublication extends pulumi.CustomResource {
      */
     declare public /*out*/ readonly lastPublished: pulumi.Output<number>;
     /**
-     * The publication status returned by Osano after completion.
+     * The Osano publication status: published after a completed publish, and possibly outdated after a refresh when the config changed outside a publish.
      */
     declare public /*out*/ readonly publishStatus: pulumi.Output<string>;
     /**
@@ -130,7 +130,7 @@ export class CookieConsentPublication extends pulumi.CustomResource {
  */
 export interface CookieConsentPublicationArgs {
     /**
-     * A caller-managed desired-state token. Changing it queues a new publication; an unchanged token is a no-op.
+     * A caller-managed desired-state token. Changing it queues a new publication. Changing keepUnclassifiedTattles, description, or webhookUrl also republishes; when no input changes, nothing is published.
      */
     changeToken: pulumi.Input<string>;
     /**

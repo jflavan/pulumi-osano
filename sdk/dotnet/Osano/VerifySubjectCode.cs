@@ -13,19 +13,19 @@ namespace Community.Pulumi.Osano
     public static class VerifySubjectCode
     {
         /// <summary>
-        /// Verifies a subject profile using the code sent via email or SMS.
+        /// Verifies a subject profile using the code sent via email or SMS. Pulumi runs invokes on every preview, update, and refresh, and one-time codes cannot be reused, so call this from automation rather than from long-lived stack code.
         /// </summary>
         public static Task<VerifySubjectCodeResult> InvokeAsync(VerifySubjectCodeArgs args, InvokeOptions? options = null)
             => global::Pulumi.Deployment.Instance.InvokeAsync<VerifySubjectCodeResult>("osano:index:verifySubjectCode", args ?? new VerifySubjectCodeArgs(), options.WithDefaults());
 
         /// <summary>
-        /// Verifies a subject profile using the code sent via email or SMS.
+        /// Verifies a subject profile using the code sent via email or SMS. Pulumi runs invokes on every preview, update, and refresh, and one-time codes cannot be reused, so call this from automation rather than from long-lived stack code.
         /// </summary>
         public static Output<VerifySubjectCodeResult> Invoke(VerifySubjectCodeInvokeArgs args, InvokeOptions? options = null)
             => global::Pulumi.Deployment.Instance.Invoke<VerifySubjectCodeResult>("osano:index:verifySubjectCode", args ?? new VerifySubjectCodeInvokeArgs(), options.WithDefaults());
 
         /// <summary>
-        /// Verifies a subject profile using the code sent via email or SMS.
+        /// Verifies a subject profile using the code sent via email or SMS. Pulumi runs invokes on every preview, update, and refresh, and one-time codes cannot be reused, so call this from automation rather than from long-lived stack code.
         /// </summary>
         public static Output<VerifySubjectCodeResult> Invoke(VerifySubjectCodeInvokeArgs args, InvokeOutputOptions options)
             => global::Pulumi.Deployment.Instance.Invoke<VerifySubjectCodeResult>("osano:index:verifySubjectCode", args ?? new VerifySubjectCodeInvokeArgs(), options.WithDefaults());
@@ -35,14 +35,32 @@ namespace Community.Pulumi.Osano
     public sealed class VerifySubjectCodeArgs : global::Pulumi.InvokeArgs
     {
         [Input("code", required: true)]
-        public string Code { get; set; } = null!;
+        private string? _code;
 
+        /// <summary>
+        /// The one-time verification code the subject received.
+        /// </summary>
+        public string? Code
+        {
+            get => _code;
+            set => _code = value;
+        }
+
+        /// <summary>
+        /// Email address the code was sent to. Set exactly one of email or phone.
+        /// </summary>
         [Input("email")]
         public string? Email { get; set; }
 
+        /// <summary>
+        /// The hashed subject identifier being verified.
+        /// </summary>
         [Input("hashedSubjectId", required: true)]
         public string HashedSubjectId { get; set; } = null!;
 
+        /// <summary>
+        /// Phone number the code was sent to. Set exactly one of email or phone.
+        /// </summary>
         [Input("phone")]
         public string? Phone { get; set; }
 
@@ -55,14 +73,36 @@ namespace Community.Pulumi.Osano
     public sealed class VerifySubjectCodeInvokeArgs : global::Pulumi.InvokeArgs
     {
         [Input("code", required: true)]
-        public Input<string> Code { get; set; } = null!;
+        private Input<string>? _code;
 
+        /// <summary>
+        /// The one-time verification code the subject received.
+        /// </summary>
+        public Input<string>? Code
+        {
+            get => _code;
+            set
+            {
+                var emptySecret = Output.CreateSecret(0);
+                _code = Output.Tuple<Input<string>?, int>(value, emptySecret).Apply(t => t.Item1);
+            }
+        }
+
+        /// <summary>
+        /// Email address the code was sent to. Set exactly one of email or phone.
+        /// </summary>
         [Input("email")]
         public Input<string>? Email { get; set; }
 
+        /// <summary>
+        /// The hashed subject identifier being verified.
+        /// </summary>
         [Input("hashedSubjectId", required: true)]
         public Input<string> HashedSubjectId { get; set; } = null!;
 
+        /// <summary>
+        /// Phone number the code was sent to. Set exactly one of email or phone.
+        /// </summary>
         [Input("phone")]
         public Input<string>? Phone { get; set; }
 

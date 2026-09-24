@@ -14,7 +14,7 @@ namespace Community.Pulumi.Osano
     public partial class Provider : global::Pulumi.ProviderResource
     {
         /// <summary>
-        /// Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com).
+        /// Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com). OSANO_API_BASE_URL takes precedence when set.
         /// </summary>
         [Output("apiBaseUrl")]
         public Output<string?> ApiBaseUrl { get; private set; } = null!;
@@ -26,7 +26,7 @@ namespace Community.Pulumi.Osano
         public Output<string?> CustomerBaseUrl { get; private set; } = null!;
 
         /// <summary>
-        /// Osano API key used for subject profile routes and Customer REST API/CMP operations (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
+        /// Osano API key used for subject send-code/verify routes and Customer REST API/CMP operations (set via pulumi config set osano:osanoApiKey --secret, or OSANO_API_KEY, which takes precedence).
         /// </summary>
         [Output("osanoApiKey")]
         public Output<string?> OsanoApiKey { get; private set; } = null!;
@@ -44,7 +44,7 @@ namespace Community.Pulumi.Osano
         public Output<string?> UcBaseUrl { get; private set; } = null!;
 
         /// <summary>
-        /// Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret or OSANO_UC_API_KEY).
+        /// Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret, or OSANO_UC_API_KEY, which takes precedence).
         /// </summary>
         [Output("unifiedConsentApiKey")]
         public Output<string?> UnifiedConsentApiKey { get; private set; } = null!;
@@ -85,7 +85,7 @@ namespace Community.Pulumi.Osano
     public sealed class ProviderArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>
-        /// Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com).
+        /// Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com). OSANO_API_BASE_URL takes precedence when set.
         /// </summary>
         [Input("apiBaseUrl")]
         public Input<string>? ApiBaseUrl { get; set; }
@@ -100,7 +100,7 @@ namespace Community.Pulumi.Osano
         private Input<string>? _osanoApiKey;
 
         /// <summary>
-        /// Osano API key used for subject profile routes and Customer REST API/CMP operations (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
+        /// Osano API key used for subject send-code/verify routes and Customer REST API/CMP operations (set via pulumi config set osano:osanoApiKey --secret, or OSANO_API_KEY, which takes precedence).
         /// </summary>
         public Input<string>? OsanoApiKey
         {
@@ -113,7 +113,7 @@ namespace Community.Pulumi.Osano
         }
 
         /// <summary>
-        /// HTTP request timeout in seconds for Customer REST API and Unified Consent calls (default 60).
+        /// HTTP request timeout in seconds for Customer REST API and Unified Consent calls (default 60). OSANO_API_TIMEOUT_SECONDS takes precedence when set to a positive integer.
         /// </summary>
         [Input("requestTimeoutSeconds", json: true)]
         public Input<int>? RequestTimeoutSeconds { get; set; }
@@ -145,7 +145,7 @@ namespace Community.Pulumi.Osano
         private Input<string>? _unifiedConsentApiKey;
 
         /// <summary>
-        /// Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret or OSANO_UC_API_KEY).
+        /// Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret, or OSANO_UC_API_KEY, which takes precedence).
         /// </summary>
         public Input<string>? UnifiedConsentApiKey
         {

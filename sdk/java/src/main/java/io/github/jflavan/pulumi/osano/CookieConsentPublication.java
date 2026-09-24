@@ -22,14 +22,14 @@ import javax.annotation.Nullable;
 @ResourceType(type="osano:index:CookieConsentPublication")
 public class CookieConsentPublication extends com.pulumi.resources.CustomResource {
     /**
-     * A caller-managed desired-state token. Changing it queues a new publication; an unchanged token is a no-op.
+     * A caller-managed desired-state token. Changing it queues a new publication. Changing keepUnclassifiedTattles, description, or webhookUrl also republishes; when no input changes, nothing is published.
      *
      */
     @Export(name="changeToken", refs={String.class}, tree="[0]")
     private Output<String> changeToken;
 
     /**
-     * @return A caller-managed desired-state token. Changing it queues a new publication; an unchanged token is a no-op.
+     * @return A caller-managed desired-state token. Changing it queues a new publication. Changing keepUnclassifiedTattles, description, or webhookUrl also republishes; when no input changes, nothing is published.
      *
      */
     public Output<String> changeToken() {
@@ -106,14 +106,14 @@ public class CookieConsentPublication extends com.pulumi.resources.CustomResourc
         return this.lastPublished;
     }
     /**
-     * The publication status returned by Osano after completion.
+     * The Osano publication status: published after a completed publish, and possibly outdated after a refresh when the config changed outside a publish.
      *
      */
     @Export(name="publishStatus", refs={String.class}, tree="[0]")
     private Output<String> publishStatus;
 
     /**
-     * @return The publication status returned by Osano after completion.
+     * @return The Osano publication status: published after a completed publish, and possibly outdated after a refresh when the config changed outside a publish.
      *
      */
     public Output<String> publishStatus() {

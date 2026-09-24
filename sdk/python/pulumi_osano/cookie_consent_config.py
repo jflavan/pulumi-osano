@@ -113,7 +113,7 @@ class CookieConsentConfig(pulumi.CustomResource):
                  org_ids: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]] = None,
                  __props__=None):
         """
-        Manages an Osano Cookie Consent (CMP) configuration.
+        Manages an Osano Cookie Consent (CMP) configuration. Import with the Osano config ID. Osano has no delete endpoint for configs, so deleting this resource only removes it from Pulumi state and retains the upstream configuration.
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
@@ -130,7 +130,7 @@ class CookieConsentConfig(pulumi.CustomResource):
                  args: CookieConsentConfigArgs,
                  opts: Optional[pulumi.ResourceOptions] = None):
         """
-        Manages an Osano Cookie Consent (CMP) configuration.
+        Manages an Osano Cookie Consent (CMP) configuration. Import with the Osano config ID. Osano has no delete endpoint for configs, so deleting this resource only removes it from Pulumi state and retains the upstream configuration.
 
         :param str resource_name: The name of the resource.
         :param CookieConsentConfigArgs args: The arguments to use to populate this resource's properties.
@@ -311,7 +311,7 @@ class CookieConsentConfig(pulumi.CustomResource):
     @pulumi.getter(name="tattleRecordStopped")
     def tattle_record_stopped(self) -> pulumi.Output[Optional[_builtins.bool]]:
         """
-        Whether Osano stopped the tattle record. Deleting this Pulumi resource retains the upstream configuration.
+        Whether Osano stopped recording discoveries (tattles) for the configuration.
         """
         return pulumi.get(self, "tattle_record_stopped")
 

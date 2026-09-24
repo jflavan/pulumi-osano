@@ -85,7 +85,13 @@ def verify_subject_code(code: Optional[_builtins.str] = None,
                         phone: Optional[_builtins.str] = None,
                         opts: Optional[pulumi.InvokeOptions] = None) -> AwaitableVerifySubjectCodeResult:
     """
-    Verifies a subject profile using the code sent via email or SMS.
+    Verifies a subject profile using the code sent via email or SMS. Pulumi runs invokes on every preview, update, and refresh, and one-time codes cannot be reused, so call this from automation rather than from long-lived stack code.
+
+
+    :param _builtins.str code: The one-time verification code the subject received.
+    :param _builtins.str email: Email address the code was sent to. Set exactly one of email or phone.
+    :param _builtins.str hashed_subject_id: The hashed subject identifier being verified.
+    :param _builtins.str phone: Phone number the code was sent to. Set exactly one of email or phone.
     """
     __args__ = dict()
     __args__['code'] = code
@@ -107,7 +113,13 @@ def verify_subject_code_output(code: Optional[pulumi.Input[_builtins.str]] = Non
                                phone: Optional[pulumi.Input[Optional[_builtins.str]]] = None,
                                opts: Optional[Union[pulumi.InvokeOptions, pulumi.InvokeOutputOptions]] = None) -> pulumi.Output[VerifySubjectCodeResult]:
     """
-    Verifies a subject profile using the code sent via email or SMS.
+    Verifies a subject profile using the code sent via email or SMS. Pulumi runs invokes on every preview, update, and refresh, and one-time codes cannot be reused, so call this from automation rather than from long-lived stack code.
+
+
+    :param _builtins.str code: The one-time verification code the subject received.
+    :param _builtins.str email: Email address the code was sent to. Set exactly one of email or phone.
+    :param _builtins.str hashed_subject_id: The hashed subject identifier being verified.
+    :param _builtins.str phone: Phone number the code was sent to. Set exactly one of email or phone.
     """
     __args__ = dict()
     __args__['code'] = code
