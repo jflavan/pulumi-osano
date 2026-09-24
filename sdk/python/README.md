@@ -27,10 +27,11 @@ The provider lets you manage Osano Cookie Consent and Unified Consent workflows 
 1. [Prerequisites](#prerequisites)
 2. [Installation](#installation)
 3. [Quick start](#quick-start)
-4. [Authentication](#authentication)
-5. [Configuration](#configuration)
-6. [Examples](#examples)
-7. [Development](#development)
+4. [Cookie Consent end to end](#cookie-consent-end-to-end)
+5. [Authentication](#authentication)
+6. [Configuration](#configuration)
+7. [Examples](#examples)
+8. [Development](#development)
 
 ---
 
@@ -100,7 +101,7 @@ export const consentId = consent.consentId;
 
 Run `pulumi up` to submit the consent. Destroying the stack removes the logical Pulumi resource but does **not** delete historical events from Osano (they are immutable).
 
-If you're working from a repository clone instead of published packages, the repo-local examples under [examples/quickstart](https://github.com/jflavan/pulumi-osano/tree/main/examples/quickstart) are aimed at contributors. Run `mise exec -- make build_sdks` once before using the TypeScript example so the local Node.js package exists.
+If you're working from a repository clone instead of published packages, the repo-local examples under [examples/quickstart](https://github.com/jflavan/pulumi-osano/tree/main/examples/quickstart) are aimed at contributors. Run `mise exec -- make nodejs_sdk` once before using the TypeScript example so the local Node.js package exists.
 
 ## Cookie Consent end to end
 
