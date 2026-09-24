@@ -34,9 +34,15 @@ namespace Community.Pulumi.Osano
 
     public sealed class GetConsentProfileArgs : global::Pulumi.InvokeArgs
     {
+        /// <summary>
+        /// The consent configuration ID the profile belongs to.
+        /// </summary>
         [Input("configId", required: true)]
         public string ConfigId { get; set; } = null!;
 
+        /// <summary>
+        /// The hashed subject identifier whose consent profile is returned.
+        /// </summary>
         [Input("hashedSubjectId", required: true)]
         public string HashedSubjectId { get; set; } = null!;
 
@@ -48,9 +54,15 @@ namespace Community.Pulumi.Osano
 
     public sealed class GetConsentProfileInvokeArgs : global::Pulumi.InvokeArgs
     {
+        /// <summary>
+        /// The consent configuration ID the profile belongs to.
+        /// </summary>
         [Input("configId", required: true)]
         public Input<string> ConfigId { get; set; } = null!;
 
+        /// <summary>
+        /// The hashed subject identifier whose consent profile is returned.
+        /// </summary>
         [Input("hashedSubjectId", required: true)]
         public Input<string> HashedSubjectId { get; set; } = null!;
 

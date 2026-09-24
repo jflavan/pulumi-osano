@@ -30,3 +30,9 @@ coverage.txt
 
 # Auto Claude data directory
 .auto-claude/
+
+# Local feature worktrees
+.worktrees/
+
+# Python bytecode from scripts/ tests
+__pycache__/

@@ -9,6 +9,7 @@ import (
 
 	"github.com/google/uuid"
 
+	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/infer"
 )
 
@@ -68,6 +69,7 @@ func (r *ConsentResource) Annotate(a infer.Annotator) {
 // Annotate documents the consent resource input schema.
 func (args *ConsentArgs) Annotate(a infer.Annotator) {
 	a.Describe(&args.Subject, "Subject identifiers used for the consent (verifiedId or anonymousId).")
+	a.Describe(&args.Compliance, "Optional compliance metadata such as the privacy policy version and GPC signal.")
 	a.Describe(
 		&args.Actions,
 		"Consent actions referencing privacy protocols (target) within a configuration (vendor).",
@@ -112,7 +114,7 @@ func (r *ConsentResource) Read(
 	}
 
 	client := newAPIClient(ctx)
-	payload, found, err := client.FetchUnifiedConsent(ctx, subjectRef, referenceType)
+	_, found, err := client.FetchUnifiedConsent(ctx, subjectRef, referenceType)
 	if err != nil {
 		return infer.ReadResponse[ConsentArgs, ConsentState]{}, err
 	}
@@ -120,17 +122,15 @@ func (r *ConsentResource) Read(
 		return infer.ReadResponse[ConsentArgs, ConsentState]{ID: ""}, nil
 	}
 
+	// The unified consent payload merges every consent for the subject, so it cannot be mapped back to
+	// this submission. Writing it into inputs would force a replacement (a duplicate consent POST) on
+	// the next update, so refresh only confirms the subject still has consent and records the sync time.
 	updatedState := req.State
 	updatedState.LastSynced = time.Now().UTC().Format(time.RFC3339)
 
-	if payload.UnifiedConsent != nil {
-		updatedState.Actions = convertActionsFromPayload(payload.UnifiedConsent.Actions)
-		updatedState.Attributes = convertAttributesFromPayload(payload.UnifiedConsent.Attributes)
-	}
-
 	return infer.ReadResponse[ConsentArgs, ConsentState]{
 		ID:     req.ID,
-		Inputs: updatedState.ConsentArgs,
+		Inputs: req.Inputs,
 		State:  updatedState,
 	}, nil
 }
@@ -148,8 +148,11 @@ func applyConsent(
 	existingID string,
 	dryRun bool,
 ) (ConsentState, string, error) {
-	if err := validateConsentArgs(inputs); err != nil {
-		return ConsentState{}, "", err
+	// Check already validated known inputs; values unknown during preview are validated on apply.
+	if !dryRun {
+		if err := validateConsentArgs(inputs); err != nil {
+			return ConsentState{}, "", err
+		}
 	}
 
 	id := existingID
@@ -175,7 +178,46 @@ func applyConsent(
 	return state, id, nil
 }
 
+// Check validates consent inputs, deferring any section that is unknown until apply.
+func (r *ConsentResource) Check(
+	ctx context.Context, req infer.CheckRequest,
+) (infer.CheckResponse[ConsentArgs], error) {
+	args, failures, err := infer.DefaultCheck[ConsentArgs](ctx, req.NewInputs)
+	if err != nil {
+		return infer.CheckResponse[ConsentArgs]{Inputs: args, Failures: failures}, err
+	}
+
+	checks := []struct {
+		property string
+		validate func(ConsentArgs) error
+	}{
+		{"actions", validateConsentActions},
+		{"subject", validateConsentSubject},
+		{"compliance", validateConsentCompliance},
+	}
+	for _, check := range checks {
+		if req.NewInputs.Get(check.property).HasComputed() {
+			continue
+		}
+		if err := check.validate(args); err != nil {
+			failures = append(failures, p.CheckFailure{Property: check.property, Reason: err.Error()})
+		}
+	}
+	return infer.CheckResponse[ConsentArgs]{Inputs: args, Failures: failures}, nil
+}
+
 func validateConsentArgs(args ConsentArgs) error {
+	for _, validate := range []func(ConsentArgs) error{
+		validateConsentActions, validateConsentSubject, validateConsentCompliance,
+	} {
+		if err := validate(args); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func validateConsentActions(args ConsentArgs) error {
 	if len(args.Actions) == 0 {
 		return errors.New("at least one consent action is required")
 	}
@@ -190,17 +232,18 @@ func validateConsentArgs(args ConsentArgs) error {
 			return fmt.Errorf("actions[%d].action is required", idx)
 		}
 	}
+	return nil
+}
 
-	if _, err := args.Subject.reference(); err != nil {
-		return err
+func validateConsentSubject(args ConsentArgs) error {
+	_, err := args.Subject.reference()
+	return err
+}
+
+func validateConsentCompliance(args ConsentArgs) error {
+	if args.Compliance != nil && args.Compliance.PrivacyPolicy != nil && args.Compliance.PrivacyPolicy.URL == "" {
+		return errors.New("compliance.privacyPolicy.url is required when privacyPolicy is provided")
 	}
-
-	if args.Compliance != nil && args.Compliance.PrivacyPolicy != nil {
-		if args.Compliance.PrivacyPolicy.URL == "" {
-			return errors.New("compliance.privacyPolicy.url is required when privacyPolicy is provided")
-		}
-	}
-
 	return nil
 }
 
@@ -229,33 +272,6 @@ func (args ConsentArgs) toPayload() consentRequestPayload {
 		Jurisdiction: args.Jurisdiction,
 		Tags:         args.Tags,
 	}
-}
-
-func convertActionsFromPayload(actions []unifiedConsentAction) []ConsentAction {
-	if len(actions) == 0 {
-		return nil
-	}
-	converted := make([]ConsentAction, 0, len(actions))
-	for _, action := range actions {
-		converted = append(converted, ConsentAction{
-			Target:       action.Target,
-			Vendor:       action.Vendor,
-			Action:       action.Action,
-			Jurisdiction: action.Jurisdiction,
-		})
-	}
-	return converted
-}
-
-func convertAttributesFromPayload(attrs map[string]any) map[string]string {
-	if len(attrs) == 0 {
-		return nil
-	}
-	out := make(map[string]string, len(attrs))
-	for k, v := range attrs {
-		out[k] = fmt.Sprintf("%v", v)
-	}
-	return out
 }
 
 type consentRequestPayload struct {

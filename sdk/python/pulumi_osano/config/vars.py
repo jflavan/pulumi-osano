@@ -23,7 +23,7 @@ class _ExportableConfig(types.ModuleType):
     @_builtins.property
     def api_base_url(self) -> Optional[str]:
         """
-        Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com).
+        Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com). OSANO_API_BASE_URL takes precedence when set.
         """
         return __config__.get('apiBaseUrl')
 
@@ -37,14 +37,14 @@ class _ExportableConfig(types.ModuleType):
     @_builtins.property
     def osano_api_key(self) -> Optional[str]:
         """
-        Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
+        Osano API key used for subject send-code/verify routes and Customer REST API/CMP operations (set via pulumi config set osano:osanoApiKey --secret, or OSANO_API_KEY, which takes precedence).
         """
         return __config__.get('osanoApiKey')
 
     @_builtins.property
     def request_timeout_seconds(self) -> Optional[int]:
         """
-        HTTP request timeout in seconds for Osano API calls (default 60).
+        HTTP request timeout in seconds for Customer REST API and Unified Consent calls (default 60). OSANO_API_TIMEOUT_SECONDS takes precedence when set to a positive integer.
         """
         return __config__.get_int('requestTimeoutSeconds')
 
@@ -65,7 +65,6 @@ class _ExportableConfig(types.ModuleType):
     @_builtins.property
     def unified_consent_api_key(self) -> Optional[str]:
         """
-        Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret or OSANO_UC_API_KEY).
+        Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret, or OSANO_UC_API_KEY, which takes precedence).
         """
         return __config__.get('unifiedConsentApiKey')
-

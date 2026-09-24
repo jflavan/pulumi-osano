@@ -26,7 +26,7 @@ func TestCreateConsentRecord(t *testing.T) {
 	privacyProtocolID := testenv.Require(t, testenv.EnvWritePrivacyProtocolID, "privacy protocol identifier")
 	configID := testenv.Require(t, testenv.EnvTestConfigID, "configuration identifier for vendor field")
 	subject := buildConsentSubject(t)
-	subjectRef := resolveSubjectRef(subject)
+	subjectRef, referenceType := resolveSubjectRef(subject)
 	if subjectRef == "" {
 		t.Fatalf("subject reference could not be resolved")
 	}
@@ -54,7 +54,7 @@ func TestCreateConsentRecord(t *testing.T) {
 		t.Fatalf("create consent failed: %v", err)
 	}
 
-	readback, found, err := client.FetchUnifiedConsent(ctx, subjectRef, "subject")
+	readback, found, err := client.FetchUnifiedConsent(ctx, subjectRef, referenceType)
 	if err != nil {
 		t.Fatalf("fetch unified consent failed: %v", err)
 	}
@@ -88,12 +88,12 @@ func buildConsentSubject(t *testing.T) api.ConsentSubject {
 	}
 }
 
-func resolveSubjectRef(subject api.ConsentSubject) string {
+func resolveSubjectRef(subject api.ConsentSubject) (reference, referenceType string) {
 	if subject.VerifiedID != "" {
-		return subject.VerifiedID
+		return subject.VerifiedID, "subject"
 	}
 	if subject.AnonymousID != "" {
-		return subject.AnonymousID
+		return subject.AnonymousID, "anonymous"
 	}
-	return ""
+	return "", ""
 }

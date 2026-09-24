@@ -16,23 +16,47 @@ public final class SendSubjectCodeArgs extends com.pulumi.resources.InvokeArgs {
 
     public static final SendSubjectCodeArgs Empty = new SendSubjectCodeArgs();
 
+    /**
+     * Email address to send the code to. Set exactly one of email or phone.
+     *
+     */
     @Import(name="email")
     private @Nullable Output<String> email;
 
+    /**
+     * @return Email address to send the code to. Set exactly one of email or phone.
+     *
+     */
     public Optional<Output<String>> email() {
         return Optional.ofNullable(this.email);
     }
 
+    /**
+     * The hashed subject identifier to verify.
+     *
+     */
     @Import(name="hashedSubjectId", required=true)
     private Output<String> hashedSubjectId;
 
+    /**
+     * @return The hashed subject identifier to verify.
+     *
+     */
     public Output<String> hashedSubjectId() {
         return this.hashedSubjectId;
     }
 
+    /**
+     * Phone number to send the code to by SMS. Set exactly one of email or phone.
+     *
+     */
     @Import(name="phone")
     private @Nullable Output<String> phone;
 
+    /**
+     * @return Phone number to send the code to by SMS. Set exactly one of email or phone.
+     *
+     */
     public Optional<Output<String>> phone() {
         return Optional.ofNullable(this.phone);
     }
@@ -63,29 +87,65 @@ public final class SendSubjectCodeArgs extends com.pulumi.resources.InvokeArgs {
             $ = new SendSubjectCodeArgs(Objects.requireNonNull(defaults));
         }
 
+        /**
+         * @param email Email address to send the code to. Set exactly one of email or phone.
+         *
+         * @return builder
+         *
+         */
         public Builder email(@Nullable Output<String> email) {
             $.email = email;
             return this;
         }
 
+        /**
+         * @param email Email address to send the code to. Set exactly one of email or phone.
+         *
+         * @return builder
+         *
+         */
         public Builder email(String email) {
             return email(Output.of(email));
         }
 
+        /**
+         * @param hashedSubjectId The hashed subject identifier to verify.
+         *
+         * @return builder
+         *
+         */
         public Builder hashedSubjectId(Output<String> hashedSubjectId) {
             $.hashedSubjectId = hashedSubjectId;
             return this;
         }
 
+        /**
+         * @param hashedSubjectId The hashed subject identifier to verify.
+         *
+         * @return builder
+         *
+         */
         public Builder hashedSubjectId(String hashedSubjectId) {
             return hashedSubjectId(Output.of(hashedSubjectId));
         }
 
+        /**
+         * @param phone Phone number to send the code to by SMS. Set exactly one of email or phone.
+         *
+         * @return builder
+         *
+         */
         public Builder phone(@Nullable Output<String> phone) {
             $.phone = phone;
             return this;
         }
 
+        /**
+         * @param phone Phone number to send the code to by SMS. Set exactly one of email or phone.
+         *
+         * @return builder
+         *
+         */
         public Builder phone(String phone) {
             return phone(Output.of(phone));
         }

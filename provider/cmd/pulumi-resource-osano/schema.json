@@ -1,8 +1,9 @@
 {
   "name": "osano",
   "displayName": "Osano (Unofficial)",
-  "description": "Unofficial Pulumi provider for managing Osano Unified Consent resources. Not affiliated with Pulumi Corporation or Osano, Inc.",
+  "description": "Unofficial Pulumi provider for managing Osano Cookie Consent and Unified Consent resources. Not affiliated with Pulumi Corporation or Osano, Inc.",
   "homepage": "https://github.com/jflavan/pulumi-osano",
+  "license": "MIT",
   "repository": "https://github.com/jflavan/pulumi-osano",
   "pluginDownloadURL": "github://api.github.com/jflavan/pulumi-osano",
   "namespace": "osano",
@@ -19,12 +20,12 @@
       "buildFiles": "gradle"
     },
     "nodejs": {
-      "packageDescription": "Pulumi provider for the Osano Unified Consent API.",
+      "packageDescription": "Pulumi provider for Osano Cookie Consent and Unified Consent APIs.",
       "packageName": "@jflavan/pulumi-osano",
       "respectSchemaVersion": true
     },
     "python": {
-      "packageDescription": "Pulumi provider for the Osano Unified Consent API.",
+      "packageDescription": "Pulumi provider for Osano Cookie Consent and Unified Consent APIs.",
       "packageName": "pulumi_osano"
     }
   },
@@ -32,7 +33,7 @@
     "variables": {
       "apiBaseUrl": {
         "type": "string",
-        "description": "Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com)."
+        "description": "Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com). OSANO_API_BASE_URL takes precedence when set."
       },
       "customerBaseUrl": {
         "type": "string",
@@ -40,12 +41,12 @@
       },
       "osanoApiKey": {
         "type": "string",
-        "description": "Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).",
+        "description": "Osano API key used for subject send-code/verify routes and Customer REST API/CMP operations (set via pulumi config set osano:osanoApiKey --secret, or OSANO_API_KEY, which takes precedence).",
         "secret": true
       },
       "requestTimeoutSeconds": {
         "type": "integer",
-        "description": "HTTP request timeout in seconds for Osano API calls (default 60)."
+        "description": "HTTP request timeout in seconds for Customer REST API and Unified Consent calls (default 60). OSANO_API_TIMEOUT_SECONDS takes precedence when set to a positive integer."
       },
       "ucApiKey": {
         "type": "string",
@@ -60,7 +61,7 @@
       },
       "unifiedConsentApiKey": {
         "type": "string",
-        "description": "Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret or OSANO_UC_API_KEY).",
+        "description": "Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret, or OSANO_UC_API_KEY, which takes precedence).",
         "secret": true
       }
     }
@@ -129,7 +130,7 @@
     "properties": {
       "apiBaseUrl": {
         "type": "string",
-        "description": "Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com)."
+        "description": "Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com). OSANO_API_BASE_URL takes precedence when set."
       },
       "customerBaseUrl": {
         "type": "string",
@@ -137,12 +138,12 @@
       },
       "osanoApiKey": {
         "type": "string",
-        "description": "Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).",
+        "description": "Osano API key used for subject send-code/verify routes and Customer REST API/CMP operations (set via pulumi config set osano:osanoApiKey --secret, or OSANO_API_KEY, which takes precedence).",
         "secret": true
       },
       "requestTimeoutSeconds": {
         "type": "integer",
-        "description": "HTTP request timeout in seconds for Osano API calls (default 60)."
+        "description": "HTTP request timeout in seconds for Customer REST API and Unified Consent calls (default 60). OSANO_API_TIMEOUT_SECONDS takes precedence when set to a positive integer."
       },
       "ucApiKey": {
         "type": "string",
@@ -157,14 +158,14 @@
       },
       "unifiedConsentApiKey": {
         "type": "string",
-        "description": "Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret or OSANO_UC_API_KEY).",
+        "description": "Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret, or OSANO_UC_API_KEY, which takes precedence).",
         "secret": true
       }
     },
     "inputProperties": {
       "apiBaseUrl": {
         "type": "string",
-        "description": "Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com)."
+        "description": "Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com). OSANO_API_BASE_URL takes precedence when set."
       },
       "customerBaseUrl": {
         "type": "string",
@@ -172,12 +173,12 @@
       },
       "osanoApiKey": {
         "type": "string",
-        "description": "Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).",
+        "description": "Osano API key used for subject send-code/verify routes and Customer REST API/CMP operations (set via pulumi config set osano:osanoApiKey --secret, or OSANO_API_KEY, which takes precedence).",
         "secret": true
       },
       "requestTimeoutSeconds": {
         "type": "integer",
-        "description": "HTTP request timeout in seconds for Osano API calls (default 60)."
+        "description": "HTTP request timeout in seconds for Customer REST API and Unified Consent calls (default 60). OSANO_API_TIMEOUT_SECONDS takes precedence when set to a positive integer."
       },
       "ucApiKey": {
         "type": "string",
@@ -192,7 +193,7 @@
       },
       "unifiedConsentApiKey": {
         "type": "string",
-        "description": "Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret or OSANO_UC_API_KEY).",
+        "description": "Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret, or OSANO_UC_API_KEY, which takes precedence).",
         "secret": true
       }
     }
@@ -219,6 +220,7 @@
         },
         "compliance": {
           "$ref": "#/types/osano:index:ConsentCompliance",
+          "description": "Optional compliance metadata such as the privacy policy version and GPC signal.",
           "replaceOnChanges": true
         },
         "consentId": {
@@ -278,6 +280,7 @@
         },
         "compliance": {
           "$ref": "#/types/osano:index:ConsentCompliance",
+          "description": "Optional compliance metadata such as the privacy policy version and GPC signal.",
           "replaceOnChanges": true
         },
         "jurisdiction": {
@@ -310,7 +313,7 @@
       ]
     },
     "osano:index:CookieConsentConfig": {
-      "description": "Manages an Osano Cookie Consent (CMP) configuration.",
+      "description": "Manages an Osano Cookie Consent (CMP) configuration. Import with the Osano config ID. Osano has no delete endpoint for configs, so deleting this resource only removes it from Pulumi state and retains the upstream configuration.",
       "properties": {
         "configId": {
           "type": "string",
@@ -324,10 +327,12 @@
           "description": "CMP configuration object. At minimum, must include storagePolicyHref."
         },
         "created": {
-          "type": "integer"
+          "type": "integer",
+          "description": "Unix timestamp when Osano created the configuration."
         },
         "customerId": {
-          "type": "string"
+          "type": "string",
+          "description": "The Osano customer ID that owns the configuration."
         },
         "domains": {
           "type": "array",
@@ -337,7 +342,8 @@
           "description": "Domains permitted to host the configuration."
         },
         "lastPublished": {
-          "type": "integer"
+          "type": "integer",
+          "description": "Unix timestamp when Osano last published the configuration."
         },
         "mode": {
           "type": "string",
@@ -355,16 +361,20 @@
           "description": "Optional organization IDs associated with the config."
         },
         "publishStatus": {
-          "type": "string"
+          "type": "string",
+          "description": "Current Osano publication status for the configuration."
         },
         "publishedRevision": {
-          "type": "integer"
+          "type": "integer",
+          "description": "Revision number most recently published by Osano."
         },
         "tattleRecordStopped": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Whether Osano stopped recording discoveries (tattles) for the configuration."
         },
         "updated": {
-          "type": "integer"
+          "type": "integer",
+          "description": "Unix timestamp when Osano last updated the configuration."
         }
       },
       "required": [
@@ -412,8 +422,95 @@
         "configuration"
       ]
     },
+    "osano:index:CookieConsentPublication": {
+      "description": "Publishes an Osano Cookie Consent configuration, waits for completion, and returns its hosted CMP script. Import with the Osano config ID; deleting this resource only removes Pulumi state and does not unpublish the config.",
+      "properties": {
+        "changeToken": {
+          "type": "string",
+          "description": "A caller-managed desired-state token. Changing it queues a new publication. Changing keepUnclassifiedTattles, description, or webhookUrl also republishes; when no input changes, nothing is published."
+        },
+        "configId": {
+          "type": "string",
+          "description": "The Osano Cookie Consent config ID to publish. This is also the import ID."
+        },
+        "customerId": {
+          "type": "string",
+          "description": "The Osano customer ID that owns the published configuration."
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional description sent with the publication request."
+        },
+        "keepUnclassifiedTattles": {
+          "type": "boolean",
+          "description": "Whether publication preserves unclassified discoveries. Defaults to true to avoid unexpected deletion.",
+          "default": true
+        },
+        "lastPublished": {
+          "type": "integer",
+          "description": "Unix timestamp of the completed Osano publication."
+        },
+        "publishStatus": {
+          "type": "string",
+          "description": "The Osano publication status: published after a completed publish, and possibly outdated after a refresh when the config changed outside a publish."
+        },
+        "publishedRevision": {
+          "type": "integer",
+          "description": "The configuration revision most recently published by Osano."
+        },
+        "scriptSrc": {
+          "type": "string",
+          "description": "The public hosted Osano CMP JavaScript URL for this customer and config."
+        },
+        "scriptTag": {
+          "type": "string",
+          "description": "The complete public CMP script tag to place first in the site head, without async or defer attributes."
+        },
+        "webhookUrl": {
+          "type": "string",
+          "description": "Optional absolute HTTP or HTTPS URL notified by Osano after publication."
+        }
+      },
+      "required": [
+        "configId",
+        "changeToken",
+        "customerId",
+        "publishStatus",
+        "lastPublished",
+        "publishedRevision",
+        "scriptSrc",
+        "scriptTag"
+      ],
+      "inputProperties": {
+        "changeToken": {
+          "type": "string",
+          "description": "A caller-managed desired-state token. Changing it queues a new publication. Changing keepUnclassifiedTattles, description, or webhookUrl also republishes; when no input changes, nothing is published."
+        },
+        "configId": {
+          "type": "string",
+          "description": "The Osano Cookie Consent config ID to publish. This is also the import ID."
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional description sent with the publication request."
+        },
+        "keepUnclassifiedTattles": {
+          "type": "boolean",
+          "description": "Whether publication preserves unclassified discoveries. Defaults to true to avoid unexpected deletion.",
+          "default": true
+        },
+        "webhookUrl": {
+          "type": "string",
+          "description": "Optional absolute HTTP or HTTPS URL notified by Osano after publication."
+        }
+      },
+      "requiredInputs": [
+        "configId",
+        "changeToken"
+      ]
+    },
     "osano:index:CookieConsentRule": {
-      "description": "Manages an Osano Cookie Consent (CMP) rule within a configuration.",
+      "description": "Manages an Osano Cookie Consent (CMP) rule within a configuration. Import with `<configId>/<ruleId>`. Changing configId or storeType replaces the rule, and deleting this resource deletes the rule in Osano.",
       "properties": {
         "classification": {
           "type": "string",
@@ -427,9 +524,17 @@
           "type": "string",
           "description": "Timestamp when the rule was created."
         },
+        "description": {
+          "type": "string",
+          "description": "Optional cookie description. Only supported for cookies; max 1000 characters."
+        },
         "disclosure": {
           "type": "boolean",
           "description": "Whether the rule should be disclosed. Defaults to false."
+        },
+        "expiry": {
+          "type": "string",
+          "description": "Optional cookie expiry description. Only supported for cookies; max 50 characters."
         },
         "rule": {
           "type": "string",
@@ -439,13 +544,17 @@
           "type": "integer",
           "description": "The server-assigned integer rule ID."
         },
+        "ruleType": {
+          "type": "string",
+          "description": "Optional matching mode: FILENAME, DOMAIN, PATH, REGEXP, STARTS_WITH, ENDS_WITH, CONTAINS, or EXACT_MATCH."
+        },
         "storeType": {
           "type": "string",
           "description": "The storage type category: cookies, scripts, iframes, or localStorage."
         },
         "title": {
           "type": "string",
-          "description": "Optional title for the rule, used in consent disclosure."
+          "description": "Optional title for the rule, used in consent disclosure. Max 64 characters."
         },
         "updated": {
           "type": "string",
@@ -453,7 +562,7 @@
         },
         "vendorName": {
           "type": "string",
-          "description": "Optional vendor name for the rule."
+          "description": "Optional vendor name for the rule. Max 100 characters."
         }
       },
       "required": [
@@ -472,13 +581,25 @@
           "type": "string",
           "description": "The configId of the Cookie Consent Configuration this rule belongs to."
         },
+        "description": {
+          "type": "string",
+          "description": "Optional cookie description. Only supported for cookies; max 1000 characters."
+        },
         "disclosure": {
           "type": "boolean",
           "description": "Whether the rule should be disclosed. Defaults to false."
         },
+        "expiry": {
+          "type": "string",
+          "description": "Optional cookie expiry description. Only supported for cookies; max 50 characters."
+        },
         "rule": {
           "type": "string",
           "description": "The rule pattern (e.g. a cookie name pattern). Min 3, max 1000 characters."
+        },
+        "ruleType": {
+          "type": "string",
+          "description": "Optional matching mode: FILENAME, DOMAIN, PATH, REGEXP, STARTS_WITH, ENDS_WITH, CONTAINS, or EXACT_MATCH."
         },
         "storeType": {
           "type": "string",
@@ -486,11 +607,11 @@
         },
         "title": {
           "type": "string",
-          "description": "Optional title for the rule, used in consent disclosure."
+          "description": "Optional title for the rule, used in consent disclosure. Max 64 characters."
         },
         "vendorName": {
           "type": "string",
-          "description": "Optional vendor name for the rule."
+          "description": "Optional vendor name for the rule. Max 100 characters."
         }
       },
       "requiredInputs": [
@@ -505,10 +626,10 @@
     "osano:index:checkConsent": {
       "description": "Checks whether a unified consent record exists for a given subject ID.",
       "inputs": {
-        "description": "Arguments for checkConsent",
         "properties": {
           "subjectId": {
-            "type": "string"
+            "type": "string",
+            "description": "The subject ID to check."
           }
         },
         "type": "object",
@@ -535,10 +656,10 @@
     "osano:index:getCollection": {
       "description": "Retrieves a specific privacy protocol collection by ID.",
       "inputs": {
-        "description": "Arguments for getCollection",
         "properties": {
           "collectionId": {
-            "type": "string"
+            "type": "string",
+            "description": "The privacy protocol collection ID to fetch."
           }
         },
         "type": "object",
@@ -570,15 +691,16 @@
       }
     },
     "osano:index:getCollections": {
-      "description": "Retrieves the aggregated privacy protocol collections for an optional jurisdiction and version (published/draft).",
+      "description": "Retrieves the aggregated privacy protocol collections, optionally filtered by jurisdiction and type.",
       "inputs": {
-        "description": "Arguments for getCollections",
         "properties": {
           "jurisdiction": {
-            "type": "string"
+            "type": "string",
+            "description": "Optional jurisdiction filter, sent as the jurisdiction query parameter."
           },
           "type": {
-            "type": "string"
+            "type": "string",
+            "description": "Optional collection type filter, sent as the type query parameter."
           }
         },
         "type": "object"
@@ -628,13 +750,14 @@
     "osano:index:getConsentProfile": {
       "description": "Retrieves a consent profile for a hashed subject identifier and config ID.",
       "inputs": {
-        "description": "Arguments for getConsentProfile",
         "properties": {
           "configId": {
-            "type": "string"
+            "type": "string",
+            "description": "The consent configuration ID the profile belongs to."
           },
           "hashedSubjectId": {
-            "type": "string"
+            "type": "string",
+            "description": "The hashed subject identifier whose consent profile is returned."
           }
         },
         "type": "object",
@@ -675,10 +798,12 @@
       "inputs": {
         "properties": {
           "referenceType": {
-            "type": "string"
+            "type": "string",
+            "description": "Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID."
           },
           "subjectRef": {
-            "type": "string"
+            "type": "string",
+            "description": "The subject reference to resolve."
           }
         },
         "type": "object",
@@ -717,13 +842,14 @@
     "osano:index:getUnifiedConsent": {
       "description": "Fetches the unified consent state for a subject reference using the Unified Consent API key.",
       "inputs": {
-        "description": "Arguments for getUnifiedConsent",
         "properties": {
           "referenceType": {
-            "type": "string"
+            "type": "string",
+            "description": "Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID."
           },
           "subjectRef": {
-            "type": "string"
+            "type": "string",
+            "description": "The subject reference to look up."
           }
         },
         "type": "object",
@@ -765,18 +891,20 @@
       }
     },
     "osano:index:sendSubjectCode": {
-      "description": "Sends a verification code to a subject's email or phone using the Osano API key.",
+      "description": "Sends a verification code to a subject's email or phone using the Osano API key. Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.",
       "inputs": {
-        "description": "Arguments for sendSubjectCode",
         "properties": {
           "email": {
-            "type": "string"
+            "type": "string",
+            "description": "Email address to send the code to. Set exactly one of email or phone."
           },
           "hashedSubjectId": {
-            "type": "string"
+            "type": "string",
+            "description": "The hashed subject identifier to verify."
           },
           "phone": {
-            "type": "string"
+            "type": "string",
+            "description": "Phone number to send the code to by SMS. Set exactly one of email or phone."
           }
         },
         "type": "object",
@@ -805,21 +933,25 @@
       }
     },
     "osano:index:verifySubjectCode": {
-      "description": "Verifies a subject profile using the code sent via email or SMS.",
+      "description": "Verifies a subject profile using the code sent via email or SMS. Pulumi runs invokes on every preview, update, and refresh, and one-time codes cannot be reused, so call this from automation rather than from long-lived stack code.",
       "inputs": {
-        "description": "Arguments for verifySubjectCode",
         "properties": {
           "code": {
-            "type": "string"
+            "type": "string",
+            "description": "The one-time verification code the subject received.",
+            "secret": true
           },
           "email": {
-            "type": "string"
+            "type": "string",
+            "description": "Email address the code was sent to. Set exactly one of email or phone."
           },
           "hashedSubjectId": {
-            "type": "string"
+            "type": "string",
+            "description": "The hashed subject identifier being verified."
           },
           "phone": {
-            "type": "string"
+            "type": "string",
+            "description": "Phone number the code was sent to. Set exactly one of email or phone."
           }
         },
         "type": "object",

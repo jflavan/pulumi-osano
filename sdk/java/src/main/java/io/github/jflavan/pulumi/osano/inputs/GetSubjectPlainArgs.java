@@ -15,16 +15,32 @@ public final class GetSubjectPlainArgs extends com.pulumi.resources.InvokeArgs {
 
     public static final GetSubjectPlainArgs Empty = new GetSubjectPlainArgs();
 
+    /**
+     * Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
+     *
+     */
     @Import(name="referenceType")
     private @Nullable String referenceType;
 
+    /**
+     * @return Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
+     *
+     */
     public Optional<String> referenceType() {
         return Optional.ofNullable(this.referenceType);
     }
 
+    /**
+     * The subject reference to resolve.
+     *
+     */
     @Import(name="subjectRef", required=true)
     private String subjectRef;
 
+    /**
+     * @return The subject reference to resolve.
+     *
+     */
     public String subjectRef() {
         return this.subjectRef;
     }
@@ -54,11 +70,23 @@ public final class GetSubjectPlainArgs extends com.pulumi.resources.InvokeArgs {
             $ = new GetSubjectPlainArgs(Objects.requireNonNull(defaults));
         }
 
+        /**
+         * @param referenceType Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
+         *
+         * @return builder
+         *
+         */
         public Builder referenceType(@Nullable String referenceType) {
             $.referenceType = referenceType;
             return this;
         }
 
+        /**
+         * @param subjectRef The subject reference to resolve.
+         *
+         * @return builder
+         *
+         */
         public Builder subjectRef(String subjectRef) {
             $.subjectRef = subjectRef;
             return this;

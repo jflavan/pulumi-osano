@@ -5,7 +5,7 @@ import * as pulumi from "@pulumi/pulumi";
 import * as utilities from "./utilities";
 
 /**
- * Manages an Osano Cookie Consent (CMP) configuration.
+ * Manages an Osano Cookie Consent (CMP) configuration. Import with the Osano config ID. Osano has no delete endpoint for configs, so deleting this resource only removes it from Pulumi state and retains the upstream configuration.
  */
 export class CookieConsentConfig extends pulumi.CustomResource {
     /**
@@ -42,12 +42,21 @@ export class CookieConsentConfig extends pulumi.CustomResource {
      * CMP configuration object. At minimum, must include storagePolicyHref.
      */
     declare public readonly configuration: pulumi.Output<{[key: string]: any}>;
+    /**
+     * Unix timestamp when Osano created the configuration.
+     */
     declare public /*out*/ readonly created: pulumi.Output<number | undefined>;
+    /**
+     * The Osano customer ID that owns the configuration.
+     */
     declare public /*out*/ readonly customerId: pulumi.Output<string | undefined>;
     /**
      * Domains permitted to host the configuration.
      */
     declare public readonly domains: pulumi.Output<string[]>;
+    /**
+     * Unix timestamp when Osano last published the configuration.
+     */
     declare public /*out*/ readonly lastPublished: pulumi.Output<number | undefined>;
     /**
      * Compliance mode: debug, permissive, or production.
@@ -61,9 +70,21 @@ export class CookieConsentConfig extends pulumi.CustomResource {
      * Optional organization IDs associated with the config.
      */
     declare public readonly orgIds: pulumi.Output<string[] | undefined>;
+    /**
+     * Current Osano publication status for the configuration.
+     */
     declare public /*out*/ readonly publishStatus: pulumi.Output<string | undefined>;
+    /**
+     * Revision number most recently published by Osano.
+     */
     declare public /*out*/ readonly publishedRevision: pulumi.Output<number | undefined>;
+    /**
+     * Whether Osano stopped recording discoveries (tattles) for the configuration.
+     */
     declare public /*out*/ readonly tattleRecordStopped: pulumi.Output<boolean | undefined>;
+    /**
+     * Unix timestamp when Osano last updated the configuration.
+     */
     declare public /*out*/ readonly updated: pulumi.Output<number | undefined>;
 
     /**

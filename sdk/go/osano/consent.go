@@ -19,7 +19,8 @@ type Consent struct {
 	// Consent actions referencing privacy protocols (target) within a configuration (vendor).
 	Actions ConsentActionArrayOutput `pulumi:"actions"`
 	// Optional key/value attributes stored with the consent record (e.g., ipAddress overrides).
-	Attributes pulumi.StringMapOutput     `pulumi:"attributes"`
+	Attributes pulumi.StringMapOutput `pulumi:"attributes"`
+	// Optional compliance metadata such as the privacy policy version and GPC signal.
 	Compliance ConsentCompliancePtrOutput `pulumi:"compliance"`
 	// Synthetic identifier used by Pulumi to track consent submissions.
 	ConsentId pulumi.StringOutput `pulumi:"consentId"`
@@ -94,7 +95,8 @@ type consentArgs struct {
 	// Consent actions referencing privacy protocols (target) within a configuration (vendor).
 	Actions []ConsentAction `pulumi:"actions"`
 	// Optional key/value attributes stored with the consent record (e.g., ipAddress overrides).
-	Attributes map[string]string  `pulumi:"attributes"`
+	Attributes map[string]string `pulumi:"attributes"`
+	// Optional compliance metadata such as the privacy policy version and GPC signal.
 	Compliance *ConsentCompliance `pulumi:"compliance"`
 	// Optional jurisdiction override matching one of the configuration's jurisdictions.
 	Jurisdiction *string `pulumi:"jurisdiction"`
@@ -112,6 +114,7 @@ type ConsentArgs struct {
 	Actions ConsentActionArrayInput
 	// Optional key/value attributes stored with the consent record (e.g., ipAddress overrides).
 	Attributes pulumi.StringMapInput
+	// Optional compliance metadata such as the privacy policy version and GPC signal.
 	Compliance ConsentCompliancePtrInput
 	// Optional jurisdiction override matching one of the configuration's jurisdictions.
 	Jurisdiction pulumi.StringPtrInput
@@ -170,6 +173,7 @@ func (o ConsentOutput) Attributes() pulumi.StringMapOutput {
 	return o.ApplyT(func(v *Consent) pulumi.StringMapOutput { return v.Attributes }).(pulumi.StringMapOutput)
 }
 
+// Optional compliance metadata such as the privacy policy version and GPC signal.
 func (o ConsentOutput) Compliance() ConsentCompliancePtrOutput {
 	return o.ApplyT(func(v *Consent) ConsentCompliancePtrOutput { return v.Compliance }).(ConsentCompliancePtrOutput)
 }

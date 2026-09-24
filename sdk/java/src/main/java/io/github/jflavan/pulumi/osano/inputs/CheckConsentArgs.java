@@ -14,9 +14,17 @@ public final class CheckConsentArgs extends com.pulumi.resources.InvokeArgs {
 
     public static final CheckConsentArgs Empty = new CheckConsentArgs();
 
+    /**
+     * The subject ID to check.
+     *
+     */
     @Import(name="subjectId", required=true)
     private Output<String> subjectId;
 
+    /**
+     * @return The subject ID to check.
+     *
+     */
     public Output<String> subjectId() {
         return this.subjectId;
     }
@@ -45,11 +53,23 @@ public final class CheckConsentArgs extends com.pulumi.resources.InvokeArgs {
             $ = new CheckConsentArgs(Objects.requireNonNull(defaults));
         }
 
+        /**
+         * @param subjectId The subject ID to check.
+         *
+         * @return builder
+         *
+         */
         public Builder subjectId(Output<String> subjectId) {
             $.subjectId = subjectId;
             return this;
         }
 
+        /**
+         * @param subjectId The subject ID to check.
+         *
+         * @return builder
+         *
+         */
         public Builder subjectId(String subjectId) {
             return subjectId(Output.of(subjectId));
         }

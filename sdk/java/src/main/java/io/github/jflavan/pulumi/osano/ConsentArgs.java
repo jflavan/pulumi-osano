@@ -51,9 +51,17 @@ public final class ConsentArgs extends com.pulumi.resources.ResourceArgs {
         return Optional.ofNullable(this.attributes);
     }
 
+    /**
+     * Optional compliance metadata such as the privacy policy version and GPC signal.
+     *
+     */
     @Import(name="compliance")
     private @Nullable Output<ConsentComplianceArgs> compliance;
 
+    /**
+     * @return Optional compliance metadata such as the privacy policy version and GPC signal.
+     *
+     */
     public Optional<Output<ConsentComplianceArgs>> compliance() {
         return Optional.ofNullable(this.compliance);
     }
@@ -200,11 +208,23 @@ public final class ConsentArgs extends com.pulumi.resources.ResourceArgs {
             return attributes(Output.of(attributes));
         }
 
+        /**
+         * @param compliance Optional compliance metadata such as the privacy policy version and GPC signal.
+         *
+         * @return builder
+         *
+         */
         public Builder compliance(@Nullable Output<ConsentComplianceArgs> compliance) {
             $.compliance = compliance;
             return this;
         }
 
+        /**
+         * @param compliance Optional compliance metadata such as the privacy policy version and GPC signal.
+         *
+         * @return builder
+         *
+         */
         public Builder compliance(ConsentComplianceArgs compliance) {
             return compliance(Output.of(compliance));
         }

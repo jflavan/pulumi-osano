@@ -75,6 +75,10 @@ def get_consent_profile(config_id: Optional[_builtins.str] = None,
                         opts: Optional[pulumi.InvokeOptions] = None) -> AwaitableGetConsentProfileResult:
     """
     Retrieves a consent profile for a hashed subject identifier and config ID.
+
+
+    :param _builtins.str config_id: The consent configuration ID the profile belongs to.
+    :param _builtins.str hashed_subject_id: The hashed subject identifier whose consent profile is returned.
     """
     __args__ = dict()
     __args__['configId'] = config_id
@@ -92,6 +96,10 @@ def get_consent_profile_output(config_id: Optional[pulumi.Input[_builtins.str]] 
                                opts: Optional[Union[pulumi.InvokeOptions, pulumi.InvokeOutputOptions]] = None) -> pulumi.Output[GetConsentProfileResult]:
     """
     Retrieves a consent profile for a hashed subject identifier and config ID.
+
+
+    :param _builtins.str config_id: The consent configuration ID the profile belongs to.
+    :param _builtins.str hashed_subject_id: The hashed subject identifier whose consent profile is returned.
     """
     __args__ = dict()
     __args__['configId'] = config_id

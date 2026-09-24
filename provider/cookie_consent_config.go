@@ -5,8 +5,8 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
+	"net/http"
 	"net/url"
 	"slices"
 
@@ -44,7 +44,12 @@ type CookieConsentConfigState struct {
 
 // Annotate documents the CookieConsentConfig resource.
 func (r *CookieConsentConfig) Annotate(a infer.Annotator) {
-	a.Describe(r, "Manages an Osano Cookie Consent (CMP) configuration.")
+	a.Describe(
+		r,
+		"Manages an Osano Cookie Consent (CMP) configuration. Import with the Osano config ID. "+
+			"Osano has no delete endpoint for configs, so deleting this resource only removes it from "+
+			"Pulumi state and retains the upstream configuration.",
+	)
 }
 
 // Annotate documents the CookieConsentConfig input fields.
@@ -62,6 +67,13 @@ func (args *CookieConsentConfigArgs) Annotate(a infer.Annotator) {
 // Annotate documents the CookieConsentConfig state fields.
 func (state *CookieConsentConfigState) Annotate(a infer.Annotator) {
 	a.Describe(&state.ConfigID, "The Osano configId (UUID).")
+	a.Describe(&state.CustomerID, "The Osano customer ID that owns the configuration.")
+	a.Describe(&state.Created, "Unix timestamp when Osano created the configuration.")
+	a.Describe(&state.Updated, "Unix timestamp when Osano last updated the configuration.")
+	a.Describe(&state.PublishStatus, "Current Osano publication status for the configuration.")
+	a.Describe(&state.LastPublished, "Unix timestamp when Osano last published the configuration.")
+	a.Describe(&state.PublishedRevision, "Revision number most recently published by Osano.")
+	a.Describe(&state.TattleRecordStopped, "Whether Osano stopped recording discoveries (tattles) for the configuration.")
 }
 
 type cmpConfigResponse struct {
@@ -81,19 +93,6 @@ type cmpConfigResponse struct {
 	TattleRecordStopped bool   `json:"tattleRecordStopped"`
 }
 
-func customerClientFromConfig(cfg Config) (*osanoclient.Client, error) {
-	if cfg.OsanoAPIKey == "" {
-		return nil, errors.New("provider config osanoApiKey is required for Customer REST API operations")
-	}
-
-	baseURL, err := url.Parse(cfg.customerBaseURL())
-	if err != nil {
-		return nil, fmt.Errorf("invalid customerBaseUrl: %w", err)
-	}
-
-	return osanoclient.NewClient(baseURL, "x-osano-api-key", cfg.OsanoAPIKey), nil
-}
-
 // Check validates CookieConsentConfig inputs before create or update.
 func (r *CookieConsentConfig) Check(
 	ctx context.Context, req infer.CheckRequest,
@@ -103,14 +102,19 @@ func (r *CookieConsentConfig) Check(
 		return infer.CheckResponse[CookieConsentConfigArgs]{Inputs: args, Failures: failures}, err
 	}
 
-	if args.Name == "" {
+	propertyKnown := func(name string) bool {
+		return !req.NewInputs.Get(name).HasComputed()
+	}
+
+	if propertyKnown("name") && args.Name == "" {
 		failures = append(failures, p.CheckFailure{Property: "name", Reason: "name is required"})
 	}
-	if len(args.Domains) == 0 {
+	if propertyKnown("domains") && len(args.Domains) == 0 {
 		failures = append(failures, p.CheckFailure{Property: "domains", Reason: "at least one domain is required"})
 	}
-	switch args.Mode {
-	case "debug", "permissive", "production":
+	switch {
+	case !propertyKnown("mode"):
+	case args.Mode == "debug", args.Mode == "permissive", args.Mode == "production":
 	default:
 		failures = append(
 			failures,
@@ -119,6 +123,9 @@ func (r *CookieConsentConfig) Check(
 				Reason:   "mode must be one of: debug, permissive, production",
 			},
 		)
+	}
+	if !propertyKnown("configuration") {
+		return infer.CheckResponse[CookieConsentConfigArgs]{Inputs: args, Failures: failures}, nil
 	}
 	if args.Configuration == nil {
 		failures = append(failures, p.CheckFailure{Property: "configuration", Reason: "configuration is required"})
@@ -149,20 +156,14 @@ func (r *CookieConsentConfig) Create(
 		return infer.CreateResponse[CookieConsentConfigState]{}, err
 	}
 
-	body := map[string]any{
-		"name":          req.Inputs.Name,
-		"domains":       req.Inputs.Domains,
-		"mode":          req.Inputs.Mode,
-		"orgIds":        req.Inputs.OrgIDs,
-		"configuration": req.Inputs.Configuration,
-	}
+	body := cookieConsentConfigPayload(req.Inputs, len(req.Inputs.OrgIDs) > 0)
 
 	var out cmpConfigResponse
-	if err := client.DoJSON(ctx, "POST", "/v1/cookie-consent/configs", nil, body, &out); err != nil {
+	if err := client.DoJSON(ctx, http.MethodPost, cookieConsentConfigsPath, nil, body, &out); err != nil {
 		return infer.CreateResponse[CookieConsentConfigState]{}, err
 	}
 
-	state := cookieConsentConfigStateFromResponse(out)
+	state := cookieConsentConfigState(req.Inputs, out)
 	return infer.CreateResponse[CookieConsentConfigState]{ID: out.ConfigID, Output: state}, nil
 }
 
@@ -177,21 +178,20 @@ func (r *CookieConsentConfig) Read(
 	}
 
 	var out cmpConfigResponse
-	if err := client.DoJSON(
-		ctx,
-		"GET",
-		"/v1/cookie-consent/configs/"+url.PathEscape(req.ID),
-		nil,
-		nil,
-		&out,
-	); err != nil {
-		return infer.ReadResponse[CookieConsentConfigArgs, CookieConsentConfigState]{}, err
+	err = client.DoJSON(ctx, http.MethodGet, cookieConsentConfigPath(req.ID), nil, nil, &out)
+	if osanoclient.IsHTTPStatus(err, http.StatusNotFound) {
+		return infer.ReadResponse[CookieConsentConfigArgs, CookieConsentConfigState]{ID: ""}, nil
+	}
+	if err != nil {
+		return infer.ReadResponse[CookieConsentConfigArgs, CookieConsentConfigState]{},
+			fmt.Errorf("read Cookie Consent config %q: %w", req.ID, err)
 	}
 
+	state := cookieConsentConfigState(cookieConsentConfigArgsFromResponse(out, req.Inputs), out)
 	return infer.ReadResponse[CookieConsentConfigArgs, CookieConsentConfigState]{
 		ID:     out.ConfigID,
-		Inputs: req.Inputs,
-		State:  cookieConsentConfigStateFromResponse(out),
+		Inputs: state.CookieConsentConfigArgs,
+		State:  state,
 	}, nil
 }
 
@@ -200,7 +200,9 @@ func (r *CookieConsentConfig) Update(
 	ctx context.Context, req infer.UpdateRequest[CookieConsentConfigArgs, CookieConsentConfigState],
 ) (infer.UpdateResponse[CookieConsentConfigState], error) {
 	if req.DryRun {
-		return infer.UpdateResponse[CookieConsentConfigState]{Output: req.State}, nil
+		preview := req.State
+		preview.CookieConsentConfigArgs = req.Inputs
+		return infer.UpdateResponse[CookieConsentConfigState]{Output: preview}, nil
 	}
 
 	cfg := infer.GetConfig[Config](ctx)
@@ -209,29 +211,46 @@ func (r *CookieConsentConfig) Update(
 		return infer.UpdateResponse[CookieConsentConfigState]{}, err
 	}
 
-	body := map[string]any{
-		"name":          req.Inputs.Name,
-		"domains":       req.Inputs.Domains,
-		"mode":          req.Inputs.Mode,
-		"orgIds":        req.Inputs.OrgIDs,
-		"configuration": req.Inputs.Configuration,
-	}
+	// Send orgIds only to set or clear a managed value; Osano treats omitted and empty alike.
+	body := cookieConsentConfigPayload(req.Inputs, len(req.Inputs.OrgIDs) > 0 || len(req.State.OrgIDs) > 0)
 
 	var out cmpConfigResponse
 	if err := client.DoJSON(
 		ctx,
-		"PATCH",
-		"/v1/cookie-consent/configs/"+url.PathEscape(req.ID),
+		http.MethodPatch,
+		cookieConsentConfigPath(req.ID),
 		nil,
 		body,
 		&out,
 	); err != nil {
 		return infer.UpdateResponse[CookieConsentConfigState]{}, err
 	}
+	if out.ConfigID == "" {
+		// An empty PATCH response carries no config, so keep the applied inputs and prior metadata.
+		state := req.State
+		state.CookieConsentConfigArgs = req.Inputs
+		return infer.UpdateResponse[CookieConsentConfigState]{Output: state}, nil
+	}
 
 	return infer.UpdateResponse[CookieConsentConfigState]{
-		Output: cookieConsentConfigStateFromResponse(out),
+		Output: cookieConsentConfigState(req.Inputs, out),
 	}, nil
+}
+
+// WireDependencies keeps configId and customerId known during update previews. They never change
+// in place, and marking them unknown would make every dependent rule and publication preview as a
+// replacement. Server metadata still depends on every input.
+func (r *CookieConsentConfig) WireDependencies(
+	f infer.FieldSelector, args *CookieConsentConfigArgs, state *CookieConsentConfigState,
+) {
+	inputs := f.InputField(args).Computed()
+	for _, output := range []any{
+		&state.Name, &state.Domains, &state.Mode, &state.OrgIDs, &state.Configuration,
+		&state.Created, &state.Updated, &state.PublishStatus, &state.LastPublished,
+		&state.PublishedRevision, &state.TattleRecordStopped,
+	} {
+		f.OutputField(output).DependsOn(inputs)
+	}
 }
 
 // Delete forgets the local CookieConsentConfig state without removing the upstream config.
@@ -251,51 +270,108 @@ func (r *CookieConsentConfig) Diff(
 	if req.Inputs.Name != req.State.Name {
 		diff["name"] = p.PropertyDiff{Kind: p.Update}
 	}
-	if !slices.Equal(req.Inputs.Domains, req.State.Domains) {
+	if !stringSlicesEqual(req.Inputs.Domains, req.State.Domains) {
 		diff["domains"] = p.PropertyDiff{Kind: p.Update}
 	}
 	if req.Inputs.Mode != req.State.Mode {
 		diff["mode"] = p.PropertyDiff{Kind: p.Update}
 	}
-	if !slices.Equal(req.Inputs.OrgIDs, req.State.OrgIDs) {
+	if !stringSlicesEqual(req.Inputs.OrgIDs, req.State.OrgIDs) {
 		diff["orgIds"] = p.PropertyDiff{Kind: p.Update}
 	}
 
-	if req.Inputs.Configuration != nil {
-		for key, desired := range req.Inputs.Configuration {
-			current, ok := req.State.Configuration[key]
-			if !ok {
-				diff["configuration"] = p.PropertyDiff{Kind: p.Update}
-				break
-			}
-			desiredBytes, errDesired := json.Marshal(desired)
-			currentBytes, errCurrent := json.Marshal(current)
-			if errDesired != nil || errCurrent != nil || !bytes.Equal(desiredBytes, currentBytes) {
-				diff["configuration"] = p.PropertyDiff{Kind: p.Update}
-				break
-			}
-		}
+	if !jsonValuesEqual(req.Inputs.Configuration, req.State.Configuration) {
+		diff["configuration"] = p.PropertyDiff{Kind: p.Update}
 	}
 
 	return infer.DiffResponse{HasChanges: len(diff) > 0, DetailedDiff: diff}, nil
 }
 
-func cookieConsentConfigStateFromResponse(resp cmpConfigResponse) CookieConsentConfigState {
-	return CookieConsentConfigState{
-		CookieConsentConfigArgs: CookieConsentConfigArgs{
-			Name:          resp.Name,
-			Domains:       resp.Domains,
-			Mode:          resp.Mode,
-			OrgIDs:        resp.OrgIDs,
-			Configuration: resp.Configuration,
-		},
-		ConfigID:            resp.ConfigID,
-		CustomerID:          resp.CustomerID,
-		Created:             resp.Created,
-		Updated:             resp.Updated,
-		PublishStatus:       resp.PublishStatus,
-		LastPublished:       resp.LastPublished,
-		PublishedRevision:   resp.PublishedRevision,
-		TattleRecordStopped: resp.TattleRecordStopped,
+const cookieConsentConfigsPath = "/v1/cookie-consent/configs"
+
+func cookieConsentConfigPath(configID string) string {
+	return cookieConsentConfigsPath + "/" + url.PathEscape(configID)
+}
+
+// stringSlicesEqual treats nil and empty as equal, since Osano may echo an unset list as [].
+func stringSlicesEqual(left, right []string) bool {
+	if len(left) == 0 && len(right) == 0 {
+		return true
 	}
+	return slices.Equal(left, right)
+}
+
+func jsonValuesEqual(left, right any) bool {
+	leftJSON, leftErr := json.Marshal(left)
+	rightJSON, rightErr := json.Marshal(right)
+	return leftErr == nil && rightErr == nil && bytes.Equal(leftJSON, rightJSON)
+}
+
+// cookieConsentConfigPayload builds the create/update request body. Osano documents orgIds as
+// optional, with omitted and empty both meaning the root organization, so it is sent only when
+// includeOrgIDs is set and then always as a JSON array rather than null.
+func cookieConsentConfigPayload(args CookieConsentConfigArgs, includeOrgIDs bool) map[string]any {
+	body := map[string]any{
+		"name":          args.Name,
+		"domains":       args.Domains,
+		"mode":          args.Mode,
+		"configuration": args.Configuration,
+	}
+	if includeOrgIDs {
+		orgIDs := args.OrgIDs
+		if orgIDs == nil {
+			orgIDs = []string{}
+		}
+		body["orgIds"] = orgIDs
+	}
+	return body
+}
+
+// cookieConsentConfigState combines the inputs Pulumi manages with Osano's server-side metadata.
+// Inputs are stored as applied rather than as echoed, so a configuration object that Osano
+// normalizes (for example by adding default keys) does not diff on every subsequent `pulumi up`.
+func cookieConsentConfigState(args CookieConsentConfigArgs, resp cmpConfigResponse) CookieConsentConfigState {
+	return CookieConsentConfigState{
+		CookieConsentConfigArgs: args,
+		ConfigID:                resp.ConfigID,
+		CustomerID:              resp.CustomerID,
+		Created:                 resp.Created,
+		Updated:                 resp.Updated,
+		PublishStatus:           resp.PublishStatus,
+		LastPublished:           resp.LastPublished,
+		PublishedRevision:       resp.PublishedRevision,
+		TattleRecordStopped:     resp.TattleRecordStopped,
+	}
+}
+
+// cookieConsentConfigArgsFromResponse derives refreshed inputs from a config read. An import (no
+// declared inputs) adopts everything Osano reports. A refresh adopts the scalar fields so drift is
+// visible, but projects the configuration object onto the keys the program declares: server-added
+// defaults stay out of state, and a declared key Osano omits keeps its declared value.
+func cookieConsentConfigArgsFromResponse(
+	resp cmpConfigResponse, declared CookieConsentConfigArgs,
+) CookieConsentConfigArgs {
+	args := CookieConsentConfigArgs{
+		Name:          resp.Name,
+		Domains:       resp.Domains,
+		Mode:          resp.Mode,
+		OrgIDs:        resp.OrgIDs,
+		Configuration: resp.Configuration,
+	}
+	if declared.Configuration != nil {
+		args.Configuration = projectConfiguration(resp.Configuration, declared.Configuration)
+	}
+	return args
+}
+
+func projectConfiguration(server, declared map[string]any) map[string]any {
+	projected := make(map[string]any, len(declared))
+	for key, declaredValue := range declared {
+		if serverValue, ok := server[key]; ok {
+			projected[key] = serverValue
+		} else {
+			projected[key] = declaredValue
+		}
+	}
+	return projected
 }

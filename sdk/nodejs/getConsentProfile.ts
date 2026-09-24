@@ -15,11 +15,14 @@ export function getConsentProfile(args: GetConsentProfileArgs, opts?: pulumi.Inv
     }, opts);
 }
 
-/**
- * Arguments for getConsentProfile
- */
 export interface GetConsentProfileArgs {
+    /**
+     * The consent configuration ID the profile belongs to.
+     */
     configId: string;
+    /**
+     * The hashed subject identifier whose consent profile is returned.
+     */
     hashedSubjectId: string;
 }
 
@@ -40,10 +43,13 @@ export function getConsentProfileOutput(args: GetConsentProfileOutputArgs, opts?
     }, opts);
 }
 
-/**
- * Arguments for getConsentProfile
- */
 export interface GetConsentProfileOutputArgs {
+    /**
+     * The consent configuration ID the profile belongs to.
+     */
     configId: pulumi.Input<string>;
+    /**
+     * The hashed subject identifier whose consent profile is returned.
+     */
     hashedSubjectId: pulumi.Input<string>;
 }

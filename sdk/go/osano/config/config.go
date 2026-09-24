@@ -11,7 +11,7 @@ import (
 
 var _ = internal.GetEnvOrDefault
 
-// Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com).
+// Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com). OSANO_API_BASE_URL takes precedence when set.
 func GetApiBaseUrl(ctx *pulumi.Context) string {
 	return config.Get(ctx, "osano:apiBaseUrl")
 }
@@ -21,12 +21,12 @@ func GetCustomerBaseUrl(ctx *pulumi.Context) string {
 	return config.Get(ctx, "osano:customerBaseUrl")
 }
 
-// Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
+// Osano API key used for subject send-code/verify routes and Customer REST API/CMP operations (set via pulumi config set osano:osanoApiKey --secret, or OSANO_API_KEY, which takes precedence).
 func GetOsanoApiKey(ctx *pulumi.Context) string {
 	return config.Get(ctx, "osano:osanoApiKey")
 }
 
-// HTTP request timeout in seconds for Osano API calls (default 60).
+// HTTP request timeout in seconds for Customer REST API and Unified Consent calls (default 60). OSANO_API_TIMEOUT_SECONDS takes precedence when set to a positive integer.
 func GetRequestTimeoutSeconds(ctx *pulumi.Context) int {
 	return config.GetInt(ctx, "osano:requestTimeoutSeconds")
 }
@@ -45,7 +45,7 @@ func GetUcBaseUrl(ctx *pulumi.Context) string {
 	return config.Get(ctx, "osano:ucBaseUrl")
 }
 
-// Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret or OSANO_UC_API_KEY).
+// Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret, or OSANO_UC_API_KEY, which takes precedence).
 func GetUnifiedConsentApiKey(ctx *pulumi.Context) string {
 	return config.Get(ctx, "osano:unifiedConsentApiKey")
 }

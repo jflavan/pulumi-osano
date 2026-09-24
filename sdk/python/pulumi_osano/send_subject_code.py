@@ -66,7 +66,12 @@ def send_subject_code(email: Optional[_builtins.str] = None,
                       phone: Optional[_builtins.str] = None,
                       opts: Optional[pulumi.InvokeOptions] = None) -> AwaitableSendSubjectCodeResult:
     """
-    Sends a verification code to a subject's email or phone using the Osano API key.
+    Sends a verification code to a subject's email or phone using the Osano API key. Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
+
+
+    :param _builtins.str email: Email address to send the code to. Set exactly one of email or phone.
+    :param _builtins.str hashed_subject_id: The hashed subject identifier to verify.
+    :param _builtins.str phone: Phone number to send the code to by SMS. Set exactly one of email or phone.
     """
     __args__ = dict()
     __args__['email'] = email
@@ -84,7 +89,12 @@ def send_subject_code_output(email: Optional[pulumi.Input[Optional[_builtins.str
                              phone: Optional[pulumi.Input[Optional[_builtins.str]]] = None,
                              opts: Optional[Union[pulumi.InvokeOptions, pulumi.InvokeOutputOptions]] = None) -> pulumi.Output[SendSubjectCodeResult]:
     """
-    Sends a verification code to a subject's email or phone using the Osano API key.
+    Sends a verification code to a subject's email or phone using the Osano API key. Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
+
+
+    :param _builtins.str email: Email address to send the code to. Set exactly one of email or phone.
+    :param _builtins.str hashed_subject_id: The hashed subject identifier to verify.
+    :param _builtins.str phone: Phone number to send the code to by SMS. Set exactly one of email or phone.
     """
     __args__ = dict()
     __args__['email'] = email

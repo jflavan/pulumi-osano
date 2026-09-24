@@ -22,8 +22,8 @@ func GetCollection(ctx *pulumi.Context, args *GetCollectionArgs, opts ...pulumi.
 	return &rv, nil
 }
 
-// Arguments for getCollection
 type GetCollectionArgs struct {
+	// The privacy protocol collection ID to fetch.
 	CollectionId string `pulumi:"collectionId"`
 }
 
@@ -42,8 +42,8 @@ func GetCollectionOutput(ctx *pulumi.Context, args GetCollectionOutputArgs, opts
 		}).(GetCollectionResultOutput)
 }
 
-// Arguments for getCollection
 type GetCollectionOutputArgs struct {
+	// The privacy protocol collection ID to fetch.
 	CollectionId pulumi.StringInput `pulumi:"collectionId"`
 }
 

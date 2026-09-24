@@ -172,30 +172,6 @@ func TestSendAndVerifyPayloads(t *testing.T) {
 	}
 }
 
-func TestConvertPayloadHelpers(t *testing.T) {
-	t.Parallel()
-
-	actions := convertActionsFromPayload([]unifiedConsentAction{
-		{Target: "protocol-1", Vendor: "config-1", Action: "ACCEPT", Jurisdiction: "us"},
-	})
-	if !reflect.DeepEqual(actions, []ConsentAction{
-		{Target: "protocol-1", Vendor: "config-1", Action: "ACCEPT", Jurisdiction: "us"},
-	}) {
-		t.Fatalf("unexpected converted actions: %#v", actions)
-	}
-
-	attrs := convertAttributesFromPayload(map[string]any{
-		"count": 7,
-		"flag":  true,
-	})
-	if !reflect.DeepEqual(attrs, map[string]string{
-		"count": "7",
-		"flag":  "true",
-	}) {
-		t.Fatalf("unexpected converted attributes: %#v", attrs)
-	}
-}
-
 func TestStatusAllowedAndAPIError(t *testing.T) {
 	t.Parallel()
 

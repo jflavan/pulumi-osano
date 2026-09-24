@@ -44,6 +44,9 @@ export class Consent extends pulumi.CustomResource {
      * Optional key/value attributes stored with the consent record (e.g., ipAddress overrides).
      */
     declare public readonly attributes: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * Optional compliance metadata such as the privacy policy version and GPC signal.
+     */
     declare public readonly compliance: pulumi.Output<outputs.ConsentCompliance | undefined>;
     /**
      * Synthetic identifier used by Pulumi to track consent submissions.
@@ -126,6 +129,9 @@ export interface ConsentArgs {
      * Optional key/value attributes stored with the consent record (e.g., ipAddress overrides).
      */
     attributes?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * Optional compliance metadata such as the privacy policy version and GPC signal.
+     */
     compliance?: pulumi.Input<inputs.ConsentComplianceArgs>;
     /**
      * Optional jurisdiction override matching one of the configuration's jurisdictions.

@@ -14,10 +14,10 @@ export function checkConsent(args: CheckConsentArgs, opts?: pulumi.InvokeOptions
     }, opts);
 }
 
-/**
- * Arguments for checkConsent
- */
 export interface CheckConsentArgs {
+    /**
+     * The subject ID to check.
+     */
     subjectId: string;
 }
 
@@ -35,9 +35,9 @@ export function checkConsentOutput(args: CheckConsentOutputArgs, opts?: pulumi.I
     }, opts);
 }
 
-/**
- * Arguments for checkConsent
- */
 export interface CheckConsentOutputArgs {
+    /**
+     * The subject ID to check.
+     */
     subjectId: pulumi.Input<string>;
 }

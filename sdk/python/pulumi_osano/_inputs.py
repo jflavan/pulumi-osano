@@ -191,5 +191,3 @@ class ConsentSubjectArgs:
     @verified_id.setter
     def verified_id(self, value: Optional[pulumi.Input[_builtins.str]]):
         pulumi.set(self, "verified_id", value)
-
-

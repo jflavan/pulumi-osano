@@ -34,9 +34,15 @@ namespace Community.Pulumi.Osano
 
     public sealed class GetUnifiedConsentArgs : global::Pulumi.InvokeArgs
     {
+        /// <summary>
+        /// Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
+        /// </summary>
         [Input("referenceType")]
         public string? ReferenceType { get; set; }
 
+        /// <summary>
+        /// The subject reference to look up.
+        /// </summary>
         [Input("subjectRef", required: true)]
         public string SubjectRef { get; set; } = null!;
 
@@ -48,9 +54,15 @@ namespace Community.Pulumi.Osano
 
     public sealed class GetUnifiedConsentInvokeArgs : global::Pulumi.InvokeArgs
     {
+        /// <summary>
+        /// Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
+        /// </summary>
         [Input("referenceType")]
         public Input<string>? ReferenceType { get; set; }
 
+        /// <summary>
+        /// The subject reference to look up.
+        /// </summary>
         [Input("subjectRef", required: true)]
         public Input<string> SubjectRef { get; set; } = null!;
 

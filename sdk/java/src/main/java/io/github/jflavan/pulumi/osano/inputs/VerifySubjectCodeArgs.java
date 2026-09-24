@@ -16,30 +16,62 @@ public final class VerifySubjectCodeArgs extends com.pulumi.resources.InvokeArgs
 
     public static final VerifySubjectCodeArgs Empty = new VerifySubjectCodeArgs();
 
+    /**
+     * The one-time verification code the subject received.
+     *
+     */
     @Import(name="code", required=true)
     private Output<String> code;
 
+    /**
+     * @return The one-time verification code the subject received.
+     *
+     */
     public Output<String> code() {
         return this.code;
     }
 
+    /**
+     * Email address the code was sent to. Set exactly one of email or phone.
+     *
+     */
     @Import(name="email")
     private @Nullable Output<String> email;
 
+    /**
+     * @return Email address the code was sent to. Set exactly one of email or phone.
+     *
+     */
     public Optional<Output<String>> email() {
         return Optional.ofNullable(this.email);
     }
 
+    /**
+     * The hashed subject identifier being verified.
+     *
+     */
     @Import(name="hashedSubjectId", required=true)
     private Output<String> hashedSubjectId;
 
+    /**
+     * @return The hashed subject identifier being verified.
+     *
+     */
     public Output<String> hashedSubjectId() {
         return this.hashedSubjectId;
     }
 
+    /**
+     * Phone number the code was sent to. Set exactly one of email or phone.
+     *
+     */
     @Import(name="phone")
     private @Nullable Output<String> phone;
 
+    /**
+     * @return Phone number the code was sent to. Set exactly one of email or phone.
+     *
+     */
     public Optional<Output<String>> phone() {
         return Optional.ofNullable(this.phone);
     }
@@ -71,38 +103,86 @@ public final class VerifySubjectCodeArgs extends com.pulumi.resources.InvokeArgs
             $ = new VerifySubjectCodeArgs(Objects.requireNonNull(defaults));
         }
 
+        /**
+         * @param code The one-time verification code the subject received.
+         *
+         * @return builder
+         *
+         */
         public Builder code(Output<String> code) {
             $.code = code;
             return this;
         }
 
+        /**
+         * @param code The one-time verification code the subject received.
+         *
+         * @return builder
+         *
+         */
         public Builder code(String code) {
             return code(Output.of(code));
         }
 
+        /**
+         * @param email Email address the code was sent to. Set exactly one of email or phone.
+         *
+         * @return builder
+         *
+         */
         public Builder email(@Nullable Output<String> email) {
             $.email = email;
             return this;
         }
 
+        /**
+         * @param email Email address the code was sent to. Set exactly one of email or phone.
+         *
+         * @return builder
+         *
+         */
         public Builder email(String email) {
             return email(Output.of(email));
         }
 
+        /**
+         * @param hashedSubjectId The hashed subject identifier being verified.
+         *
+         * @return builder
+         *
+         */
         public Builder hashedSubjectId(Output<String> hashedSubjectId) {
             $.hashedSubjectId = hashedSubjectId;
             return this;
         }
 
+        /**
+         * @param hashedSubjectId The hashed subject identifier being verified.
+         *
+         * @return builder
+         *
+         */
         public Builder hashedSubjectId(String hashedSubjectId) {
             return hashedSubjectId(Output.of(hashedSubjectId));
         }
 
+        /**
+         * @param phone Phone number the code was sent to. Set exactly one of email or phone.
+         *
+         * @return builder
+         *
+         */
         public Builder phone(@Nullable Output<String> phone) {
             $.phone = phone;
             return this;
         }
 
+        /**
+         * @param phone Phone number the code was sent to. Set exactly one of email or phone.
+         *
+         * @return builder
+         *
+         */
         public Builder phone(String phone) {
             return phone(Output.of(phone));
         }

@@ -25,6 +25,8 @@ func (m *module) Construct(ctx *pulumi.Context, name, typ, urn string) (r pulumi
 		r = &Consent{}
 	case "osano:index:CookieConsentConfig":
 		r = &CookieConsentConfig{}
+	case "osano:index:CookieConsentPublication":
+		r = &CookieConsentPublication{}
 	case "osano:index:CookieConsentRule":
 		r = &CookieConsentRule{}
 	default:

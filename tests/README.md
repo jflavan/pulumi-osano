@@ -13,14 +13,20 @@ and SDKs stay in sync.
 
 ## End-to-end tests
 
-Opt-in integration tests now live under [tests/e2e](tests/e2e). Shared helpers in
-[tests/e2e/internal/testenv](tests/e2e/internal/testenv/env.go) centralize the environment variables
+Opt-in integration tests now live under [tests/e2e](e2e). Shared helpers in
+[tests/e2e/internal/testenv](e2e/internal/testenv/env.go) centralize the environment variables
 each suite needs. Every test file is guarded by a build tag so you only run the flows you have
 credentials for:
 
 - Subject verification: `-tags "e2e subjectverification"`
 - Unified consent reads: `-tags "e2e consentread"`
 - Consent writes: `-tags "e2e consentwrite"`
+
+These suites call Osano's Unified Consent and subject-verification APIs directly through
+`tests/e2e/internal/api`; they do not run the provider binary. They confirm the upstream contract the
+provider relies on. The full Pulumi workflow (configuration, rules, publication, script outputs) is
+covered by mocked provider tests and by the opt-in example deployment described in the
+[end-to-end workflow guide](../docs/end-to-end-workflow.md).
 
 In addition to the build tag, each suite checks for an opt-in flag before hitting the live API:
 
@@ -30,13 +36,38 @@ In addition to the build tag, each suite checks for an opt-in flag before hittin
 | Consent reads | `OSANO_RUN_CONSENT_E2E` | Covers unified consent, subjects, profiles, config, and collections |
 | Consent writes | `OSANO_RUN_WRITE_E2E` | Submits a real consent record and validates read-back |
 
-The GitHub Actions acceptance workflow now runs the read-only suite automatically when the required
+The GitHub Actions acceptance workflow runs the read-only suite automatically when the required
 repository secrets are configured. Write and subject-verification suites remain opt-in/manual because
 they either mutate live data or require a one-time verification code.
 
+CI compiles every build-tag set on each pull request, even without secrets, so a broken e2e suite
+fails fast. Run the same check locally with:
+
+```bash
+make test_e2e_compile
+```
+
+The `acceptance_reads` CI job reads these repository secrets and skips itself (reporting success)
+when any required one is missing:
+
+| Secret | Required | Purpose |
+| --- | --- | --- |
+| `OSANO_UC_API_KEY` | Yes | Unified Consent API key |
+| `OSANO_TEST_SUBJECT_REF` | Yes | Subject used for lookups |
+| `OSANO_TEST_CONFIG_ID` | Yes | Config ID for consent-profile reads |
+| `OSANO_TEST_HASHED_SUBJECT_ID` | Yes | Hashed subject for consent-profile reads |
+| `OSANO_TEST_COLLECTION_ID` | Yes | Collection for the direct collection lookup |
+| `OSANO_TEST_REFERENCE_TYPE` | No | `subject` (default) or `anonymous` |
+| `OSANO_TEST_COLLECTIONS_JURISDICTION`, `OSANO_TEST_COLLECTIONS_TYPE` | No | Collection filters |
+| `OSANO_API_BASE_URL` | No | Non-default Unified Consent host |
+
+All suites honor an optional `OSANO_API_BASE_URL` to target a non-default Unified Consent host.
+Cookie Consent resources have no live e2e suite; their lifecycle is covered by mocked HTTP tests in
+`provider/cookie_consent_*_test.go`, and Unified Consent invokes by `provider/unified_consent_test.go`.
+
 ### Subject verification flow
 
-Test location: [tests/e2e/subject_verification_test.go](tests/e2e/subject_verification_test.go)
+Test location: [tests/e2e/subject_verification_test.go](e2e/subject_verification_test.go)
 
 Required environment:
 
@@ -58,7 +89,7 @@ control and monitor it while the test runs.
 
 ### Unified consent read suite
 
-Test location: [tests/e2e/unified_consent_read_test.go](tests/e2e/unified_consent_read_test.go)
+Test location: [tests/e2e/unified_consent_read_test.go](e2e/unified_consent_read_test.go)
 
 Required environment:
 
@@ -81,7 +112,7 @@ profile reads. The second verifies config, filtered collections, and a direct co
 
 ### Consent write path
 
-Test location: [tests/e2e/consent_write_test.go](tests/e2e/consent_write_test.go)
+Test location: [tests/e2e/consent_write_test.go](e2e/consent_write_test.go)
 
 Required environment:
 

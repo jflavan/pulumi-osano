@@ -40,7 +40,7 @@ linters:
         - importShadow
     goheader:
       template: |-
-        Copyright 2025, Jason Flavan.
+        Copyright 2026, John Flavan.
         SPDX-License-Identifier: MIT
 
         This is an unofficial, community-maintained Pulumi provider for Osano's Unified Consent API.

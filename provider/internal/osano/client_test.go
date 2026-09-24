@@ -51,6 +51,20 @@ func TestNewClientOptions(t *testing.T) {
 	}
 }
 
+func TestNewClientUsesProvidedHTTPClient(t *testing.T) {
+	t.Parallel()
+
+	baseURL, err := url.Parse("https://api.example.com")
+	if err != nil {
+		t.Fatal(err)
+	}
+	httpClient := &http.Client{Timeout: 17 * time.Second}
+	client := NewClient(baseURL, "x-osano-api-key", "key", WithHTTPClient(httpClient))
+	if client.http != httpClient {
+		t.Fatal("expected NewClient to retain the provided HTTP client")
+	}
+}
+
 func TestShouldRetry(t *testing.T) {
 	t.Parallel()
 
@@ -113,6 +127,18 @@ func TestRetryAfterDelay(t *testing.T) {
 				t.Fatalf("retryAfterDelay(%q) delay = %v, want %v", tc.value, delay, tc.wantDelay)
 			}
 		})
+	}
+}
+
+func TestRetryAfterDelayHTTPDate(t *testing.T) {
+	t.Parallel()
+
+	delay, ok := retryAfterDelay("Wed, 21 Oct 2015 07:28:00 GMT")
+	if !ok {
+		t.Fatal("expected HTTP-date Retry-After to be accepted")
+	}
+	if delay != 0 {
+		t.Fatalf("expected a past HTTP-date Retry-After delay of 0, got %s", delay)
 	}
 }
 
@@ -344,4 +370,135 @@ func TestDoJSONRetryExhausted(t *testing.T) {
 	if got := attempts.Load(); got != 3 {
 		t.Fatalf("expected 3 attempts, got %d", got)
 	}
+}
+
+func TestDoJSONPreservesEscapedPathSegments(t *testing.T) {
+	t.Parallel()
+
+	var gotRawPath string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gotRawPath = r.URL.EscapedPath()
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	defer server.Close()
+
+	baseURL, _ := url.Parse(server.URL + "/root")
+	client := NewClient(baseURL, "x-api-key", "test-key")
+
+	pth := "/v1/configs/" + url.PathEscape("a/b c")
+	if err := client.DoJSON(context.Background(), http.MethodGet, pth, nil, nil, nil); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if want := "/root/v1/configs/a%2Fb%20c"; gotRawPath != want {
+		t.Fatalf("expected request path %q, got %q", want, gotRawPath)
+	}
+}
+
+func TestDoJSONPostRetryPolicy(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		name         string
+		status       int
+		writeRetries bool
+		wantAttempts int32
+	}{
+		{"502 is not replayed", http.StatusBadGateway, false, 1},
+		{"500 is not replayed", http.StatusInternalServerError, false, 1},
+		{"504 is not replayed", http.StatusGatewayTimeout, false, 1},
+		{"429 is retried", http.StatusTooManyRequests, false, 3},
+		{"503 is retried", http.StatusServiceUnavailable, false, 3},
+		{"502 is retried when write retries are allowed", http.StatusBadGateway, true, 3},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			var attempts atomic.Int32
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+				attempts.Add(1)
+				w.WriteHeader(tc.status)
+			}))
+			defer server.Close()
+
+			baseURL, _ := url.Parse(server.URL)
+			client := NewClient(
+				baseURL, "x-api-key", "test-key", WithMaxRetries(2), WithInitialBackoff(time.Millisecond),
+			)
+			ctx := context.Background()
+			if tc.writeRetries {
+				ctx = WithWriteRetries(ctx)
+			}
+
+			err := client.DoJSON(ctx, http.MethodPost, "/items", nil, map[string]string{"name": "x"}, nil)
+			if !IsHTTPStatus(err, tc.status) {
+				t.Fatalf("expected final HTTP %d error, got %v", tc.status, err)
+			}
+			if got := attempts.Load(); got != tc.wantAttempts {
+				t.Fatalf("expected %d attempts, got %d", tc.wantAttempts, got)
+			}
+		})
+	}
+}
+
+func TestRetryDelayCapsRetryAfter(t *testing.T) {
+	t.Parallel()
+
+	baseURL, _ := url.Parse("https://api.example.com")
+	client := NewClient(baseURL, "x-api-key", "key")
+	resp := &http.Response{Header: http.Header{}}
+	resp.Header.Set("Retry-After", "3600")
+
+	if delay := client.retryDelay(resp, 0); delay != maxRetryAfterDelay {
+		t.Fatalf("expected Retry-After to be capped at %s, got %s", maxRetryAfterDelay, delay)
+	}
+}
+
+func TestDoJSONRetriesTransportErrorsForGetOnly(t *testing.T) {
+	t.Parallel()
+
+	newFlakyServer := func(attempts *atomic.Int32) *httptest.Server {
+		return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			if attempts.Add(1) == 1 {
+				conn, _, err := w.(http.Hijacker).Hijack()
+				if err == nil {
+					_ = conn.Close()
+				}
+				return
+			}
+			w.WriteHeader(http.StatusNoContent)
+		}))
+	}
+
+	t.Run("GET retries after a dropped connection", func(t *testing.T) {
+		t.Parallel()
+		var attempts atomic.Int32
+		server := newFlakyServer(&attempts)
+		defer server.Close()
+		baseURL, _ := url.Parse(server.URL)
+		client := NewClient(baseURL, "x-api-key", "key", WithInitialBackoff(time.Millisecond))
+		if err := client.DoJSON(context.Background(), http.MethodGet, "/poll", nil, nil, nil); err != nil {
+			t.Fatalf("expected GET to recover, got %v", err)
+		}
+		if got := attempts.Load(); got != 2 {
+			t.Fatalf("expected 2 attempts, got %d", got)
+		}
+	})
+
+	t.Run("POST does not replay after a dropped connection", func(t *testing.T) {
+		t.Parallel()
+		var attempts atomic.Int32
+		server := newFlakyServer(&attempts)
+		defer server.Close()
+		baseURL, _ := url.Parse(server.URL)
+		client := NewClient(baseURL, "x-api-key", "key", WithInitialBackoff(time.Millisecond))
+		err := client.DoJSON(context.Background(), http.MethodPost, "/create", nil, map[string]string{"a": "b"}, nil)
+		if err == nil {
+			t.Fatal("expected POST transport error")
+		}
+		if got := attempts.Load(); got != 1 {
+			t.Fatalf("expected a single POST attempt, got %d", got)
+		}
+	})
 }

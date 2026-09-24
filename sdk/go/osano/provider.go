@@ -14,11 +14,11 @@ import (
 type Provider struct {
 	pulumi.ProviderResourceState
 
-	// Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com).
+	// Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com). OSANO_API_BASE_URL takes precedence when set.
 	ApiBaseUrl pulumi.StringPtrOutput `pulumi:"apiBaseUrl"`
 	// Override base URL for the Customer REST API (default: https://api.osano.com).
 	CustomerBaseUrl pulumi.StringPtrOutput `pulumi:"customerBaseUrl"`
-	// Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
+	// Osano API key used for subject send-code/verify routes and Customer REST API/CMP operations (set via pulumi config set osano:osanoApiKey --secret, or OSANO_API_KEY, which takes precedence).
 	OsanoApiKey pulumi.StringPtrOutput `pulumi:"osanoApiKey"`
 	// Unified Consent API key for the Unified Consent Core API (x-uc-api-key).
 	//
@@ -28,7 +28,7 @@ type Provider struct {
 	//
 	// Deprecated: use apiBaseUrl instead
 	UcBaseUrl pulumi.StringPtrOutput `pulumi:"ucBaseUrl"`
-	// Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret or OSANO_UC_API_KEY).
+	// Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret, or OSANO_UC_API_KEY, which takes precedence).
 	UnifiedConsentApiKey pulumi.StringPtrOutput `pulumi:"unifiedConsentApiKey"`
 }
 
@@ -64,13 +64,13 @@ func NewProvider(ctx *pulumi.Context,
 }
 
 type providerArgs struct {
-	// Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com).
+	// Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com). OSANO_API_BASE_URL takes precedence when set.
 	ApiBaseUrl *string `pulumi:"apiBaseUrl"`
 	// Override base URL for the Customer REST API (default: https://api.osano.com).
 	CustomerBaseUrl *string `pulumi:"customerBaseUrl"`
-	// Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
+	// Osano API key used for subject send-code/verify routes and Customer REST API/CMP operations (set via pulumi config set osano:osanoApiKey --secret, or OSANO_API_KEY, which takes precedence).
 	OsanoApiKey *string `pulumi:"osanoApiKey"`
-	// HTTP request timeout in seconds for Osano API calls (default 60).
+	// HTTP request timeout in seconds for Customer REST API and Unified Consent calls (default 60). OSANO_API_TIMEOUT_SECONDS takes precedence when set to a positive integer.
 	RequestTimeoutSeconds *int `pulumi:"requestTimeoutSeconds"`
 	// Unified Consent API key for the Unified Consent Core API (x-uc-api-key).
 	//
@@ -80,19 +80,19 @@ type providerArgs struct {
 	//
 	// Deprecated: use apiBaseUrl instead
 	UcBaseUrl *string `pulumi:"ucBaseUrl"`
-	// Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret or OSANO_UC_API_KEY).
+	// Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret, or OSANO_UC_API_KEY, which takes precedence).
 	UnifiedConsentApiKey *string `pulumi:"unifiedConsentApiKey"`
 }
 
 // The set of arguments for constructing a Provider resource.
 type ProviderArgs struct {
-	// Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com).
+	// Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com). OSANO_API_BASE_URL takes precedence when set.
 	ApiBaseUrl pulumi.StringPtrInput
 	// Override base URL for the Customer REST API (default: https://api.osano.com).
 	CustomerBaseUrl pulumi.StringPtrInput
-	// Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
+	// Osano API key used for subject send-code/verify routes and Customer REST API/CMP operations (set via pulumi config set osano:osanoApiKey --secret, or OSANO_API_KEY, which takes precedence).
 	OsanoApiKey pulumi.StringPtrInput
-	// HTTP request timeout in seconds for Osano API calls (default 60).
+	// HTTP request timeout in seconds for Customer REST API and Unified Consent calls (default 60). OSANO_API_TIMEOUT_SECONDS takes precedence when set to a positive integer.
 	RequestTimeoutSeconds pulumi.IntPtrInput
 	// Unified Consent API key for the Unified Consent Core API (x-uc-api-key).
 	//
@@ -102,7 +102,7 @@ type ProviderArgs struct {
 	//
 	// Deprecated: use apiBaseUrl instead
 	UcBaseUrl pulumi.StringPtrInput
-	// Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret or OSANO_UC_API_KEY).
+	// Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret, or OSANO_UC_API_KEY, which takes precedence).
 	UnifiedConsentApiKey pulumi.StringPtrInput
 }
 
@@ -143,7 +143,7 @@ func (o ProviderOutput) ToProviderOutputWithContext(ctx context.Context) Provide
 	return o
 }
 
-// Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com).
+// Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com). OSANO_API_BASE_URL takes precedence when set.
 func (o ProviderOutput) ApiBaseUrl() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Provider) pulumi.StringPtrOutput { return v.ApiBaseUrl }).(pulumi.StringPtrOutput)
 }
@@ -153,7 +153,7 @@ func (o ProviderOutput) CustomerBaseUrl() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Provider) pulumi.StringPtrOutput { return v.CustomerBaseUrl }).(pulumi.StringPtrOutput)
 }
 
-// Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
+// Osano API key used for subject send-code/verify routes and Customer REST API/CMP operations (set via pulumi config set osano:osanoApiKey --secret, or OSANO_API_KEY, which takes precedence).
 func (o ProviderOutput) OsanoApiKey() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Provider) pulumi.StringPtrOutput { return v.OsanoApiKey }).(pulumi.StringPtrOutput)
 }
@@ -172,7 +172,7 @@ func (o ProviderOutput) UcBaseUrl() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Provider) pulumi.StringPtrOutput { return v.UcBaseUrl }).(pulumi.StringPtrOutput)
 }
 
-// Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret or OSANO_UC_API_KEY).
+// Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret, or OSANO_UC_API_KEY, which takes precedence).
 func (o ProviderOutput) UnifiedConsentApiKey() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Provider) pulumi.StringPtrOutput { return v.UnifiedConsentApiKey }).(pulumi.StringPtrOutput)
 }

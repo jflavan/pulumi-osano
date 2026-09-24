@@ -11,8 +11,6 @@ on:
 env:
   PROVIDER: osano
   PULUMI_LOCAL_NUGET: ${{ github.workspace }}/nuget
-  GOVERSION: "1.21.x"
-  NODEVERSION: "20.x"
   PYTHONVERSION: "3.11.8"
   DOTNETVERSION: "8.0.x"
   JAVAVERSION: "11"
@@ -200,6 +198,42 @@ jobs:
           path: ${{ github.workspace }}/sdk/${{ matrix.language }}.tar.gz
           retention-days: 30
 
+  build_examples:
+    needs: prerequisites
+    runs-on: ubuntu-latest
+    name: build_examples
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+          ref: ${{ env.PR_COMMIT_SHA || github.ref }}
+
+      - id: version
+        name: Set Provider Version
+        uses: pulumi/provider-version-action@v1
+        with:
+          set-env: PROVIDER_VERSION
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Tools
+        uses: ./.github/actions/setup-tools
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download Provider Binary
+        uses: ./.github/actions/download-provider
+
+      - name: Compile e2e suites
+        run: make test_e2e_compile
+
+      - name: Test build scripts
+        run: make test_scripts
+
+      - name: Build examples
+        run: make build_examples
+
   acceptance_reads:
     needs: prerequisites
     runs-on: ubuntu-latest
@@ -291,6 +325,7 @@ jobs:
     name: sentinel
     needs:
       - build_sdks
+      - build_examples
       - prerequisites
       - lint
     steps:
@@ -301,6 +336,6 @@ jobs:
           context: Sentinel
           state: success
           description: Sentinel checks passed
-          sha: ${{ github.event.pull_request.head.sha || github.sha }}
+          sha: ${{ env.PR_COMMIT_SHA || github.event.pull_request.head.sha || github.sha }}
     permissions:
       statuses: write

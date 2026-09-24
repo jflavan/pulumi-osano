@@ -8,7 +8,7 @@ declare var exports: any;
 const __config = new pulumi.Config("osano");
 
 /**
- * Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com).
+ * Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com). OSANO_API_BASE_URL takes precedence when set.
  */
 export declare const apiBaseUrl: string | undefined;
 Object.defineProperty(exports, "apiBaseUrl", {
@@ -30,7 +30,7 @@ Object.defineProperty(exports, "customerBaseUrl", {
 });
 
 /**
- * Osano API key used for subject profile routes (set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).
+ * Osano API key used for subject send-code/verify routes and Customer REST API/CMP operations (set via pulumi config set osano:osanoApiKey --secret, or OSANO_API_KEY, which takes precedence).
  */
 export declare const osanoApiKey: string | undefined;
 Object.defineProperty(exports, "osanoApiKey", {
@@ -41,7 +41,7 @@ Object.defineProperty(exports, "osanoApiKey", {
 });
 
 /**
- * HTTP request timeout in seconds for Osano API calls (default 60).
+ * HTTP request timeout in seconds for Customer REST API and Unified Consent calls (default 60). OSANO_API_TIMEOUT_SECONDS takes precedence when set to a positive integer.
  */
 export declare const requestTimeoutSeconds: number | undefined;
 Object.defineProperty(exports, "requestTimeoutSeconds", {
@@ -74,7 +74,7 @@ Object.defineProperty(exports, "ucBaseUrl", {
 });
 
 /**
- * Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret or OSANO_UC_API_KEY).
+ * Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret, or OSANO_UC_API_KEY, which takes precedence).
  */
 export declare const unifiedConsentApiKey: string | undefined;
 Object.defineProperty(exports, "unifiedConsentApiKey", {

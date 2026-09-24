@@ -152,5 +152,3 @@ class ConsentSubject(dict):
     @pulumi.getter(name="verifiedId")
     def verified_id(self) -> Optional[_builtins.str]:
         return pulumi.get(self, "verified_id")
-
-

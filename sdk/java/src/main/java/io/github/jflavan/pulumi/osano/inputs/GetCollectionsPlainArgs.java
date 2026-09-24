@@ -14,16 +14,32 @@ public final class GetCollectionsPlainArgs extends com.pulumi.resources.InvokeAr
 
     public static final GetCollectionsPlainArgs Empty = new GetCollectionsPlainArgs();
 
+    /**
+     * Optional jurisdiction filter, sent as the jurisdiction query parameter.
+     *
+     */
     @Import(name="jurisdiction")
     private @Nullable String jurisdiction;
 
+    /**
+     * @return Optional jurisdiction filter, sent as the jurisdiction query parameter.
+     *
+     */
     public Optional<String> jurisdiction() {
         return Optional.ofNullable(this.jurisdiction);
     }
 
+    /**
+     * Optional collection type filter, sent as the type query parameter.
+     *
+     */
     @Import(name="type")
     private @Nullable String type;
 
+    /**
+     * @return Optional collection type filter, sent as the type query parameter.
+     *
+     */
     public Optional<String> type() {
         return Optional.ofNullable(this.type);
     }
@@ -53,11 +69,23 @@ public final class GetCollectionsPlainArgs extends com.pulumi.resources.InvokeAr
             $ = new GetCollectionsPlainArgs(Objects.requireNonNull(defaults));
         }
 
+        /**
+         * @param jurisdiction Optional jurisdiction filter, sent as the jurisdiction query parameter.
+         *
+         * @return builder
+         *
+         */
         public Builder jurisdiction(@Nullable String jurisdiction) {
             $.jurisdiction = jurisdiction;
             return this;
         }
 
+        /**
+         * @param type Optional collection type filter, sent as the type query parameter.
+         *
+         * @return builder
+         *
+         */
         public Builder type(@Nullable String type) {
             $.type = type;
             return this;

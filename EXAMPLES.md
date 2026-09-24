@@ -10,7 +10,7 @@ This document explains how examples in the Pulumi Osano provider should be organ
 
 ## Baseline Requirements
 
-Every resource or invoke exported by the provider MUST have:
+Every resource exported by the provider MUST have, and every invoke SHOULD have:
 
 - ✅ A runnable **TypeScript** example.
 - ✅ An accompanying `README.md` describing prerequisites, config, and outputs.
@@ -18,11 +18,16 @@ Every resource or invoke exported by the provider MUST have:
 
 When adding new features, update or create examples in the same PR.
 
+TypeScript remains the repository-wide baseline. The multi-resource Cookie
+Consent publication workflow additionally uses C# as its canonical example so
+the complete configuration, rule, dependency, timeout, publication, and output
+contract is validated against the generated .NET SDK.
+
 ## Recommended Coverage Levels
 
 | Tier | Applies To | Requirement |
 | --- | --- | --- |
-| Tier 1 (Required) | All resources + invokes | TypeScript example + README |
+| Tier 1 (Required) | All resources (invokes as coverage grows) | TypeScript example + README |
 | Tier 2 (Preferred) | Frequently used APIs | Add Python and Go variants |
 | Tier 3 (Nice to have) | Mission-critical / complex workflows | Include .NET and Java samples or integration-style demos |
 
@@ -35,7 +40,11 @@ examples/
     typescript/
     python/
     go/
-  <future-resource>/
+  cookie-consent/
+    README.md
+    csharp/
+    typescript/
+  <resource>/
     README.md
     typescript/
     ...
@@ -88,7 +97,10 @@ Repeat for each language offered.
 
 | Area | Languages | Notes |
 | --- | --- | --- |
-| `examples/quickstart` | TypeScript, Python, Go | Demonstrates the `osano:index:Consent` resource and unified consent invoke |
+| `examples/quickstart` | TypeScript, Python, Go | Demonstrates the `osano:index:Consent` resource |
+| `examples/cookie-consent` | C# (canonical), TypeScript | Creates configuration and rules, publishes with `CookieConsentPublication`, and exports `scriptSrc`/`scriptTag` using an explicit `changeToken` |
+
+Invokes (`getUnifiedConsent`, `getSubject`, `getConfig`, `getCollections`, `getCollection`, `checkConsent`, `getConsentProfile`, `sendSubjectCode`, `verifySubjectCode`) do not have dedicated examples yet; their inputs are documented in the generated SDKs.
 
 Add new rows as additional resources or workflows are introduced.
 
@@ -96,14 +108,16 @@ Add new rows as additional resources or workflows are introduced.
 
 1. Build / update provider code.
 2. Create or update the example directory.
-3. Run the example locally (`pulumi preview` at minimum) to ensure it succeeds.
+3. Compile the example locally (`make build_examples`) and run `pulumi preview`
+   when credentials and a matching provider plugin are available. Compilation
+   and preview must not mutate Osano.
 4. Document any new config keys in the example README.
 5. Commit the example code alongside provider changes and regenerated SDKs.
 
 ## Troubleshooting
 
 - Use `pulumi config` for stack-scoped data (API keys, subject IDs, etc.).
-- When referencing local SDK builds during development, set `PULUMI_PYTHONPATH`, `NODE_PATH`, or `GOMODCACHE` as needed or rely on `pulumi plugin install --local`.
+- When referencing local SDK builds during development, point the example at the local SDK (`file:../../../sdk/nodejs/bin` for Node.js, a `replace` directive for Go, a `ProjectReference` for .NET, or an editable `-e ../../../sdk/python` requirement for Python) and install the locally built provider plugin with `pulumi plugin install resource osano 1.0.0-alpha.0+dev --file ./bin/pulumi-resource-osano --exact --reinstall`. The Makefile sets `PULUMI_IGNORE_AMBIENT_PLUGINS`, so a binary on `PATH` is not picked up.
 - If an example requires multiple resources, prefer separate files over large monoliths so users can quickly see the relevant snippet.
 
 ## Questions?

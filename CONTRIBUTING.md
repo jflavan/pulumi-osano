@@ -5,13 +5,14 @@ Thanks for helping improve the Pulumi Osano provider! The project mirrors the Pu
 ## Quick Start
 
 1. **Fork and clone** the repository.
-2. **Install toolchains** via [mise](https://mise.jdx.dev/):
+2. **Install toolchains** via [mise](https://mise.jdx.dev/) and activate them so `make` uses the pinned Go, Node, and Pulumi:
    ```bash
+   eval "$(mise activate zsh)"   # or bash
    mise install
    ```
 3. **Export credentials** when running examples or manual tests:
    ```bash
-   export OSANO_API_KEY="subject-profile-key"
+   export OSANO_API_KEY="customer-rest-cmp-key"
    export OSANO_UC_API_KEY="unified-consent-key"
    ```
 4. **Make your changes** (see workflow below).
@@ -21,12 +22,14 @@ Thanks for helping improve the Pulumi Osano provider! The project mirrors the Pu
    ```
 6. **Submit a pull request** with context and test results.
 
+To run an example against Osano from your clone, build and install the local provider plugin first; see section 1 of the [end-to-end workflow guide](docs/end-to-end-workflow.md).
+
 ## Development Workflow
 
 ### Prerequisites
 
 - Go (managed by mise, currently Go 1.24)
-- Node.js 20.x
+- Node.js 24.x (mise currently pins 24.13.0)
 - Python 3.11
 - .NET 8.0
 - Java 11+
@@ -43,7 +46,7 @@ Thanks for helping improve the Pulumi Osano provider! The project mirrors the Pu
 
 ### Adding or Updating Resources / Functions
 
-1. Implement the resource/invoke in `provider/<name>_resource.go` or `provider/functions.go` using the existing `Consent` implementation as a reference.
+1. Implement the resource/invoke in a dedicated `provider/<name>.go` file (for example `consent_resource.go` or `cookie_consent_rule.go`) or in `provider/functions.go` for invokes, using the existing implementations as a reference.
 2. Add or update unit tests (mock HTTP recommended).
 3. Run `make codegen`.
 4. Add/refresh examples (see [EXAMPLES.md](EXAMPLES.md)). At minimum provide a TypeScript example and README; multi-language samples are encouraged for widely used functionality.
@@ -51,6 +54,8 @@ Thanks for helping improve the Pulumi Osano provider! The project mirrors the Pu
    ```bash
    make lint
    make test_provider
+   make build_examples
+   make test_e2e_compile
    ```
 6. Document behavior changes in `docs/` and/or `README.md` as appropriate.
 
@@ -62,7 +67,11 @@ Thanks for helping improve the Pulumi Osano provider! The project mirrors the Pu
 | `make provider` | Build only the provider binary |
 | `make build` | Build provider **and** SDKs |
 | `make test_provider` | Run Go unit tests (mocked HTTP, no tokens needed) |
-| `make lint` | Run golangci-lint with repo defaults |
+| `make lint` | Run golangci-lint with repo defaults (uses `--fix`, so review the rewritten files) |
+| `make build_cookie_consent_examples` | Compile the canonical C# and companion TypeScript CMP examples without contacting Osano |
+| `make build_examples` | Compile the Cookie Consent examples and the Go quickstart |
+| `make test_e2e_compile` | Vet every `tests/e2e` build-tag set without credentials |
+| `make test_scripts` | Run the Python tests for the SDK post-processing scripts |
 
 ### Commit Message Guidance
 

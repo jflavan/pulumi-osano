@@ -4,7 +4,7 @@ PACK             := osano
 PACKDIR          := sdk
 PROJECT          := github.com/jflavan/pulumi-osano
 NODE_MODULE_NAME := @jflavan/pulumi-osano
-NUGET_PKG_NAME   := Pulumi.Osano
+NUGET_PKG_NAME   := Community.Pulumi.Osano
 
 PROVIDER        := pulumi-resource-${PACK}
 PROVIDER_PATH   := provider
@@ -17,29 +17,6 @@ export GOPATH   := $(shell go env GOPATH)
 
 WORKING_DIR     := $(shell pwd)
 TESTPARALLELISM := 4
-
-prepare:
-	@if test -z "${NAME}"; then echo "NAME not set"; exit 1; fi
-	@if test -z "${REPOSITORY}"; then echo "REPOSITORY not set"; exit 1; fi
-	@if test -z "${ORG}"; then echo "ORG not set"; exit 1; fi
-	@if test ! -d "provider/cmd/pulumi-resource-osano"; then "Project already prepared"; exit 1; fi # SED_SKIP
-
-	# SED needs to not fail when encountering unicode characters
-	LC_CTYPE=C
-	LANG=C
-
-	mv "provider/cmd/pulumi-resource-osano" provider/cmd/pulumi-resource-${NAME} # SED_SKIP
-
-	# In MacOS the -i parameter needs an empty  to execute in place.
-	if [[ "${OS}" == "Darwin" ]]; then \
-		find . \( -path './.git' -o -path './sdk' \) -prune -o -not -name 'go.sum' -type f -exec sed -i '' '/SED_SKIP/!s,github.com/pulumi/pulumi-[x]yz,${REPOSITORY},g' {} \; ; \
-		find . \( -path './.git' -o -path './sdk' \) -prune -o -not -name 'go.sum' -type f -exec sed -i '' '/SED_SKIP/!s/[xX]yz/${NAME}/g' {} \; ; \
-		find . \( -path './.git' -o -path './sdk' \) -prune -o -not -name 'go.sum' -type f -exec sed -i '' '/SED_SKIP/!s/[aA]bc/${ORG}/g' {} \; ; \
-	else \
-		find . \( -path './.git' -o -path './sdk' \) -prune -o -not -name 'go.sum' -type f -exec sed -i '/SED_SKIP/!s,github.com/pulumi/pulumi-[x]yz,${REPOSITORY},g' {} \; ; \
-		find . \( -path './.git' -o -path './sdk' \) -prune -o -not -name 'go.sum' -type f -exec sed -i '/SED_SKIP/!s/[xX]yz/${NAME}/g' {} \; ; \
-		find . \( -path './.git' -o -path './sdk' \) -prune -o -not -name 'go.sum' -type f -exec sed -i '/SED_SKIP/!s/[aA]bc/${ORG}/g' {} \; ; \
-	fi
 
 # Override during CI using `make [TARGET] PROVIDER_VERSION=""` or by setting a PROVIDER_VERSION environment variable
 # Local & branch builds will just used this fixed default version unless specified
@@ -95,6 +72,7 @@ sdk/python: $(SCHEMA_FILE)
 	$(PULUMI) package gen-sdk --language python $(SCHEMA_FILE) --version "${VERSION_GENERIC}"
 	# Pulumi SDK generator doesn't set version in setup.py, so we patch it manually
 	sed -i.bak 's/VERSION = "0.0.0"/VERSION = "${VERSION_GENERIC}"/' ${PACKDIR}/python/setup.py && rm ${PACKDIR}/python/setup.py.bak
+	@python3 scripts/normalize-python-sdk.py ${PACKDIR}/python
 	cp README.md ${PACKDIR}/python/
 
 sdk/dotnet: $(SCHEMA_FILE)
@@ -165,6 +143,17 @@ build:: provider build_sdks
 .PHONY: build_sdks
 build_sdks: dotnet_sdk go_sdk nodejs_sdk python_sdk java_sdk
 
+.PHONY: build_cookie_consent_examples build_examples
+build_cookie_consent_examples: dotnet_sdk nodejs_sdk
+	dotnet build examples/cookie-consent/csharp/CookieConsent.csproj
+	cd examples/cookie-consent/typescript && yarn install --frozen-lockfile && yarn run tsc --noEmit
+
+.PHONY: build_quickstart_examples
+build_quickstart_examples:
+	cd examples/quickstart/go && go build -o /dev/null .
+
+build_examples: build_cookie_consent_examples build_quickstart_examples
+
 # Required for the codegen action that runs in pulumi/pulumi
 only_build:: build
 
@@ -178,12 +167,18 @@ install:: install_nodejs_sdk install_dotnet_sdk
 
 GO_TEST := go test -race -v -count=1 -cover -timeout 2h -parallel ${TESTPARALLELISM}
 
-test_all:: test
-	cd provider/pkg && $(GO_TEST) ./...
-	cd tests/sdk/nodejs && $(GO_TEST) ./...
-	cd tests/sdk/python && $(GO_TEST) ./...
-	cd tests/sdk/dotnet && $(GO_TEST) ./...
-	cd tests/sdk/go && $(GO_TEST) ./...
+# Compiles every e2e build-tag set without running it, so a broken e2e suite fails without live credentials.
+.PHONY: test_e2e_compile
+test_e2e_compile:
+	go vet -tags 'e2e consentread' ./tests/...
+	go vet -tags 'e2e consentwrite' ./tests/...
+	go vet -tags 'e2e subjectverification' ./tests/...
+
+.PHONY: test_scripts
+test_scripts:
+	python3 -m unittest discover -s scripts -p 'test_*.py'
+
+test_all:: test test_e2e_compile test_scripts
 
 install_dotnet_sdk::
 	rm -rf $(WORKING_DIR)/nuget/$(NUGET_PKG_NAME).*.nupkg
@@ -204,52 +199,6 @@ install_nodejs_sdk::
 	yarn link --cwd $(WORKING_DIR)/sdk/nodejs/bin
 
 test:: test_provider
-
-# Set these variables to enable signing of the windows binary
-AZURE_SIGNING_CLIENT_ID ?=
-AZURE_SIGNING_CLIENT_SECRET ?=
-AZURE_SIGNING_TENANT_ID ?=
-AZURE_SIGNING_KEY_VAULT_URI ?=
-SKIP_SIGNING ?=
-
-bin/jsign-6.0.jar:
-	mkdir -p bin
-	wget https://github.com/ebourg/jsign/releases/download/6.0/jsign-6.0.jar --output-document=bin/jsign-6.0.jar
-
-sign-goreleaser-exe-amd64: GORELEASER_ARCH := amd64_v1
-sign-goreleaser-exe-arm64: GORELEASER_ARCH := arm64
-
-# Set the shell to bash to allow for the use of bash syntax.
-sign-goreleaser-exe-%: SHELL:=/bin/bash
-sign-goreleaser-exe-%: bin/jsign-6.0.jar
-	@# Only sign windows binary if fully configured.
-	@# Test variables set by joining with | between and looking for || showing at least one variable is empty.
-	@# Move the binary to a temporary location and sign it there to avoid the target being up-to-date if signing fails.
-	@set -e; \
-	if [[ "${SKIP_SIGNING}" != "true" ]]; then \
-		if [[ "|${AZURE_SIGNING_CLIENT_ID}|${AZURE_SIGNING_CLIENT_SECRET}|${AZURE_SIGNING_TENANT_ID}|${AZURE_SIGNING_KEY_VAULT_URI}|" == *"||"* ]]; then \
-			echo "Can't sign windows binaries as required configuration not set: AZURE_SIGNING_CLIENT_ID, AZURE_SIGNING_CLIENT_SECRET, AZURE_SIGNING_TENANT_ID, AZURE_SIGNING_KEY_VAULT_URI"; \
-			echo "To rebuild with signing delete the unsigned windows exe file and rebuild with the fixed configuration"; \
-			if [[ "${CI}" == "true" ]]; then exit 1; fi; \
-		else \
-			file=dist/build-provider-sign-windows_windows_${GORELEASER_ARCH}/pulumi-resource-osano.exe; \
-			mv $${file} $${file}.unsigned; \
-			az login --service-principal \
-				--username "${AZURE_SIGNING_CLIENT_ID}" \
-				--password "${AZURE_SIGNING_CLIENT_SECRET}" \
-				--tenant "${AZURE_SIGNING_TENANT_ID}" \
-				--output none; \
-			ACCESS_TOKEN=$$(az account get-access-token --resource "https://vault.azure.net" | jq -r .accessToken); \
-			java -jar bin/jsign-6.0.jar \
-				--storetype AZUREKEYVAULT \
-				--keystore "PulumiCodeSigning" \
-				--url "${AZURE_SIGNING_KEY_VAULT_URI}" \
-				--storepass "$${ACCESS_TOKEN}" \
-				$${file}.unsigned; \
-			mv $${file}.unsigned $${file}; \
-			az logout; \
-		fi; \
-	fi
 
 .PHONY:local_generate
 local_generate: # Required by CI

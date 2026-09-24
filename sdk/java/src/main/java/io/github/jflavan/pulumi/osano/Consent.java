@@ -52,9 +52,17 @@ public class Consent extends com.pulumi.resources.CustomResource {
     public Output<Optional<Map<String,String>>> attributes() {
         return Codegen.optional(this.attributes);
     }
+    /**
+     * Optional compliance metadata such as the privacy policy version and GPC signal.
+     *
+     */
     @Export(name="compliance", refs={ConsentCompliance.class}, tree="[0]")
     private Output</* @Nullable */ ConsentCompliance> compliance;
 
+    /**
+     * @return Optional compliance metadata such as the privacy policy version and GPC signal.
+     *
+     */
     public Output<Optional<ConsentCompliance>> compliance() {
         return Codegen.optional(this.compliance);
     }

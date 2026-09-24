@@ -21,24 +21,22 @@ const Name = "osano"
 
 // Provider wires up the Pulumi provider with its config, resources, and functions.
 func Provider() p.Provider {
-	if Version != "" {
-		providerVersion = Version
-	}
-
 	prov, err := infer.NewProviderBuilder().
 		WithDisplayName("Osano (Unofficial)").
 		WithDescription(
-			"Unofficial Pulumi provider for managing Osano Unified Consent resources. "+
+			"Unofficial Pulumi provider for managing Osano Cookie Consent and Unified Consent resources. "+
 				"Not affiliated with Pulumi Corporation or Osano, Inc.",
 		).
 		WithHomepage("https://github.com/jflavan/pulumi-osano").
 		WithRepository("https://github.com/jflavan/pulumi-osano").
+		WithLicense("MIT").
 		WithPluginDownloadURL("github://api.github.com/jflavan/pulumi-osano").
 		WithNamespace(Name).
 		WithConfig(infer.Config(&Config{})).
 		WithResources(
 			infer.Resource(&CookieConsentConfig{}),
 			infer.Resource(&CookieConsentRule{}),
+			infer.Resource(&CookieConsentPublication{}),
 			infer.Resource(&ConsentResource{}),
 		).
 		WithFunctions(
@@ -66,17 +64,20 @@ func Provider() p.Provider {
 			},
 			"nodejs": map[string]any{
 				"packageName":          "@jflavan/pulumi-osano",
-				"packageDescription":   "Pulumi provider for the Osano Unified Consent API.",
+				"packageDescription":   "Pulumi provider for Osano Cookie Consent and Unified Consent APIs.",
 				"respectSchemaVersion": true,
 			},
 			"python": map[string]any{
 				"packageName":        "pulumi_osano",
-				"packageDescription": "Pulumi provider for the Osano Unified Consent API.",
+				"packageDescription": "Pulumi provider for Osano Cookie Consent and Unified Consent APIs.",
 			},
 		}).
 		Build()
 	if err != nil {
 		panic(fmt.Errorf("unable to build provider: %w", err))
 	}
+	// The inferred default treats every provider config change as a replacement of the provider and
+	// therefore of every resource it manages; see diffProviderConfig.
+	prov.DiffConfig = diffProviderConfig
 	return prov
 }

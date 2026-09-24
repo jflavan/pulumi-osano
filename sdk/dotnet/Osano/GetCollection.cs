@@ -34,6 +34,9 @@ namespace Community.Pulumi.Osano
 
     public sealed class GetCollectionArgs : global::Pulumi.InvokeArgs
     {
+        /// <summary>
+        /// The privacy protocol collection ID to fetch.
+        /// </summary>
         [Input("collectionId", required: true)]
         public string CollectionId { get; set; } = null!;
 
@@ -45,6 +48,9 @@ namespace Community.Pulumi.Osano
 
     public sealed class GetCollectionInvokeArgs : global::Pulumi.InvokeArgs
     {
+        /// <summary>
+        /// The privacy protocol collection ID to fetch.
+        /// </summary>
         [Input("collectionId", required: true)]
         public Input<string> CollectionId { get; set; } = null!;
 

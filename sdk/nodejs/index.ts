@@ -20,6 +20,11 @@ export type CookieConsentConfig = import("./cookieConsentConfig").CookieConsentC
 export const CookieConsentConfig: typeof import("./cookieConsentConfig").CookieConsentConfig = null as any;
 utilities.lazyLoad(exports, ["CookieConsentConfig"], () => require("./cookieConsentConfig"));
 
+export { CookieConsentPublicationArgs } from "./cookieConsentPublication";
+export type CookieConsentPublication = import("./cookieConsentPublication").CookieConsentPublication;
+export const CookieConsentPublication: typeof import("./cookieConsentPublication").CookieConsentPublication = null as any;
+utilities.lazyLoad(exports, ["CookieConsentPublication"], () => require("./cookieConsentPublication"));
+
 export { CookieConsentRuleArgs } from "./cookieConsentRule";
 export type CookieConsentRule = import("./cookieConsentRule").CookieConsentRule;
 export const CookieConsentRule: typeof import("./cookieConsentRule").CookieConsentRule = null as any;
@@ -88,6 +93,8 @@ const _module = {
                 return new Consent(name, <any>undefined, { urn })
             case "osano:index:CookieConsentConfig":
                 return new CookieConsentConfig(name, <any>undefined, { urn })
+            case "osano:index:CookieConsentPublication":
+                return new CookieConsentPublication(name, <any>undefined, { urn })
             case "osano:index:CookieConsentRule":
                 return new CookieConsentRule(name, <any>undefined, { urn })
             default:
