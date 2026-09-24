@@ -8,6 +8,9 @@ on:
       - CHANGELOG.md
   workflow_dispatch: {}
 
+permissions:
+  contents: read
+
 env:
   PROVIDER: osano
   PULUMI_LOCAL_NUGET: ${{ github.workspace }}/nuget
@@ -21,6 +24,8 @@ jobs:
     if: github.event_name == 'repository_dispatch'
     runs-on: ubuntu-latest
     name: comment-notification
+    permissions:
+      pull-requests: write # To comment on the PR that ran the command.
     steps:
       - name: Create URL to the run output
         id: vars
@@ -48,7 +53,7 @@ jobs:
 
       - id: version
         name: Set Provider Version
-        uses: pulumi/provider-version-action@v1
+        uses: pulumi/provider-version-action@3a647064cf4697c7c6352b9a1d9e554450cbe957 # v1.6.1
         with:
           set-env: PROVIDER_VERSION
         env:
@@ -90,7 +95,7 @@ jobs:
 
       - if: always() && github.event_name == 'pull_request' && github.actor != 'dependabot[bot]'
         name: Comment on PR with Details of Schema Check
-        uses: thollander/actions-comment-pull-request@v3
+        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
         with:
           message: |
             ${{ env.SCHEMA_CHANGES }}
@@ -101,7 +106,7 @@ jobs:
         run: make provider
 
       - name: Check worktree clean
-        uses: pulumi/git-status-check-action@v1
+        uses: pulumi/git-status-check-action@54000b91124a8dd9fd6a872cb41f5dd246a46e7c # v1.1.1
         with:
           allowed-changes: |
             sdk/**/pulumi-plugin.json
@@ -128,7 +133,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238 # v4.6.0
         continue-on-error: true
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -155,7 +160,7 @@ jobs:
 
       - id: version
         name: Set Provider Version
-        uses: pulumi/provider-version-action@v1
+        uses: pulumi/provider-version-action@3a647064cf4697c7c6352b9a1d9e554450cbe957 # v1.6.1
         with:
           set-env: PROVIDER_VERSION
         env:
@@ -176,7 +181,7 @@ jobs:
         run: make build_${{ matrix.language }}
 
       - name: Check worktree clean
-        uses: pulumi/git-status-check-action@v1
+        uses: pulumi/git-status-check-action@54000b91124a8dd9fd6a872cb41f5dd246a46e7c # v1.1.1
         with:
           allowed-changes: |
             sdk/**/pulumi-plugin.json
@@ -211,7 +216,7 @@ jobs:
 
       - id: version
         name: Set Provider Version
-        uses: pulumi/provider-version-action@v1
+        uses: pulumi/provider-version-action@3a647064cf4697c7c6352b9a1d9e554450cbe957 # v1.6.1
         with:
           set-env: PROVIDER_VERSION
         env:
