@@ -9,7 +9,9 @@ import (
 	"strings"
 	"time"
 
+	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/infer"
+	"github.com/pulumi/pulumi/sdk/v3/go/property"
 )
 
 const (
@@ -80,6 +82,52 @@ func (c *Config) Configure(ctx context.Context) error {
 		c.RequestTimeoutSeconds = defaultRequestTimeoutSecs
 	}
 	return nil
+}
+
+// providerConfigKeys lists the provider inputs that diffProviderConfig compares. Engine-managed keys
+// such as version, pluginDownloadURL, and the __internal map are deliberately absent.
+var providerConfigKeys = []string{
+	"osanoApiKey", "unifiedConsentApiKey", "ucApiKey",
+	"customerBaseUrl", "apiBaseUrl", "ucBaseUrl", "requestTimeoutSeconds",
+}
+
+// diffProviderConfig reports provider configuration changes as in-place updates, never replacements.
+//
+// The framework default marks every changed config key as a replacement, and the Pulumi engine then
+// replaces every resource that uses the provider. Credentials, endpoints, and timeouts do not change
+// the identity of any Osano resource, and Osano cannot delete Cookie Consent configs, so rotating an
+// API key or tuning a timeout must not recreate configs, rules, or publications.
+//
+// Values are compared by their string form so the unchecked inputs recorded by `pulumi import`
+// (missing keys, numbers still encoded as strings) compare equal to the checked inputs a program run
+// records; otherwise the first `pulumi up` after an import would replace every imported resource.
+func diffProviderConfig(_ context.Context, req p.DiffRequest) (p.DiffResponse, error) {
+	diff := map[string]p.PropertyDiff{}
+	for _, key := range providerConfigKeys {
+		if configValueString(req.State.Get(key)) != configValueString(req.Inputs.Get(key)) {
+			diff[key] = p.PropertyDiff{Kind: p.Update, InputDiff: true}
+		}
+	}
+	return p.DiffResponse{HasChanges: len(diff) > 0, DetailedDiff: diff}, nil
+}
+
+func configValueString(value property.Value) string {
+	switch {
+	case value.IsComputed():
+		return "<unknown>"
+	case value.IsString():
+		return value.AsString()
+	case value.IsNumber():
+		// The only numeric input is requestTimeoutSeconds, where 0 and unset both mean the default.
+		if number := value.AsNumber(); number != 0 {
+			return strconv.FormatFloat(number, 'f', -1, 64)
+		}
+		return ""
+	case value.IsBool():
+		return strconv.FormatBool(value.AsBool())
+	default:
+		return ""
+	}
 }
 
 type apiSettings struct {

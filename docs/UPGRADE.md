@@ -33,6 +33,20 @@ These fixes change behavior without changing resource tokens:
 - Cookie Consent GET requests retry transport failures (for example a dropped
   connection during a long publication wait); writes still never replay after a
   transport failure.
+- Provider configuration changes (rotating `osano:osanoApiKey`, adding
+  `osano:requestTimeoutSeconds`, or changing a base URL) now update the provider
+  in place. Earlier builds reported every provider config change as a
+  replacement, so Pulumi replaced every Cookie Consent config, rule, and
+  publication and created duplicate Osano configurations. The same defect made
+  the first `pulumi up` after `pulumi import` replace the imported resources.
+- `CookieConsentConfig` and `CookieConsentRule` state now stores inputs as
+  applied. Keys Osano adds to `configuration` and server defaults for optional
+  rule fields the program leaves unset no longer produce a diff on every
+  `pulumi up`; refresh still surfaces drift in declared values.
+- Config create and update omit `orgIds` unless it is set and send an empty
+  list only to clear a previously managed value, instead of sending `null`.
+- A `CookieConsentPublication.webhookUrl` wired from another resource's output
+  no longer fails preview while it is unknown.
 
 ## Cookie Consent publication release
 
@@ -57,8 +71,9 @@ Cookie Consent resources now share the Customer REST configuration path:
 - A valid positive `OSANO_API_TIMEOUT_SECONDS` takes precedence over
   `osano:requestTimeoutSeconds`; otherwise provider config/default 60 seconds is
   used for individual Customer REST and Unified Consent HTTP calls.
-- Publication still needs a separate Pulumi create/update custom timeout; use
-  twenty minutes for Osano's asynchronous operation.
+- Publication waits for the resource's Pulumi create/update `customTimeouts`
+  and stops after twenty minutes when none is set; the examples set twenty
+  minutes explicitly.
 
 If credentials were previously supplied only for administrative routes, verify
 the same key is authorized for Customer REST CMP operations before applying.

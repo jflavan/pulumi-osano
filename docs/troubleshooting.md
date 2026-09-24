@@ -62,14 +62,15 @@ Osano does not provide them). It contains neither the config ID nor the API key.
 
 If the configuration was already in `error` before the publish request, Osano
 may keep reporting that same `error` until it starts the new operation. The
-provider allows six such unchanged polls (roughly 35 seconds) and then fails
-with `Osano did not start a new publication`, rather than waiting for the full
-publication timeout.
+provider fails on the sixth unchanged poll (about 25 seconds of backoff plus
+request time) with `Osano did not start a new publication`, rather than waiting
+for the full publication timeout.
 
 ### Publication timeout or cancellation
 
-Use a twenty-minute Pulumi create/update custom timeout for publication. The
-canonical C# example uses:
+The provider waits for the resource's Pulumi create/update `customTimeouts` and
+stops after twenty minutes when none is set. Set twenty minutes explicitly so
+the intent is visible in the program, as the canonical C# example does:
 
 ```csharp
 var publicationOptions = new CustomResourceOptions

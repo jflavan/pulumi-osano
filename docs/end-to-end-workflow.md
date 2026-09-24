@@ -50,7 +50,8 @@ The canonical program is [examples/cookie-consent](../examples/cookie-consent)
    - a `changeToken` derived deterministically (for example a SHA-256 hash)
      from every publish-relevant value, built from the same data the config
      and rules use;
-   - `customTimeouts` of 20 minutes for create and update.
+   - `customTimeouts` of 20 minutes for create and update; the provider waits
+     for that window and stops after 20 minutes when none is set.
 
 Deploy:
 
@@ -85,7 +86,9 @@ revision everywhere.
 Changing `configId` or a rule's `storeType` replaces that resource. Changing the
 publication's `keepUnclassifiedTattles`, `description`, or `webhookUrl` also
 republishes. `keepUnclassifiedTattles` defaults to `true` so publication does not
-delete unclassified discoveries.
+delete unclassified discoveries. Changing provider configuration, such as
+rotating the API key or adding `osano:requestTimeoutSeconds`, updates the
+provider in place and never replaces the Cookie Consent resources.
 
 If someone edits the configuration in the Osano dashboard, `pulumi refresh`
 reports the publication's `publishStatus` as `outdated` but never publishes.

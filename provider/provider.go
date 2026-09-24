@@ -76,5 +76,8 @@ func Provider() p.Provider {
 	if err != nil {
 		panic(fmt.Errorf("unable to build provider: %w", err))
 	}
+	// The inferred default treats every provider config change as a replacement of the provider and
+	// therefore of every resource it manages; see diffProviderConfig.
+	prov.DiffConfig = diffProviderConfig
 	return prov
 }

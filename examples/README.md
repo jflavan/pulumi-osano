@@ -27,7 +27,7 @@ publishes real customer resources.
 
 These examples are intended for use from a repository clone. The quickstart
 TypeScript example depends on the locally built Node.js SDK artifact, so run
-`mise exec -- make build_sdks` once before `npm install`. For Cookie Consent,
+`mise exec -- make nodejs_sdk` once before `npm install`. For Cookie Consent,
 run `mise exec -- make build_cookie_consent_examples`; it materializes the
 local SDK artifacts and compiles both examples without contacting Osano.
 `mise exec -- make build_examples` compiles the Cookie Consent examples and the

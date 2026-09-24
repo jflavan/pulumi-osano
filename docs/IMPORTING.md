@@ -35,6 +35,10 @@ API keys or other secrets.
 Before importing, ensure the program models the remote values and run
 `pulumi preview`. Import and preview do not mutate Osano.
 
+The first `pulumi up` after an import updates in place: it never replaces the
+imported configuration or rules, and it republishes at most once, when the
+program's `changeToken` differs from the adoption token.
+
 ## Unified Consent records
 
 The Osano Unified Consent API records immutable consent events rather than

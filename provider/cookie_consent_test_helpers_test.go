@@ -43,7 +43,11 @@ func cmpURN(resourceType, name string) resource.URN {
 
 func newCMPProviderServer(t *testing.T, customerBaseURL string) integration.Server {
 	t.Helper()
-	t.Setenv(envOsanoAPIKey, "")
+	// Clear every environment override the Customer REST client honors so a developer's shell
+	// cannot change the credentials or the 2-second request timeout these tests rely on.
+	for _, name := range []string{envOsanoAPIKey, envUnifiedConsent, envAPIBaseURL, envRequestTimeout} {
+		t.Setenv(name, "")
+	}
 	server, err := integration.NewServer(
 		t.Context(), Name, semver.MustParse("1.0.0"), integration.WithProvider(Provider()),
 	)

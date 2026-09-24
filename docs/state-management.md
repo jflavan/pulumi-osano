@@ -25,9 +25,11 @@ feed site deployment resources.
 
 ## Cookie Consent lifecycle
 
-- `CookieConsentConfig` state reflects the remote configuration and publication
-  metadata. Its delete is state-only because Osano exposes no configuration
-  delete endpoint.
+- `CookieConsentConfig` state stores the inputs as applied plus Osano's
+  publication metadata. Refresh surfaces drift in declared values, but the
+  `configuration` object tracks only the keys the program declares, so keys
+  Osano adds on its side never produce a diff. Its delete is state-only because
+  Osano exposes no configuration delete endpoint.
 - `CookieConsentRule` uses `<configId>/<ruleId>` identity. Deleting the Pulumi
   resource deletes the managed rule from Osano; a missing upstream rule is
   treated as already deleted.
@@ -37,6 +39,9 @@ feed site deployment resources.
   unchanged inputs are a no-op.
 - Publication delete is state-only because Osano exposes no unpublish endpoint.
   The upstream configuration and previously published script remain active.
+- Provider configuration changes (API key rotation, `requestTimeoutSeconds`,
+  base URLs) update the provider in place and never replace the resources it
+  manages.
 
 Build `changeToken` deterministically from every publish-relevant desired
 configuration and rule value. Do not hash API keys or depend on unstable map

@@ -252,10 +252,7 @@ func (r *CookieConsentRule) Create(
 	}
 
 	created := out.Items[0]
-	state, err := ruleResponseToState(req.Inputs, created)
-	if err != nil {
-		return infer.CreateResponse[CookieConsentRuleState]{}, fmt.Errorf("create rule response: %w", err)
-	}
+	state := cookieConsentRuleState(req.Inputs, created)
 	return infer.CreateResponse[CookieConsentRuleState]{
 		ID:     canonicalRuleID(state.ConfigID, created.RuleID),
 		Output: state,
@@ -288,13 +285,11 @@ func (r *CookieConsentRule) Read(
 		return infer.ReadResponse[CookieConsentRuleArgs, CookieConsentRuleState]{ID: ""}, nil
 	}
 
-	// On import req.Inputs is empty, so seed the config ID parsed from the resource ID.
-	inputs := req.Inputs
-	inputs.ConfigID = configID
-	state, err := ruleResponseToState(inputs, item)
+	args, err := cookieConsentRuleArgsFromResponse(item, configID, req.Inputs)
 	if err != nil {
 		return infer.ReadResponse[CookieConsentRuleArgs, CookieConsentRuleState]{}, fmt.Errorf("read rule response: %w", err)
 	}
+	state := cookieConsentRuleState(args, item)
 	return infer.ReadResponse[CookieConsentRuleArgs, CookieConsentRuleState]{
 		ID:     canonicalRuleID(state.ConfigID, state.RuleID),
 		Inputs: state.CookieConsentRuleArgs,
@@ -342,11 +337,7 @@ func (r *CookieConsentRule) Update(
 		return infer.UpdateResponse[CookieConsentRuleState]{Output: state}, nil
 	}
 
-	state, err := ruleResponseToState(req.Inputs, out)
-	if err != nil {
-		return infer.UpdateResponse[CookieConsentRuleState]{}, fmt.Errorf("update rule response: %w", err)
-	}
-	return infer.UpdateResponse[CookieConsentRuleState]{Output: state}, nil
+	return infer.UpdateResponse[CookieConsentRuleState]{Output: cookieConsentRuleState(req.Inputs, out)}, nil
 }
 
 // WireDependencies keeps ruleId known during update previews; it only changes on replacement.
@@ -438,37 +429,58 @@ func (r *CookieConsentRule) Diff(
 	}, nil
 }
 
-func ruleResponseToState(inputs CookieConsentRuleArgs, resp cmpRuleResponse) (CookieConsentRuleState, error) {
-	configID := inputs.ConfigID
+// cookieConsentRuleState combines the inputs Pulumi manages with Osano's server-side metadata.
+// Inputs are stored as applied rather than as echoed, so a server default for an optional field the
+// program leaves unset does not diff (and PATCH an explicit null) on every subsequent `pulumi up`.
+// Reading the response type is unnecessary here, so an unexpected type never orphans a rule that
+// the POST already created.
+func cookieConsentRuleState(args CookieConsentRuleArgs, resp cmpRuleResponse) CookieConsentRuleState {
+	return CookieConsentRuleState{
+		CookieConsentRuleArgs: args,
+		RuleID:                resp.RuleID,
+		Created:               resp.Created,
+		Updated:               resp.Updated,
+	}
+}
+
+// cookieConsentRuleArgsFromResponse derives refreshed inputs from a rule read. An import (no
+// declared inputs) adopts everything Osano reports, including the store type mapped from the
+// response type. A refresh keeps the declared identity, adopts the required fields so drift is
+// visible, and adopts optional fields only where the program declares them; unset optional fields
+// stay unmanaged.
+func cookieConsentRuleArgsFromResponse(
+	resp cmpRuleResponse, configID string, declared CookieConsentRuleArgs,
+) (CookieConsentRuleArgs, error) {
 	if resp.ConfigID != "" {
 		configID = resp.ConfigID
 	}
-	storeType := inputs.StoreType
-	if resp.Type != "" {
-		mappedStoreType, err := ruleStoreType(resp.Type)
-		if err != nil {
-			return CookieConsentRuleState{}, err
-		}
-		storeType = mappedStoreType
+	args := CookieConsentRuleArgs{
+		ConfigID:       configID,
+		StoreType:      declared.StoreType,
+		Classification: resp.Classification,
+		Rule:           resp.Rule,
+		Disclosure:     resp.Disclosure,
 	}
-
-	return CookieConsentRuleState{
-		CookieConsentRuleArgs: CookieConsentRuleArgs{
-			ConfigID:       configID,
-			StoreType:      storeType,
-			Classification: resp.Classification,
-			Rule:           resp.Rule,
-			Disclosure:     resp.Disclosure,
-			Title:          resp.Title,
-			VendorName:     resp.VendorName,
-			RuleType:       resp.RuleType,
-			Description:    resp.Description,
-			Expiry:         resp.Expiry,
-		},
-		RuleID:  resp.RuleID,
-		Created: resp.Created,
-		Updated: resp.Updated,
-	}, nil
+	imported := declared.Rule == ""
+	if resp.Type != "" && (imported || args.StoreType == "") {
+		storeType, err := ruleStoreType(resp.Type)
+		if err != nil {
+			return CookieConsentRuleArgs{}, err
+		}
+		args.StoreType = storeType
+	}
+	adopt := func(declaredValue, serverValue *string) *string {
+		if imported || declaredValue != nil {
+			return serverValue
+		}
+		return nil
+	}
+	args.Title = adopt(declared.Title, resp.Title)
+	args.VendorName = adopt(declared.VendorName, resp.VendorName)
+	args.RuleType = adopt(declared.RuleType, resp.RuleType)
+	args.Description = adopt(declared.Description, resp.Description)
+	args.Expiry = adopt(declared.Expiry, resp.Expiry)
+	return args, nil
 }
 
 type jsonClient interface {

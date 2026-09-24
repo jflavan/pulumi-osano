@@ -104,17 +104,23 @@ func (r *CookieConsentPublication) Check(
 		return infer.CheckResponse[CookieConsentPublicationArgs]{Inputs: args, Failures: failures}, err
 	}
 
-	if !req.NewInputs.Get("configId").HasComputed() && strings.TrimSpace(args.ConfigID) == "" {
+	propertyKnown := func(name string) bool {
+		return !req.NewInputs.Get(name).HasComputed()
+	}
+
+	args.ConfigID = strings.TrimSpace(args.ConfigID)
+	args.ChangeToken = strings.TrimSpace(args.ChangeToken)
+	if propertyKnown("configId") && args.ConfigID == "" {
 		failures = append(failures, p.CheckFailure{Property: "configId", Reason: "configId is required"})
 	}
-	if !req.NewInputs.Get("changeToken").HasComputed() && strings.TrimSpace(args.ChangeToken) == "" {
+	if propertyKnown("changeToken") && args.ChangeToken == "" {
 		failures = append(failures, p.CheckFailure{Property: "changeToken", Reason: "changeToken is required"})
 	}
 	if args.KeepUnclassifiedTattles == nil {
 		keep := true
 		args.KeepUnclassifiedTattles = &keep
 	}
-	if args.WebhookURL != nil && !validPublicationWebhookURL(*args.WebhookURL) {
+	if propertyKnown("webhookUrl") && args.WebhookURL != nil && !validPublicationWebhookURL(*args.WebhookURL) {
 		failures = append(failures, p.CheckFailure{
 			Property: "webhookUrl",
 			Reason:   "webhookUrl must be an absolute HTTP or HTTPS URL",
@@ -432,7 +438,9 @@ func withPublicationTimeout(ctx context.Context, timeout time.Duration) (context
 	if timeout <= 0 {
 		timeout = defaultPublicationTimeout
 	}
-	if deadline, ok := ctx.Deadline(); ok && time.Until(deadline) <= timeout {
+	// The engine turns the resource's create/update customTimeouts into a context deadline. Honor
+	// it as the user's explicit choice and apply the provider default only when there is none.
+	if _, ok := ctx.Deadline(); ok {
 		return context.WithCancel(ctx)
 	}
 	return context.WithTimeout(ctx, timeout)

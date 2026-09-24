@@ -24,7 +24,7 @@ Concise, task-agnostic instructions so an agent can work efficiently without ext
 - **Lint:** `make lint` (golangci-lint using `.golangci.yml` with `--fix`, so it rewrites files; CI temporarily rewrites `go:embed` to ` goembed`).
 - **Examples:** Example programs in `examples/` serve as documentation. `make build_examples` compiles the Cookie Consent examples and the Go quickstart without contacting Osano; run `pulumi up` only for an intentional live test with customer credentials.
 - **E2E compile check:** `make test_e2e_compile` vets every `tests/e2e` build-tag set without credentials.
-- **Language SDK builds (after codegen):** `make build_nodejs|build_python|build_go|build_dotnet|build_java`; they expect dependencies from mise and may write artifacts under `sdk/*`.
+- **Language SDK builds (after codegen):** `make build_nodejs|build_python|build_dotnet|build_java` (`build_go` is an empty CI stub; `make go_sdk` generates the Go SDK); they expect dependencies from mise and may write artifacts under `sdk/*`.
 
 ## Project layout shortcuts
 - `provider/`: Go provider implementation (`provider.go`, `config.go`, `client.go` and `consent_resource.go` for Unified Consent, `functions.go` for invokes, `customer_client.go` and `cookie_consent_*.go` for Cookie Consent, `internal/osano` for the Customer REST client, plus tests). Entry binary at `provider/cmd/pulumi-resource-osano/main.go`; schema extracted to `provider/cmd/.../schema.json`.
