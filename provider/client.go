@@ -345,17 +345,16 @@ func (c *apiClient) doJSON(
 	key headerKind,
 	expectedStatus ...int,
 ) (respBody []byte, status int, err error) {
-	base, err := url.Parse(c.settings.normalizedBaseURL())
-	if err != nil {
+	base := c.settings.normalizedBaseURL()
+	if _, err := url.Parse(base); err != nil {
 		return nil, 0, fmt.Errorf("invalid base URL %q: %w", c.settings.baseURL, err)
 	}
 
-	rel, err := url.Parse(path)
+	// Append rather than resolve so a base URL path prefix (for example a proxy mount) is kept.
+	fullURL, err := url.Parse(base + path)
 	if err != nil {
 		return nil, 0, fmt.Errorf("invalid path %q: %w", path, err)
 	}
-
-	fullURL := base.ResolveReference(rel)
 	if query != nil {
 		q := fullURL.Query()
 		for key, values := range query {

@@ -68,6 +68,7 @@ func (r *ConsentResource) Annotate(a infer.Annotator) {
 // Annotate documents the consent resource input schema.
 func (args *ConsentArgs) Annotate(a infer.Annotator) {
 	a.Describe(&args.Subject, "Subject identifiers used for the consent (verifiedId or anonymousId).")
+	a.Describe(&args.Compliance, "Optional compliance metadata such as the privacy policy version and GPC signal.")
 	a.Describe(
 		&args.Actions,
 		"Consent actions referencing privacy protocols (target) within a configuration (vendor).",
@@ -112,7 +113,7 @@ func (r *ConsentResource) Read(
 	}
 
 	client := newAPIClient(ctx)
-	payload, found, err := client.FetchUnifiedConsent(ctx, subjectRef, referenceType)
+	_, found, err := client.FetchUnifiedConsent(ctx, subjectRef, referenceType)
 	if err != nil {
 		return infer.ReadResponse[ConsentArgs, ConsentState]{}, err
 	}
@@ -120,17 +121,15 @@ func (r *ConsentResource) Read(
 		return infer.ReadResponse[ConsentArgs, ConsentState]{ID: ""}, nil
 	}
 
+	// The unified consent payload merges every consent for the subject, so it cannot be mapped back to
+	// this submission. Writing it into inputs would force a replacement (a duplicate consent POST) on
+	// the next update, so refresh only confirms the subject still has consent and records the sync time.
 	updatedState := req.State
 	updatedState.LastSynced = time.Now().UTC().Format(time.RFC3339)
 
-	if payload.UnifiedConsent != nil {
-		updatedState.Actions = convertActionsFromPayload(payload.UnifiedConsent.Actions)
-		updatedState.Attributes = convertAttributesFromPayload(payload.UnifiedConsent.Attributes)
-	}
-
 	return infer.ReadResponse[ConsentArgs, ConsentState]{
 		ID:     req.ID,
-		Inputs: updatedState.ConsentArgs,
+		Inputs: req.Inputs,
 		State:  updatedState,
 	}, nil
 }
@@ -229,33 +228,6 @@ func (args ConsentArgs) toPayload() consentRequestPayload {
 		Jurisdiction: args.Jurisdiction,
 		Tags:         args.Tags,
 	}
-}
-
-func convertActionsFromPayload(actions []unifiedConsentAction) []ConsentAction {
-	if len(actions) == 0 {
-		return nil
-	}
-	converted := make([]ConsentAction, 0, len(actions))
-	for _, action := range actions {
-		converted = append(converted, ConsentAction{
-			Target:       action.Target,
-			Vendor:       action.Vendor,
-			Action:       action.Action,
-			Jurisdiction: action.Jurisdiction,
-		})
-	}
-	return converted
-}
-
-func convertAttributesFromPayload(attrs map[string]any) map[string]string {
-	if len(attrs) == 0 {
-		return nil
-	}
-	out := make(map[string]string, len(attrs))
-	for k, v := range attrs {
-		out[k] = fmt.Sprintf("%v", v)
-	}
-	return out
 }
 
 type consentRequestPayload struct {

@@ -38,13 +38,14 @@ type Config struct {
 func (c *Config) Annotate(a infer.Annotator) {
 	a.Describe(
 		&c.OsanoAPIKey,
-		"Osano API key used for subject profile routes and Customer REST API/CMP operations "+
-			"(set via pulumi config set osano:osanoApiKey --secret or OSANO_API_KEY).",
+		"Osano API key used for subject send-code/verify routes and Customer REST API/CMP operations "+
+			"(set via pulumi config set osano:osanoApiKey --secret, or OSANO_API_KEY, which takes precedence).",
 	)
 	a.Describe(
 		&c.UnifiedConsentAPIKey,
 		"Unified Consent API key used for consent collection routes "+
-			"(set via pulumi config set osano:unifiedConsentApiKey --secret or OSANO_UC_API_KEY).",
+			"(set via pulumi config set osano:unifiedConsentApiKey --secret, or OSANO_UC_API_KEY, "+
+			"which takes precedence).",
 	)
 	a.Describe(&c.UCAPIKey, "Unified Consent API key for the Unified Consent Core API (x-uc-api-key).")
 	a.Deprecate(&c.UCAPIKey, "use unifiedConsentApiKey instead")
@@ -55,12 +56,13 @@ func (c *Config) Annotate(a infer.Annotator) {
 	a.Describe(
 		&c.APIBaseURL,
 		"Base URL for the Osano Unified Consent API. Override only when targeting a custom domain "+
-			"(default https://uc.api.osano.com).",
+			"(default https://uc.api.osano.com). OSANO_API_BASE_URL takes precedence when set.",
 	)
 	a.Describe(&c.UCBaseURL, "Override base URL for the Unified Consent Core API (default: https://uc.api.osano.com).")
 	a.Deprecate(&c.UCBaseURL, "use apiBaseUrl instead")
 	a.Describe(&c.RequestTimeoutSeconds,
-		"HTTP request timeout in seconds for Customer REST API and Unified Consent calls (default 60).",
+		"HTTP request timeout in seconds for Customer REST API and Unified Consent calls (default 60). "+
+			"OSANO_API_TIMEOUT_SECONDS takes precedence when set to a positive integer.",
 	)
 }
 
