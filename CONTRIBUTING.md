@@ -92,6 +92,17 @@ Add `BREAKING CHANGE:` in the footer for breaking API or behavior updates.
 - [ ] Docs/examples updated when behavior changes
 - [ ] PR description covers *what*, *why*, and *how tested*
 - [ ] Linked issues (if any) referenced in the PR body
+- [ ] `Code scanning results / CodeQL` passes, or any new alert is fixed or explained in the PR
+
+### Code Scanning (CodeQL)
+
+`.github/workflows/codeql.yml` (**CodeQL Advanced**) runs CodeQL with the `security-extended` queries on every pull request to `main`, every push to `main`, weekly, and on demand from the Actions tab. It needs no secrets, so fork pull requests get the same checks once a maintainer approves a first-time contributor's run. It analyzes the GitHub Actions workflows and composite actions, the Go code (all three Go modules), the Python scripts, example, and SDK, and the TypeScript examples and Node.js SDK. The generated C# and Java SDKs and the C# example are not scanned.
+
+- `Analyze (<language>)` fails only when the analysis itself fails, for example during tool setup, Go extraction, or upload. Read the job log. The Go analysis uses autobuild, which runs `make`. The first Makefile target, `ensure`, runs `go mod tidy`, so keep a cheap target first.
+- `Code scanning results / CodeQL` fails when the pull request adds an alert of `error` severity, or of `high` or `critical` security severity, on lines it changes. Medium and low alerts appear as annotations but do not fail the check.
+- To dismiss a false positive, go to **Security > Code scanning** and give a reason. Workflow alerts cannot be suppressed with inline comments. For an alert in `sdk/`, fix the provider or schema and run `make codegen`. Never hand-edit generated files.
+- Keep code scanning "default setup" disabled in the repository settings. Do not rename the workflow file, the `analyze` job, the matrix languages, or the `/language:<language>` categories.
+- Actions are pinned to commit SHAs. To upgrade CodeQL, move `github/codeql-action/init` and `github/codeql-action/analyze` to the same new release commit in one change, and update the `# vX.Y.Z` comments.
 
 ## Examples
 

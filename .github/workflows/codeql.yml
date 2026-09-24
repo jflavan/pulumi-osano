@@ -1,0 +1,72 @@
+# CodeQL code scanning (advanced setup). Maintainer notes: CONTRIBUTING.md, "Code Scanning (CodeQL)".
+# - Keep code scanning "default setup" disabled in the repository settings; enabling it turns this workflow off.
+# - Keep this file name, the `analyze` job id, the matrix languages and the categories stable. Renaming any of
+#   them orphans existing alerts, and PR results show "configuration not found" until main is re-analyzed.
+# - init and analyze must stay on the same github/codeql-action commit. Bump them together.
+name: CodeQL Advanced
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "27 5 * * 1" # weekly, Mondays 05:27 UTC
+  workflow_dispatch: {}
+
+permissions: {}
+
+concurrency:
+  # Cancel superseded runs of the same pull request only. Push, schedule and manual runs each get a
+  # unique group (their run id), so an analysis of main is never cancelled or replaced while pending.
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read # checkout and the PR diff lookup
+      security-events: write # upload results (accepted from fork pull requests too)
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: actions # .github/workflows/*.yml and .github/actions/*/action.yml
+            build-mode: none
+          - language: go # provider, tests/e2e helpers, sdk/go/osano, examples/quickstart/go
+            build-mode: autobuild # runs `make` (the first Makefile target), then extracts every Go module
+          - language: javascript-typescript # sdk/nodejs and the TypeScript examples
+            build-mode: none
+          - language: python # scripts/, sdk/python and the Python example
+            build-mode: none
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # Must run before init. Installs the go.mod toolchain (go1.24.10) and exports GOTOOLCHAIN=local,
+      # so no nested go.mod may require a newer Go than the root go.mod toolchain line.
+      - name: Set up Go
+        if: matrix.language == 'go'
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: "**/go.sum"
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+          # Default queries plus the medium-precision security queries; no code-quality queries.
+          # If a config-file is ever added, move the suite into it: this input overrides a config file's queries.
+          queries: security-extended
+
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
+        with:
+          category: "/language:${{ matrix.language }}"
