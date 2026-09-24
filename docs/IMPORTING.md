@@ -12,7 +12,9 @@ pulumi import osano:index:CookieConsentPublication publication <configId>
 ```
 
 A configuration import reads the remote configuration into state. It does not
-publish. A rule import requires the composite `<configId>/<ruleId>` identity;
+publish. A rule import requires the composite `<configId>/<ruleId>` identity,
+and reconstructs `storeType` from Osano's rule type (`cookie` becomes `cookies`,
+`script` becomes `scripts`, `iframe` becomes `iframes`);
 older tracked rules with numeric IDs remain readable, and refresh normalizes
 their identity without replacing the upstream rule.
 

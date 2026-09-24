@@ -22,6 +22,12 @@ credentials for:
 - Unified consent reads: `-tags "e2e consentread"`
 - Consent writes: `-tags "e2e consentwrite"`
 
+These suites call Osano's Unified Consent and subject-verification APIs directly through
+`tests/e2e/internal/api`; they do not run the provider binary. They confirm the upstream contract the
+provider relies on. The full Pulumi workflow (configuration, rules, publication, script outputs) is
+covered by mocked provider tests and by the opt-in example deployment described in the
+[end-to-end workflow guide](../docs/end-to-end-workflow.md).
+
 In addition to the build tag, each suite checks for an opt-in flag before hitting the live API:
 
 | Suite | Opt-in env | Description |
@@ -40,6 +46,20 @@ fails fast. Run the same check locally with:
 ```bash
 make test_e2e_compile
 ```
+
+The `acceptance_reads` CI job reads these repository secrets and skips itself (reporting success)
+when any required one is missing:
+
+| Secret | Required | Purpose |
+| --- | --- | --- |
+| `OSANO_UC_API_KEY` | Yes | Unified Consent API key |
+| `OSANO_TEST_SUBJECT_REF` | Yes | Subject used for lookups |
+| `OSANO_TEST_CONFIG_ID` | Yes | Config ID for consent-profile reads |
+| `OSANO_TEST_HASHED_SUBJECT_ID` | Yes | Hashed subject for consent-profile reads |
+| `OSANO_TEST_COLLECTION_ID` | Yes | Collection for the direct collection lookup |
+| `OSANO_TEST_REFERENCE_TYPE` | No | `subject` (default) or `anonymous` |
+| `OSANO_TEST_COLLECTIONS_JURISDICTION`, `OSANO_TEST_COLLECTIONS_TYPE` | No | Collection filters |
+| `OSANO_API_BASE_URL` | No | Non-default Unified Consent host |
 
 All suites honor an optional `OSANO_API_BASE_URL` to target a non-default Unified Consent host.
 Cookie Consent resources have no live e2e suite; their lifecycle is covered by mocked HTTP tests in

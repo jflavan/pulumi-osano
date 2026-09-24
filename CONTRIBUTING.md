@@ -5,8 +5,9 @@ Thanks for helping improve the Pulumi Osano provider! The project mirrors the Pu
 ## Quick Start
 
 1. **Fork and clone** the repository.
-2. **Install toolchains** via [mise](https://mise.jdx.dev/):
+2. **Install toolchains** via [mise](https://mise.jdx.dev/) and activate them so `make` uses the pinned Go, Node, and Pulumi:
    ```bash
+   eval "$(mise activate zsh)"   # or bash
    mise install
    ```
 3. **Export credentials** when running examples or manual tests:
@@ -20,6 +21,8 @@ Thanks for helping improve the Pulumi Osano provider! The project mirrors the Pu
    make test_provider
    ```
 6. **Submit a pull request** with context and test results.
+
+To run an example against Osano from your clone, build and install the local provider plugin first; see section 1 of the [end-to-end workflow guide](docs/end-to-end-workflow.md).
 
 ## Development Workflow
 

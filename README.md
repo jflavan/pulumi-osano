@@ -42,10 +42,10 @@ The provider lets you manage Osano Cookie Consent and Unified Consent workflows 
 
 ## Installation
 
-The plugin is installed automatically the first time you run `pulumi up`. To install manually:
+The SDK declares its provider plugin, and Pulumi downloads the matching release from GitHub the first time you run `pulumi preview` or `pulumi up`. To install it manually, pin the version and point Pulumi at the GitHub releases:
 
 ```bash
-pulumi plugin install resource osano
+pulumi plugin install resource osano <version> --server github://api.github.com/jflavan/pulumi-osano
 ```
 
 To add the provider to a Pulumi program, reference the matching SDK:
@@ -183,4 +183,4 @@ These repo-local examples contain `Pulumi.yaml` plus language-specific dependenc
 3. Run tests: `make test_provider`
 4. Regenerate schema + SDKs after editing Go code: `make codegen`
 
-See [CONTRIBUTING.md](https://github.com/jflavan/pulumi-osano/blob/main/CONTRIBUTING.md) and the [docs](https://github.com/jflavan/pulumi-osano/tree/main/docs) for release instructions, troubleshooting tips, and workflows.
+For the full lifecycle (install, deploy, day-2 changes, import, teardown, and the contributor loop) see the [end-to-end workflow guide](https://github.com/jflavan/pulumi-osano/blob/main/docs/end-to-end-workflow.md). See [CONTRIBUTING.md](https://github.com/jflavan/pulumi-osano/blob/main/CONTRIBUTING.md) and the [docs](https://github.com/jflavan/pulumi-osano/tree/main/docs) for release instructions, troubleshooting tips, and workflows.

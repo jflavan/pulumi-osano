@@ -10,8 +10,14 @@ Compilation, local provider installation, and `pulumi preview` do not publish
 to Osano. Only an opted-in `pulumi up` creates the configuration and rules and
 then queues publication. The publication depends on the configuration and
 every rule. Its deterministic `changeToken` is the SHA-256 hash of the complete
-desired configuration/rule descriptor, so an unchanged `pulumi up` does not
-publish again.
+desired configuration/rule descriptor, and the config and rules are built from
+that same descriptor, so any publish-relevant edit republishes exactly once and
+an unchanged `pulumi up` does not publish again. The C# and TypeScript programs
+serialize the descriptor differently, so their tokens differ for the same
+values; never copy a token between them.
+
+For day-2 changes, imports, and teardown in context, see the
+[end-to-end workflow guide](../../docs/end-to-end-workflow.md).
 
 ## C# from a clone
 

@@ -117,7 +117,7 @@ Add new rows as additional resources or workflows are introduced.
 ## Troubleshooting
 
 - Use `pulumi config` for stack-scoped data (API keys, subject IDs, etc.).
-- When referencing local SDK builds during development, point the example at the local SDK (`file:../../../sdk/nodejs/bin` for Node.js, a `replace` directive for Go, a `ProjectReference` for .NET, or `pip install -e sdk/python/bin` for Python) and put the locally built provider binary from `bin/` on your `PATH`.
+- When referencing local SDK builds during development, point the example at the local SDK (`file:../../../sdk/nodejs/bin` for Node.js, a `replace` directive for Go, a `ProjectReference` for .NET, or an editable `-e ../../../sdk/python` requirement for Python) and put the locally built provider binary from `bin/` on your `PATH`.
 - If an example requires multiple resources, prefer separate files over large monoliths so users can quickly see the relevant snippet.
 
 ## Questions?
