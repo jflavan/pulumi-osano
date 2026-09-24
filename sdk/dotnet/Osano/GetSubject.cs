@@ -35,7 +35,7 @@ namespace Community.Pulumi.Osano
     public sealed class GetSubjectArgs : global::Pulumi.InvokeArgs
     {
         /// <summary>
-        /// Reference type: subject (default) for a verified subject ID or anonymous for an anonymous ID.
+        /// Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
         /// </summary>
         [Input("referenceType")]
         public string? ReferenceType { get; set; }
@@ -55,7 +55,7 @@ namespace Community.Pulumi.Osano
     public sealed class GetSubjectInvokeArgs : global::Pulumi.InvokeArgs
     {
         /// <summary>
-        /// Reference type: subject (default) for a verified subject ID or anonymous for an anonymous ID.
+        /// Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
         /// </summary>
         [Input("referenceType")]
         public Input<string>? ReferenceType { get; set; }

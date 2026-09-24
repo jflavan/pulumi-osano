@@ -23,7 +23,7 @@ func GetUnifiedConsent(ctx *pulumi.Context, args *GetUnifiedConsentArgs, opts ..
 }
 
 type GetUnifiedConsentArgs struct {
-	// Reference type: subject (default) for a verified subject ID or anonymous for an anonymous ID.
+	// Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
 	ReferenceType *string `pulumi:"referenceType"`
 	// The subject reference to look up.
 	SubjectRef string `pulumi:"subjectRef"`
@@ -46,7 +46,7 @@ func GetUnifiedConsentOutput(ctx *pulumi.Context, args GetUnifiedConsentOutputAr
 }
 
 type GetUnifiedConsentOutputArgs struct {
-	// Reference type: subject (default) for a verified subject ID or anonymous for an anonymous ID.
+	// Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
 	ReferenceType pulumi.StringPtrInput `pulumi:"referenceType"`
 	// The subject reference to look up.
 	SubjectRef pulumi.StringInput `pulumi:"subjectRef"`

@@ -9,6 +9,9 @@ import (
 	"github.com/pulumi/pulumi-go-provider/infer"
 )
 
+const referenceTypeDescription = "Reference type: subject (default) for a verified subject ID, " +
+	"or anonymous for an anonymous ID."
+
 // GetUnifiedConsent exposes an invoke to fetch the latest unified consent summary for a subject.
 type GetUnifiedConsent struct{}
 
@@ -21,7 +24,7 @@ type GetUnifiedConsentArgs struct {
 // Annotate documents the getUnifiedConsent input fields.
 func (args *GetUnifiedConsentArgs) Annotate(a infer.Annotator) {
 	a.Describe(&args.SubjectRef, "The subject reference to look up.")
-	a.Describe(&args.ReferenceType, "Reference type: subject (default) for a verified subject ID or anonymous for an anonymous ID.")
+	a.Describe(&args.ReferenceType, referenceTypeDescription)
 }
 
 // GetUnifiedConsentResult is returned to Pulumi programs.
@@ -111,7 +114,7 @@ type GetSubjectArgs struct {
 // Annotate documents the getSubject input fields.
 func (args *GetSubjectArgs) Annotate(a infer.Annotator) {
 	a.Describe(&args.SubjectRef, "The subject reference to resolve.")
-	a.Describe(&args.ReferenceType, "Reference type: subject (default) for a verified subject ID or anonymous for an anonymous ID.")
+	a.Describe(&args.ReferenceType, referenceTypeDescription)
 }
 
 // GetSubjectResult provides the ID pairings for a subject reference.

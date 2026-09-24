@@ -798,7 +798,7 @@
         "properties": {
           "referenceType": {
             "type": "string",
-            "description": "Reference type: subject (default) for a verified subject ID or anonymous for an anonymous ID."
+            "description": "Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID."
           },
           "subjectRef": {
             "type": "string",
@@ -844,7 +844,7 @@
         "properties": {
           "referenceType": {
             "type": "string",
-            "description": "Reference type: subject (default) for a verified subject ID or anonymous for an anonymous ID."
+            "description": "Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID."
           },
           "subjectRef": {
             "type": "string",

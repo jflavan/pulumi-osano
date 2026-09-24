@@ -17,7 +17,7 @@ export function getUnifiedConsent(args: GetUnifiedConsentArgs, opts?: pulumi.Inv
 
 export interface GetUnifiedConsentArgs {
     /**
-     * Reference type: subject (default) for a verified subject ID or anonymous for an anonymous ID.
+     * Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
      */
     referenceType?: string;
     /**
@@ -45,7 +45,7 @@ export function getUnifiedConsentOutput(args: GetUnifiedConsentOutputArgs, opts?
 
 export interface GetUnifiedConsentOutputArgs {
     /**
-     * Reference type: subject (default) for a verified subject ID or anonymous for an anonymous ID.
+     * Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
      */
     referenceType?: pulumi.Input<string>;
     /**

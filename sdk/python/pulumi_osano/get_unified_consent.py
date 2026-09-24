@@ -77,7 +77,7 @@ def get_unified_consent(reference_type: Optional[_builtins.str] = None,
     Fetches the unified consent state for a subject reference using the Unified Consent API key.
 
 
-    :param _builtins.str reference_type: Reference type: subject (default) for a verified subject ID or anonymous for an anonymous ID.
+    :param _builtins.str reference_type: Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
     :param _builtins.str subject_ref: The subject reference to look up.
     """
     __args__ = dict()
@@ -98,7 +98,7 @@ def get_unified_consent_output(reference_type: Optional[pulumi.Input[Optional[_b
     Fetches the unified consent state for a subject reference using the Unified Consent API key.
 
 
-    :param _builtins.str reference_type: Reference type: subject (default) for a verified subject ID or anonymous for an anonymous ID.
+    :param _builtins.str reference_type: Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
     :param _builtins.str subject_ref: The subject reference to look up.
     """
     __args__ = dict()

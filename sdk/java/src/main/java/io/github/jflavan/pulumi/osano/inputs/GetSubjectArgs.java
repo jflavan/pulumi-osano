@@ -17,14 +17,14 @@ public final class GetSubjectArgs extends com.pulumi.resources.InvokeArgs {
     public static final GetSubjectArgs Empty = new GetSubjectArgs();
 
     /**
-     * Reference type: subject (default) for a verified subject ID or anonymous for an anonymous ID.
+     * Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
      *
      */
     @Import(name="referenceType")
     private @Nullable Output<String> referenceType;
 
     /**
-     * @return Reference type: subject (default) for a verified subject ID or anonymous for an anonymous ID.
+     * @return Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
      *
      */
     public Optional<Output<String>> referenceType() {
@@ -72,7 +72,7 @@ public final class GetSubjectArgs extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param referenceType Reference type: subject (default) for a verified subject ID or anonymous for an anonymous ID.
+         * @param referenceType Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
          *
          * @return builder
          *
@@ -83,7 +83,7 @@ public final class GetSubjectArgs extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param referenceType Reference type: subject (default) for a verified subject ID or anonymous for an anonymous ID.
+         * @param referenceType Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
          *
          * @return builder
          *
