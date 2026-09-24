@@ -70,7 +70,7 @@ This provider implements several security measures:
 - **SBOM Generation**: Software Bill of Materials included with releases
 - **SLSA Build Level 2 Provenance**: Build provenance attestations for Go binaries produced via standard GitHub Actions workflows (verifiable with `gh attestation verify`; not SLSA Level 3)
 - **Signed Package Releases**: npm and PyPI packages published with Sigstore attestations
-- **Code Scanning**: GitHub CodeQL (`security-extended` queries) analyzes the Go provider, the generated Go, Node.js, and Python SDKs, the Python and TypeScript code, and the GitHub Actions workflows on every pull request to `main`, every push to `main`, and weekly
+- **Code Scanning**: GitHub CodeQL (`security-extended` queries) analyzes the Go provider, the generated Go, Node.js, and Python SDKs, the Python and TypeScript code, and the GitHub Actions workflows on every pull request to `main`, every push to `main`, and weekly. Pull requests that introduce a new CodeQL alert cannot be merged
 
 ## Acknowledgments
 
