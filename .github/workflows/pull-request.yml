@@ -2,15 +2,15 @@ name: pull-request
 on:
   pull_request_target: {}
 
+# pull_request_target runs with a write token, so grant only what commenting needs and never check out PR code.
+permissions:
+  pull-requests: write
+
 jobs:
   comment-on-pr:
     runs-on: ubuntu-latest
     name: comment-on-pr
     steps:
-    - name: Checkout Repo
-      uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-      with:
-        lfs: true
     - name: Comment PR
       uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
       with:

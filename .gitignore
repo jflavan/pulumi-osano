@@ -33,3 +33,6 @@ coverage.txt
 
 # Local feature worktrees
 .worktrees/
+
+# Python bytecode from scripts/ tests
+__pycache__/

@@ -4,23 +4,27 @@ import (
 	osano "github.com/jflavan/pulumi-osano/sdk/go/osano"
 
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/pulumi/pulumi/sdk/v3/go/pulumi/config"
 )
 
 func main() {
 	pulumi.Run(func(ctx *pulumi.Context) error {
-		config := ctx.Config()
-		subjectRef := config.RequireSecret("subjectRef")
-		configID := config.Require("configId")
-		protocolID := config.Require("privacyProtocolId")
-		subjectType := config.Get("subjectType")
-		jurisdiction := config.Get("jurisdiction")
+		cfg := config.New(ctx, "")
+		subjectRef := cfg.RequireSecret("subjectRef")
+		configID := cfg.Require("configId")
+		protocolID := cfg.Require("privacyProtocolId")
+		subjectType := cfg.Get("subjectType")
 
-		subject := pulumi.All(subjectRef).ApplyT(func(values []interface{}) osano.ConsentSubject {
-			ref := values[0].(string)
+		var jurisdiction pulumi.StringPtrInput
+		if value := cfg.Get("jurisdiction"); value != "" {
+			jurisdiction = pulumi.String(value)
+		}
+
+		subject := subjectRef.ApplyT(func(ref string) osano.ConsentSubject {
 			if subjectType == "anonymous" {
-				return osano.ConsentSubject{AnonymousId: pulumi.StringPtr(ref)}
+				return osano.ConsentSubject{AnonymousId: &ref}
 			}
-			return osano.ConsentSubject{VerifiedId: pulumi.StringPtr(ref)}
+			return osano.ConsentSubject{VerifiedId: &ref}
 		}).(osano.ConsentSubjectOutput)
 
 		consent, err := osano.NewConsent(ctx, "example-consent", &osano.ConsentArgs{
@@ -30,7 +34,7 @@ func main() {
 					Target:       pulumi.String(protocolID),
 					Vendor:       pulumi.String(configID),
 					Action:       pulumi.String("ACCEPT"),
-					Jurisdiction: pulumi.StringPtr(jurisdiction),
+					Jurisdiction: jurisdiction,
 				},
 			},
 			Attributes: pulumi.StringMap{
