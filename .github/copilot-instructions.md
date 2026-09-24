@@ -21,18 +21,19 @@ Concise, task-agnostic instructions so an agent can work efficiently without ext
 - **Code generation rule (critical):** After any change in `provider/`, run `make codegen` to refresh `provider/cmd/.../schema.json` and all SDKs. CI fails if the worktree is dirty.
 - **Build provider only:** `make provider` (outputs `bin/pulumi-resource-osano`).
 - **Full build (provider + SDKs):** `make build` (calls `make build_sdks`; heavier).
-- **Lint:** `make lint` (golangci-lint using `.golangci.yml`; workflow temporarily rewrites `go:embed` to ` goembed`).
-- **Examples:** Example programs in `examples/` serve as documentation. `make build_cookie_consent_examples` compiles the Cookie Consent examples without contacting Osano; run `pulumi up` only for an intentional live test with customer credentials.
+- **Lint:** `make lint` (golangci-lint using `.golangci.yml` with `--fix`, so it rewrites files; CI temporarily rewrites `go:embed` to ` goembed`).
+- **Examples:** Example programs in `examples/` serve as documentation. `make build_examples` compiles the Cookie Consent examples and the Go quickstart without contacting Osano; run `pulumi up` only for an intentional live test with customer credentials.
+- **E2E compile check:** `make test_e2e_compile` vets every `tests/e2e` build-tag set without credentials.
 - **Language SDK builds (after codegen):** `make build_nodejs|build_python|build_go|build_dotnet|build_java`; they expect dependencies from mise and may write artifacts under `sdk/*`.
 
 ## Project layout shortcuts
-- `provider/`: Go provider implementation (`provider.go`, `config.go`, `client.go`, `*_resource.go`, tests). Entry binary at `provider/cmd/pulumi-resource-osano/main.go`; schema extracted to `provider/cmd/.../schema.json`.
+- `provider/`: Go provider implementation (`provider.go`, `config.go`, `client.go` and `consent_resource.go` for Unified Consent, `functions.go` for invokes, `customer_client.go` and `cookie_consent_*.go` for Cookie Consent, `internal/osano` for the Customer REST client, plus tests). Entry binary at `provider/cmd/pulumi-resource-osano/main.go`; schema extracted to `provider/cmd/.../schema.json`.
 - `sdk/`: Generated; do not hand-edit. Language-specific READMEs under each SDK.
 - `examples/`: Extensive Pulumi programs serving as documentation and reference implementations.
-- `docs/`: Guides, troubleshooting, sprint artifacts. `COPILOT.md` (coming soon) will repeat the “run make codegen after provider changes” rule.
+- `docs/`: Guides, troubleshooting, and design/plan artifacts under `docs/superpowers/`.
 - `Makefile`: All build/test targets and codegen steps; uses `pulumictl convert-version` and `pulumi package gen-sdk`.
-- Config & lint: `.config/mise.toml`, `.golangci.yml`, `.pulumi.version`.
-- GitHub Actions: `build.yml` (push) runs codegen, provider build/tests, SDK matrix build, example tests, and lint; `run-acceptance-tests.yml` runs on `comment /run-acceptance-tests`; `pull-request.yml` posts PR comment for maintainers; `release.yml` handles publishing.
+- Config & lint: `.config/mise.toml`, `.golangci.yml`. The Pulumi CLI version is derived from `go.mod` by `scripts/get-versions.sh`.
+- GitHub Actions: `build.yml` (push to main) and `run-acceptance-tests.yml` (every pull request, plus the `/run-acceptance-tests` comment command for fork PRs) run codegen, provider build/tests, the SDK matrix build, example and e2e compilation (`build_examples` job), lint, and read-only acceptance tests when secrets exist; `pull-request.yml` posts a PR comment for maintainers on fork PRs; `release.yml` handles publishing.
 
 ## Working tips to avoid CI friction
 - Always run `make codegen` after touching `provider/` Go code, then commit generated changes.

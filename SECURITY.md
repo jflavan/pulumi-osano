@@ -64,9 +64,9 @@ When reporting a vulnerability, please include:
 
 This provider implements several security measures:
 
-- **TLS 1.2+**: All API communications enforce TLS 1.2 or higher
+- **TLS 1.2+**: API calls use HTTPS with Go's default TLS client configuration, which requires TLS 1.2 or higher
 - **No Default Request-Body Logging**: Sensitive payloads are not logged by the provider by default
-- **Input Validation**: All inputs are validated before API calls
+- **Input Validation**: Resource inputs are validated before API calls; invokes check that required inputs are present
 - **SBOM Generation**: Software Bill of Materials included with releases
 - **SLSA Build Level 2 Provenance**: Build provenance attestations for Go binaries produced via standard GitHub Actions workflows (verifiable with `gh attestation verify`; not SLSA Level 3)
 - **Signed Package Releases**: npm and PyPI packages published with Sigstore attestations

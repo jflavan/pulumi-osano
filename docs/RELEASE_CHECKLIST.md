@@ -18,7 +18,8 @@ Use this checklist whenever publishing a new `pulumi-osano` provider release.
    make codegen
    make test_provider
    make build_sdks
-   make build_cookie_consent_examples
+   make build_examples
+   make test_e2e_compile
    git diff --exit-code
    ```
 

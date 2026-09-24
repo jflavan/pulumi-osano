@@ -55,8 +55,10 @@ update.
 - `pulumi destroy` deletes managed rules, but configuration/publication removal
   is state-only. Immutable Unified Consent submissions also remain upstream.
 
-For Unified Consent resources, refresh calls Osano for the subject's latest
-state. Consent submissions are append-only events, so removing a logical Pulumi
+For Unified Consent resources, refresh checks that the subject still has
+consent and updates `lastSynced`; it keeps the submitted inputs rather than the
+subject's merged consent view, so a refresh never triggers a replacement.
+Consent submissions are append-only events, so removing a logical Pulumi
 resource never erases the historical Osano record.
 
 Use Pulumi state diffs and audit logs to understand who applied each desired

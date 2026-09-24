@@ -13,8 +13,8 @@ and SDKs stay in sync.
 
 ## End-to-end tests
 
-Opt-in integration tests now live under [tests/e2e](tests/e2e). Shared helpers in
-[tests/e2e/internal/testenv](tests/e2e/internal/testenv/env.go) centralize the environment variables
+Opt-in integration tests now live under [tests/e2e](e2e). Shared helpers in
+[tests/e2e/internal/testenv](e2e/internal/testenv/env.go) centralize the environment variables
 each suite needs. Every test file is guarded by a build tag so you only run the flows you have
 credentials for:
 
@@ -30,13 +30,24 @@ In addition to the build tag, each suite checks for an opt-in flag before hittin
 | Consent reads | `OSANO_RUN_CONSENT_E2E` | Covers unified consent, subjects, profiles, config, and collections |
 | Consent writes | `OSANO_RUN_WRITE_E2E` | Submits a real consent record and validates read-back |
 
-The GitHub Actions acceptance workflow now runs the read-only suite automatically when the required
+The GitHub Actions acceptance workflow runs the read-only suite automatically when the required
 repository secrets are configured. Write and subject-verification suites remain opt-in/manual because
 they either mutate live data or require a one-time verification code.
 
+CI compiles every build-tag set on each pull request, even without secrets, so a broken e2e suite
+fails fast. Run the same check locally with:
+
+```bash
+make test_e2e_compile
+```
+
+All suites honor an optional `OSANO_API_BASE_URL` to target a non-default Unified Consent host.
+Cookie Consent resources have no live e2e suite; their lifecycle is covered by mocked HTTP tests in
+`provider/cookie_consent_*_test.go`, and Unified Consent invokes by `provider/unified_consent_test.go`.
+
 ### Subject verification flow
 
-Test location: [tests/e2e/subject_verification_test.go](tests/e2e/subject_verification_test.go)
+Test location: [tests/e2e/subject_verification_test.go](e2e/subject_verification_test.go)
 
 Required environment:
 
@@ -58,7 +69,7 @@ control and monitor it while the test runs.
 
 ### Unified consent read suite
 
-Test location: [tests/e2e/unified_consent_read_test.go](tests/e2e/unified_consent_read_test.go)
+Test location: [tests/e2e/unified_consent_read_test.go](e2e/unified_consent_read_test.go)
 
 Required environment:
 
@@ -81,7 +92,7 @@ profile reads. The second verifies config, filtered collections, and a direct co
 
 ### Consent write path
 
-Test location: [tests/e2e/consent_write_test.go](tests/e2e/consent_write_test.go)
+Test location: [tests/e2e/consent_write_test.go](e2e/consent_write_test.go)
 
 Required environment:
 

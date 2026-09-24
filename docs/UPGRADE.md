@@ -2,6 +2,28 @@
 
 This guide captures breaking changes and migration tips between provider versions.
 
+## Review hardening release
+
+These fixes change behavior without changing resource tokens:
+
+- `Consent` refresh keeps the submitted inputs and only updates `lastSynced`.
+  Earlier builds copied the subject's merged Unified Consent view into the
+  inputs, so the next `pulumi up` replaced the resource and submitted a
+  duplicate consent. Run `pulumi preview` after upgrading. If a stack refreshed
+  by an older build shows a `Consent` replacement caused only by `actions` or
+  `attributes`, applying it would submit a new consent record; to keep the
+  existing record instead, add `ignoreChanges: ["actions", "attributes"]` to
+  that resource.
+- Unified Consent requests keep any path prefix on `osano:apiBaseUrl` or
+  `OSANO_API_BASE_URL` (for example a proxy mounted at `/osano`). Earlier builds
+  sent `/v2/...` to the host root.
+- Cookie Consent config and rule creates are no longer retried after ambiguous
+  `500`/`502`/`504` responses. `429` and `503` are still retried, and
+  publication requests still retry every retryable status.
+- `verifySubjectCode.code` is now a secret input.
+- `CookieConsentConfig` preview accepts inputs that are unknown until apply, and
+  rule limits count characters rather than bytes.
+
 ## Cookie Consent publication release
 
 This release adds `osano:index:CookieConsentPublication` without changing the
@@ -56,21 +78,18 @@ deleting either of those resources removes only Pulumi state. A destroyed stack
 therefore retains the upstream configuration and published script; review and
 disable retained customer resources in Osano separately when required.
 
-## 0.x → 0.y
+## Pinning alpha releases
 
-The provider is still pre-1.0, so we may ship breaking changes between minor releases. Always pin your Pulumi program to an explicit version in `Pulumi.yaml`:
+The provider is pre-1.0 (`1.0.0-alpha.*`), so breaking changes can ship between
+alpha builds. Pin the SDK package to an exact version in your program's
+dependency manifest (`package.json`, `requirements.txt`, `.csproj`, or `go.mod`)
+and review the release notes before upgrading. The Pulumi engine installs the
+matching provider plugin for the pinned SDK version.
 
-```yaml
-plugins:
-  providers:
-    - name: osano
-      version: 0.2.0
-```
-
-### Consent resource shape changes
-
-- Fields may be renamed as Osano expands the API. Review the release notes for each version and update your Pulumi code accordingly.
-- When new required fields are added, run `pulumi preview` to spot the diff before applying.
+- Fields may be renamed as Osano expands the API. Review the release notes for
+  each version and update your Pulumi code accordingly.
+- When new required fields are added, run `pulumi preview` to spot the diff
+  before applying.
 
 ### SDK namespace changes
 

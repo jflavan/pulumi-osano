@@ -12,8 +12,7 @@ pulumi config set osano:unifiedConsentApiKey --secret
 ## Missing Customer REST API key
 
 `Osano API key not configured` means a Cookie Consent configuration, rule, or
-publication—or an administrative subject/profile route—needs the Customer REST
-API key. Set encrypted config or the environment variable:
+publication—or a subject send-code/verify function—needs the Osano API key. Set encrypted config or the environment variable:
 
 ```bash
 pulumi config set osano:osanoApiKey --secret
@@ -61,6 +60,12 @@ publish-relevant desired state (and therefore `changeToken`) and run one new
 `publishedRevision` from the current response (the metadata values are zero when
 Osano does not provide them). It contains neither the config ID nor the API key.
 
+If the configuration was already in `error` before the publish request, Osano
+may keep reporting that same `error` until it starts the new operation. The
+provider allows six such unchanged polls (roughly 35 seconds) and then fails
+with `Osano did not start a new publication`, rather than waiting for the full
+publication timeout.
+
 ### Publication timeout or cancellation
 
 Use a twenty-minute Pulumi create/update custom timeout for publication. The
@@ -107,6 +112,22 @@ before diagnosing the script as stale. See Osano's
 [direct Customer REST API `publishConfig` operation](https://developers.osano.com/customer-rest-api#tag/cmp/operation/publishConfig)
 and [Consent JavaScript API](https://developers.osano.com/cmp/javascript-api/developer-documentation-consent-javascript-api).
 
+## Cookie Consent create failed with a server error
+
+Config and rule creates are not retried after `500`, `502`, or `504`, because
+Osano may already have created the resource before the error was returned.
+Osano has no delete endpoint for configurations, so a blind retry could leave a
+permanent duplicate. `429` and `503` are still retried because they mean the
+request was not processed.
+
+Before re-running `pulumi up`, check Osano for a configuration or rule matching
+your inputs. If one exists, import it instead of creating another:
+
+```bash
+pulumi import osano:index:CookieConsentConfig consentConfig <configId>
+pulumi import osano:index:CookieConsentRule analyticsRule <configId>/<ruleId>
+```
+
 ## Other API errors
 
 ### `400 Bad Request`
@@ -122,7 +143,8 @@ config and apply once.
 
 ## Debug strategy
 
-1. Re-run with `PULUMI_LOGGING_OVERRIDE=debug` and redact credentials and PII.
+1. Re-run with `--logtostderr --logflow -v=9 2> pulumi-debug.log` and redact
+   credentials and PII (see [logging](logging.md)).
 2. Use `pulumi refresh` to inspect remote status without mutation.
 3. For Unified Consent, use `getUnifiedConsent` to inspect the subject's latest
    state.

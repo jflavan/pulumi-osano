@@ -15,6 +15,7 @@ The quickstart uses Unified Consent:
 - `subjectRef` – subject reference to operate on
 - `subjectType` – optional, either `verified` (default) or `anonymous`
 - `privacyProtocolId` / `configId` – values from the Osano dashboard
+- `jurisdiction` – optional jurisdiction applied to the consent action
 
 ## Cookie Consent credentials and configuration
 
@@ -29,3 +30,5 @@ TypeScript example depends on the locally built Node.js SDK artifact, so run
 `mise exec -- make build_sdks` once before `npm install`. For Cookie Consent,
 run `mise exec -- make build_cookie_consent_examples`; it materializes the
 local SDK artifacts and compiles both examples without contacting Osano.
+`mise exec -- make build_examples` compiles the Cookie Consent examples and the
+Go quickstart together.

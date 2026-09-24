@@ -1,27 +1,32 @@
 # Security Analysis
 
-The provider communicates with the Osano Unified Consent API on behalf of your Pulumi program. Treat it as part of your compliance boundary.
+The provider calls two Osano APIs on behalf of your Pulumi program: the Customer REST API (Cookie Consent configurations, rules, and publication) and the Unified Consent API (consent submissions and lookups). Treat it as part of your compliance boundary.
 
 ## Credentials
 
-- Two independent headers exist: `x-osano-api-key` (administrative routes) and `x-uc-api-key` (consent submission routes).
-- Prefer storing both via `pulumi config set osano:... --secret`. CI/CD should inject them through environment variables (`OSANO_API_KEY`, `OSANO_UC_API_KEY`).
-- Rotate keys regularly. When a key rotates, update the Pulumi config and re-run `pulumi refresh` to ensure the provider cache picks up the new value.
+- Two independent headers exist:
+  - `x-osano-api-key` (`osano:osanoApiKey` / `OSANO_API_KEY`): Customer REST API Cookie Consent operations, plus the subject send-code/verify routes.
+  - `x-uc-api-key` (`osano:unifiedConsentApiKey` / `OSANO_UC_API_KEY`): Unified Consent submission and lookup routes.
+- Store both with `pulumi config set osano:... --secret`. CI/CD can inject them through `OSANO_API_KEY` and `OSANO_UC_API_KEY`; environment variables take precedence over stack config.
+- Rotate keys regularly. The provider reads configuration fresh on every Pulumi operation, so the next `pulumi preview`, `up`, or `refresh` uses the rotated value.
 
 ## Network Access
 
-- All requests go to `https://uc.api.osano.com` unless you override `osano:apiBaseUrl`.
-- The provider respects standard corporate proxy variables (`HTTPS_PROXY`) because it uses the default Go HTTP stack.
+- Cookie Consent requests go to `https://api.osano.com` unless you override `osano:customerBaseUrl`.
+- Unified Consent requests go to `https://uc.api.osano.com` unless you override `osano:apiBaseUrl` or set `OSANO_API_BASE_URL`.
+- The provider honors standard proxy variables (`HTTPS_PROXY`, `NO_PROXY`) because it uses the default Go HTTP transport.
 
-## Data in Transit
+## Data in Transit and at Rest
 
-- Consent payloads contain subject identifiers and potentially IP addresses/tags. These values only exist in-memory inside the provider and in-flight to Osano.
-- Pulumi state stores the arguments you provide. Do not put subject secrets or verification codes into plain-text config or resource inputs.
+- Consent payloads contain subject identifiers and potentially IP addresses or tags. They exist in memory inside the provider and in flight to Osano.
+- Pulumi state stores the arguments you provide. Do not put subject secrets into plain-text config or resource inputs.
+- `verifySubjectCode.code` is marked secret in the schema. Email addresses and phone numbers passed to the verification functions are not, so prefer calling those functions from automation rather than long-lived stacks.
+- `CookieConsentPublication.scriptSrc` and `scriptTag` are public values intended for your site's HTML and are not secret.
 
 ## Auditing
 
-- Use Pulumi's audit logs (stacks + deployments) to see when consent submissions were triggered.
-- Osano keeps its own immutable log; you can cross-reference Pulumi deployment IDs with the `origin` or `attributes` fields you include in requests.
+- Use Pulumi's audit logs (stacks and deployments) to see when consent submissions and Cookie Consent publications were triggered.
+- Osano keeps its own immutable log; cross-reference Pulumi deployment IDs with the `origin` or `attributes` fields you include in consent requests.
 
 ## Future Work
 

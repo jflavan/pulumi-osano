@@ -19,7 +19,7 @@ The provider lets you manage Osano Cookie Consent and Unified Consent workflows 
 - Resolve anonymous vs. verified subject identifiers via the `osano.getSubject` invoke when stitching identity flows.
 - Inspect UC configuration and privacy protocol collections with `osano.getConfig`, `osano.getCollections`, and `osano.getCollection` invokes.
 - Check for existing consent state and hashed consent profiles with `osano.checkConsent` and `osano.getConsentProfile`.
-- Start and verify subject-profile challenges via `osano.sendSubjectCode` and `osano.verifySubjectCode` (requires the Osano API key).
+- Start and verify subject-profile challenges via `osano.sendSubjectCode` and `osano.verifySubjectCode` (requires the Osano API key). Pulumi runs invokes on every preview, update, and refresh, so call these two from automation rather than declaring them in a long-lived stack; otherwise each run sends a new code.
 - Wire Osano calls into your CI/CD pipelines with first-class Node.js, Python, Go, .NET, and Java SDKs.
 
 ## Table of contents
@@ -100,7 +100,7 @@ export const consentId = consent.consentId;
 
 Run `pulumi up` to submit the consent. Destroying the stack removes the logical Pulumi resource but does **not** delete historical events from Osano (they are immutable).
 
-If you're working from a repository clone instead of published packages, the repo-local examples under [examples/quickstart](./examples/quickstart) are aimed at contributors. Run `mise exec -- make build_sdks` once before using the TypeScript example so the local Node.js package exists.
+If you're working from a repository clone instead of published packages, the repo-local examples under [examples/quickstart](https://github.com/jflavan/pulumi-osano/tree/main/examples/quickstart) are aimed at contributors. Run `mise exec -- make build_sdks` once before using the TypeScript example so the local Node.js package exists.
 
 ## Cookie Consent end to end
 
@@ -135,13 +135,13 @@ Two API keys exist:
 | Key | Header | Usage |
 | --- | --- | --- |
 | Unified Consent API key | `x-uc-api-key` | Required for consent submissions and read operations |
-| Osano Customer REST API key | `x-osano-api-key` | Required for CMP configuration, rule, and publication resources; also used by administrative subject, merge, profile, and verification routes |
+| Osano Customer REST API key | `x-osano-api-key` | Required for Cookie Consent configuration, rule, and publication resources; also used by the `sendSubjectCode` and `verifySubjectCode` functions |
 
 Configure them with Pulumi config:
 
 ```bash
 pulumi config set osano:unifiedConsentApiKey --secret
-pulumi config set osano:osanoApiKey --secret   # required for Cookie Consent and administrative routes
+pulumi config set osano:osanoApiKey --secret   # required for Cookie Consent and subject verification
 ```
 
 Or set environment variables for CI:
@@ -157,19 +157,21 @@ Provider-level settings (all optional unless noted):
 
 | Key | Description |
 | --- | --- |
-| `osano:unifiedConsentApiKey` | Unified Consent API key (secret) |
-| `osano:osanoApiKey` | Customer REST API/CMP and administrative-route key (secret); `OSANO_API_KEY` takes precedence when set |
-| `osano:apiBaseUrl` | Override the API base URL; defaults to `https://uc.api.osano.com` |
+| `osano:unifiedConsentApiKey` | Unified Consent API key (secret); `OSANO_UC_API_KEY` takes precedence when set |
+| `osano:osanoApiKey` | Customer REST API key for Cookie Consent and subject verification (secret); `OSANO_API_KEY` takes precedence when set |
+| `osano:apiBaseUrl` | Override the Unified Consent API base URL, including any path prefix; defaults to `https://uc.api.osano.com`; `OSANO_API_BASE_URL` takes precedence when set |
 | `osano:customerBaseUrl` | Override the Customer REST API base URL; defaults to `https://api.osano.com` |
 | `osano:requestTimeoutSeconds` | HTTP timeout for Customer REST and Unified Consent calls, default 60 seconds; `OSANO_API_TIMEOUT_SECONDS` takes precedence when valid |
+
+The deprecated `osano:ucApiKey` and `osano:ucBaseUrl` keys are still read as fallbacks for `unifiedConsentApiKey` and `apiBaseUrl`.
 
 Resource-level inputs are documented in the auto-generated SDK docs (see the GoDoc badge above).
 
 ## Examples
 
-- [examples/quickstart/typescript](./examples/quickstart/typescript)
-- [examples/quickstart/python](./examples/quickstart/python)
-- [examples/quickstart/go](./examples/quickstart/go)
+- [examples/quickstart/typescript](https://github.com/jflavan/pulumi-osano/tree/main/examples/quickstart/typescript)
+- [examples/quickstart/python](https://github.com/jflavan/pulumi-osano/tree/main/examples/quickstart/python)
+- [examples/quickstart/go](https://github.com/jflavan/pulumi-osano/tree/main/examples/quickstart/go)
 - [examples/cookie-consent](https://github.com/jflavan/pulumi-osano/tree/main/examples/cookie-consent) (canonical C# and companion TypeScript)
 
 These repo-local examples contain `Pulumi.yaml` plus language-specific dependency files. The shared quickstart README documents the local SDK setup required when running them from a clone.
@@ -181,4 +183,4 @@ These repo-local examples contain `Pulumi.yaml` plus language-specific dependenc
 3. Run tests: `make test_provider`
 4. Regenerate schema + SDKs after editing Go code: `make codegen`
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) and the docs under `./docs` for release instructions, troubleshooting tips, and workflows.
+See [CONTRIBUTING.md](https://github.com/jflavan/pulumi-osano/blob/main/CONTRIBUTING.md) and the [docs](https://github.com/jflavan/pulumi-osano/tree/main/docs) for release instructions, troubleshooting tips, and workflows.
