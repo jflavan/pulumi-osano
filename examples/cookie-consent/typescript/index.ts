@@ -34,11 +34,13 @@ const changeToken = createHash("sha256")
     .update(JSON.stringify(publishDescriptor))
     .digest("hex");
 
+// Build the config from the same values hashed into changeToken, so any publish-relevant edit
+// also changes the token and triggers exactly one republish.
 const consentConfig = new osano.CookieConsentConfig("cookie-consent", {
     name: publishDescriptor.name,
-    domains: [domain],
-    mode,
-    configuration: cmpSettings,
+    domains: publishDescriptor.domains,
+    mode: publishDescriptor.mode,
+    configuration: publishDescriptor.configuration,
 });
 
 const rules = ruleDefinitions.map((definition) => new osano.CookieConsentRule(definition.name, {

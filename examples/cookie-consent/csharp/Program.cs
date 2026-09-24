@@ -44,16 +44,14 @@ return await Deployment.RunAsync(() =>
         JsonSerializer.Serialize(publishDescriptor)
     ))).ToLowerInvariant();
 
+    // Build the config from the same values hashed into changeToken, so any publish-relevant edit
+    // also changes the token and triggers exactly one republish.
     var consentConfig = new CookieConsentConfig("cookie-consent", new()
     {
         Name = publishDescriptor.Name,
-        Domains = { domain },
-        Mode = mode,
-        Configuration =
-        {
-            { "managePreferencesEnabled", true },
-            { "storagePolicyHref", storagePolicyHref },
-        },
+        Domains = publishDescriptor.Domains,
+        Mode = publishDescriptor.Mode,
+        Configuration = new Dictionary<string, object>(cmpSettings),
     });
 
     var rules = ruleDefinitions.Select(definition => new CookieConsentRule(definition.Name, new()
