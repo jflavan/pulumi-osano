@@ -371,3 +371,86 @@ func TestDoJSONRetryExhausted(t *testing.T) {
 		t.Fatalf("expected 3 attempts, got %d", got)
 	}
 }
+
+func TestDoJSONPreservesEscapedPathSegments(t *testing.T) {
+	t.Parallel()
+
+	var gotRawPath string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gotRawPath = r.URL.EscapedPath()
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	defer server.Close()
+
+	baseURL, _ := url.Parse(server.URL + "/root")
+	client := NewClient(baseURL, "x-api-key", "test-key")
+
+	pth := "/v1/configs/" + url.PathEscape("a/b c")
+	if err := client.DoJSON(context.Background(), http.MethodGet, pth, nil, nil, nil); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if want := "/root/v1/configs/a%2Fb%20c"; gotRawPath != want {
+		t.Fatalf("expected request path %q, got %q", want, gotRawPath)
+	}
+}
+
+func TestDoJSONPostRetryPolicy(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		name         string
+		status       int
+		writeRetries bool
+		wantAttempts int32
+	}{
+		{"502 is not replayed", http.StatusBadGateway, false, 1},
+		{"500 is not replayed", http.StatusInternalServerError, false, 1},
+		{"504 is not replayed", http.StatusGatewayTimeout, false, 1},
+		{"429 is retried", http.StatusTooManyRequests, false, 3},
+		{"503 is retried", http.StatusServiceUnavailable, false, 3},
+		{"502 is retried when write retries are allowed", http.StatusBadGateway, true, 3},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			var attempts atomic.Int32
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+				attempts.Add(1)
+				w.WriteHeader(tc.status)
+			}))
+			defer server.Close()
+
+			baseURL, _ := url.Parse(server.URL)
+			client := NewClient(
+				baseURL, "x-api-key", "test-key", WithMaxRetries(2), WithInitialBackoff(time.Millisecond),
+			)
+			ctx := context.Background()
+			if tc.writeRetries {
+				ctx = WithWriteRetries(ctx)
+			}
+
+			err := client.DoJSON(ctx, http.MethodPost, "/items", nil, map[string]string{"name": "x"}, nil)
+			if !IsHTTPStatus(err, tc.status) {
+				t.Fatalf("expected final HTTP %d error, got %v", tc.status, err)
+			}
+			if got := attempts.Load(); got != tc.wantAttempts {
+				t.Fatalf("expected %d attempts, got %d", tc.wantAttempts, got)
+			}
+		})
+	}
+}
+
+func TestRetryDelayCapsRetryAfter(t *testing.T) {
+	t.Parallel()
+
+	baseURL, _ := url.Parse("https://api.example.com")
+	client := NewClient(baseURL, "x-api-key", "key")
+	resp := &http.Response{Header: http.Header{}}
+	resp.Header.Set("Retry-After", "3600")
+
+	if delay := client.retryDelay(resp, 0); delay != maxRetryAfterDelay {
+		t.Fatalf("expected Retry-After to be capped at %s, got %s", maxRetryAfterDelay, delay)
+	}
+}

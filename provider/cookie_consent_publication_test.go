@@ -499,6 +499,36 @@ func TestPublishCookieConsentErrors(t *testing.T) {
 		}
 	})
 
+	t.Run("repeated stale error stops after bounded polls", func(t *testing.T) {
+		getCount := 0
+		postCount := 0
+		api := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			assertCMPRequest(t, r, r.Method, r.URL.Path)
+			if r.Method == http.MethodPost {
+				postCount++
+				w.WriteHeader(http.StatusNoContent)
+				return
+			}
+			getCount++
+			writePublicationConfigResponse(t, w, "error", 100, 3)
+		}))
+		defer api.Close()
+
+		_, err := publishCookieConsent(
+			t.Context(), newCMPJSONClient(t, api.URL), publicationArgsFixture(), zeroPublicationPollOptions(),
+		)
+		if err == nil || !strings.Contains(err.Error(), "did not start a new publication") ||
+			!strings.Contains(err.Error(), "status=error") {
+			t.Fatalf("expected bounded stale error diagnostic, got %v", err)
+		}
+		if postCount != 1 {
+			t.Fatalf("expected one POST, got %d", postCount)
+		}
+		if want := 1 + maxStaleErrorPolls; getCount != want {
+			t.Fatalf("expected baseline plus %d stale polls (%d GETs), got %d", maxStaleErrorPolls, want, getCount)
+		}
+	})
+
 	t.Run("unknown terminal status", func(t *testing.T) {
 		api := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 			writePublicationConfigResponse(t, w, "mystery", 100, 3)

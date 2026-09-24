@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 
 	osanoclient "github.com/jflavan/pulumi-osano/provider/internal/osano"
 
@@ -44,7 +45,11 @@ type CookieConsentRuleState struct {
 
 // Annotate documents the CookieConsentRule resource.
 func (r *CookieConsentRule) Annotate(a infer.Annotator) {
-	a.Describe(r, "Manages an Osano Cookie Consent (CMP) rule within a configuration.")
+	a.Describe(
+		r,
+		"Manages an Osano Cookie Consent (CMP) rule within a configuration. Import with `<configId>/<ruleId>`. "+
+			"Changing configId or storeType replaces the rule, and deleting this resource deletes the rule in Osano.",
+	)
 }
 
 // Annotate documents the CookieConsentRule input fields.
@@ -167,15 +172,15 @@ func (r *CookieConsentRule) Check(
 	case !propertyKnown("rule"):
 	case args.Rule == "":
 		failures = append(failures, p.CheckFailure{Property: "rule", Reason: "rule is required"})
-	case len(args.Rule) < 3:
+	case utf8.RuneCountInString(args.Rule) < 3:
 		failures = append(failures, p.CheckFailure{Property: "rule", Reason: "rule must be at least 3 characters"})
-	case len(args.Rule) > 1000:
+	case utf8.RuneCountInString(args.Rule) > 1000:
 		failures = append(failures, p.CheckFailure{Property: "rule", Reason: "rule must be at most 1000 characters"})
 	}
-	if propertyKnown("title") && args.Title != nil && len(*args.Title) > 64 {
+	if propertyKnown("title") && args.Title != nil && utf8.RuneCountInString(*args.Title) > 64 {
 		failures = append(failures, p.CheckFailure{Property: "title", Reason: "title must be at most 64 characters"})
 	}
-	if propertyKnown("vendorName") && args.VendorName != nil && len(*args.VendorName) > 100 {
+	if propertyKnown("vendorName") && args.VendorName != nil && utf8.RuneCountInString(*args.VendorName) > 100 {
 		failures = append(
 			failures,
 			p.CheckFailure{Property: "vendorName", Reason: "vendorName must be at most 100 characters"},
@@ -191,7 +196,7 @@ func (r *CookieConsentRule) Check(
 		)
 	}
 	if propertyKnown("description") && args.Description != nil {
-		if len(*args.Description) > 1000 {
+		if utf8.RuneCountInString(*args.Description) > 1000 {
 			failures = append(
 				failures,
 				p.CheckFailure{Property: "description", Reason: "description must be at most 1000 characters"},
@@ -205,7 +210,7 @@ func (r *CookieConsentRule) Check(
 		}
 	}
 	if propertyKnown("expiry") && args.Expiry != nil {
-		if len(*args.Expiry) > 50 {
+		if utf8.RuneCountInString(*args.Expiry) > 50 {
 			failures = append(failures, p.CheckFailure{Property: "expiry", Reason: "expiry must be at most 50 characters"})
 		}
 		if storeTypeKnown && args.StoreType != "cookies" {
@@ -239,7 +244,7 @@ func (r *CookieConsentRule) Create(
 	}
 
 	var out cmpRulesListResponse
-	if err := client.DoJSON(ctx, "POST", "/v1/cookie-consent/rules", nil, body, &out); err != nil {
+	if err := client.DoJSON(ctx, http.MethodPost, "/v1/cookie-consent/rules", nil, body, &out); err != nil {
 		return infer.CreateResponse[CookieConsentRuleState]{}, fmt.Errorf("create rule: %w", err)
 	}
 	if len(out.Items) == 0 {
@@ -283,7 +288,10 @@ func (r *CookieConsentRule) Read(
 		return infer.ReadResponse[CookieConsentRuleArgs, CookieConsentRuleState]{ID: ""}, nil
 	}
 
-	state, err := ruleResponseToState(req.Inputs, item)
+	// On import req.Inputs is empty, so seed the config ID parsed from the resource ID.
+	inputs := req.Inputs
+	inputs.ConfigID = configID
+	state, err := ruleResponseToState(inputs, item)
 	if err != nil {
 		return infer.ReadResponse[CookieConsentRuleArgs, CookieConsentRuleState]{}, fmt.Errorf("read rule response: %w", err)
 	}
@@ -299,7 +307,9 @@ func (r *CookieConsentRule) Update(
 	ctx context.Context, req infer.UpdateRequest[CookieConsentRuleArgs, CookieConsentRuleState],
 ) (infer.UpdateResponse[CookieConsentRuleState], error) {
 	if req.DryRun {
-		return infer.UpdateResponse[CookieConsentRuleState]{Output: req.State}, nil
+		preview := req.State
+		preview.CookieConsentRuleArgs = req.Inputs
+		return infer.UpdateResponse[CookieConsentRuleState]{Output: preview}, nil
 	}
 
 	cfg := infer.GetConfig[Config](ctx)
@@ -323,6 +333,13 @@ func (r *CookieConsentRule) Update(
 		&out,
 	); err != nil {
 		return infer.UpdateResponse[CookieConsentRuleState]{}, fmt.Errorf("update rule: %w", err)
+	}
+	if out.RuleID == 0 {
+		// An empty PATCH response carries no rule, so keep the applied inputs and prior metadata.
+		state := req.State
+		state.CookieConsentRuleArgs = req.Inputs
+		state.RuleID = ruleID
+		return infer.UpdateResponse[CookieConsentRuleState]{Output: state}, nil
 	}
 
 	state, err := ruleResponseToState(req.Inputs, out)

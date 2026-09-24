@@ -30,6 +30,20 @@ func TestCookieConsentConfigCheck(t *testing.T) {
 		}
 	})
 
+	for _, propertyName := range []string{"name", "domains", "mode", "configuration"} {
+		t.Run("computed "+propertyName+" defers validation", func(t *testing.T) {
+			values := validConfigCheckInputValues()
+			values[propertyName] = property.New(property.Computed)
+			resp, err := resource.Check(ctx, infer.CheckRequest{NewInputs: property.NewMap(values)})
+			if err != nil {
+				t.Fatal(err)
+			}
+			if len(resp.Failures) != 0 {
+				t.Fatalf("computed %s must not fail validation: %#v", propertyName, resp.Failures)
+			}
+		})
+	}
+
 	cases := []struct {
 		name       string
 		inputs     property.Map

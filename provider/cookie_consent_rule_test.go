@@ -20,6 +20,19 @@ func TestCookieConsentRuleCheck(t *testing.T) {
 	resource := &CookieConsentRule{}
 	ctx := context.Background()
 
+	t.Run("length limits count characters, not bytes", func(t *testing.T) {
+		values := validRuleCheckInputValues()
+		values["title"] = property.New(strings.Repeat("標", 64))
+		values["vendorName"] = property.New(strings.Repeat("é", 100))
+		resp, err := resource.Check(ctx, infer.CheckRequest{NewInputs: property.NewMap(values)})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(resp.Failures) != 0 {
+			t.Fatalf("expected multibyte values at the character limit to pass, got %#v", resp.Failures)
+		}
+	})
+
 	t.Run("valid inputs", func(t *testing.T) {
 		inputs := property.NewMap(validRuleCheckInputValues())
 		resp, err := resource.Check(ctx, infer.CheckRequest{NewInputs: inputs})
@@ -416,6 +429,58 @@ func TestCookieConsentRuleLifecycle(t *testing.T) {
 		}
 		assertCMPRuleProperties(t, resp.Properties)
 		assertCMPRuleInputs(t, resp.Inputs)
+	})
+
+	t.Run("import keeps the parsed config ID when list items omit configId", func(t *testing.T) {
+		api := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			assertCMPRequest(t, r, http.MethodGet, "/v1/cookie-consent/configs/config-abc/rules")
+			fixture := cmpRuleResponseFixture()
+			fixture.ConfigID = ""
+			writeCMPRulesListResponse(t, w, cmpRulesListResponse{Items: []cmpRuleResponse{fixture}})
+		}))
+		defer api.Close()
+
+		server := newCMPProviderServer(t, api.URL)
+		resp, err := server.Read(p.ReadRequest{
+			ID:         "config-abc/42",
+			Urn:        cmpURN("CookieConsentRule", "imported-without-config"),
+			Properties: emptyRuleStateProperties(),
+			Inputs:     emptyRuleInputProperties(),
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if resp.ID != "config-abc/42" {
+			t.Fatalf("expected canonical rule ID, got %q", resp.ID)
+		}
+		if got := resp.Inputs.Get("configId").AsString(); got != "config-abc" {
+			t.Fatalf("expected imported configId input config-abc, got %q", got)
+		}
+	})
+
+	t.Run("update with an empty response keeps applied inputs", func(t *testing.T) {
+		api := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			assertCMPRequest(t, r, http.MethodPatch, "/v1/cookie-consent/rules/42")
+			w.WriteHeader(http.StatusNoContent)
+		}))
+		defer api.Close()
+
+		server := newCMPProviderServer(t, api.URL)
+		resp, err := server.Update(p.UpdateRequest{
+			ID:     "config-abc/42",
+			Urn:    cmpURN("CookieConsentRule", "empty-update"),
+			State:  ruleStateProperties(),
+			Inputs: ruleInputProperties(),
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got := resp.Properties.Get("ruleId").AsNumber(); got != 42 {
+			t.Fatalf("expected ruleId 42 to be retained, got %v", got)
+		}
+		if got := resp.Properties.Get("classification").AsString(); got != "ANALYTICS" {
+			t.Fatalf("expected applied classification ANALYTICS, got %q", got)
+		}
 	})
 
 	t.Run("legacy ID read normalizes to a composite ID", func(t *testing.T) {

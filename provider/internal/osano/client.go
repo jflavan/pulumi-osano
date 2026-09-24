@@ -34,7 +34,22 @@ type ClientOption func(*Client)
 const (
 	defaultMaxRetries     = 3
 	defaultInitialBackoff = time.Second
+	maxRetryAfterDelay    = time.Minute
 )
+
+type writeRetriesKey struct{}
+
+// WithWriteRetries marks ctx so POST requests made with it are retried on any retryable status.
+// Use it only when repeating the POST cannot create a duplicate, for example when a replay is
+// answered with 409 Conflict.
+func WithWriteRetries(ctx context.Context) context.Context {
+	return context.WithValue(ctx, writeRetriesKey{}, true)
+}
+
+func writeRetriesAllowed(ctx context.Context) bool {
+	allowed, _ := ctx.Value(writeRetriesKey{}).(bool)
+	return allowed
+}
 
 // WithMaxRetries overrides the retry count for retryable responses.
 func WithMaxRetries(maxRetries int) ClientOption {
@@ -79,8 +94,15 @@ func NewClient(baseURL *url.URL, headerName, apiKey string, opts ...ClientOption
 func (c *Client) DoJSON(
 	ctx context.Context, method, pth string, query url.Values, in, out any,
 ) error {
+	// pth arrives with its segments already escaped, so join and resolve in escaped form.
 	requestURL := *c.baseURL
-	requestURL.Path = path.Join(c.baseURL.Path, pth)
+	escapedPath := path.Join("/", c.baseURL.EscapedPath(), pth)
+	unescapedPath, err := url.PathUnescape(escapedPath)
+	if err != nil {
+		return fmt.Errorf("invalid request path %q: %w", pth, err)
+	}
+	requestURL.Path = unescapedPath
+	requestURL.RawPath = escapedPath
 	requestURL.RawQuery = query.Encode()
 
 	var bodyBytes []byte
@@ -136,7 +158,7 @@ func (c *Client) DoJSON(
 			return nil
 		}
 
-		if shouldRetry(resp.StatusCode) && attempt < maxRetries {
+		if shouldRetryRequest(ctx, method, resp.StatusCode) && attempt < maxRetries {
 			delay := c.retryDelay(resp, attempt)
 			if err := sleepWithContext(ctx, delay); err != nil {
 				return err
@@ -157,10 +179,22 @@ func shouldRetry(statusCode int) bool {
 	return statusCode == http.StatusTooManyRequests || statusCode >= 500
 }
 
+// shouldRetryRequest avoids replaying POSTs after ambiguous 5xx responses, where the server may
+// already have created the resource. 429 and 503 indicate the request was not processed.
+func shouldRetryRequest(ctx context.Context, method string, statusCode int) bool {
+	if !shouldRetry(statusCode) {
+		return false
+	}
+	if method != http.MethodPost || writeRetriesAllowed(ctx) {
+		return true
+	}
+	return statusCode == http.StatusTooManyRequests || statusCode == http.StatusServiceUnavailable
+}
+
 func (c *Client) retryDelay(resp *http.Response, attempt int) time.Duration {
 	if resp != nil {
 		if delay, ok := retryAfterDelay(resp.Header.Get("Retry-After")); ok {
-			return delay
+			return min(delay, maxRetryAfterDelay)
 		}
 	}
 

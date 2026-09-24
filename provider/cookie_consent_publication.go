@@ -20,6 +20,10 @@ const (
 	defaultPublicationInitialInterval = time.Second
 	defaultPublicationMaxInterval     = 10 * time.Second
 	defaultPublicationTimeout         = 20 * time.Minute
+
+	// A config already in "error" may report the same error until Osano starts the new publication.
+	// Give up after this many unchanged polls rather than waiting for the full timeout.
+	maxStaleErrorPolls = 6
 )
 
 // CookieConsentPublication publishes an Osano Cookie Consent configuration and exposes its install script.
@@ -61,7 +65,9 @@ func (args *CookieConsentPublicationArgs) Annotate(a infer.Annotator) {
 	a.Describe(&args.ConfigID, "The Osano Cookie Consent config ID to publish. This is also the import ID.")
 	a.Describe(
 		&args.ChangeToken,
-		"A caller-managed desired-state token. Changing it queues a new publication; an unchanged token is a no-op.",
+		"A caller-managed desired-state token. Changing it queues a new publication. Changing "+
+			"keepUnclassifiedTattles, description, or webhookUrl also republishes; when no input changes, "+
+			"nothing is published.",
 	)
 	a.Describe(
 		&args.KeepUnclassifiedTattles,
@@ -75,7 +81,11 @@ func (args *CookieConsentPublicationArgs) Annotate(a infer.Annotator) {
 // Annotate documents CookieConsentPublication outputs.
 func (state *CookieConsentPublicationState) Annotate(a infer.Annotator) {
 	a.Describe(&state.CustomerID, "The Osano customer ID that owns the published configuration.")
-	a.Describe(&state.PublishStatus, "The publication status returned by Osano after completion.")
+	a.Describe(
+		&state.PublishStatus,
+		"The Osano publication status: published after a completed publish, and possibly outdated after "+
+			"a refresh when the config changed outside a publish.",
+	)
 	a.Describe(&state.LastPublished, "Unix timestamp of the completed Osano publication.")
 	a.Describe(&state.PublishedRevision, "The configuration revision most recently published by Osano.")
 	a.Describe(&state.ScriptSrc, "The public hosted Osano CMP JavaScript URL for this customer and config.")
@@ -301,8 +311,9 @@ func publishCookieConsent(
 	if args.WebhookURL != nil {
 		body["webhookUrl"] = *args.WebhookURL
 	}
+	// Replaying the publish POST is safe: an already-queued publication answers 409, which is joined below.
 	err := client.DoJSON(
-		ctx,
+		osanoclient.WithWriteRetries(ctx),
 		http.MethodPost,
 		cookieConsentConfigPath(args.ConfigID)+"/publish",
 		nil,
@@ -316,6 +327,7 @@ func publishCookieConsent(
 
 	interval := opts.InitialInterval
 	seenInProgress := false
+	staleErrorPolls := 0
 	for {
 		var current cmpConfigResponse
 		if err := client.DoJSON(
@@ -348,6 +360,13 @@ func publishCookieConsent(
 				current.PublishedRevision != baseline.PublishedRevision
 			if freshError {
 				return CookieConsentPublicationState{}, publicationStatusError(current)
+			}
+			staleErrorPolls++
+			if staleErrorPolls >= maxStaleErrorPolls {
+				return CookieConsentPublicationState{}, fmt.Errorf(
+					"Osano did not start a new publication after %d polls: %w",
+					staleErrorPolls, publicationStatusError(current),
+				)
 			}
 		default:
 			return CookieConsentPublicationState{}, publicationStatusError(current)

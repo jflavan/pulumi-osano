@@ -44,7 +44,12 @@ type CookieConsentConfigState struct {
 
 // Annotate documents the CookieConsentConfig resource.
 func (r *CookieConsentConfig) Annotate(a infer.Annotator) {
-	a.Describe(r, "Manages an Osano Cookie Consent (CMP) configuration.")
+	a.Describe(
+		r,
+		"Manages an Osano Cookie Consent (CMP) configuration. Import with the Osano config ID. "+
+			"Osano has no delete endpoint for configs, so deleting this resource only removes it from "+
+			"Pulumi state and retains the upstream configuration.",
+	)
 }
 
 // Annotate documents the CookieConsentConfig input fields.
@@ -68,10 +73,7 @@ func (state *CookieConsentConfigState) Annotate(a infer.Annotator) {
 	a.Describe(&state.PublishStatus, "Current Osano publication status for the configuration.")
 	a.Describe(&state.LastPublished, "Unix timestamp when Osano last published the configuration.")
 	a.Describe(&state.PublishedRevision, "Revision number most recently published by Osano.")
-	a.Describe(
-		&state.TattleRecordStopped,
-		"Whether Osano stopped the tattle record. Deleting this Pulumi resource retains the upstream configuration.",
-	)
+	a.Describe(&state.TattleRecordStopped, "Whether Osano stopped recording discoveries (tattles) for the configuration.")
 }
 
 type cmpConfigResponse struct {
@@ -100,14 +102,19 @@ func (r *CookieConsentConfig) Check(
 		return infer.CheckResponse[CookieConsentConfigArgs]{Inputs: args, Failures: failures}, err
 	}
 
-	if args.Name == "" {
+	propertyKnown := func(name string) bool {
+		return !req.NewInputs.Get(name).HasComputed()
+	}
+
+	if propertyKnown("name") && args.Name == "" {
 		failures = append(failures, p.CheckFailure{Property: "name", Reason: "name is required"})
 	}
-	if len(args.Domains) == 0 {
+	if propertyKnown("domains") && len(args.Domains) == 0 {
 		failures = append(failures, p.CheckFailure{Property: "domains", Reason: "at least one domain is required"})
 	}
-	switch args.Mode {
-	case "debug", "permissive", "production":
+	switch {
+	case !propertyKnown("mode"):
+	case args.Mode == "debug", args.Mode == "permissive", args.Mode == "production":
 	default:
 		failures = append(
 			failures,
@@ -116,6 +123,9 @@ func (r *CookieConsentConfig) Check(
 				Reason:   "mode must be one of: debug, permissive, production",
 			},
 		)
+	}
+	if !propertyKnown("configuration") {
+		return infer.CheckResponse[CookieConsentConfigArgs]{Inputs: args, Failures: failures}, nil
 	}
 	if args.Configuration == nil {
 		failures = append(failures, p.CheckFailure{Property: "configuration", Reason: "configuration is required"})
@@ -196,7 +206,9 @@ func (r *CookieConsentConfig) Update(
 	ctx context.Context, req infer.UpdateRequest[CookieConsentConfigArgs, CookieConsentConfigState],
 ) (infer.UpdateResponse[CookieConsentConfigState], error) {
 	if req.DryRun {
-		return infer.UpdateResponse[CookieConsentConfigState]{Output: req.State}, nil
+		preview := req.State
+		preview.CookieConsentConfigArgs = req.Inputs
+		return infer.UpdateResponse[CookieConsentConfigState]{Output: preview}, nil
 	}
 
 	cfg := infer.GetConfig[Config](ctx)
