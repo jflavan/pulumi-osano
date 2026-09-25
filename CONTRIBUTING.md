@@ -31,7 +31,7 @@ To run an example against Osano from your clone, build and install the local pro
 - Go (the `go.mod` toolchain, currently go1.24.10, installed by mise)
 - Node.js 24.x (mise currently pins 24.13.0)
 - Python 3.11
-- .NET 8.0
+- .NET 10 SDK (mise pins 10.0.401; it also builds the .NET 8 targets)
 - Java 11+
 - Gradle 7.6 (installed by `mise install`; used by `make build_java`)
 - Pulumi CLI + pulumictl (installed by `mise install`)

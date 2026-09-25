@@ -26,7 +26,7 @@ Import names and requirements, as published in `0.1.0`:
 | Node.js | `import * as osano from "@jflavan/pulumi-osano";` | `@pulumi/pulumi` `^3.142.0` |
 | Python | `import pulumi_osano as osano` | Python 3.9 or later, `pulumi>=3.165.0,<4.0.0` |
 | Go | `import "github.com/jflavan/pulumi-osano/sdk/go/osano"` | Go 1.24.7 or later, `github.com/pulumi/pulumi/sdk/v3` v3.212.0 or later |
-| .NET | `using Community.Pulumi.Osano;` | .NET 6 or later (the package targets `net6.0`), `Pulumi` `[3.76.1, 4.0.0)` |
+| .NET | `using Community.Pulumi.Osano;` | .NET 8 or later, tested with .NET 8 and .NET 10 (the package targets `net6.0`, which NuGet resolves for any later framework), `Pulumi` `[3.76.1, 4.0.0)` |
 | Java | `import io.github.jflavan.pulumi.osano.*;` | Java 11 or later, `com.pulumi:pulumi` |
 
 ### Java
