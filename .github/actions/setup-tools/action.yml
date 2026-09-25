@@ -45,9 +45,6 @@ runs:
           sdk/*.sum
           *.sum
 
-    - name: Setup Node
-      uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
-      with:
-        # we don't set node-version because we install with mise.
-        # this step is needed to setup npm auth
-        registry-url: https://registry.npmjs.org
+    # Node comes from mise. npm auth is set up only by the release jobs that publish (release.yml):
+    # setup-node v7 no longer exports a placeholder NODE_AUTH_TOKEN, and yarn fails on the unset
+    # ${NODE_AUTH_TOKEN} in the .npmrc that registry-url writes.
