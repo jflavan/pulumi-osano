@@ -42,9 +42,12 @@ or Pulumi Corporation.
   GitHub releases (`github://api.github.com/jflavan/pulumi-osano`) on first use.
 - Provider binaries for Linux, macOS, and Windows on amd64 and arm64, with SHA-256 checksums, an
   SBOM per archive, and SLSA build provenance attestations.
-- Retries with exponential backoff for retryable Osano API responses, honoring `Retry-After` (capped
-  at one minute). Ambiguous 5xx responses to POST requests are not replayed unless the operation is
-  safe to repeat.
+- Cookie Consent (Customer REST API) calls retry `429` and `503` responses with exponential backoff,
+  honoring `Retry-After` (capped at one minute). Reads, updates, deletes, and the publish request also
+  retry other `5xx` responses, and reads retry dropped connections. Config and rule creates are not
+  replayed after an ambiguous `5xx` response, so a server error never creates a duplicate. The
+  `Consent` resource and every function, including `sendSubjectCode` and `verifySubjectCode`, send
+  each request once, without retries.
 - Every HTTP request identifies the provider with the `pulumi-osano/<version>` user agent.
 - Documentation: quickstart examples (TypeScript, Python, Go), a canonical Cookie Consent example
   (C# with a TypeScript companion), an end-to-end workflow guide, importing, upgrade,
