@@ -3,17 +3,18 @@
 Use this checklist whenever publishing a new `pulumi-osano` provider release.
 [RELEASE_GUIDE.md](RELEASE_GUIDE.md) explains each step in detail.
 
-1. **Check the one-time setup** (first release, or after rotating credentials)
+1. **Check the one-time setup** (in place since `v0.1.0`; recheck after rotating credentials or
+   changing a publisher)
    - Repository secrets exist: `NUGET_USERNAME`, `MAVEN_CENTRAL_USERNAME`,
      `MAVEN_CENTRAL_PASSWORD`, `JAVA_SIGNING_KEY`, `JAVA_SIGNING_KEY_ID`, and
-     `JAVA_SIGNING_PASSWORD`. `NPM_TOKEN` is optional (see the npm bootstrap in the release
-     guide).
+     `JAVA_SIGNING_PASSWORD`. `NPM_TOKEN` is not set and not needed.
    - Trusted publishers point at owner `jflavan`, repository `pulumi-osano`, workflow
-     `release.yml`, and no environment: the PyPI pending publisher for `pulumi-osano` and the
-     NuGet trusted publishing policy (and, from the second release on, the npm trusted publisher
-     for `@jflavan/pulumi-osano`).
-   - The Maven Central namespace `io.github.jflavan` is verified and the signing public key is on
-     a public key server.
+     `release.yml`, and no environment: the npm trusted publisher for `@jflavan/pulumi-osano`
+     (with **npm publish** allowed), the PyPI trusted publisher for `pulumi-osano`, and the NuGet
+     trusted publishing policy.
+   - The Maven Central namespace `io.github.jflavan` is verified, and the signing public key
+     (fingerprint `5277 E261 0B7E 7021 6871  969A 4809 7CF9 4C3F 74F3`) is on
+     `keyserver.ubuntu.com` and `keys.openpgp.org`.
 2. **Do not bump versions in files**
    - The release version comes from the tag. The committed schema and SDKs stay at the Makefile's
      development version (`0.1.0-alpha.0+dev`); the release workflow stamps the real version.
@@ -50,11 +51,15 @@ Use this checklist whenever publishing a new `pulumi-osano` provider release.
    - The Pulumi Registry pages `docs/_index.md` and `docs/installation-configuration.md` match
      the provider's resources, functions, and configuration, start with YAML front matter, and
      use only absolute links.
+   - `docs/PUBLISHING.md` and the README badges and install commands name the published
+     packages, and the version-pinned commands name the new version: the README's Java and plugin
+     commands, `docs/PUBLISHING.md`, `docs/UPGRADE.md`, `docs/troubleshooting.md`, the
+     released-package sections of the example READMEs, and, for a new minor version, the
+     supported-versions table in `SECURITY.md`.
 6. **Update the changelog**
    - In the release PR, move the `## [Unreleased]` entries of `CHANGELOG.md` into
-     `## [X.Y.Z] - YYYY-MM-DD` and add its compare link. The changelog never carries a guessed
-     date: `## [0.1.0] - TBD` stays `TBD` until the release PR, where `TBD` becomes the date you
-     tag (UTC).
+     `## [X.Y.Z] - YYYY-MM-DD` and add its compare link. Date it with the day you tag (UTC),
+     never a guessed date.
    - Summarize user-facing changes, new resources, and breaking updates.
    - Highlight Osano API version changes and any new required scopes.
    - For Cookie Consent changes, call out `scriptSrc`, `scriptTag`, the
@@ -71,11 +76,13 @@ Use this checklist whenever publishing a new `pulumi-osano` provider release.
 8. **Post-release follow-up**
    - Check that the plugin installs:
      `pulumi plugin install resource osano X.Y.Z --server github://api.github.com/jflavan/pulumi-osano`.
-   - First release of the npm package only: when the npm step fails for lack of a trusted
-     publisher, publish the CI-built `nodejs-sdk.tar.gz` by hand, add the npm trusted publisher
-     (allow **npm publish**, not only `npm stage publish`), and re-run the failed jobs. See
-     "npm: bootstrap, then trusted publishing" in the release guide.
-   - After the first release only: list the package in the Pulumi Registry. Open a PR to
+   - Verify provenance and signatures as described in `docs/PUBLISHING.md` (for example
+     `gh attestation verify pulumi-resource-osano-vX.Y.Z-linux-amd64.tar.gz --owner jflavan`).
+     Allow 10 to 30 minutes for Maven Central to reach `repo1.maven.org`, and use
+     `npm view --prefer-online` if npm shows a stale 404.
+   - The npm bootstrap was done for `v0.1.0`. It is needed again only for a brand-new npm
+     package; see "npm: bootstrap, then trusted publishing" in the release guide.
+   - Not done yet: the provider is not in the Pulumi Registry. List it once: open a PR to
      [pulumi/registry](https://github.com/pulumi/registry) that adds
      `{"repoSlug": "jflavan/pulumi-osano", "schemaFile": "provider/cmd/pulumi-resource-osano/schema.json"}`
      to `community-packages/package-list.json` and `"John Flavan": "john_flavan"` to
@@ -83,6 +90,6 @@ Use this checklist whenever publishing a new `pulumi-osano` provider release.
      automated fact sheet flags and comment `/check`. Later releases are picked up by the
      registry automatically within a day; confirm the new version at
      `https://www.pulumi.com/registry/packages/osano/`.
-   - Monitor issues for regressions and update the roadmap if new Osano endpoints were unlocked.
+   - Monitor issues for regressions.
 
 Keep the checklist updated as automation improves.

@@ -8,7 +8,13 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Until 1.0
 
 ## [Unreleased]
 
-## [0.1.0] - TBD
+### Added
+
+- `docs/PUBLISHING.md` lists every published package (npm, PyPI, NuGet, Go, Maven Central) and the
+  provider plugin, with install commands, how each one is published, and how to verify its
+  provenance or signature.
+
+## [0.1.0] - 2026-09-25
 
 First public release. The provider is community maintained and is not affiliated with Osano, Inc.
 or Pulumi Corporation.

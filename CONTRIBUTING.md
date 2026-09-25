@@ -28,11 +28,12 @@ To run an example against Osano from your clone, build and install the local pro
 
 ### Prerequisites
 
-- Go (managed by mise, currently Go 1.24)
+- Go (the `go.mod` toolchain, currently go1.24.10, installed by mise)
 - Node.js 24.x (mise currently pins 24.13.0)
 - Python 3.11
 - .NET 8.0
 - Java 11+
+- Gradle 7.6 (installed by `mise install`; used by `make build_java`)
 - Pulumi CLI + pulumictl (installed by `mise install`)
 
 > Tip: `eval "$(mise activate zsh)"` (or bash) before running make targets so the managed toolchain is on your `PATH`.
@@ -57,7 +58,7 @@ To run an example against Osano from your clone, build and install the local pro
    make build_examples
    make test_e2e_compile
    ```
-6. Document behavior changes in `docs/` and/or `README.md` as appropriate.
+6. Document behavior changes in `docs/` and/or `README.md` as appropriate. `make codegen` copies `README.md` byte for byte to `sdk/nodejs/README.md`, `sdk/python/README.md`, and `sdk/dotnet/README.md` (the package READMEs on npm, PyPI, and NuGet). After editing `README.md`, run `make codegen` or copy it to those three files in the same commit, or the CI worktree-clean check fails.
 
 ### Important Make Targets
 
@@ -116,6 +117,13 @@ Add `BREAKING CHANGE:` in the footer for breaking API or behavior updates.
 - Add Python/Go/.NET/Java variants when feasible, especially for high-traffic APIs.
 - See [examples/README.md](examples/README.md) and the detailed guidance in [EXAMPLES.md](EXAMPLES.md).
 
+## Releases and Packages
+
+A maintainer releases by pushing a `vX.Y.Z` tag. That runs `.github/workflows/release.yml`, which publishes the provider plugin to GitHub Releases and the SDKs to npm, PyPI, NuGet, Maven Central, and the Go module proxy. Contributors never bump versions: the committed schema and SDKs stay at the development version `0.1.0-alpha.0+dev`, and the release takes its version from the tag.
+
+- [docs/PUBLISHING.md](docs/PUBLISHING.md): every published package, install commands, and how to verify provenance and signatures.
+- [docs/RELEASE_GUIDE.md](docs/RELEASE_GUIDE.md) and [docs/RELEASE_CHECKLIST.md](docs/RELEASE_CHECKLIST.md): how maintainers dry-run, cut, and recover a release.
+
 ## Project Structure
 
 ```
@@ -123,7 +131,7 @@ provider/           Go provider implementation (hand-written)
 provider/cmd/       Provider binary + embedded schema
 sdk/                Generated language SDKs (never edit manually)
 examples/           Pulumi programs that double as docs
-docs/               Conceptual guides, release guides, and the Pulumi Registry pages (_index.md, installation-configuration.md)
+docs/               Guides, the release guide and checklist, PUBLISHING.md, and pages for a future Pulumi Registry listing (_index.md, installation-configuration.md)
 assets/             Package logo (the schema's logoUrl and the NuGet icon)
 CHANGELOG.md        Release notes (Keep a Changelog)
 ```
@@ -136,8 +144,8 @@ CHANGELOG.md        Release notes (Keep a Changelog)
 
 ## Getting Help
 
-- **Issues:** use https://github.com/jflavan/pulumi-osano/issues
-- **Discussions:** use https://github.com/jflavan/pulumi-osano/discussions for design/usage questions
+- **Issues and questions:** https://github.com/jflavan/pulumi-osano/issues
+- **Security reports:** see [SECURITY.md](SECURITY.md); do not open a public issue.
 - **Docs:** start with [README.md](README.md) and the content under `docs/`
 
 ## Code of Conduct

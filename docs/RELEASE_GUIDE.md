@@ -13,8 +13,12 @@ which:
 2. builds the provider binaries with GoReleaser, creates the GitHub release with the archives,
    checksums, and SBOMs, and attests their build provenance (`publish`);
 3. publishes the Node.js SDK to npm, the Python SDK to PyPI, and the .NET SDK to NuGet
-   (`publish_sdks`), and the Java SDK to Maven Central (`publish_java_sdk`);
+   (`publish_sdks`, all with trusted publishing), and the Java SDK to Maven Central
+   (`publish_java_sdk`, signed with the release signing key below);
 4. pushes the `sdk/go/osano/vX.Y.Z` tag for the Go SDK (`publish_go_sdk`).
+
+[PUBLISHING.md](PUBLISHING.md) lists every package a release publishes, with install commands and
+how to verify each one.
 
 The version always comes from the tag. The committed schema and SDKs keep the development version
 from the Makefile (`PROVIDER_VERSION ?= 0.1.0-alpha.0+dev`), and the workflow stamps the real version
@@ -24,6 +28,9 @@ version-stamped files.
 
 ## One-time setup
 
+This setup was completed for `v0.1.0` and is in place. The sections below record the current values
+and how each piece was set up; repeat a step only to rotate a credential or to recreate a publisher.
+
 ### Repository secrets
 
 Add these under **Settings > Secrets and variables > Actions > Repository secrets**. `GITHUB_TOKEN`
@@ -31,7 +38,7 @@ is provided automatically.
 
 | Secret | Used by | Value |
 | --- | --- | --- |
-| `NPM_TOKEN` | `publish_sdks` (npm), **optional** | Not needed once the npm trusted publisher exists. Only an alternative way to bootstrap a brand-new npm package; see [npm: bootstrap, then trusted publishing](#npm-bootstrap-then-trusted-publishing). |
+| `NPM_TOKEN` | Not used | Not set and not needed: `@jflavan/pulumi-osano` has an npm trusted publisher. `release.yml` still passes it as `NODE_AUTH_TOKEN`, which npm reads only if the OIDC exchange fails. Leave it unset. |
 | `NUGET_USERNAME` | `publish_sdks` (NuGet login) | The nuget.org account name (profile name, not the email address) that owns the trusted publishing policy. |
 | `MAVEN_CENTRAL_USERNAME` | `publish_java_sdk` | The username half of a Maven Central Portal user token. |
 | `MAVEN_CENTRAL_PASSWORD` | `publish_java_sdk` | The password half of the same user token. |
@@ -39,10 +46,20 @@ is provided automatically.
 | `JAVA_SIGNING_KEY_ID` | `publish_java_sdk` | The ID of that key: its last 8 hexadecimal characters, the form Gradle's signing plugin expects. |
 | `JAVA_SIGNING_PASSWORD` | `publish_java_sdk` | The passphrase of that key. |
 
-The Maven Central public key must be published to a public key server (for example
-`keys.openpgp.org`) so Maven Central can verify the signatures.
+The public half of the signing key must be on a public key server so Maven Central can verify the
+signatures. The current key is `John Flavan (pulumi-osano release signing)`, RSA 4096, fingerprint
+`5277 E261 0B7E 7021 6871  969A 4809 7CF9 4C3F 74F3` (`JAVA_SIGNING_KEY_ID` is `4C3F74F3`), with no
+expiry date. It is published on `keyserver.ubuntu.com` and `keys.openpgp.org`; keys.openpgp.org
+drops the user ID because the key has no email address.
+
+If the Maven Central secrets are missing, `publish_java_sdk` fails with
+`Task 'publishToSonatype' not found`: the generated `sdk/java/build.gradle` registers the Sonatype
+repository only when `PUBLISH_REPO_USERNAME` (from `MAVEN_CENTRAL_USERNAME`) is set.
 
 ### Trusted publishers
+
+All three trusted publishers are active since `v0.1.0`. The table records their values; recreate a
+publisher with exactly these values if it is ever removed.
 
 Every trusted publisher points at this repository and workflow. The values are case-sensitive and
 must match exactly; leave the environment empty, because `release.yml` does not use a GitHub
@@ -50,8 +67,8 @@ environment.
 
 | Registry | Where | Settings |
 | --- | --- | --- |
-| npm | npmjs.com > `@jflavan/pulumi-osano` > Settings > Trusted Publisher (after the first publish) | GitHub Actions; Organization or user `jflavan`; Repository `pulumi-osano`; Workflow filename `release.yml`; Environment empty |
-| PyPI | pypi.org > Your account > Publishing > Add a new pending publisher | PyPI project name `pulumi-osano`; Owner `jflavan`; Repository name `pulumi-osano`; Workflow name `release.yml`; Environment name empty |
+| npm | npmjs.com > `@jflavan/pulumi-osano` > Settings > Trusted publishing | GitHub Actions; Organization or user `jflavan`; Repository `pulumi-osano`; Workflow filename `release.yml`; Environment empty; **npm publish** allowed (not only `npm stage publish`) |
+| PyPI | pypi.org > Your projects > `pulumi-osano` > Manage > Publishing | PyPI project name `pulumi-osano`; Owner `jflavan`; Repository name `pulumi-osano`; Workflow name `release.yml`; Environment name empty |
 | NuGet | nuget.org > Trusted Publishing > Create policy | Repository owner `jflavan`; Repository `pulumi-osano`; Workflow file `release.yml`; Environment empty. The `NUGET_USERNAME` secret names the policy owner. |
 
 Maven Central does not support trusted publishing. It needs a verified `io.github.jflavan`
@@ -60,16 +77,22 @@ user token, and the signing key above.
 
 ### npm: bootstrap, then trusted publishing
 
+The bootstrap is done. `0.1.0` was published by hand on 2026-09-25 from the CI-built package. The
+npm trusted publisher (repository `jflavan/pulumi-osano`, workflow `release.yml`, **npm publish**
+allowed) now publishes every later version from `release.yml` with a provenance statement; `0.1.0`
+itself has none. The steps below are kept for reference. They are needed again only for a brand-new
+npm package.
+
 npm cannot configure a trusted publisher for a package that does not exist yet, so the very first
 version of `@jflavan/pulumi-osano` has to be published some other way; every later release uses
 trusted publishing. npm 11.5+ first tries to exchange the job's GitHub OIDC token, and only falls back
-to `NODE_AUTH_TOKEN` (the optional `NPM_TOKEN` secret, read through the `.npmrc` that
+to `NODE_AUTH_TOKEN` (the `NPM_TOKEN` secret, which is not set, read through the `.npmrc` that
 `actions/setup-node` writes) when that exchange fails. Once a trusted publisher exists, its token
 replaces the `.npmrc` token, so an empty, missing, or leftover `NPM_TOKEN` cannot break trusted
 publishing.
 
-`v0.1.0` was bootstrapped without any token, by publishing the CI-built package by hand. npm is
-restricting tokens that bypass 2FA for direct publishing, so prefer this over an `NPM_TOKEN`:
+`v0.1.0` was bootstrapped this way, without any token. npm is restricting tokens that bypass 2FA
+for direct publishing, so prefer this over an `NPM_TOKEN`:
 
 1. Push the `vX.Y.Z` tag. With no trusted publisher and no `NPM_TOKEN`, the npm step of
    `publish_sdks` fails with an authentication error before PyPI and NuGet run, and
@@ -114,8 +137,8 @@ gh run watch
 Run it from a branch (`main` or a release branch), not a tag: the version step does not support a
 manual run on a tag. The run uses the version `pulumi/provider-version-action` computes for a
 branch: the next minor version after the latest GitHub release as an alpha, for example
-`0.1.0-alpha.1727200000` from `main` before the first release (from other branches the short commit
-hash is appended, for example `0.1.0-alpha.1727200000+abc1234`).
+`0.2.0-alpha.1790300000` from `main` while `v0.1.0` is the latest release (from other branches the
+short commit hash is appended, for example `0.2.0-alpha.1790300000+abc1234`).
 
 A dry run:
 
@@ -140,15 +163,14 @@ release, and never attests provenance.
 2. Run a dry run from `main` and wait for it to pass.
 3. In a release PR, move the `## [Unreleased]` entries of [CHANGELOG.md](../CHANGELOG.md) into a
    `## [X.Y.Z] - YYYY-MM-DD` section dated with the day you will tag, add the compare link at the
-   bottom, and merge. For `v0.1.0` the section already exists as `## [0.1.0] - TBD`: replace `TBD`
-   with the date.
+   bottom, and merge.
 4. Tag the merge commit on `main` and push the tag:
 
    ```bash
    git checkout main
    git pull
-   git tag v0.1.0
-   git push origin v0.1.0
+   git tag vX.Y.Z
+   git push origin vX.Y.Z
    ```
 
 5. Watch the run: `gh run watch` (or **Actions > release**).
@@ -172,41 +194,51 @@ already uploaded. Every publishing step skips work that already happened:
 
 Two cases need care:
 
-- **Maven Central lag.** A released version can take 30 minutes or more to appear on
-  `repo1.maven.org`. Before re-running `publish_java_sdk` soon after a Java publish, check the
-  deployment on the
+- **Maven Central lag.** A released version usually appears on `repo1.maven.org` 10 to 30 minutes
+  after its Central Portal deployment shows PUBLISHING, sometimes longer. Before re-running
+  `publish_java_sdk` soon after a Java publish, check the deployment on the
   [Central Portal deployments page](https://central.sonatype.com/publishing/deployments). If it is
   published or still publishing, wait until the version appears on `repo1.maven.org` before
   re-running. Otherwise the job uploads a duplicate deployment, which Maven Central rejects, and the
   job fails without changing the published version.
 - **The `publish` (GoReleaser) job failed.** GoReleaser does not replace assets that already exist
   on a release (`replace_existing_artifacts` is off). If it failed after creating the GitHub
-  release, delete that release but keep the tag, for example `gh release delete v0.1.0 --yes`, then
+  release, delete that release but keep the tag, for example `gh release delete vX.Y.Z --yes`, then
   re-run the failed jobs. Do not use **Re-run all jobs** after `publish` succeeded: GoReleaser would
   fail on the existing release.
+
+`v0.1.0` took four run attempts. The npm step failed until the package was bootstrapped by hand, and
+then `publish_java_sdk` failed with `Task 'publishToSonatype' not found` until the Maven Central
+secrets were added. Each time, **Re-run failed jobs** was safe because every publishing step skipped
+what was already published.
 
 ## After the release
 
 1. Check the published packages: the GitHub release assets, npm, PyPI, NuGet, Maven Central, and
    `go list -m github.com/jflavan/pulumi-osano/sdk/go/osano@vX.Y.Z`.
+   [PUBLISHING.md](PUBLISHING.md) links each package page and gives the verification commands
+   (`gh attestation verify`, `npm audit signatures`, PyPI attestations, the Maven signature). Right
+   after a publish, npm's local metadata cache can show a stale 404: use
+   `npm view @jflavan/pulumi-osano@X.Y.Z version --prefer-online`. A Maven Central version reaches
+   `repo1.maven.org` 10 to 30 minutes after the Central Portal deployment shows PUBLISHING.
 2. Check that the plugin installs from the release:
 
    ```bash
    pulumi plugin install resource osano X.Y.Z --server github://api.github.com/jflavan/pulumi-osano
    ```
 
-3. After the first release only, switch npm to trusted publishing (steps 4 to 6 of
-   [npm: bootstrap, then trusted publishing](#npm-bootstrap-then-trusted-publishing)) and list the
-   package in the Pulumi Registry (below).
-4. Post the release summary in GitHub Discussions and link to any new examples.
+3. Not done yet: the provider is not in the Pulumi Registry. Open the listing PR once, as described
+   below. After it merges, later releases are picked up automatically.
+4. Review the GitHub release notes, which GoReleaser generates from the commit messages grouped by
+   conventional-commit type. Edit the release to add a short summary and links to any new examples.
 
 ### List the package in the Pulumi Registry
 
 Once the provider is listed, the registry checks for new releases twice a day and publishes their
 docs automatically, so this is needed once, after the first release. The process is described in
 [Adding a new package](https://github.com/pulumi/registry/blob/master/docs/adding-a-new-package.md).
-The registry reads everything from the release tag, so the following must be true at `v0.1.0`
-(it is on `main` now):
+The registry reads everything from the latest release tag. All of the following is true at `v0.1.0`
+(commit `b0c4ab8`), so the listing PR can be opened now:
 
 - `provider/cmd/pulumi-resource-osano/schema.json` sets `publisher` (`John Flavan`), `logoUrl`
   (`assets/logo.png` on `main`), `displayName`, `pluginDownloadURL`, and `keywords` with
