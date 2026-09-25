@@ -1,5 +1,0 @@
-{
-  "resource": true,
-  "name": "osano",
-  "server": "github://api.github.com/jflavan/pulumi-osano"
-}
