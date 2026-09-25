@@ -13,6 +13,14 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Until 1.0
 - `docs/PUBLISHING.md` lists every published package (npm, PyPI, NuGet, Go, Maven Central) and the
   provider plugin, with install commands, how each one is published, and how to verify its
   provenance or signature.
+- CI checks that the .NET SDK builds for .NET 8 and .NET 10: `tests/dotnet/SdkCompatibility.csproj`
+  compiles the cookie-consent C# example for both. The package still targets `net6.0`, which NuGet
+  resolves for either version.
+
+### Changed
+
+- CI and local builds use the .NET 10 SDK (10.0.401) instead of 8.0.414. The .NET 10 SDK also builds
+  the .NET 8 targets.
 
 ## [0.1.0] - 2026-09-25
 

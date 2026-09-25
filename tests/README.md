@@ -11,6 +11,21 @@ make test_provider
 Whenever you modify code inside `provider/`, remember to run `make codegen` afterwards so the schema
 and SDKs stay in sync.
 
+## .NET version compatibility
+
+The .NET SDK package targets `net6.0`, which NuGet resolves for every later framework.
+[tests/dotnet/SdkCompatibility.csproj](dotnet/SdkCompatibility.csproj) compiles the cookie-consent C#
+example against the SDK once per supported .NET version (currently `net8.0` and `net10.0`), so a change
+that drops support for one of them fails CI. `make build_examples` builds it; to run it alone:
+
+```bash
+make dotnet_sdk
+dotnet build tests/dotnet/SdkCompatibility.csproj
+```
+
+To support another .NET version, add it to `TargetFrameworks` in that project and make sure the SDK
+pinned in `.config/mise.toml` can build it.
+
 ## End-to-end tests
 
 Opt-in integration tests now live under [tests/e2e](e2e). Shared helpers in

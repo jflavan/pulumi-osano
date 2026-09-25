@@ -19,7 +19,6 @@ env:
   PROVIDER: osano
   PULUMI_LOCAL_NUGET: ${{ github.workspace }}/nuget
   PYTHONVERSION: "3.11.8"
-  DOTNETVERSION: "8.0.x"
   JAVAVERSION: "11"
 
 jobs:

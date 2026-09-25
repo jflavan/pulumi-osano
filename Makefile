@@ -149,6 +149,8 @@ build_sdks: dotnet_sdk go_sdk nodejs_sdk python_sdk java_sdk
 .PHONY: build_cookie_consent_examples build_examples
 build_cookie_consent_examples: dotnet_sdk nodejs_sdk
 	dotnet build examples/cookie-consent/csharp/CookieConsent.csproj
+	# Compiles the same example for every supported .NET version (net8.0 and net10.0).
+	dotnet build tests/dotnet/SdkCompatibility.csproj
 	cd examples/cookie-consent/typescript && yarn install --frozen-lockfile && yarn run tsc --noEmit
 
 .PHONY: build_quickstart_examples

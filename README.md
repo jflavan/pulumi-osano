@@ -40,7 +40,7 @@ The provider lets you manage Osano Cookie Consent and Unified Consent workflows 
 
 - Pulumi CLI v3+
 - API access to an Osano tenant (a Customer REST API key for Cookie Consent, a Unified Consent API key for Unified Consent, or both for mixed workloads)
-- Runtime for your preferred language (Node.js 22+ for current `@pulumi/pulumi` releases, Python 3.9+, Go 1.24.7+, .NET 6+, or Java 11+)
+- Runtime for your preferred language (Node.js 22+ for current `@pulumi/pulumi` releases, Python 3.9+, Go 1.24.7+, .NET 8+, or Java 11+)
 
 ## Installation
 
