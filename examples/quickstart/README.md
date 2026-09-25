@@ -11,12 +11,12 @@ This example deploys the `osano:index:Consent` resource to submit a consent deci
 1. Create or locate a Unified Consent API key in the Osano dashboard.
 2. Identify the subject reference: a verified subject ID, or an anonymous ID when `subjectType` is `anonymous`.
 3. Identify the privacy protocol target ID and configuration (vendor) ID that should receive the consent.
-4. If you are running these examples from a repository clone, prepare the local SDK for your language and install the locally built provider plugin (the SDKs request the unpublished `1.0.0-alpha.0+dev` plugin):
+4. If you are running these examples from a repository clone, prepare the local SDK for your language and install the locally built provider plugin (the SDKs request the unpublished `0.1.0-alpha.0+dev` plugin):
 
    ```bash
    mise exec -- make nodejs_sdk   # TypeScript only; Python and Go use the checked-in SDK sources
    mise exec -- make provider
-   mise exec -- pulumi plugin install resource osano 1.0.0-alpha.0+dev \
+   mise exec -- pulumi plugin install resource osano 0.1.0-alpha.0+dev \
      --file ./bin/pulumi-resource-osano --exact --reinstall
    ```
 

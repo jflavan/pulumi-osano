@@ -20,7 +20,7 @@ TESTPARALLELISM := 4
 
 # Override during CI using `make [TARGET] PROVIDER_VERSION=""` or by setting a PROVIDER_VERSION environment variable
 # Local & branch builds will just used this fixed default version unless specified
-PROVIDER_VERSION ?= 1.0.0-alpha.0+dev
+PROVIDER_VERSION ?= 0.1.0-alpha.0+dev
 # Use this normalised version everywhere rather than the raw input to ensure consistency.
 VERSION_GENERIC = $(shell pulumictl convert-version --language generic --version "$(PROVIDER_VERSION)")
 
@@ -80,6 +80,9 @@ sdk/dotnet: $(SCHEMA_FILE)
 	$(PULUMI) package gen-sdk --language dotnet $(SCHEMA_FILE) --version "${VERSION_GENERIC}"
 	cp README.md ${PACKDIR}/dotnet/
 	@python3 scripts/patch-dotnet-csproj.py sdk/dotnet/Community.Pulumi.Osano.csproj
+	# The generator downloads the schema's logoUrl into logo.png (the NuGet package icon). Use the
+	# committed copy instead so codegen output never depends on what that URL serves.
+	cp assets/logo.png ${PACKDIR}/dotnet/logo.png
 
 
 

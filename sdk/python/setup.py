@@ -9,7 +9,7 @@ from setuptools.command.install import install
 from subprocess import check_call
 
 
-VERSION = "1.0.0-alpha.0+dev"
+VERSION = "0.1.0-alpha.0+dev"
 def readme():
     try:
         with open('README.md', encoding='utf-8') as f:
@@ -24,6 +24,7 @@ setup(name='pulumi_osano',
       description="Unofficial Pulumi provider for managing Osano Cookie Consent and Unified Consent resources. Not affiliated with Pulumi Corporation or Osano, Inc.",
       long_description=readme(),
       long_description_content_type='text/markdown',
+      keywords='pulumi osano consent cookie-consent privacy cmp category/infrastructure kind/native',
       url='https://github.com/jflavan/pulumi-osano',
       project_urls={
           'Repository': 'https://github.com/jflavan/pulumi-osano'

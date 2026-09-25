@@ -21,6 +21,7 @@ type Client struct {
 	apiKey  string
 
 	headerName string
+	userAgent  string
 
 	http *http.Client
 
@@ -62,6 +63,13 @@ func WithMaxRetries(maxRetries int) ClientOption {
 func WithInitialBackoff(backoff time.Duration) ClientOption {
 	return func(c *Client) {
 		c.initialBackoff = backoff
+	}
+}
+
+// WithUserAgent sends userAgent as the User-Agent header of every request when it is non-empty.
+func WithUserAgent(userAgent string) ClientOption {
+	return func(c *Client) {
+		c.userAgent = userAgent
 	}
 }
 
@@ -132,6 +140,9 @@ func (c *Client) DoJSON(
 		}
 		if c.apiKey != "" {
 			req.Header.Set(c.headerName, c.apiKey)
+		}
+		if c.userAgent != "" {
+			req.Header.Set("User-Agent", c.userAgent)
 		}
 
 		resp, err := c.http.Do(req)

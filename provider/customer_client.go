@@ -59,5 +59,6 @@ func customerClientFromConfig(cfg Config) (*osanoclient.Client, error) {
 		"x-osano-api-key",
 		settings.apiKey,
 		osanoclient.WithHTTPClient(newHTTPClient(settings.timeout)),
+		osanoclient.WithUserAgent(providerUserAgent()),
 	), nil
 }

@@ -243,6 +243,27 @@ func TestDoJSONGetSuccess(t *testing.T) {
 	}
 }
 
+func TestDoJSONSendsUserAgent(t *testing.T) {
+	t.Parallel()
+
+	var got atomic.Value
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		got.Store(r.Header.Get("User-Agent"))
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]string{})
+	}))
+	defer server.Close()
+
+	baseURL, _ := url.Parse(server.URL)
+	client := NewClient(baseURL, "x-api-key", "test-key", WithUserAgent("pulumi-osano/1.2.3"))
+	if err := client.DoJSON(context.Background(), http.MethodGet, "/test", nil, nil, nil); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if ua, _ := got.Load().(string); ua != "pulumi-osano/1.2.3" {
+		t.Fatalf("expected User-Agent pulumi-osano/1.2.3, got %q", ua)
+	}
+}
+
 func TestDoJSONPostSuccess(t *testing.T) {
 	t.Parallel()
 

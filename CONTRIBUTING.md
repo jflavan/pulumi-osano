@@ -123,7 +123,9 @@ provider/           Go provider implementation (hand-written)
 provider/cmd/       Provider binary + embedded schema
 sdk/                Generated language SDKs (never edit manually)
 examples/           Pulumi programs that double as docs
-docs/               Conceptual guides and release notes
+docs/               Conceptual guides, release guides, and the Pulumi Registry pages (_index.md, installation-configuration.md)
+assets/             Package logo (the schema's logoUrl and the NuGet icon)
+CHANGELOG.md        Release notes (Keep a Changelog)
 ```
 
 ## Tooling Notes

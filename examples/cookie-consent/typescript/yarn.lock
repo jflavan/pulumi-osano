@@ -38,7 +38,7 @@
   integrity sha512-SQ7Kzhh9+D+ZW9MA0zkYv3VXhIDNx+LzM6EJ+/65I3QY+enU6Itte7E5XX7EWrqLW2FN4n06GWzBnPoC3th2aQ==
 
 "@jflavan/pulumi-osano@file:../../../sdk/nodejs/bin":
-  version "1.0.0-alpha.0"
+  version "0.1.0-alpha.0"
   dependencies:
     "@pulumi/pulumi" "^3.142.0"
 

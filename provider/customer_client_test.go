@@ -2,7 +2,10 @@
 package provider
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 )
@@ -26,6 +29,54 @@ func TestCustomerSettingsFromConfig(t *testing.T) {
 	}
 	if settings.baseURL.String() != "https://customer.example.test/root" {
 		t.Fatalf("unexpected base URL %s", settings.baseURL)
+	}
+}
+
+// The Pulumi Registry asks providers to identify themselves to the vendor API, so Customer REST API
+// calls send the same pulumi-osano/<version> user agent as Unified Consent calls.
+func TestCustomerClientSendsProviderUserAgent(t *testing.T) {
+	var got atomic.Value
+	api := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		got.Store(r.Header.Get("User-Agent"))
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{}`))
+	}))
+	defer api.Close()
+	t.Setenv(envOsanoAPIKey, "")
+	t.Setenv(envRequestTimeout, "")
+
+	client, err := customerClientFromConfig(Config{OsanoAPIKey: "config-key", CustomerBaseURL: api.URL})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := client.DoJSON(t.Context(), http.MethodGet, "/v1/ping", nil, nil, nil); err != nil {
+		t.Fatal(err)
+	}
+	if ua, _ := got.Load().(string); ua != providerUserAgent() || !strings.HasPrefix(ua, "pulumi-osano/") {
+		t.Fatalf("expected the provider user agent %q, got %q", providerUserAgent(), ua)
+	}
+}
+
+// Released binaries are stamped with the git tag (v0.1.0) and Makefile builds with the bare version
+// (0.1.0); both must send pulumi-osano/0.1.0.
+func TestUserAgentForVersion(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		version string
+		want    string
+	}{
+		{version: "0.1.0", want: "pulumi-osano/0.1.0"},
+		{version: "v0.1.0", want: "pulumi-osano/0.1.0"},
+		{version: "v0.1.0-alpha.1727200000", want: "pulumi-osano/0.1.0-alpha.1727200000"},
+		{version: "0.1.0-alpha.0+dev", want: "pulumi-osano/0.1.0-alpha.0+dev"},
+		{version: " v1.2.3 ", want: "pulumi-osano/1.2.3"},
+		{version: "", want: "pulumi-osano/dev"},
+		{version: "  ", want: "pulumi-osano/dev"},
+	}
+	for _, tt := range tests {
+		if got := userAgentForVersion(tt.version); got != tt.want {
+			t.Errorf("userAgentForVersion(%q) = %q, want %q", tt.version, got, tt.want)
+		}
 	}
 }
 
