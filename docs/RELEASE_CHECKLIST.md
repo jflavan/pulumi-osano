@@ -84,7 +84,10 @@ Use this checklist whenever publishing a new `pulumi-osano` provider release.
      `npm view --prefer-online` if npm shows a stale 404.
    - The npm bootstrap was done for `v0.1.0`. It is needed again only for a brand-new npm
      package; see "npm: bootstrap, then trusted publishing" in the release guide.
-   - Not done yet: the provider is not in the Pulumi Registry. List it once: open a PR to
+   - Not done yet: the provider is not in the Pulumi Registry. The registry reads
+     `docs/_index.md` and `docs/installation-configuration.md` from the release tag, and the
+     `v0.1.0` overview still mentions GitHub Discussions, so list it after the first release after
+     `v0.1.0`. List it once: open a PR to
      [pulumi/registry](https://github.com/pulumi/registry) that adds
      `{"repoSlug": "jflavan/pulumi-osano", "schemaFile": "provider/cmd/pulumi-resource-osano/schema.json"}`
      to `community-packages/package-list.json` and `"John Flavan": "john_flavan"` to

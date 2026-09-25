@@ -248,8 +248,8 @@ Go SDK tag, and attempt 4 published Maven Central. No attempt published a versio
 Once the provider is listed, the registry checks for new releases twice a day and publishes their
 docs automatically, so this is needed once, after the first release. The process is described in
 [Adding a new package](https://github.com/pulumi/registry/blob/master/docs/adding-a-new-package.md).
-The registry reads everything from the latest release tag. All of the following is true at `v0.1.0`
-(commit `b0c4ab8`), so the listing PR can be opened now:
+The registry reads everything from the latest release tag, including `docs/_index.md` and
+`docs/installation-configuration.md`. All of the following is true at `v0.1.0` (commit `b0c4ab8`):
 
 - `provider/cmd/pulumi-resource-osano/schema.json` sets `publisher` (`John Flavan`), `logoUrl`
   (`assets/logo.png` on `main`), `displayName`, `pluginDownloadURL`, and `keywords` with
@@ -260,6 +260,11 @@ The registry reads everything from the latest release tag. All of the following 
 - Both Osano API clients send the `pulumi-osano/<version>` user agent.
 - `vX.Y.Z` is a published GitHub release, not a draft or prerelease, and the plugin installs with the
   command above.
+
+These pages are older at `v0.1.0` than on `main`: `docs/_index.md` at `v0.1.0` still says the
+repository has discussions, which are turned off. A listing opened now would publish that overview.
+Open the listing PR after the first release after `v0.1.0`, or open it now knowing that the overview
+is corrected only when that release is published.
 
 Then:
 
