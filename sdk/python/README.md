@@ -1,11 +1,12 @@
 # Osano Pulumi Provider
 
-[![Build Status](https://img.shields.io/github/actions/workflow/status/jflavan/pulumi-osano/build.yml?branch=main)](https://github.com/jflavan/pulumi-osano/actions)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
-[![npm version](https://img.shields.io/npm/v/@jflavan/pulumi-osano)](https://www.npmjs.com/package/@jflavan/pulumi-osano)
-[![PyPI version](https://img.shields.io/pypi/v/pulumi-osano)](https://pypi.org/project/pulumi-osano/)
-[![NuGet version](https://img.shields.io/nuget/v/Community.Pulumi.Osano)](https://www.nuget.org/packages/Community.Pulumi.Osano)
-[![Go Reference](https://pkg.go.dev/badge/github.com/jflavan/pulumi-osano/sdk/go/osano.svg)](https://pkg.go.dev/github.com/jflavan/pulumi-osano/sdk/go/osano)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/jflavan/pulumi-osano/build.yml?branch=main)](https://github.com/jflavan/pulumi-osano/actions/workflows/build.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/jflavan/pulumi-osano/blob/main/LICENSE)
+[![npm version](https://img.shields.io/npm/v/@jflavan/pulumi-osano?label=npm&logo=npm)](https://www.npmjs.com/package/@jflavan/pulumi-osano)
+[![PyPI version](https://img.shields.io/pypi/v/pulumi-osano?label=PyPI&logo=pypi&logoColor=white)](https://pypi.org/project/pulumi-osano/)
+[![NuGet version](https://img.shields.io/nuget/v/Community.Pulumi.Osano?label=NuGet&logo=nuget)](https://www.nuget.org/packages/Community.Pulumi.Osano)
+[![Go module version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fproxy.golang.org%2Fgithub.com%2Fjflavan%2Fpulumi-osano%2Fsdk%2Fgo%2Fosano%2F%40latest&query=%24.Version&label=Go&logo=go&logoColor=white)](https://pkg.go.dev/github.com/jflavan/pulumi-osano/sdk/go/osano)
+[![Maven Central version](https://img.shields.io/maven-central/v/io.github.jflavan.pulumi/pulumi-osano?label=Maven%20Central&logo=apachemaven)](https://central.sonatype.com/artifact/io.github.jflavan.pulumi/pulumi-osano)
 
 > **⚠️ Unofficial community provider**
 >
@@ -166,7 +167,7 @@ Provider-level settings (all optional unless noted):
 
 The deprecated `osano:ucApiKey` and `osano:ucBaseUrl` keys are still read as fallbacks for `unifiedConsentApiKey` and `apiBaseUrl`.
 
-Resource-level inputs are documented in the auto-generated SDK docs (see the GoDoc badge above).
+Resource-level inputs are documented in the generated SDKs, for example the [Go package reference](https://pkg.go.dev/github.com/jflavan/pulumi-osano/sdk/go/osano).
 
 ## Examples
 
