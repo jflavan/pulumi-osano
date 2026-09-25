@@ -215,23 +215,22 @@ Pushing a `vX.Y.Z` tag runs [`.github/workflows/release.yml`](../.github/workflo
 which builds and tests the provider, regenerates and builds every SDK, and then publishes. A manual
 run of the workflow is always a dry run and never publishes.
 
-| Job | Publishes | Authentication | On a re-run |
-| --- | --- | --- | --- |
-| `publish` | GoReleaser builds the archives, SBOMs (Syft), and `checksums.txt` and creates the GitHub release; `actions/attest-build-provenance` then attests every file listed in `checksums.txt`. | `GITHUB_TOKEN`; the attestations are signed with the job's OIDC identity (`id-token: write`). | GoReleaser does not replace existing release assets; see the release guide. |
-| `publish_sdks` (npm) | `.github/scripts/publish-npm.sh` runs `npm publish --provenance` with the `latest`, `alpha`, `beta`, or `rc` dist-tag. | npm trusted publishing (OIDC). The `NPM_TOKEN` secret is not set; the workflow passes it only as a fallback that npm reads when the OIDC exchange fails. | Skips a version that is already on npm. |
-| `publish_sdks` (PyPI) | `pypa/gh-action-pypi-publish` uploads the wheel and source distribution with publish attestations. | PyPI trusted publishing (OIDC). | `skip-existing` skips files already uploaded. |
-| `publish_sdks` (NuGet) | `dotnet nuget push` uploads the `.nupkg`. | NuGet trusted publishing: `nuget/login` exchanges the OIDC token for a short-lived API key for the `NUGET_USERNAME` account. | `--skip-duplicate` skips a version already on nuget.org. |
-| `publish_java_sdk` | Gradle `publishToSonatype closeAndReleaseSonatypeStagingRepository` uploads the signed publication to Maven Central through the Central Portal. | A Central Portal user token (`MAVEN_CENTRAL_USERNAME`, `MAVEN_CENTRAL_PASSWORD`); the release key signs the artifacts (`JAVA_SIGNING_KEY`, `JAVA_SIGNING_KEY_ID`, `JAVA_SIGNING_PASSWORD`). | Skips when the version's `.pom` is on `repo1.maven.org`. |
-| `publish_go_sdk` | `pulumi/publish-go-sdk-action` commits the generated Go SDK on a release-only commit and pushes the `sdk/go/osano/vX.Y.Z` tag, which the Go module proxy serves. | `GITHUB_TOKEN` with `contents: write`. | Skips when the tag exists. |
+| Job | Publishes | Authentication |
+| --- | --- | --- |
+| `publish` | GoReleaser builds the archives, SBOMs (Syft), and `checksums.txt` and creates the GitHub release; `actions/attest-build-provenance` then attests every file listed in `checksums.txt`. | `GITHUB_TOKEN`; the attestations are signed with the job's OIDC identity (`id-token: write`). |
+| `publish_sdks` (npm) | `.github/scripts/publish-npm.sh` runs `npm publish --provenance` with the `latest`, `alpha`, `beta`, or `rc` dist-tag. | npm trusted publishing (OIDC). |
+| `publish_sdks` (PyPI) | `pypa/gh-action-pypi-publish` uploads the wheel and source distribution with publish attestations. | PyPI trusted publishing (OIDC). |
+| `publish_sdks` (NuGet) | `dotnet nuget push` uploads the `.nupkg`. | NuGet trusted publishing: `nuget/login` exchanges the OIDC token for a short-lived API key for the `NUGET_USERNAME` account. |
+| `publish_java_sdk` | Gradle `publishToSonatype closeAndReleaseSonatypeStagingRepository` uploads the signed publication to Maven Central through the Central Portal. | A Central Portal user token (`MAVEN_CENTRAL_USERNAME`, `MAVEN_CENTRAL_PASSWORD`); the release key signs the artifacts (`JAVA_SIGNING_KEY`, `JAVA_SIGNING_KEY_ID`, `JAVA_SIGNING_PASSWORD`). |
+| `publish_go_sdk` | `pulumi/publish-go-sdk-action` commits the generated Go SDK on a release-only commit and pushes the `sdk/go/osano/vX.Y.Z` tag, which the Go module proxy serves. | `GITHUB_TOKEN` with `contents: write`. |
 
 `publish_sdks` and `publish_java_sdk` run after `publish`, and `publish_go_sdk` runs after
-`publish_sdks`, so a failed npm, PyPI, or NuGet step also holds back the Go tag. Because every
-publishing step skips what is already published, **Re-run failed jobs** is safe after fixing the
-cause.
+`publish_sdks`, so a failed npm, PyPI, or NuGet step also holds back the Go tag. What each job does
+when a failed release is re-run is described in
+[Re-run a partially failed release](RELEASE_GUIDE.md#re-run-a-partially-failed-release).
 
 The one-time setup (repository secrets, the npm, PyPI, and NuGet trusted publishers, the Maven
 Central namespace, and the signing key) is recorded in
 [RELEASE_GUIDE.md, One-time setup](RELEASE_GUIDE.md#one-time-setup) and has been in place since
-`v0.1.0`. The release guide also covers the dry run, cutting a release, recovering a partially failed
-release, and what to check afterwards; [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md) is the short
-version.
+`v0.1.0`. The release guide also covers the dry run, cutting a release, and what to check
+afterwards; [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md) is the short version.
