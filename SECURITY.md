@@ -4,7 +4,11 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 0.1.x   | :white_check_mark: |
+| 0.2.x   | :white_check_mark: |
+| 0.1.x   | :x:                |
+
+Before 1.0.0, security fixes ship in the latest minor release only; upgrade to receive them
+(see [docs/UPGRADE.md](docs/UPGRADE.md)).
 
 ## Reporting a Vulnerability
 

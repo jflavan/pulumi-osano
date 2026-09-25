@@ -4,7 +4,7 @@ meta_desc: Use the unofficial Osano provider for Pulumi to manage Osano Cookie C
 layout: package
 ---
 
-The Osano (Unofficial) provider for Pulumi lets you manage [Osano](https://www.osano.com/) consent management as code. Create Cookie Consent (CMP) configurations and rules, publish them once they settle and get back the exact `<script>` tag to install, submit Unified Consent decisions, and read consent, subject, configuration, and privacy protocol data with functions.
+The Osano (Unofficial) provider for Pulumi lets you manage [Osano](https://www.osano.com/) consent management as code. Create Cookie Consent (CMP) configurations and rules, publish them once they settle, and get back the exact `<script>` tag to install, so the pipeline that provisions a website can also put its consent script first in the page `<head>`. Functions read any configuration's script, publish status, rules, discoveries, and audit log. For Unified Consent, the provider submits consent decisions and reads consent, subject, configuration, and privacy protocol data.
 
 This is a community-maintained provider. It is not affiliated with or endorsed by Osano, Inc. or Pulumi Corporation. Source code and issues are at [github.com/jflavan/pulumi-osano](https://github.com/jflavan/pulumi-osano).
 
@@ -43,7 +43,7 @@ dotnet add package Community.Pulumi.Osano
 {{% /choosable %}}
 {{% choosable language java %}}
 
-Replace `VERSION` with the [latest release](https://github.com/jflavan/pulumi-osano/releases) (for example `0.1.0`).
+Replace `VERSION` with the [latest release](https://github.com/jflavan/pulumi-osano/releases) (for example `0.2.0`).
 
 Maven:
 
@@ -64,7 +64,7 @@ implementation("io.github.jflavan.pulumi:pulumi-osano:VERSION")
 {{% /choosable %}}
 {{% choosable language yaml %}}
 
-Pulumi YAML programs use the provider plugin directly. Install the release you want to use (for example `0.1.0`; see [releases](https://github.com/jflavan/pulumi-osano/releases)), then reference the resource types (for example `osano:index:CookieConsentConfig`) in your program:
+Pulumi YAML programs use the provider plugin directly. Install the release you want to use (for example `0.2.0`; see [releases](https://github.com/jflavan/pulumi-osano/releases)), then reference the resource types (for example `osano:index:CookieConsentConfig`) in your program:
 
 ```bash
 pulumi plugin install resource osano VERSION --server github://api.github.com/jflavan/pulumi-osano
@@ -82,7 +82,7 @@ The [packages and publishing guide](https://github.com/jflavan/pulumi-osano/blob
 
 ## Example Usage
 
-The program below creates a Cookie Consent configuration. Cookie Consent resources authenticate with an Osano Customer REST API key:
+The program below creates a Cookie Consent configuration, publishes it, and exports the script tag to install first in the site `<head>`. Cookie Consent resources authenticate with an Osano Customer REST API key:
 
 ```bash
 pulumi config set --secret osano:osanoApiKey <customer-rest-api-key>
@@ -103,7 +103,13 @@ const consentConfig = new osano.CookieConsentConfig("cookie-consent", {
     },
 });
 
-export const configId = consentConfig.configId;
+const publication = new osano.CookieConsentPublication("publication", {
+    configId: consentConfig.configId,
+    // Change the token whenever the published configuration or rules change.
+    changeToken: "v1",
+}, { dependsOn: [consentConfig], customTimeouts: { create: "20m", update: "20m" } });
+
+export const scriptTag = publication.scriptTag;
 ```
 
 {{% /choosable %}}
@@ -123,7 +129,18 @@ consent_config = osano.CookieConsentConfig(
     },
 )
 
-pulumi.export("configId", consent_config.config_id)
+publication = osano.CookieConsentPublication(
+    "publication",
+    config_id=consent_config.config_id,
+    # Change the token whenever the published configuration or rules change.
+    change_token="v1",
+    opts=pulumi.ResourceOptions(
+        depends_on=[consent_config],
+        custom_timeouts=pulumi.CustomTimeouts(create="20m", update="20m"),
+    ),
+)
+
+pulumi.export("scriptTag", publication.script_tag)
 ```
 
 {{% /choosable %}}
@@ -150,7 +167,16 @@ func main() {
 		if err != nil {
 			return err
 		}
-		ctx.Export("configId", consentConfig.ConfigId)
+		publication, err := osano.NewCookieConsentPublication(ctx, "publication", &osano.CookieConsentPublicationArgs{
+			ConfigId: consentConfig.ConfigId,
+			// Change the token whenever the published configuration or rules change.
+			ChangeToken: pulumi.String("v1"),
+		}, pulumi.DependsOn([]pulumi.Resource{consentConfig}),
+			pulumi.Timeouts(&pulumi.CustomTimeouts{Create: "20m", Update: "20m"}))
+		if err != nil {
+			return err
+		}
+		ctx.Export("scriptTag", publication.ScriptTag)
 		return nil
 	})
 }
@@ -160,6 +186,7 @@ func main() {
 {{% choosable language csharp %}}
 
 ```csharp
+using System;
 using System.Collections.Generic;
 using Community.Pulumi.Osano;
 using Pulumi;
@@ -177,9 +204,24 @@ return await Deployment.RunAsync(() =>
         },
     });
 
+    var publication = new CookieConsentPublication("publication", new()
+    {
+        ConfigId = consentConfig.ConfigId,
+        // Change the token whenever the published configuration or rules change.
+        ChangeToken = "v1",
+    }, new CustomResourceOptions
+    {
+        DependsOn = { consentConfig },
+        CustomTimeouts = new CustomTimeouts
+        {
+            Create = TimeSpan.FromMinutes(20),
+            Update = TimeSpan.FromMinutes(20),
+        },
+    });
+
     return new Dictionary<string, object?>
     {
-        ["configId"] = consentConfig.ConfigId,
+        ["scriptTag"] = publication.ScriptTag,
     };
 });
 ```
@@ -191,8 +233,13 @@ return await Deployment.RunAsync(() =>
 package myproject;
 
 import com.pulumi.Pulumi;
+import com.pulumi.resources.CustomResourceOptions;
+import com.pulumi.resources.CustomTimeouts;
 import io.github.jflavan.pulumi.osano.CookieConsentConfig;
 import io.github.jflavan.pulumi.osano.CookieConsentConfigArgs;
+import io.github.jflavan.pulumi.osano.CookieConsentPublication;
+import io.github.jflavan.pulumi.osano.CookieConsentPublicationArgs;
+import java.time.Duration;
 import java.util.Map;
 
 public class App {
@@ -205,7 +252,20 @@ public class App {
                 .configuration(Map.of("storagePolicyHref", "https://example.com/privacy/cookies"))
                 .build());
 
-            ctx.export("configId", consentConfig.configId());
+            var publication = new CookieConsentPublication("publication", CookieConsentPublicationArgs.builder()
+                .configId(consentConfig.configId())
+                // Change the token whenever the published configuration or rules change.
+                .changeToken("v1")
+                .build(),
+                CustomResourceOptions.builder()
+                    .dependsOn(consentConfig)
+                    .customTimeouts(CustomTimeouts.builder()
+                        .create(Duration.ofMinutes(20))
+                        .update(Duration.ofMinutes(20))
+                        .build())
+                    .build());
+
+            ctx.export("scriptTag", publication.scriptTag());
         });
     }
 }
@@ -214,13 +274,13 @@ public class App {
 {{% /choosable %}}
 {{< /chooser >}}
 
-A configuration is not live until it is published. Add a `CookieConsentPublication` that depends on the configuration and its `CookieConsentRule` resources; it publishes the configuration, waits for Osano to finish, and exports `scriptSrc` and `scriptTag`. The [Cookie Consent example](https://github.com/jflavan/pulumi-osano/tree/main/examples/cookie-consent) shows the complete program in C# and TypeScript, and the [end-to-end workflow guide](https://github.com/jflavan/pulumi-osano/blob/main/docs/end-to-end-workflow.md) covers day-2 changes, imports, and teardown.
+`pulumi up` creates the configuration, publishes it, waits for Osano to finish, and exports `<script src="https://cmp.osano.com/{customerId}/{configId}/osano.js"></script>`. Pass that output to the resource that renders or configures your site, and put it first in `<head>` without `async` or `defer`. In a real program, add `CookieConsentRule` resources to `dependsOn` and derive `changeToken` from every published value (for example a SHA-256 hash), so each change publishes exactly once and an unchanged program publishes nothing. Another stack can read the same tag with the `getCookieConsentConfig` function. The [Cookie Consent example](https://github.com/jflavan/pulumi-osano/tree/main/examples/cookie-consent) shows the complete program in C# and TypeScript, and the [end-to-end workflow guide](https://github.com/jflavan/pulumi-osano/blob/main/docs/end-to-end-workflow.md) covers the whole pipeline, day-2 changes, imports, and teardown.
 
 ## Configuration
 
-Every setting is optional at the provider level. Each resource and function needs the API key for the Osano API it calls: Cookie Consent resources and the `sendSubjectCode` and `verifySubjectCode` functions need `osanoApiKey`, and the `Consent` resource and the other functions need `unifiedConsentApiKey`. Where an environment variable is listed, it takes precedence over the Pulumi configuration value when it is set.
+Every setting is optional at the provider level. Each resource and function needs the API key for the Osano API it calls: Cookie Consent resources and functions need `osanoApiKey`; the `sendSubjectCode` and `verifySubjectCode` functions use `osanoApiKey` and fall back to `unifiedConsentApiKey`; the `Consent` resource and the other Unified Consent functions need `unifiedConsentApiKey`. Where an environment variable is listed, it takes precedence over the Pulumi configuration value when it is set.
 
-- `osanoApiKey` (Optional, Secret) — Osano Customer REST API key, sent as `x-osano-api-key`. Used by Cookie Consent resources and the `sendSubjectCode` and `verifySubjectCode` functions. May also be set with the `OSANO_API_KEY` environment variable.
+- `osanoApiKey` (Optional, Secret) — Osano Customer REST API key, sent as `x-osano-api-key`. Used by Cookie Consent resources and functions and by the `sendSubjectCode` and `verifySubjectCode` functions. May also be set with the `OSANO_API_KEY` environment variable.
 - `unifiedConsentApiKey` (Optional, Secret) — Unified Consent API key, sent as `x-uc-api-key`. Used by the `Consent` resource and the Unified Consent read functions. May also be set with the `OSANO_UC_API_KEY` environment variable.
 - `apiBaseUrl` (Optional) — Base URL of the Unified Consent API, including any path prefix. Defaults to `https://uc.api.osano.com`. May also be set with the `OSANO_API_BASE_URL` environment variable.
 - `customerBaseUrl` (Optional) — Base URL of the Customer REST API. Defaults to `https://api.osano.com`.
@@ -239,12 +299,26 @@ See [Installation & Configuration](https://www.pulumi.com/registry/packages/osan
 | `CookieConsentPublication` | Publishes a configuration when its `changeToken` changes and exports `scriptSrc` and `scriptTag`. |
 | `Consent` | Submits a Unified Consent decision for a subject. |
 
-Functions: `getUnifiedConsent`, `getSubject`, `getConfig`, `getCollections`, `getCollection`, `checkConsent`, `getConsentProfile`, `sendSubjectCode`, and `verifySubjectCode`. Pulumi runs functions on every preview, update, and refresh, so call `sendSubjectCode` and `verifySubjectCode` from automation rather than a long-lived stack; otherwise each run sends a new code.
+| Function | Purpose |
+| --- | --- |
+| `getCookieConsentConfig` | Reads a configuration, its publish status, and its `scriptSrc` and `scriptTag`. |
+| `getCookieConsentConfigs` | Lists configurations by name, domains, organization, mode, or publish status, each with its script. |
+| `getCookieConsentRules` | Lists a configuration's rules, with the rule IDs used for import. |
+| `getCookieConsentDiscoveries` | Lists the cookies, scripts, iframes, or localStorage keys Osano discovered for a configuration. |
+| `getCookieConsentAuditLog` | Queries configuration, rule, and publication events. |
+| `getUnifiedConsent`, `checkConsent`, `getConsentProfile` | Read a subject's consent state. |
+| `getSubject`, `getSubjectProfile`, `getSession` | Resolve subject identifiers, profiles, and sessions. Profile data is returned as secrets. |
+| `getConfig`, `getCollections`, `getCollection` | Read the Unified Consent configuration and privacy protocol collections. |
+| `sendSubjectCode`, `verifySubjectCode` | Send and verify a subject-profile code by email or SMS. |
+
+Pulumi runs functions on every preview, update, and refresh. That suits the read functions, but call `sendSubjectCode` and `verifySubjectCode` from automation rather than a long-lived stack; otherwise each run sends a new code.
 
 ## Lifecycle notes
 
 - `pulumi preview`, `pulumi refresh`, and `pulumi import` never publish a Cookie Consent configuration. A `CookieConsentPublication` publishes when it is created and when an update changes its `changeToken`, `keepUnclassifiedTattles`, `description`, or `webhookUrl`. Derive `changeToken` from every publish-relevant value so that each real change publishes exactly once.
-- `keepUnclassifiedTattles` defaults to `true`, so publishing does not delete unclassified discoveries.
+- `keepUnclassifiedTattles` defaults to `true`, so publishing does not delete unclassified discoveries. `webhookUrl` is stored as a secret, because Osano calls it without authentication.
+- The script URL never changes between revisions. Osano's CDN can take up to 15 minutes to serve a new revision, browsers cache `osano.js` for up to 24 hours, and the URL returns `403` until the configuration is first published.
+- `CookieConsentConfig` checks the `configuration` object against Osano's published schema during `pulumi preview`, and `pulumi refresh` compares only the configuration keys your program declares, including inside nested objects such as `palette`.
 - Deleting a `CookieConsentRule` deletes the rule in Osano. Osano has no delete or unpublish endpoint for configurations, so deleting a `CookieConsentConfig` or `CookieConsentPublication` only removes it from Pulumi state, and the configuration and its published script stay live.
 - Consent records are immutable in Osano. Destroying a `Consent` resource removes it from Pulumi state only.
 - Import configurations and publications with the Osano config ID, and rules with the composite ID `<configId>/<ruleId>`. Imports only read; an imported publication republishes once when your program applies its own `changeToken`.

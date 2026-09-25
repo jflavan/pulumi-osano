@@ -2,6 +2,78 @@
 
 This guide captures breaking changes and migration tips between provider versions.
 
+## Upgrading from 0.1.0 to 0.2.0
+
+`0.2.0` keeps every resource and function token and never replaces a Cookie
+Consent config, rule, or publication. Upgrade the SDK, run `pulumi preview`,
+and check the items below that apply to your program.
+
+### Runtime and toolchain requirements
+
+| Language | Requires |
+| --- | --- |
+| Node.js | Node.js 22 or later (the current `@pulumi/pulumi` releases dropped Node.js 20) |
+| Python | Python 3.10 or later; `pulumi>=3.231.0` |
+| Go | Go 1.26.6 or later; `github.com/pulumi/pulumi/sdk/v3` v3.264.0 or later (`go get` raises it) |
+| .NET | unchanged: `net6.0` package, tested on .NET 8 and .NET 10 |
+| Java | unchanged: Java 11 or later |
+
+A Go program that uses the SDK through a `replace` directive now requests the
+SDK's own plugin version, so a plugin installed as `0.0.0` for that workaround is
+no longer used.
+
+### What the first preview shows for the provider
+
+- Default providers are named after their version, so the first `pulumi
+  preview` shows a new `default_0_2_0` provider created and `default_0_1_0`
+  deleted. Your Osano resources move to the new provider unchanged.
+- An explicit provider resource (`new osano.Provider(...)`) shows an update of
+  `version`. 0.1.0 reported no change there and kept the old version in state;
+  the update records the new one. It never replaces resources.
+
+### Cookie Consent
+
+- `CookieConsentConfig` now validates `configuration` during preview. A value
+  Osano would have rejected with `400` at `pulumi up` (for example
+  `tattleSampling: 2` or a `variantMapping` without `behavior`) now fails
+  preview with the property path. Keys the spec does not list, deprecated
+  palette keys, and `ccpaRelaxed` next to a `variantMapping` produce warnings;
+  fix them or keep them deliberately.
+- If your program declares part of a nested object such as `palette`, a
+  `pulumi up --refresh` with 0.1.0 PATCHed the configuration on every run and
+  left it `outdated`. After upgrading, one refresh brings state back in line and
+  later runs are no-ops. The configuration may still show `outdated` in Osano
+  until the next deliberate publication (change the publication's
+  `changeToken`).
+- `CookieConsentPublication.webhookUrl` is a secret. Existing state shows no
+  diff and nothing republishes; the value is stored encrypted from the next
+  update of that publication.
+
+### Unified Consent
+
+- `referenceType: anonymous` is deprecated and now sends `ref=subject`, which is
+  what Osano expects for anonymous IDs. With 0.1.0, those lookups returned
+  `exists: false`, and a refresh removed `Consent` resources with an
+  `anonymousId` from state (the next `pulumi up` submitted them again). Replace
+  `anonymous` with `subject` or remove it. Any value other than `subject`,
+  `session`, or `anonymous` now fails the call.
+- `Consent` rejects actions other than `ACCEPT`, `REJECT`, and `UNSELECTED`
+  (case-sensitive), `origin` values other than `api` and `gpc`, and subject IDs
+  containing `#`, `%`, or spaces. Osano rejects these too; the provider now
+  fails at preview instead of at `pulumi up`.
+- `verifySubjectCode` with `phone` requires `session`, the challenge session
+  from the SMS code request. `hashedSubjectId` is optional on both subject
+  verification functions.
+- `Consent.actions` is optional, so the `actions` output is typed as optional
+  in the SDKs (for example `Output<ConsentAction[] | undefined>` in
+  TypeScript). Code that reads `consent.actions` may need a null check.
+- New `Consent` inputs (`sessionToken`, `countryCodeOverride`,
+  `regionCodeOverride`) replace the consent when changed, like every other
+  `Consent` input, because consents are immutable in Osano. Adding them to an
+  existing resource therefore submits a new consent record.
+
+## Before 0.1.0
+
 `v0.1.0` (2026-09-25) is the first published release, so a stack that starts
 from the published packages has nothing to migrate. The next two sections
 record behavior changes made during development before that release. They
@@ -9,7 +81,7 @@ matter only for a stack created with a provider built from source before
 `v0.1.0`; moving such a stack to the published `0.1.0` packages picks up all of
 them.
 
-## Review hardening release
+### Review hardening release
 
 These fixes change behavior without changing resource tokens:
 
@@ -55,7 +127,7 @@ These fixes change behavior without changing resource tokens:
 - A `CookieConsentPublication.webhookUrl` wired from another resource's output
   no longer fails preview while it is unknown.
 
-## Cookie Consent publication release
+### Cookie Consent publication release
 
 This release adds `osano:index:CookieConsentPublication` without changing the
 tokens of existing resources. The resource queues asynchronous Cookie Consent
@@ -69,7 +141,7 @@ Preview, refresh, import, and delete never publish.
 are now cleared upstream, list reads paginate, and missing rules/configurations
 are treated as deleted state.
 
-### Customer REST credentials and timeouts
+#### Customer REST credentials and timeouts
 
 Cookie Consent resources now share the Customer REST configuration path:
 
@@ -85,7 +157,7 @@ Cookie Consent resources now share the Customer REST configuration path:
 If credentials were previously supplied only for administrative routes, verify
 the same key is authorized for Customer REST CMP operations before applying.
 
-### Rule identities and adoption
+#### Rule identities and adoption
 
 New and imported rule state uses composite `<configId>/<ruleId>` identities:
 
@@ -102,7 +174,7 @@ Publication import uses the config ID and adopts
 adoption token with the program's intended token may cause one controlled
 republish.
 
-### Delete behavior
+#### Delete behavior
 
 `CookieConsentRule` deletion is a real upstream delete. Osano exposes no
 delete/unpublish endpoint for Cookie Consent configurations or publications, so
@@ -122,11 +194,11 @@ pinned SDK version.
 
 | Language | Exact pin |
 | --- | --- |
-| Node.js | `npm install --save-exact @jflavan/pulumi-osano@0.1.0` (`package.json`) |
-| Python | `pulumi-osano==0.1.0` in `requirements.txt` |
-| Go | `go get github.com/jflavan/pulumi-osano/sdk/go/osano@v0.1.0` (`go.mod`) |
-| .NET | `<PackageReference Include="Community.Pulumi.Osano" Version="0.1.0" />` in the `.csproj` |
-| Java | `io.github.jflavan.pulumi:pulumi-osano:0.1.0` in `pom.xml` or `build.gradle` |
+| Node.js | `npm install --save-exact @jflavan/pulumi-osano@0.2.0` (`package.json`) |
+| Python | `pulumi-osano==0.2.0` in `requirements.txt` |
+| Go | `go get github.com/jflavan/pulumi-osano/sdk/go/osano@v0.2.0` (`go.mod`) |
+| .NET | `<PackageReference Include="Community.Pulumi.Osano" Version="0.2.0" />` in the `.csproj` |
+| Java | `io.github.jflavan.pulumi:pulumi-osano:0.2.0` in `pom.xml` or `build.gradle` |
 
 - Fields may be renamed as Osano expands the API. Review the release notes for
   each version and update your Pulumi code accordingly.

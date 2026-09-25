@@ -28,13 +28,14 @@ To run an example against Osano from your clone, build and install the local pro
 
 ### Prerequisites
 
-- Go (the `go.mod` toolchain, currently go1.24.10, installed by mise)
+- Go (the `go.mod` toolchain, currently go1.27.1, installed by mise; the module requires Go 1.26.6 or later)
 - Node.js 24.x (mise currently pins 24.13.0)
 - Python 3.11
 - .NET 10 SDK (mise pins 10.0.401; it also builds the .NET 8 targets)
 - Java 11+
 - Gradle 7.6 (installed by `mise install`; used by `make build_java`)
-- Pulumi CLI + pulumictl (installed by `mise install`)
+- Pulumi CLI + pulumictl (installed by `mise install`; the CLI version follows `github.com/pulumi/pulumi/pkg/v3` in `go.mod`, currently 3.264.0)
+- golangci-lint 2.14.0 (installed by `mise install`; used by `make lint`)
 
 > Tip: `eval "$(mise activate zsh)"` (or bash) before running make targets so the managed toolchain is on your `PATH`.
 
@@ -47,7 +48,7 @@ To run an example against Osano from your clone, build and install the local pro
 
 ### Adding or Updating Resources / Functions
 
-1. Implement the resource/invoke in a dedicated `provider/<name>.go` file (for example `consent_resource.go` or `cookie_consent_rule.go`) or in `provider/functions.go` for invokes, using the existing implementations as a reference.
+1. Implement the resource/invoke in a dedicated `provider/<name>.go` file (for example `consent_resource.go` or `cookie_consent_rule.go`), or in `provider/functions.go` (Unified Consent) or `provider/cookie_consent_functions.go` (Cookie Consent) for invokes, using the existing implementations as a reference. Describe every input and output with `Annotate`; `provider/schema_test.go` fails otherwise.
 2. Add or update unit tests (mock HTTP recommended).
 3. Run `make codegen`.
 4. Add/refresh examples (see [EXAMPLES.md](EXAMPLES.md)). At minimum provide a TypeScript example and README; multi-language samples are encouraged for widely used functionality.
@@ -57,6 +58,7 @@ To run an example against Osano from your clone, build and install the local pro
    make test_provider
    make build_examples
    make test_e2e_compile
+   make test_pipeline_e2e   # needs the Pulumi CLI; no credentials
    ```
 6. Document behavior changes in `docs/` and/or `README.md` as appropriate. `make codegen` copies `README.md` byte for byte to `sdk/nodejs/README.md`, `sdk/python/README.md`, and `sdk/dotnet/README.md` (the package READMEs on npm, PyPI, and NuGet). After editing `README.md`, run `make codegen` or copy it to those three files in the same commit, or the CI worktree-clean check fails.
 
@@ -72,6 +74,7 @@ To run an example against Osano from your clone, build and install the local pro
 | `make build_cookie_consent_examples` | Compile the canonical C# and companion TypeScript CMP examples without contacting Osano |
 | `make build_examples` | Compile the Cookie Consent examples and the Go quickstart |
 | `make test_e2e_compile` | Vet every `tests/e2e` build-tag set without credentials |
+| `make test_pipeline_e2e` | Run the provider through real `pulumi` CLI operations against a mock Osano API (no credentials; see [tests/README.md](tests/README.md)) |
 | `make test_scripts` | Run the Python tests for the SDK post-processing scripts |
 
 ### Commit Message Guidance

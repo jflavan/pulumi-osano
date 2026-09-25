@@ -32,7 +32,7 @@ The Osano (Unofficial) provider is available as a package in these Pulumi langua
   dotnet add package Community.Pulumi.Osano
   ```
 
-- Java: [`io.github.jflavan.pulumi:pulumi-osano`](https://central.sonatype.com/artifact/io.github.jflavan.pulumi/pulumi-osano) on Maven Central. Replace `VERSION` with the release you want (for example `0.1.0`).
+- Java: [`io.github.jflavan.pulumi:pulumi-osano`](https://central.sonatype.com/artifact/io.github.jflavan.pulumi/pulumi-osano) on Maven Central. Replace `VERSION` with the release you want (for example `0.2.0`).
 
   Maven:
 
@@ -52,11 +52,23 @@ The Osano (Unofficial) provider is available as a package in these Pulumi langua
 
 Every package's registry page, how each is published, and how to verify release checksums, signatures, and build provenance are listed in [Packages and publishing](https://github.com/jflavan/pulumi-osano/blob/main/docs/PUBLISHING.md).
 
+### Requirements
+
+| Language | Requires |
+| --- | --- |
+| Node.js | Node.js 22 or later, which current `@pulumi/pulumi` releases require |
+| Python | Python 3.10 or later and `pulumi>=3.231.0,<4.0.0` |
+| Go | Go 1.26.6 or later and `github.com/pulumi/pulumi/sdk/v3` v3.264.0 or later |
+| .NET | .NET 8 or later, tested with .NET 8 and .NET 10 (the package targets `net6.0`, which NuGet resolves for any later framework) |
+| Java | Java 11 or later, with `com.pulumi:pulumi` as a dependency of your program |
+
+Use Pulumi CLI 3.252 or later to import existing resources with `pulumi import`.
+
 ### Provider plugin
 
 The SDK packages record the plugin download location (`github://api.github.com/jflavan/pulumi-osano`), so Pulumi downloads the matching `pulumi-resource-osano` plugin from the provider's [GitHub releases](https://github.com/jflavan/pulumi-osano/releases) the first time you run `pulumi preview` or `pulumi up`. Pin the SDK package to an exact version and the engine installs the plugin of the same version.
 
-To install the plugin by hand, for example on a machine that runs Pulumi YAML programs or before going offline, run the following, replacing `VERSION` with your SDK's version (for example `0.1.0`):
+To install the plugin by hand, for example on a machine that runs Pulumi YAML programs or before going offline, run the following, replacing `VERSION` with your SDK's version (for example `0.2.0`):
 
 ```bash
 pulumi plugin install resource osano VERSION --server github://api.github.com/jflavan/pulumi-osano
@@ -68,8 +80,10 @@ Osano exposes two APIs, and each uses its own key. Configure the key for the API
 
 | Key | Header | Used by |
 | --- | --- | --- |
-| Customer REST API key (`osano:osanoApiKey`) | `x-osano-api-key` | `CookieConsentConfig`, `CookieConsentRule`, and `CookieConsentPublication`, and the `sendSubjectCode` and `verifySubjectCode` functions |
-| Unified Consent API key (`osano:unifiedConsentApiKey`) | `x-uc-api-key` | The `Consent` resource and the `getUnifiedConsent`, `getSubject`, `getConfig`, `getCollections`, `getCollection`, `checkConsent`, and `getConsentProfile` functions |
+| Customer REST API key (`osano:osanoApiKey`) | `x-osano-api-key` | `CookieConsentConfig`, `CookieConsentRule`, and `CookieConsentPublication`; the `getCookieConsentConfig`, `getCookieConsentConfigs`, `getCookieConsentRules`, `getCookieConsentDiscoveries`, and `getCookieConsentAuditLog` functions; and the `sendSubjectCode` and `verifySubjectCode` functions |
+| Unified Consent API key (`osano:unifiedConsentApiKey`) | `x-uc-api-key` | The `Consent` resource and the `getUnifiedConsent`, `getSubject`, `getSubjectProfile`, `getSession`, `getConfig`, `getCollections`, `getCollection`, `checkConsent`, and `getConsentProfile` functions |
+
+`sendSubjectCode` and `verifySubjectCode` send the Customer REST API key when one is configured and otherwise the Unified Consent API key.
 
 Store keys as Pulumi secrets:
 
@@ -93,9 +107,9 @@ All settings are optional at the provider level.
 
 | Name | Environment variable | Secret | Default | Description |
 | --- | --- | --- | --- | --- |
-| `osanoApiKey` | `OSANO_API_KEY` | Yes | | Osano Customer REST API key for Cookie Consent resources and the `sendSubjectCode` and `verifySubjectCode` functions. |
-| `unifiedConsentApiKey` | `OSANO_UC_API_KEY` | Yes | | Unified Consent API key for the `Consent` resource and the Unified Consent read functions. |
-| `apiBaseUrl` | `OSANO_API_BASE_URL` | No | `https://uc.api.osano.com` | Base URL of the Unified Consent API, including any path prefix. Override it only for a custom domain. |
+| `osanoApiKey` | `OSANO_API_KEY` | Yes | | Osano Customer REST API key for Cookie Consent resources and functions and the `sendSubjectCode` and `verifySubjectCode` functions. |
+| `unifiedConsentApiKey` | `OSANO_UC_API_KEY` | Yes | | Unified Consent API key for the `Consent` resource and the Unified Consent functions. `sendSubjectCode` and `verifySubjectCode` use it when no `osanoApiKey` is set. |
+| `apiBaseUrl` | `OSANO_API_BASE_URL` | No | `https://uc.api.osano.com` | Base URL of the Unified Consent API, including any path prefix. Osano serves the API only from the default host and routes regional processing internally, so override it only for a custom domain. |
 | `customerBaseUrl` | | No | `https://api.osano.com` | Base URL of the Customer REST API. |
 | `requestTimeoutSeconds` | `OSANO_API_TIMEOUT_SECONDS` | No | `60` | HTTP request timeout, in seconds, for Customer REST API and Unified Consent calls. The environment variable is used only when it is a positive integer. |
 | `ucApiKey` | | Yes | | Deprecated: use `unifiedConsentApiKey`. Read only when neither `unifiedConsentApiKey` nor `OSANO_UC_API_KEY` is set. |

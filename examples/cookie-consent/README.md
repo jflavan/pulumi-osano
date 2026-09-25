@@ -2,9 +2,9 @@
 
 These examples create an Osano Cookie Consent configuration and its managed
 rules, publish that desired state, wait for Osano to report completion, and
-export the hosted CMP script URL and complete script tag. C# is the canonical
-example; TypeScript is a companion for this repository's baseline language
-policy.
+export the hosted CMP script URL, the complete script tag, and a `<head>`
+fragment for the website. C# is the canonical example; TypeScript is a
+companion for this repository's baseline language policy.
 
 Compilation, local provider installation, and `pulumi preview` do not publish
 to Osano. Only an opted-in `pulumi up` creates the configuration and rules and
@@ -18,6 +18,27 @@ values; never copy a token between them.
 
 For day-2 changes, imports, and teardown in context, see the
 [end-to-end workflow guide](../../docs/end-to-end-workflow.md).
+
+## Outputs
+
+| Output | Value |
+| --- | --- |
+| `cookieConsentScriptSrc` | The hosted script URL, `https://cmp.osano.com/CUSTOMER_ID/CONFIG_ID/osano.js` |
+| `cookieConsentScriptTag` | The complete tag, `<script src="..."></script>`, with no `async` or `defer` |
+| `headHtml` | A `<head>` fragment with the tag first, followed by `<meta charset="utf-8">` |
+
+`headHtml` shows how a website resource consumes the tag in the same program:
+pass `publication.scriptTag` (or a fragment built from it) as an input to the
+resource that renders or configures the site, such as a template file, a CDN
+edge function, or a hosting provider's head-script setting. That resource then
+depends on the publication, so it is created or updated only after Osano
+reports the publication complete. The URL is the same for every revision, so a
+republish does not change it.
+
+A website stack that does not own the configuration can read the tag from this
+stack with a stack reference (`cookieConsentScriptTag`), or from Osano with the
+`getCookieConsentConfig` function; see
+[Hand the script to the website](../../docs/end-to-end-workflow.md#3-hand-the-script-to-the-website).
 
 ## C# from a clone
 
@@ -41,12 +62,12 @@ To use the example outside this clone, copy the `csharp` directory and replace
 its local `<ProjectReference>` with the released package reference:
 
 ```xml
-<PackageReference Include="Community.Pulumi.Osano" Version="0.1.0" />
+<PackageReference Include="Community.Pulumi.Osano" Version="0.2.0" />
 ```
 
 Or, in the copied directory, run
 `dotnet remove reference ../../../sdk/dotnet/Community.Pulumi.Osano.csproj`
-and then `dotnet add package Community.Pulumi.Osano --version 0.1.0`.
+and then `dotnet add package Community.Pulumi.Osano --version 0.2.0`.
 
 Keep the existing Pulumi package reference, then run `dotnet restore` and
 `dotnet build`, followed by `pulumi stack init dev`. In this released-package
@@ -77,9 +98,11 @@ directory, delete its `yarn.lock` (it pins the local SDK), and install the
 released package, which replaces the `file:` dependency in `package.json`:
 
 ```bash
-npm install @jflavan/pulumi-osano@0.1.0
+npm install @jflavan/pulumi-osano@0.2.0
 pulumi stack init dev
 ```
+
+Current `@pulumi/pulumi` releases require Node.js 22 or later.
 
 As with the NuGet package, the SDK requests its matching released provider
 plugin and Pulumi downloads it when the program runs; skip the checkout-only
@@ -121,23 +144,31 @@ export OSANO_API_KEY="replace-with-a-customer-rest-api-key"
 pulumi config set domain example.com
 pulumi config set storagePolicyHref https://example.com/privacy/cookies
 pulumi config set mode permissive
+pulumi preview
 pulumi up
 pulumi stack output cookieConsentScriptTag
+pulumi stack output headHtml
 ```
 
-`pulumi up` first creates or updates the configuration and managed rules, then
-queues publication and waits for the accepted operation. Osano/CDN propagation
-may continue for up to 15 minutes after the API reports the configuration as
-published.
+`pulumi preview` checks the `configuration` object against Osano's published
+spec and reports invalid values before anything is sent. `pulumi up` first
+creates or updates the configuration and managed rules, then queues
+publication and waits for the accepted operation. Osano's CDN can take up to 15
+minutes after the API reports the configuration as published to serve the new
+revision, and browsers cache `osano.js` for 24 hours. Before the first
+publication completes, the script URL returns `403`.
 
-The output has this form, with no `async` or `defer` attribute:
+The tag has this form, with no `async` or `defer` attribute:
 
 ```html
 <script src="https://cmp.osano.com/CUSTOMER_ID/CONFIG_ID/osano.js"></script>
 ```
 
-Place that tag first in the site's `<head>` so consent controls load before
-other scripts.
+Place that tag first in the site's `<head>`, before Google Tag Manager and
+analytics tags, so consent controls load before other scripts. Every site that
+loads it, including staging and test environments, counts toward Osano traffic,
+so use a separate stack, and therefore a separate configuration, per
+environment.
 
 ## Destroy behavior
 
