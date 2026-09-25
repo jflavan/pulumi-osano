@@ -53,5 +53,6 @@ after it has been recorded inside Osano.
 - Use `osano:index:getUnifiedConsent` to read the latest view for a subject and
   seed automations without importing a record.
 
-For an importing scenario not covered here, open a GitHub Discussion without
-including real subject identifiers or API keys.
+For an importing scenario not covered here, open a
+[GitHub issue](https://github.com/jflavan/pulumi-osano/issues) without including
+real subject identifiers or API keys.

@@ -19,10 +19,13 @@ pulumi config set osano:osanoApiKey --secret
 pulumi config set osano:unifiedConsentApiKey --secret
 ```
 
-**Published packages.** Add the SDK for your language (see the
-[README](../README.md#installation)). The SDK declares its provider plugin, and
-Pulumi downloads the matching release from GitHub on the first `pulumi preview`
-or `pulumi up`; no manual plugin install is needed.
+**Published packages.** Add the SDK for your language; [PUBLISHING.md](PUBLISHING.md)
+lists every package with its install command and how to verify it (the
+[README](../README.md#installation) has the short version). The SDK declares its
+provider plugin, and Pulumi downloads the matching release from GitHub on the
+first `pulumi preview` or `pulumi up`; no manual plugin install is needed. Pin
+the SDK to an exact version (see
+[Pinning pre-1.0 releases](UPGRADE.md#pinning-pre-10-releases)).
 
 **From a clone.** The generated SDKs request the development plugin version
 `0.1.0-alpha.0+dev`, which is never published, so build and install the local
@@ -33,6 +36,11 @@ mise exec -- make provider
 mise exec -- pulumi plugin install resource osano 0.1.0-alpha.0+dev \
   --file ./bin/pulumi-resource-osano --exact --reinstall
 ```
+
+A Go program that uses the SDK through a `replace` directive, such as the Go
+quickstart, requests the plugin version from its `go.mod` requirement instead
+(`0.0.0`), so install the same binary under that version as well; the
+[quickstart README](../examples/quickstart/README.md) shows the command.
 
 ## 2. Cookie Consent: first deployment
 
@@ -52,6 +60,12 @@ The canonical program is [examples/cookie-consent](../examples/cookie-consent)
      and rules use;
    - `customTimeouts` of 20 minutes for create and update; the provider waits
      for that window and stops after 20 minutes when none is set.
+
+The example projects reference the SDKs in this repository, so run them from a
+clone after the setup in section 1, or follow the example README's
+[released NuGet package](../examples/cookie-consent/README.md#c-with-the-released-nuget-package)
+or [released npm package](../examples/cookie-consent/README.md#typescript-with-the-released-npm-package)
+section to build them against the published packages.
 
 Deploy:
 
@@ -181,5 +195,5 @@ by the provider's mocked-HTTP tests plus the opt-in example deployment above.
 | Publication `409`, `429`, `error`, or timeout | [troubleshooting](troubleshooting.md#publication-status-and-http-responses) |
 | Create failed with `500`/`502`/`504` | [troubleshooting](troubleshooting.md#cookie-consent-create-failed-with-a-server-error) |
 | Script still serves the old revision | [troubleshooting](troubleshooting.md#delayed-cdn-propagation-after-published) |
-| Plugin `osano` not found when running from a clone | Section 1 of this guide |
+| Plugin `osano` not found, `404 HTTP error fetching plugin`, or GitHub rate limit | [troubleshooting](troubleshooting.md#provider-plugin-not-found-or-not-downloaded) (from a clone: section 1 of this guide) |
 | Verbose request logging | [logging](logging.md) |

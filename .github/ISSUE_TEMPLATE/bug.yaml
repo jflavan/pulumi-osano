@@ -1,12 +1,12 @@
 name: Bug Report
 description: Report something that's not working correctly
-labels: ["kind/bug", "needs-triage"]
+labels: ["bug"]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to fill out this bug report! 
-        You can also ask questions on our [Community Slack](https://slack.pulumi.com/).
+        Thanks for taking the time to fill out this bug report! This provider is community maintained and is not supported by Pulumi or Osano.
+        To report a security vulnerability, do not open an issue; see [SECURITY.md](https://github.com/jflavan/pulumi-osano/blob/main/SECURITY.md).
   - type: textarea
     id: what-happened
     attributes:
@@ -34,9 +34,10 @@ body:
       label: Log output
       description: |
         <details><summary>How to Submit Logs</summary>
-        If this is something that is dependent on your environment, please also provide us with the output of
-        `pulumi up --logtostderr --logflow -v=10` from the root of your project.
-        We may also ask you to supply us with debug output following [these steps](https://www.pulumi.com/docs/using-pulumi/pulumi-packages/debugging-provider-packages/).
+        If the problem depends on your environment, attach the output of
+        `pulumi up --logtostderr --logflow -v=9 2> pulumi-debug.log` from the root of your project.
+        Verbose logs can contain API keys, subject identifiers, and verification codes: redact them before posting.
+        See [Logging](https://github.com/jflavan/pulumi-osano/blob/main/docs/logging.md).
         **Note:** If the log output is more than a few lines, please send us a Gist or a link to a file.
         </details>
   - type: textarea
@@ -46,6 +47,26 @@ body:
       description: Please list the affected Pulumi Resource(s) or Function(s).
     validations:
       required: false
+  - type: dropdown
+    id: sdk
+    attributes:
+      label: SDK
+      options:
+        - Node.js (@jflavan/pulumi-osano)
+        - Python (pulumi-osano)
+        - .NET (Community.Pulumi.Osano)
+        - Go (github.com/jflavan/pulumi-osano/sdk/go/osano)
+        - Java (io.github.jflavan.pulumi:pulumi-osano)
+        - Other or none
+    validations:
+      required: true
+  - type: input
+    id: provider-version
+    attributes:
+      label: Provider and SDK version
+      placeholder: 0.1.0
+    validations:
+      required: true
   - type: textarea
     id: versions
     attributes:

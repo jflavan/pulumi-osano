@@ -10,7 +10,8 @@ name: release
 # permissions, so a dry run never holds a token that could publish.
 # Re-running a partially failed release: use "Re-run failed jobs". npm and Maven Central skip a version
 # that is already published, PyPI (skip-existing) and NuGet (--skip-duplicate) skip it too, and
-# pulumi/publish-go-sdk-action skips pushing a Go SDK tag that already exists.
+# pulumi/publish-go-sdk-action skips pushing a Go SDK tag that already exists. Right after a publish the
+# npm and Maven Central lookups can miss the new version; see docs/RELEASE_GUIDE.md before re-running.
 on:
   push:
     tags:
@@ -39,8 +40,8 @@ jobs:
           lfs: true
 
       # A tag push uses the tag's version. A manual run from the default branch gets the next minor
-      # version as an alpha, e.g. 0.1.0-alpha.1727200000 before the first release; from another branch
-      # it also appends the short commit hash, e.g. 0.1.0-alpha.1727200000+abc1234.
+      # version as an alpha, e.g. 0.2.0-alpha.1790300000 while v0.1.0 is the latest release; from
+      # another branch it also appends the short commit hash, e.g. 0.2.0-alpha.1790300000+abc1234.
       - id: version
         name: Set Provider Version
         uses: pulumi/provider-version-action@c4f719182e607d0d8322f148f168d3372838e681 # v2.0.0
@@ -316,14 +317,13 @@ jobs:
           language: nodejs
 
       # Publish the Node.js SDK to npm (see .github/scripts/publish-npm.sh).
-      # - Trusted publishing (OIDC): configure a trusted publisher on npmjs.com with exact, case-sensitive
+      # - Trusted publishing (OIDC): the trusted publisher on npmjs.com uses the exact, case-sensitive
       #   values Owner: jflavan, Repository: pulumi-osano, Workflow: release.yml. Needs npm 11.5.1+,
       #   Node 22.14.0+ and id-token: write (set above). See https://docs.npmjs.com/trusted-publishers/
-      # - Bootstrap token: @jflavan/pulumi-osano cannot have a trusted publisher before its first
-      #   publish, so the first release authenticates with the temporary NPM_TOKEN secret, exposed as
-      #   NODE_AUTH_TOKEN for the .npmrc that setup-node writes. npm tries OIDC first and only falls back
-      #   to the token when the OIDC exchange fails; once trusted publishing is configured, delete the
-      #   secret. An empty or missing NPM_TOKEN does not affect trusted publishing.
+      # - NPM_TOKEN: not set and not needed. v0.1.0 was bootstrapped by hand without a token, and the
+      #   trusted publisher has been active since. The secret is still exposed as NODE_AUTH_TOKEN for the
+      #   .npmrc that setup-node writes, which npm reads only when the OIDC exchange fails. An empty or
+      #   missing NPM_TOKEN does not affect trusted publishing. See docs/RELEASE_GUIDE.md.
       - name: Setup Node for npm publishing
         uses: actions/setup-node@v7
         with:
