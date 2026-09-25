@@ -14,7 +14,7 @@ We take security vulnerabilities seriously. If you discover a security issue, pl
 
 **Please do NOT report security vulnerabilities through public GitHub issues.**
 
-Instead, email the maintainer, John Flavan, at the address on the [@jflavan GitHub profile](https://github.com/jflavan).
+Instead, email the maintainer, John Flavan, at the address on the [@jflavan GitHub profile](https://github.com/jflavan). GitHub shows the address only when you are signed in to GitHub.
 
 ### What to Include
 
