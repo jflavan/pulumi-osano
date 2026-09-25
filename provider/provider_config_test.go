@@ -81,13 +81,38 @@ func TestProviderConfigDiffIgnoresUncheckedImportInputs(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	resp, err := server.DiffConfig(p.DiffRequest{Urn: providerConfigURN(), State: raw, Inputs: checked.Inputs})
+	// Like the engine (pkg/resource/deploy/providers/registry.go), restore the version the provider's
+	// CheckConfig drops, since the engine keeps it in the checked inputs it later diffs.
+	checkedInputs := checked.Inputs.Set("version", raw.Get("version"))
+	resp, err := server.DiffConfig(p.DiffRequest{Urn: providerConfigURN(), State: raw, Inputs: checkedInputs})
 	if err != nil {
 		t.Fatal(err)
 	}
 	if resp.HasChanges {
 		t.Fatalf("checked inputs must not diff against the unchecked inputs recorded by pulumi import: %#v",
 			resp.DetailedDiff)
+	}
+}
+
+// Upgrading the SDK changes an explicit provider's version input. It must diff as an in-place update, or
+// state keeps recording the old plugin version (pulumi/pulumi-go-provider#592).
+func TestProviderConfigDiffUpdatesProviderVersion(t *testing.T) {
+	server := newUnconfiguredProviderServer(t)
+	old := property.NewMap(map[string]property.Value{
+		"customerBaseUrl": property.New("https://api.osano.com"),
+		"version":         property.New("0.1.0"),
+	})
+	resp, err := server.DiffConfig(p.DiffRequest{
+		Urn: providerConfigURN(), State: old, Inputs: old.Set("version", property.New("0.2.0")),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !resp.HasChanges || resp.DetailedDiff["version"].Kind != p.Update {
+		t.Fatalf("expected an in-place version update, got %#v", resp)
+	}
+	if len(resp.DetailedDiff) != 1 {
+		t.Fatalf("expected only the version to change, got %#v", resp.DetailedDiff)
 	}
 }
 

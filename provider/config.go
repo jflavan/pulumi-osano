@@ -108,7 +108,29 @@ func diffProviderConfig(_ context.Context, req p.DiffRequest) (p.DiffResponse, e
 			diff[key] = p.PropertyDiff{Kind: p.Update, InputDiff: true}
 		}
 	}
+	if kind, changed := providerVersionDiff(req.State.Get("version"), req.Inputs.Get("version")); changed {
+		diff["version"] = p.PropertyDiff{Kind: kind, InputDiff: true}
+	}
 	return p.DiffResponse{HasChanges: len(diff) > 0, DetailedDiff: diff}, nil
+}
+
+// providerVersionDiff reports a change of the engine-managed version input. Without it, an explicit
+// provider resource diffs as unchanged after an SDK upgrade and its state keeps the old version, which
+// state-driven operations such as destroy then request (pulumi/pulumi-go-provider#592). Default
+// providers are named after their version, so they are replaced by name instead. A version change is
+// never a replacement.
+func providerVersionDiff(previous, current property.Value) (p.DiffKind, bool) {
+	if previous.Equals(current) {
+		return p.Update, false
+	}
+	switch {
+	case previous.IsNull():
+		return p.Add, true
+	case current.IsNull():
+		return p.Delete, true
+	default:
+		return p.Update, true
+	}
 }
 
 func configValueString(value property.Value) string {
