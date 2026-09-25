@@ -14,7 +14,7 @@ runs:
   using: "composite"
   steps:
     - name: Setup mise
-      uses: jdx/mise-action@146a28175021df8ca24f8ee1828cc2a60f980bd5 # v3
+      uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v3
       env:
         MISE_FETCH_REMOTE_VERSIONS_TIMEOUT: 30s
       with:
@@ -27,7 +27,7 @@ runs:
       run: mise install
 
     - name: Setup Go Cache
-      uses: actions/setup-go@4dc6199c7b1a012772edbd06daecab0f50c9053c # v6.1.0
+      uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
       with:
         cache: ${{ inputs.cache }}
         cache-dependency-path: |
@@ -38,7 +38,7 @@ runs:
           *.sum
 
     - name: Setup Node
-      uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6
+      uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v6
       with:
         # we don't set node-version because we install with mise.
         # this step is needed to setup npm auth
