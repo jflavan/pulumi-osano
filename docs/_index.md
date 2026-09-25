@@ -6,11 +6,11 @@ layout: package
 
 The Osano (Unofficial) provider for Pulumi lets you manage [Osano](https://www.osano.com/) consent management as code. Create Cookie Consent (CMP) configurations and rules, publish them once they settle and get back the exact `<script>` tag to install, submit Unified Consent decisions, and read consent, subject, configuration, and privacy protocol data with functions.
 
-This is a community-maintained provider. It is not affiliated with or endorsed by Osano, Inc. or Pulumi Corporation. Source code, issues, and discussions are at [github.com/jflavan/pulumi-osano](https://github.com/jflavan/pulumi-osano).
+This is a community-maintained provider. It is not affiliated with or endorsed by Osano, Inc. or Pulumi Corporation. Source code and issues are at [github.com/jflavan/pulumi-osano](https://github.com/jflavan/pulumi-osano).
 
 ## Installation
 
-The provider is available as a package in all Pulumi languages. Each SDK records where its provider plugin is published, so Pulumi downloads the matching plugin from the provider's GitHub releases the first time you run `pulumi preview` or `pulumi up`.
+The provider is available as a package for TypeScript/JavaScript, Python, Go, .NET, and Java, and as a plugin for Pulumi YAML. Each SDK records where its provider plugin is published, so Pulumi downloads the matching plugin from the provider's GitHub releases the first time you run `pulumi preview` or `pulumi up`.
 
 {{< chooser language "typescript,python,go,csharp,java,yaml,hcl" >}}
 {{% choosable language typescript %}}
@@ -58,13 +58,13 @@ Maven:
 Gradle:
 
 ```groovy
-implementation 'io.github.jflavan.pulumi:pulumi-osano:VERSION'
+implementation("io.github.jflavan.pulumi:pulumi-osano:VERSION")
 ```
 
 {{% /choosable %}}
 {{% choosable language yaml %}}
 
-Pulumi YAML programs use the provider plugin directly. Install the release you want to use, then reference the resource types (for example `osano:index:CookieConsentConfig`) in your program:
+Pulumi YAML programs use the provider plugin directly. Install the release you want to use (for example `0.1.0`; see [releases](https://github.com/jflavan/pulumi-osano/releases)), then reference the resource types (for example `osano:index:CookieConsentConfig`) in your program:
 
 ```bash
 pulumi plugin install resource osano VERSION --server github://api.github.com/jflavan/pulumi-osano
@@ -77,6 +77,8 @@ This provider has not been tested with Pulumi HCL programs. Use one of the SDK l
 
 {{% /choosable %}}
 {{< /chooser >}}
+
+The [packages and publishing guide](https://github.com/jflavan/pulumi-osano/blob/main/docs/PUBLISHING.md) links each package's registry page and explains how to verify release checksums, signatures, and build provenance.
 
 ## Example Usage
 

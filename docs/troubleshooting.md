@@ -24,6 +24,32 @@ When both are present, `OSANO_API_KEY` takes precedence. Confirm the key belongs
 to the same customer/environment as the target config. See the
 [Customer REST API](https://developers.osano.com/customer-rest-api).
 
+## Provider plugin not found or not downloaded
+
+Each published SDK names its provider plugin version and download location
+(`github://api.github.com/jflavan/pulumi-osano`), and Pulumi downloads the
+matching `pulumi-resource-osano` archive from the
+[GitHub release](https://github.com/jflavan/pulumi-osano/releases) on the first
+`pulumi preview` or `pulumi up`.
+
+- **From a repository clone**: the committed SDKs request the development
+  version `0.1.0-alpha.0+dev`, which has no GitHub release, so the download
+  fails with `404 HTTP error fetching plugin`. Build and install the local
+  plugin as described in
+  [End-to-End Workflow, section 1](end-to-end-workflow.md#1-choose-keys-and-install).
+- **GitHub rate limit**: plugin downloads use the GitHub API. If Pulumi reports
+  `GitHub rate limit exceeded`, set `GITHUB_TOKEN` to a GitHub token and run the
+  command again.
+- **No network access at deploy time**: install the plugin in advance, at the
+  same version as the SDK:
+
+  ```bash
+  pulumi plugin install resource osano 0.1.0 --server github://api.github.com/jflavan/pulumi-osano
+  ```
+
+To verify a downloaded archive's checksum and build provenance, see
+[PUBLISHING.md](PUBLISHING.md).
+
 ## Publication status and HTTP responses
 
 Osano reports `unpublished`, `in-progress`, `published`, `outdated`, or `error`.
@@ -150,6 +176,7 @@ config and apply once.
 3. For Unified Consent, use `getUnifiedConsent` to inspect the subject's latest
    state.
 4. If the error persists, open an issue with sanitized logs, the status code,
-   and relevant resource ID.
+   the relevant resource ID, and the provider version (`pulumi plugin ls` lists
+   the installed `osano` plugin versions).
 
 Never share API keys or real subject identifiers in public threads.

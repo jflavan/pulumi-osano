@@ -2,6 +2,13 @@
 
 This guide captures breaking changes and migration tips between provider versions.
 
+`v0.1.0` (2026-09-25) is the first published release, so a stack that starts
+from the published packages has nothing to migrate. The next two sections
+record behavior changes made during development before that release. They
+matter only for a stack created with a provider built from source before
+`v0.1.0`; moving such a stack to the published `0.1.0` packages picks up all of
+them.
+
 ## Review hardening release
 
 These fixes change behavior without changing resource tokens:
@@ -107,31 +114,52 @@ disable retained customer resources in Osano separately when required.
 
 The provider is pre-1.0 (`0.x`, starting with `v0.1.0`). Under semantic
 versioning a `0.x` minor release may contain breaking changes, so pin the SDK
-package to an exact version in your program's dependency manifest
-(`package.json`, `requirements.txt`, `.csproj`, or `go.mod`) and review the
-[CHANGELOG](../CHANGELOG.md) and release notes before upgrading. The Pulumi
-engine installs the matching provider plugin for the pinned SDK version.
+package to an exact version in your program's dependency manifest and review
+the [CHANGELOG](../CHANGELOG.md) and
+[release notes](https://github.com/jflavan/pulumi-osano/releases) before
+upgrading. The Pulumi engine installs the matching provider plugin for the
+pinned SDK version.
+
+| Language | Exact pin |
+| --- | --- |
+| Node.js | `npm install --save-exact @jflavan/pulumi-osano@0.1.0` (`package.json`) |
+| Python | `pulumi-osano==0.1.0` in `requirements.txt` |
+| Go | `go get github.com/jflavan/pulumi-osano/sdk/go/osano@v0.1.0` (`go.mod`) |
+| .NET | `<PackageReference Include="Community.Pulumi.Osano" Version="0.1.0" />` in the `.csproj` |
+| Java | `io.github.jflavan.pulumi:pulumi-osano:0.1.0` in `pom.xml` or `build.gradle` |
 
 - Fields may be renamed as Osano expands the API. Review the release notes for
   each version and update your Pulumi code accordingly.
 - When new required fields are added, run `pulumi preview` to spot the diff
   before applying.
 
-### SDK namespace changes
+### SDK package names
 
-If you consume the generated SDKs directly:
+| Language | Package | Import |
+| --- | --- | --- |
+| Node.js | `@jflavan/pulumi-osano` (npm) | `import * as osano from "@jflavan/pulumi-osano";` |
+| Python | `pulumi-osano` (PyPI) | `import pulumi_osano as osano` |
+| Go | `github.com/jflavan/pulumi-osano/sdk/go/osano` | `import "github.com/jflavan/pulumi-osano/sdk/go/osano"` |
+| .NET | `Community.Pulumi.Osano` (NuGet) | `using Community.Pulumi.Osano;` |
+| Java | `io.github.jflavan.pulumi:pulumi-osano` (Maven Central) | `import io.github.jflavan.pulumi.osano.*;` |
 
-- Node.js: `import * as osano from "@jflavan/pulumi-osano";`
-- Python: `import pulumi_osano as osano`
-- Go: `github.com/jflavan/pulumi-osano/sdk/go/osano`
-
-Check your lockfiles to ensure the new version is installed.
+[PUBLISHING.md](PUBLISHING.md) links each registry page. After upgrading, check
+your lockfile to confirm the new version is installed.
 
 ### Rolling out upgrades safely
 
-1. Run `make codegen && make build_sdks` locally to verify that generation still works.
-2. Compile resource examples with `make build_cookie_consent_examples`.
-3. Update your example projects and run `pulumi preview`.
-4. Deploy to a staging stack before touching production.
+1. Read the [CHANGELOG](../CHANGELOG.md) entries between your current and
+   target versions.
+2. Change the pinned SDK version in your dependency manifest and reinstall
+   dependencies (`npm install`, `pip install -r requirements.txt`,
+   `go get github.com/jflavan/pulumi-osano/sdk/go/osano@vX.Y.Z`,
+   `dotnet restore`, or your Maven or Gradle build). Pulumi downloads the
+   matching provider plugin on the next run.
+3. Run `pulumi preview` on a staging stack and review every diff, especially
+   replacements.
+4. Deploy to the staging stack before touching production.
+
+If you build the SDKs from a clone instead, regenerate and compile them first
+with `make codegen && make build_sdks` and `make build_cookie_consent_examples`.
 
 Report regressions as GitHub issues with stack traces and the Osano API response if available.

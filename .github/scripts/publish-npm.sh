@@ -9,12 +9,14 @@
 #
 # Authentication (real publishes only): npm 11.5+ first tries trusted publishing, exchanging the job's
 # GitHub OIDC token (id-token: write) for a short-lived npm token. When that exchange fails, for example
-# because the package has no trusted publisher yet, npm falls back to the token in the .npmrc that
-# actions/setup-node writes, which reads NODE_AUTH_TOKEN (the temporary NPM_TOKEN secret). When the
-# exchange succeeds its token replaces the .npmrc token, so a leftover or empty NPM_TOKEN never gets in
-# the way of trusted publishing.
+# because the trusted publisher's values do not match, npm falls back to the token in the .npmrc that
+# actions/setup-node writes, which reads NODE_AUTH_TOKEN (the NPM_TOKEN secret). NPM_TOKEN is not set:
+# v0.1.0 was bootstrapped by hand without a token and the trusted publisher has been active since (see
+# docs/RELEASE_GUIDE.md). When the exchange succeeds its token replaces the .npmrc token, so a leftover
+# or empty NPM_TOKEN never gets in the way of trusted publishing.
 #
-# Re-runs: when this exact version is already on npm, the script publishes nothing and succeeds.
+# Re-runs: when npm view reports this exact version, the script publishes nothing and succeeds. Right
+# after a publish npm view can still miss it; the publish then fails and npm keeps the existing version.
 set -euo pipefail
 
 dry_run=false

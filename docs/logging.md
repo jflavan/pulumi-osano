@@ -16,8 +16,10 @@ Verbose logs can contain configuration values and resource inputs. Redact API ke
 
 Add a custom attribute (for example `attributes["pulumiDeploymentId"]`) so you can correlate Pulumi deployments with entries in Osano's audit log.
 
+Every request the provider sends identifies it with the User-Agent `pulumi-osano/<version>` (for example `pulumi-osano/0.1.0`).
+
 ## Troubleshooting Checklist
 
 1. Re-run the failing command with `--logtostderr --logflow -v=9` and capture the output.
-2. Record the HTTP status and response body from the provider error, plus the approximate time of the request, and include them in support tickets.
+2. Record the HTTP status and response body from the provider error, the approximate time of the request, and the provider version (`pulumi plugin ls`), and include them in support tickets.
 3. Delete the debug log once the issue is resolved.

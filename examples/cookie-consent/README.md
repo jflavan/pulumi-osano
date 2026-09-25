@@ -41,15 +41,18 @@ To use the example outside this clone, copy the `csharp` directory and replace
 its local `<ProjectReference>` with the released package reference:
 
 ```xml
-<PackageReference Include="Community.Pulumi.Osano" Version="RELEASED_VERSION" />
+<PackageReference Include="Community.Pulumi.Osano" Version="0.1.0" />
 ```
 
+Or, in the copied directory, run
+`dotnet remove reference ../../../sdk/dotnet/Community.Pulumi.Osano.csproj`
+and then `dotnet add package Community.Pulumi.Osano --version 0.1.0`.
+
 Keep the existing Pulumi package reference, then run `dotnet restore` and
-`dotnet build`, followed by `pulumi stack init dev`. Use an actual published
-version in place of `RELEASED_VERSION`. In this released-package workflow, the
-SDK requests its matching released provider plugin and Pulumi downloads that
-plugin automatically when the program runs; do not install the checkout's dev
-binary for it.
+`dotnet build`, followed by `pulumi stack init dev`. In this released-package
+workflow, the SDK requests its matching released provider plugin and Pulumi
+downloads that plugin automatically when the program runs; do not install the
+checkout's dev binary for it.
 
 ## TypeScript companion
 
@@ -66,6 +69,21 @@ pulumi stack init dev
 Run the Make command from the repository root. It materializes the ignored
 `sdk/nodejs/bin` package before the example's frozen install and TypeScript
 compile, as described in the C# section, without publishing to Osano.
+
+## TypeScript with the released npm package
+
+To use the TypeScript companion outside this clone, copy the `typescript`
+directory, delete its `yarn.lock` (it pins the local SDK), and install the
+released package, which replaces the `file:` dependency in `package.json`:
+
+```bash
+npm install @jflavan/pulumi-osano@0.1.0
+pulumi stack init dev
+```
+
+As with the NuGet package, the SDK requests its matching released provider
+plugin and Pulumi downloads it when the program runs; skip the checkout-only
+plugin install below.
 
 ## Opt-in live smoke test
 
@@ -86,9 +104,15 @@ cd examples/cookie-consent/csharp # or examples/cookie-consent/typescript
 The explicit `--file` installs the just-built executable rather than
 downloading a provider. These commands do not contact Osano. They deliberately
 avoid `make install`, whose SDK linking/package-copy steps are unrelated to
-this example. If you are using the released NuGet workflow instead, skip these
-checkout-only commands; Pulumi downloads the matching released plugin declared
-by that SDK.
+this example. If you are using a released package (NuGet or npm) instead, skip
+these checkout-only commands; Pulumi downloads the matching released plugin
+declared by that SDK.
+
+In a checkout, run every `pulumi` command in this README, including
+`pulumi stack init`, through `mise exec --` or in a shell with mise activated.
+The repository's mise configuration sets `PULUMI_HOME` to `.pulumi` inside the
+clone, so a plain `pulumi` command uses `~/.pulumi` instead and does not find
+the plugin installed above.
 
 From the selected example directory, set the inputs and explicitly deploy:
 
