@@ -52,6 +52,8 @@ examples/
 
 Each language folder includes its own `Pulumi.yaml` plus ecosystem-specific metadata (`package.json`, `requirements.txt`, `go.mod`, etc.).
 
+Those dependency files reference the SDKs generated in this repository (`sdk/`), not the published packages, so `make build_examples` compiles the Cookie Consent examples and the Go quickstart against the current code generation. To run an example against the published packages, follow [Run against the published packages](examples/quickstart/README.md#run-against-the-published-packages); [docs/PUBLISHING.md](docs/PUBLISHING.md) lists every package.
+
 ## README Template
 
 ```markdown
@@ -117,9 +119,9 @@ Add new rows as additional resources or workflows are introduced.
 ## Troubleshooting
 
 - Use `pulumi config` for stack-scoped data (API keys, subject IDs, etc.).
-- When referencing local SDK builds during development, point the example at the local SDK (`file:../../../sdk/nodejs/bin` for Node.js, a `replace` directive for Go, a `ProjectReference` for .NET, or an editable `-e ../../../sdk/python` requirement for Python) and install the locally built provider plugin with `pulumi plugin install resource osano 0.1.0-alpha.0+dev --file ./bin/pulumi-resource-osano --exact --reinstall`. The Makefile sets `PULUMI_IGNORE_AMBIENT_PLUGINS`, so a binary on `PATH` is not picked up.
+- When referencing local SDK builds during development, point the example at the local SDK (`file:../../../sdk/nodejs/bin` for Node.js, a `replace` directive for Go, a `ProjectReference` for .NET, or an editable `-e ../../../sdk/python` requirement for Python) and install the locally built provider plugin with `pulumi plugin install resource osano 0.1.0-alpha.0+dev --file ./bin/pulumi-resource-osano --exact --reinstall`. A Go example that uses a `replace` directive requests the plugin version from its `go.mod` requirement (`0.0.0` in the quickstart), so install the same binary as `0.0.0` too. Commands run through `make` export `PULUMI_IGNORE_AMBIENT_PLUGINS`, so they ignore a `pulumi-resource-osano` binary on `PATH`; install the plugin rather than relying on `PATH`.
 - If an example requires multiple resources, prefer separate files over large monoliths so users can quickly see the relevant snippet.
 
 ## Questions?
 
-Open a discussion at https://github.com/jflavan/pulumi-osano/discussions if you need help designing or validating an example.
+Open an issue at https://github.com/jflavan/pulumi-osano/issues if you need help designing or validating an example.

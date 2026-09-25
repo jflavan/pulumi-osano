@@ -28,9 +28,15 @@ The provider calls two Osano APIs on behalf of your Pulumi program: the Customer
 - Use Pulumi's audit logs (stacks and deployments) to see when consent submissions and Cookie Consent publications were triggered.
 - Osano keeps its own immutable log; cross-reference Pulumi deployment IDs with the `origin` or `attributes` fields you include in consent requests.
 
+## Supply Chain
+
+- The SDKs set `pluginDownloadURL` to `github://api.github.com/jflavan/pulumi-osano`, so Pulumi downloads the provider plugin from this repository's GitHub releases.
+- Each release archive and its SBOM carry a GitHub build provenance attestation. Verify an archive before you trust it with `gh attestation verify pulumi-resource-osano-vX.Y.Z-linux-amd64.tar.gz --owner jflavan`.
+- [PUBLISHING.md](PUBLISHING.md) lists every package, how it is published, and how to verify its provenance or signature.
+
 ## Future Work
 
 - Add support for customer-managed encryption headers when Osano exposes them.
 - Expose a read-only provider configuration that restricts mutation routes for read-heavy workloads.
 
-For vulnerability disclosures see `SECURITY.md`.
+For vulnerability disclosures see [SECURITY.md](../SECURITY.md).

@@ -25,10 +25,19 @@ example's `domain`, `storagePolicyHref`, and optional `mode` stack values. See
 its [README](./cookie-consent) before opting in to `pulumi up`: it creates and
 publishes real customer resources.
 
-These examples are intended for use from a repository clone. The quickstart
-TypeScript example depends on the locally built Node.js SDK artifact, so run
-`mise exec -- make nodejs_sdk` once before `npm install`. For Cookie Consent,
-run `mise exec -- make build_cookie_consent_examples`; it materializes the
-local SDK artifacts and compiles both examples without contacting Osano.
+These examples are intended for use from a repository clone: their dependency
+files reference the SDKs generated in this repository, and running them needs a
+locally built provider plugin (see the [quickstart README](./quickstart/README.md)
+for the plugin install commands). The quickstart TypeScript example depends on
+the locally built Node.js SDK artifact, so run `mise exec -- make nodejs_sdk`
+once before `npm install`. For Cookie Consent, run
+`mise exec -- make build_cookie_consent_examples`; it materializes the local SDK
+artifacts and compiles both examples without contacting Osano.
 `mise exec -- make build_examples` compiles the Cookie Consent examples and the
 Go quickstart together.
+
+To run an example against the published packages instead, see
+[Run against the published packages](./quickstart/README.md#run-against-the-published-packages)
+and, for Cookie Consent, the released-package sections of its
+[README](./cookie-consent/README.md). [docs/PUBLISHING.md](../docs/PUBLISHING.md)
+lists every published package.

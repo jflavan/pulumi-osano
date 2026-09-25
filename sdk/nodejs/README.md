@@ -10,7 +10,7 @@
 
 > **⚠️ Unofficial community provider**
 >
-> This repo is not affiliated with Osano or Pulumi. It is maintained by the community and provided "as is" under the MIT license. Use GitHub Issues/Discussions for support.
+> This repo is not affiliated with Osano or Pulumi. It is maintained by the community and provided "as is" under the MIT license. Use [GitHub Issues](https://github.com/jflavan/pulumi-osano/issues) for support.
 
 The provider lets you manage Osano Cookie Consent and Unified Consent workflows alongside the rest of your infrastructure-as-code. You can:
 
@@ -40,23 +40,33 @@ The provider lets you manage Osano Cookie Consent and Unified Consent workflows 
 
 - Pulumi CLI v3+
 - API access to an Osano tenant (a Customer REST API key for Cookie Consent, a Unified Consent API key for Unified Consent, or both for mixed workloads)
-- Runtime for your preferred language (Node.js 18+, Python 3.9+, Go 1.24+, .NET 8, or Java 11)
+- Runtime for your preferred language (Node.js 22+ for current `@pulumi/pulumi` releases, Python 3.9+, Go 1.24.7+, .NET 6+, or Java 11+)
 
 ## Installation
 
-The SDK declares its provider plugin, and Pulumi downloads the matching release from GitHub the first time you run `pulumi preview` or `pulumi up`. To install it manually, pin the version and point Pulumi at the GitHub releases:
+Add the SDK for your language to a Pulumi program. Each package is published to its language's registry; the badges above show the latest version:
+
+- **Node.js**: [`@jflavan/pulumi-osano`](https://www.npmjs.com/package/@jflavan/pulumi-osano) on npm: `npm install @jflavan/pulumi-osano`
+- **Python**: [`pulumi-osano`](https://pypi.org/project/pulumi-osano/) on PyPI, imported as `pulumi_osano`: `pip install pulumi-osano`
+- **Go**: [`github.com/jflavan/pulumi-osano/sdk/go/osano`](https://pkg.go.dev/github.com/jflavan/pulumi-osano/sdk/go/osano): `go get github.com/jflavan/pulumi-osano/sdk/go/osano`
+- **.NET**: [`Community.Pulumi.Osano`](https://www.nuget.org/packages/Community.Pulumi.Osano) on NuGet: `dotnet add package Community.Pulumi.Osano`
+- **Java**: [`io.github.jflavan.pulumi:pulumi-osano`](https://central.sonatype.com/artifact/io.github.jflavan.pulumi/pulumi-osano) on Maven Central. With Gradle, `implementation("io.github.jflavan.pulumi:pulumi-osano:0.1.0")`; with Maven:
+
+  ```xml
+  <dependency>
+    <groupId>io.github.jflavan.pulumi</groupId>
+    <artifactId>pulumi-osano</artifactId>
+    <version>0.1.0</version>
+  </dependency>
+  ```
+
+The SDK declares its provider plugin, and Pulumi downloads the matching `pulumi-resource-osano` release from GitHub the first time you run `pulumi preview` or `pulumi up`. To install it manually, pin the version and point Pulumi at the GitHub releases:
 
 ```bash
-pulumi plugin install resource osano <version> --server github://api.github.com/jflavan/pulumi-osano
+pulumi plugin install resource osano 0.1.0 --server github://api.github.com/jflavan/pulumi-osano
 ```
 
-To add the provider to a Pulumi program, reference the matching SDK:
-
-- **Node.js**: `npm install @jflavan/pulumi-osano`
-- **Python**: `pip install pulumi-osano`
-- **Go**: `go get github.com/jflavan/pulumi-osano/sdk/go/osano`
-- **.NET**: `dotnet add package Community.Pulumi.Osano`
-- **Java**: `implementation("io.github.jflavan.pulumi:pulumi-osano:<version>")`
+The Java and plugin commands pin 0.1.0, the current release. [Package publishing](https://github.com/jflavan/pulumi-osano/blob/main/docs/PUBLISHING.md) lists every published artifact, how each one is released, and how to verify its provenance or signature.
 
 ## Quick start
 
@@ -102,7 +112,7 @@ export const consentId = consent.consentId;
 
 Run `pulumi up` to submit the consent. Destroying the stack removes the logical Pulumi resource but does **not** delete historical events from Osano (they are immutable).
 
-If you're working from a repository clone instead of published packages, the repo-local examples under [examples/quickstart](https://github.com/jflavan/pulumi-osano/tree/main/examples/quickstart) are aimed at contributors. Run `mise exec -- make nodejs_sdk` once before using the TypeScript example so the local Node.js package exists.
+If you're working from a repository clone instead of published packages, the repo-local examples under [examples/quickstart](https://github.com/jflavan/pulumi-osano/tree/main/examples/quickstart) are aimed at contributors: they build against the SDKs generated in the clone and need a locally built provider plugin. Follow the setup in the [quickstart README](https://github.com/jflavan/pulumi-osano/blob/main/examples/quickstart/README.md), which also shows how to switch an example to the published packages.
 
 ## Cookie Consent end to end
 
@@ -176,7 +186,7 @@ Resource-level inputs are documented in the generated SDKs, for example the [Go 
 - [examples/quickstart/go](https://github.com/jflavan/pulumi-osano/tree/main/examples/quickstart/go)
 - [examples/cookie-consent](https://github.com/jflavan/pulumi-osano/tree/main/examples/cookie-consent) (canonical C# and companion TypeScript)
 
-These repo-local examples contain `Pulumi.yaml` plus language-specific dependency files. The shared quickstart README documents the local SDK setup required when running them from a clone.
+These repo-local examples contain `Pulumi.yaml` plus language-specific dependency files that reference the SDKs generated in this repository. The shared [quickstart README](https://github.com/jflavan/pulumi-osano/blob/main/examples/quickstart/README.md) documents the local SDK and plugin setup required when running them from a clone, and how to switch an example to the published packages.
 
 ## Development
 
@@ -185,4 +195,4 @@ These repo-local examples contain `Pulumi.yaml` plus language-specific dependenc
 3. Run tests: `make test_provider`
 4. Regenerate schema + SDKs after editing Go code: `make codegen`
 
-For the full lifecycle (install, deploy, day-2 changes, import, teardown, and the contributor loop) see the [end-to-end workflow guide](https://github.com/jflavan/pulumi-osano/blob/main/docs/end-to-end-workflow.md). See [CONTRIBUTING.md](https://github.com/jflavan/pulumi-osano/blob/main/CONTRIBUTING.md) and the [docs](https://github.com/jflavan/pulumi-osano/tree/main/docs) for release instructions, troubleshooting tips, and workflows.
+For the full lifecycle (install, deploy, day-2 changes, import, teardown, and the contributor loop) see the [end-to-end workflow guide](https://github.com/jflavan/pulumi-osano/blob/main/docs/end-to-end-workflow.md). For releases, see the [release guide](https://github.com/jflavan/pulumi-osano/blob/main/docs/RELEASE_GUIDE.md) and [package publishing](https://github.com/jflavan/pulumi-osano/blob/main/docs/PUBLISHING.md). See [CONTRIBUTING.md](https://github.com/jflavan/pulumi-osano/blob/main/CONTRIBUTING.md) and the [docs](https://github.com/jflavan/pulumi-osano/tree/main/docs) for troubleshooting tips and workflows.

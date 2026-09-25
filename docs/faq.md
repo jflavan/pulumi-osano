@@ -3,11 +3,14 @@
 **Is this an official Osano integration?**
 > No. This is a community-maintained Pulumi provider built against Osano's public APIs. It is not affiliated with Osano.
 
+**Where is the provider published? Is it in the Pulumi Registry?**
+> The SDKs are published to npm (`@jflavan/pulumi-osano`), PyPI (`pulumi-osano`), NuGet (`Community.Pulumi.Osano`), Maven Central (`io.github.jflavan.pulumi:pulumi-osano`), and the Go module proxy (`github.com/jflavan/pulumi-osano/sdk/go/osano`). The provider plugin is attached to each [GitHub release](https://github.com/jflavan/pulumi-osano/releases) and downloads automatically. The provider is not listed in the Pulumi Registry yet. See [PUBLISHING.md](./PUBLISHING.md) for install commands and for verifying checksums, signatures, and provenance.
+
 **Which APIs are supported?**
 > The provider manages Cookie Consent configurations, rules, and explicit publications through the [Customer REST API](https://developers.osano.com/customer-rest-api). It also supports Unified Consent submissions and helper invokes for consent lookups, subject resolution, configuration and collection reads, consent profiles, and subject verification.
 
 **Do I need both API keys?**
-> Only for mixed workloads. Cookie Consent resources and the `sendSubjectCode`/`verifySubjectCode` functions require the Customer REST API key (`OSANO_API_KEY` or secret provider config `osano:osanoApiKey`). Unified Consent collection routes require `OSANO_UC_API_KEY` or secret provider config `osano:unifiedConsentApiKey`.
+> Only for mixed workloads. Cookie Consent resources and the `sendSubjectCode`/`verifySubjectCode` functions require the Customer REST API key (`OSANO_API_KEY` or secret provider config `osano:osanoApiKey`). The `Consent` resource and the other Unified Consent functions require `OSANO_UC_API_KEY` or secret provider config `osano:unifiedConsentApiKey`.
 
 **What causes Cookie Consent to publish?**
 > Creating `CookieConsentPublication` queues publication after its declared dependencies. Changing its `changeToken` or publication options queues one in-place republish; an unchanged update does not publish. Include every publish-relevant desired configuration and rule value in a stable token. [`dependsOn`](https://www.pulumi.com/docs/iac/concepts/resources/options/dependson/) controls ordering but does not itself trigger an update, so both the dependencies and token are required.
@@ -37,4 +40,4 @@
 > Refresh confirms the subject still has Unified Consent and updates `lastSynced`. It keeps the submitted inputs, because the unified view merges every consent for the subject and cannot be mapped back to one submission. If Osano reports no consent for the subject, refresh removes the resource from state and the next `pulumi up` submits it again.
 
 **Where can I ask more questions?**
-> Open a GitHub Discussion or an issue. Never share real subject identifiers or API keys.
+> Open a [GitHub issue](https://github.com/jflavan/pulumi-osano/issues). Never share real subject identifiers or API keys. Report vulnerabilities as described in [SECURITY.md](../SECURITY.md).
