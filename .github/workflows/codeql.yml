@@ -58,7 +58,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 2 # the PR merge commit and both parents, for the new-alert check's local fallback
 
-      # Must run before init. Installs the go.mod toolchain (go1.24.10) and exports GOTOOLCHAIN=local,
+      # Must run before init. Installs the go.mod toolchain (go1.27.1) and exports GOTOOLCHAIN=local,
       # so no nested go.mod may require a newer Go than the root go.mod toolchain line. A module that
       # does is skipped with only a Tool status warning, and Analyze (go) stays green.
       - name: Set up Go
