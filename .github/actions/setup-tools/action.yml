@@ -13,8 +13,16 @@ inputs:
 runs:
   using: "composite"
   steps:
+    # .config/mise.toml reads GO_VERSION_MISE and PULUMI_VERSION_MISE, falling back to "latest"
+    # when they are unset. Its `_.source` of get-versions.sh does not reliably set them before
+    # mise-action (v4) installs tools, which pulled in the latest Go and Pulumi. Export them first.
+    - name: Resolve Go and Pulumi versions
+      shell: bash
+      working-directory: ${{ github.workspace }}
+      run: bash scripts/get-versions.sh >> "$GITHUB_ENV"
+
     - name: Setup mise
-      uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v3
+      uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
       env:
         MISE_FETCH_REMOTE_VERSIONS_TIMEOUT: 30s
       with:
@@ -38,7 +46,7 @@ runs:
           *.sum
 
     - name: Setup Node
-      uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v6
+      uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
       with:
         # we don't set node-version because we install with mise.
         # this step is needed to setup npm auth
