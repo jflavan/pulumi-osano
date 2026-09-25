@@ -25,7 +25,7 @@ The committed C# project references the generated SDK at
 `sdk/dotnet/Community.Pulumi.Osano.csproj`. From the repository root:
 
 ```bash
-mise exec -- make build_cookie_consent_examples PROVIDER_VERSION=1.0.0-alpha.0+dev
+mise exec -- make build_cookie_consent_examples PROVIDER_VERSION=0.1.0-alpha.0+dev
 cd examples/cookie-consent/csharp
 pulumi stack init dev
 ```
@@ -58,7 +58,7 @@ The TypeScript project references the generated Node.js SDK at
 dependencies, and 20-minute create/update timeouts:
 
 ```bash
-mise exec -- make build_cookie_consent_examples PROVIDER_VERSION=1.0.0-alpha.0+dev
+mise exec -- make build_cookie_consent_examples PROVIDER_VERSION=0.1.0-alpha.0+dev
 cd examples/cookie-consent/typescript
 pulumi stack init dev
 ```
@@ -78,8 +78,8 @@ setup above and build and install the provider at the same exact version as the
 local SDK:
 
 ```bash
-mise exec -- make provider PROVIDER_VERSION=1.0.0-alpha.0+dev
-mise exec -- pulumi plugin install resource osano 1.0.0-alpha.0+dev --file ./bin/pulumi-resource-osano --exact --reinstall
+mise exec -- make provider PROVIDER_VERSION=0.1.0-alpha.0+dev
+mise exec -- pulumi plugin install resource osano 0.1.0-alpha.0+dev --file ./bin/pulumi-resource-osano --exact --reinstall
 cd examples/cookie-consent/csharp # or examples/cookie-consent/typescript
 ```
 

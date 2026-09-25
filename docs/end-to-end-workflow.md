@@ -25,12 +25,12 @@ Pulumi downloads the matching release from GitHub on the first `pulumi preview`
 or `pulumi up`; no manual plugin install is needed.
 
 **From a clone.** The generated SDKs request the development plugin version
-`1.0.0-alpha.0+dev`, which is never published, so build and install the local
+`0.1.0-alpha.0+dev`, which is never published, so build and install the local
 provider binary before running any repo-local example:
 
 ```bash
 mise exec -- make provider
-mise exec -- pulumi plugin install resource osano 1.0.0-alpha.0+dev \
+mise exec -- pulumi plugin install resource osano 0.1.0-alpha.0+dev \
   --file ./bin/pulumi-resource-osano --exact --reinstall
 ```
 

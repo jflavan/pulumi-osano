@@ -37,7 +37,7 @@ func TestProviderConfigChangesNeverReplaceResources(t *testing.T) {
 	old := property.NewMap(map[string]property.Value{
 		"customerBaseUrl": property.New("https://api.osano.com"),
 		"osanoApiKey":     property.New("old-key").WithSecret(true),
-		"version":         property.New("1.0.0-alpha.0+dev"),
+		"version":         property.New("0.1.0-alpha.0+dev"),
 	})
 	cases := map[string]property.Map{
 		"rotated API key":         old.Set("osanoApiKey", property.New("new-key").WithSecret(true)),
@@ -72,7 +72,7 @@ func TestProviderConfigDiffIgnoresUncheckedImportInputs(t *testing.T) {
 	server := newUnconfiguredProviderServer(t)
 	raw := property.NewMap(map[string]property.Value{
 		"customerBaseUrl": property.New("http://127.0.0.1:18080"),
-		"version":         property.New("1.0.0-alpha.0+dev"),
+		"version":         property.New("0.1.0-alpha.0+dev"),
 		"__internal": property.New(map[string]property.Value{
 			"pluginDownloadURL": property.New("github://api.github.com/jflavan/pulumi-osano"),
 		}),
