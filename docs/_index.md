@@ -278,7 +278,7 @@ public class App {
 
 ## Configuration
 
-Every setting is optional at the provider level. Each resource and function needs the API key for the Osano API it calls: Cookie Consent resources and functions need `osanoApiKey`; the `sendSubjectCode` and `verifySubjectCode` functions use `osanoApiKey` and fall back to `unifiedConsentApiKey`; the `Consent` resource and the other Unified Consent functions need `unifiedConsentApiKey`. Where an environment variable is listed, it takes precedence over the Pulumi configuration value when it is set.
+Every setting is optional at the provider level. Each resource and function needs the API key for the Osano API it calls: Cookie Consent resources and functions need `osanoApiKey`; the `sendSubjectCode` and `verifySubjectCode` functions send every configured key and need either `osanoApiKey` or `unifiedConsentApiKey`; the `Consent` resource and the other Unified Consent functions need `unifiedConsentApiKey`. Where an environment variable is listed, it takes precedence over the Pulumi configuration value when it is set.
 
 - `osanoApiKey` (Optional, Secret) — Osano Customer REST API key, sent as `x-osano-api-key`. Used by Cookie Consent resources and functions and by the `sendSubjectCode` and `verifySubjectCode` functions. May also be set with the `OSANO_API_KEY` environment variable.
 - `unifiedConsentApiKey` (Optional, Secret) — Unified Consent API key, sent as `x-uc-api-key`. Used by the `Consent` resource and the Unified Consent read functions. May also be set with the `OSANO_UC_API_KEY` environment variable.

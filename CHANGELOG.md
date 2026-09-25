@@ -31,7 +31,9 @@ v3.264.0. Upgrade notes: [docs/UPGRADE.md](docs/UPGRADE.md#upgrading-from-010-to
   `pulumi preview`: value types, `tattleSampling` and `timeoutSeconds` ranges, the blocking modes,
   Do Not Sell categories, `additionalLinks`, the US banner-format `variantMapping`, and palette
   options. It warns about keys the spec does not list, deprecated palette keys, `ccpaRelaxed`
-  alongside a `variantMapping`, and Google Consent Mode left on in `debug` mode.
+  alongside a `variantMapping`, and Google Consent Mode left on in a new `debug` configuration. A
+  configuration that is unchanged since the last `pulumi up` only warns, so existing stacks keep
+  previewing.
 - Unified Consent:
   - The `Consent` resource submits Global Privacy Control consents: set `origin` to `gpc` and omit
     `actions`, and Osano derives the actions, which the resource exports as `gpcActions`.
@@ -57,12 +59,18 @@ v3.264.0. Upgrade notes: [docs/UPGRADE.md](docs/UPGRADE.md#upgrading-from-010-to
 - `referenceType` on `getUnifiedConsent` and `getSubject` accepts `subject` (the default) and
   `session`, the only values Osano's API accepts. `anonymous` is deprecated and now looks the
   reference up as `subject`, because anonymous IDs are subject references; any other value fails.
-- `Consent` checks that each action is `ACCEPT`, `REJECT`, or `UNSELECTED`, that `origin` is `api`
-  or `gpc`, that `compliance.gpc` is 0 or 1, and that subject IDs contain no `#`, `%`, or spaces.
-  `actions` is optional when `origin` is `gpc`.
+- `Consent` checks that `compliance.gpc` is 0 or 1, that subject IDs contain no `#`, `%`, or
+  spaces, and that `countryCodeOverride` and `regionCodeOverride` are ISO 3166 codes. For new or
+  changed values it also checks that each action is `ACCEPT`, `REJECT`, or `UNSELECTED` and that
+  `origin` is `api` or `gpc`, the values Osano documents. `actions` is optional when `origin` is
+  `gpc`, and a GPC consent warns about inputs the GPC endpoint does not accept (`tags`,
+  `sessionToken`, `compliance.privacyPolicy`).
+- A Unified Consent request that gets no response reports the host but not the request path, which
+  can hold a session ID.
 - `hashedSubjectId` is optional on `sendSubjectCode` and `verifySubjectCode`; Osano identifies the
   subject by email or phone. `verifySubjectCode` requires `session` with `phone`.
-- Subject-verification calls fall back to the Unified Consent API key when no Osano API key is set.
+- Subject-verification calls send every configured key, so the Unified Consent API key alone is
+  enough; Osano's OpenAPI spec lists that key for these routes.
 - `CookieConsentPublication.webhookUrl` is stored as a secret. Osano calls the webhook without
   authentication, so the URL is often the only secret.
 - The `destination` outputs of `sendSubjectCode` and `verifySubjectCode` and the `profile` output of

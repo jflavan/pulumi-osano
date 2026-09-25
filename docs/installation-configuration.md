@@ -83,7 +83,7 @@ Osano exposes two APIs, and each uses its own key. Configure the key for the API
 | Customer REST API key (`osano:osanoApiKey`) | `x-osano-api-key` | `CookieConsentConfig`, `CookieConsentRule`, and `CookieConsentPublication`; the `getCookieConsentConfig`, `getCookieConsentConfigs`, `getCookieConsentRules`, `getCookieConsentDiscoveries`, and `getCookieConsentAuditLog` functions; and the `sendSubjectCode` and `verifySubjectCode` functions |
 | Unified Consent API key (`osano:unifiedConsentApiKey`) | `x-uc-api-key` | The `Consent` resource and the `getUnifiedConsent`, `getSubject`, `getSubjectProfile`, `getSession`, `getConfig`, `getCollections`, `getCollection`, `checkConsent`, and `getConsentProfile` functions |
 
-`sendSubjectCode` and `verifySubjectCode` send the Customer REST API key when one is configured and otherwise the Unified Consent API key.
+`sendSubjectCode` and `verifySubjectCode` send every configured key, so either key is enough.
 
 Store keys as Pulumi secrets:
 
@@ -108,7 +108,7 @@ All settings are optional at the provider level.
 | Name | Environment variable | Secret | Default | Description |
 | --- | --- | --- | --- | --- |
 | `osanoApiKey` | `OSANO_API_KEY` | Yes | | Osano Customer REST API key for Cookie Consent resources and functions and the `sendSubjectCode` and `verifySubjectCode` functions. |
-| `unifiedConsentApiKey` | `OSANO_UC_API_KEY` | Yes | | Unified Consent API key for the `Consent` resource and the Unified Consent functions. `sendSubjectCode` and `verifySubjectCode` use it when no `osanoApiKey` is set. |
+| `unifiedConsentApiKey` | `OSANO_UC_API_KEY` | Yes | | Unified Consent API key for the `Consent` resource and the Unified Consent functions. `sendSubjectCode` and `verifySubjectCode` also send it, so it is enough for them without `osanoApiKey`. |
 | `apiBaseUrl` | `OSANO_API_BASE_URL` | No | `https://uc.api.osano.com` | Base URL of the Unified Consent API, including any path prefix. Osano serves the API only from the default host and routes regional processing internally, so override it only for a custom domain. |
 | `customerBaseUrl` | | No | `https://api.osano.com` | Base URL of the Customer REST API. |
 | `requestTimeoutSeconds` | `OSANO_API_TIMEOUT_SECONDS` | No | `60` | HTTP request timeout, in seconds, for Customer REST API and Unified Consent calls. The environment variable is used only when it is a positive integer. |

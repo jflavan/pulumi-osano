@@ -36,9 +36,11 @@ no longer used.
 - `CookieConsentConfig` now validates `configuration` during preview. A value
   Osano would have rejected with `400` at `pulumi up` (for example
   `tattleSampling: 2` or a `variantMapping` without `behavior`) now fails
-  preview with the property path. Keys the spec does not list, deprecated
-  palette keys, and `ccpaRelaxed` next to a `variantMapping` produce warnings;
-  fix them or keep them deliberately.
+  preview with the property path. A configuration that is unchanged since your
+  last `pulumi up` only produces warnings, so the upgrade itself never blocks a
+  stack; the check applies once you change the configuration. Keys the spec
+  does not list, deprecated palette keys, and `ccpaRelaxed` next to a
+  `variantMapping` also produce warnings; fix them or keep them deliberately.
 - If your program declares part of a nested object such as `palette`, a
   `pulumi up --refresh` with 0.1.0 PATCHed the configuration on every run and
   left it `outdated`. After upgrading, one refresh brings state back in line and
@@ -57,10 +59,12 @@ no longer used.
   `anonymousId` from state (the next `pulumi up` submitted them again). Replace
   `anonymous` with `subject` or remove it. Any value other than `subject`,
   `session`, or `anonymous` now fails the call.
-- `Consent` rejects actions other than `ACCEPT`, `REJECT`, and `UNSELECTED`
-  (case-sensitive), `origin` values other than `api` and `gpc`, and subject IDs
-  containing `#`, `%`, or spaces. Osano rejects these too; the provider now
-  fails at preview instead of at `pulumi up`.
+- A new or changed `Consent` must use an action of `ACCEPT`, `REJECT`, or
+  `UNSELECTED` (case-sensitive) and an `origin` of `api` or `gpc`, the values
+  Osano documents. Existing consents whose values have not changed keep
+  previewing. Subject IDs containing `#`, `%`, or spaces, a `compliance.gpc`
+  other than 0 or 1, and malformed `countryCodeOverride`/`regionCodeOverride`
+  codes fail at preview; Osano rejects them too.
 - `verifySubjectCode` with `phone` requires `session`, the challenge session
   from the SMS code request. `hashedSubjectId` is optional on both subject
   verification functions.

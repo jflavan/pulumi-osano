@@ -14,7 +14,7 @@ the page `<head>`. Sections 2 to 8 follow that pipeline.
 | Workload | Key | Config / environment |
 | --- | --- | --- |
 | Cookie Consent resources and the `getCookieConsent*` functions | Osano Customer REST API key (`x-osano-api-key`) | `osano:osanoApiKey` (secret) or `OSANO_API_KEY` |
-| `sendSubjectCode`, `verifySubjectCode` | The Osano API key; the Unified Consent API key when no Osano API key is configured | Either of the above |
+| `sendSubjectCode`, `verifySubjectCode` | Every configured key; either one is enough | Either of the above |
 | `Consent` resource and the other Unified Consent functions | Unified Consent API key (`x-uc-api-key`) | `osano:unifiedConsentApiKey` (secret) or `OSANO_UC_API_KEY` |
 
 Environment variables take precedence over stack config. Store config values
@@ -352,8 +352,11 @@ const consent = new osano.Consent("example", {
 ```
 
 - `action` must be `ACCEPT`, `REJECT`, or `UNSELECTED`; `origin` must be `api`
-  (the default) or `gpc`; `compliance.gpc` must be `0` or `1`; and subject IDs
-  must not contain `#`, `%`, or spaces. Invalid values fail `pulumi preview`.
+  (the default) or `gpc`; `compliance.gpc` must be `0` or `1`; subject IDs must
+  not contain `#`, `%`, or spaces; and the override codes must be ISO 3166
+  codes. Invalid values fail `pulumi preview`. The `action` and `origin` rules
+  apply to new or changed values, so a consent submitted by an earlier provider
+  version keeps previewing.
 - Without `countryCodeOverride` (ISO 3166-1) and `regionCodeOverride`
   (ISO 3166-2), Osano geolocates the caller's IP address, which in a pipeline
   is the CI runner's. The same inputs exist on `getUnifiedConsent`,

@@ -25,9 +25,9 @@ When both are present, `OSANO_API_KEY` takes precedence. Confirm the key belongs
 to the same customer/environment as the target config. See the
 [Customer REST API](https://developers.osano.com/customer-rest-api).
 
-`sendSubjectCode` and `verifySubjectCode` use the Osano API key and fall back to
-the Unified Consent API key when no Osano API key is configured. With neither
-set they fail with `no Osano API key configured; set osano:osanoApiKey or
+`sendSubjectCode` and `verifySubjectCode` send every configured key, because
+Osano's guide and its OpenAPI spec name different keys for these routes; either
+key is enough. With neither set they fail with `no Osano API key configured; set osano:osanoApiKey or
 OSANO_API_KEY (or osano:unifiedConsentApiKey or OSANO_UC_API_KEY)`.
 
 ## Provider plugin not found or not downloaded
@@ -91,11 +91,15 @@ failure names the property, for example
 | `doNotSellCategories` | A list of `MARKETING`, `ANALYTICS`, `PERSONALIZATION`; at least one when `enableDoNotSell` is `true` |
 | `additionalLinks` | One or two `[text, url]` pairs; `text` is a documented link ID (for example `privacyPolicy` or `termsOfService`) and differs from `policyLinkText` |
 | `variantMapping` | `{}`, or `{ byJurisdiction: { "us" or "us-xx": "one" or "three" }, behavior: "fallbackToOsano" }` |
-| `palette.dialogType` | `bar` or `box` |
+| `palette.dialogType` | `bar` or `box` (every palette value may also be `null`, which removes it) |
 | `palette.widgetPosition`, `infoDialogPosition`, `optOutWidgetPosition` | `right` or `left` |
 | `palette.theme` | `classic` or `modern` |
-| `palette.displayPosition` | `top` or `bottom` for a bar; `top-left`, `top-right`, `bottom-left`, `bottom-right`, or `center` for a box |
+| `palette.displayPosition` | `top` or `bottom` when `dialogType` is `bar`; `top-left`, `top-right`, `bottom-left`, `bottom-right`, or `center` when it is `box`; any of these when the program does not set `dialogType` |
 | `translations` | An object |
+
+If the configuration is unchanged since the last `pulumi up`, these problems are
+reported as warnings instead, because Osano accepted the configuration when it
+was applied; they fail again once you change the configuration.
 
 Warnings do not stop the deployment. They appear in the preview output for:
 
@@ -110,10 +114,10 @@ Warnings do not stop the deployment. They appear in the preview output for:
 - `ccpaRelaxed` declared next to a non-empty `variantMapping`. Osano overwrites
   `ccpaRelaxed` to mirror the mapping, so a value that disagrees shows as drift
   on refresh; remove it and express the US banner formats in `variantMapping`;
-- `googleConsent` enabled (Osano's default) while `mode` is `debug`. Osano then
-  signals denied Google Consent Mode consent for every visitor; set
-  `googleConsent` to `false` until the configuration moves to `permissive` or
-  `production`.
+- `googleConsent` declared `true`, or left to Osano's default on a new
+  configuration, while `mode` is `debug`. Osano then signals denied Google
+  Consent Mode consent for every visitor; set `googleConsent` to `false` until
+  the configuration moves to `permissive` or `production`.
 
 ## Drift or an update on every refresh
 
@@ -295,10 +299,13 @@ rejected, so those lookups returned `exists: false` and a refresh removed
 
 ### `Consent` validation failures
 
-`pulumi preview` fails a `Consent` resource whose `actions[].action` is not
-`ACCEPT`, `REJECT`, or `UNSELECTED` (case-sensitive), whose `origin` is not
-`api` or `gpc`, whose `compliance.gpc` is not `0` or `1`, or whose subject ID
-contains `#`, `%`, or a space. `actions` is required unless `origin` is `gpc`.
+`pulumi preview` fails a `Consent` resource whose `compliance.gpc` is not `0` or
+`1`, whose subject ID contains `#`, `%`, or a space, or whose
+`countryCodeOverride` or `regionCodeOverride` is not an ISO 3166 code such as
+`US` or `US-CA`. For new or changed values it also fails an
+`actions[].action` other than `ACCEPT`, `REJECT`, or `UNSELECTED`
+(case-sensitive) and an `origin` other than `api` or `gpc`. `actions` is
+required unless `origin` is `gpc`.
 
 ### `session is required to verify an SMS code`
 

@@ -6,7 +6,7 @@ The provider calls two Osano APIs on behalf of your Pulumi program: the Customer
 
 - Two independent headers exist:
   - `x-osano-api-key` (`osano:osanoApiKey` / `OSANO_API_KEY`): Customer REST API Cookie Consent operations and functions, plus the subject send-code/verify routes.
-  - `x-uc-api-key` (`osano:unifiedConsentApiKey` / `OSANO_UC_API_KEY`): Unified Consent submission and lookup routes, and the subject send-code/verify routes when no Osano API key is configured.
+  - `x-uc-api-key` (`osano:unifiedConsentApiKey` / `OSANO_UC_API_KEY`): Unified Consent submission and lookup routes. The subject send-code/verify routes send every configured key, because Osano's guide and its OpenAPI spec name different keys for them.
 - Store both with `pulumi config set osano:... --secret`. CI/CD can inject them through `OSANO_API_KEY` and `OSANO_UC_API_KEY`; environment variables take precedence over stack config.
 - Rotate keys regularly. The provider reads configuration fresh on every Pulumi operation, so the next `pulumi preview`, `up`, or `refresh` uses the rotated value.
 
