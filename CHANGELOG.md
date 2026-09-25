@@ -41,7 +41,8 @@ or Pulumi Corporation.
   (`io.github.jflavan.pulumi:pulumi-osano`). The SDKs download the matching provider plugin from
   GitHub releases (`github://api.github.com/jflavan/pulumi-osano`) on first use.
 - Provider binaries for Linux, macOS, and Windows on amd64 and arm64, with SHA-256 checksums, an
-  SBOM per archive, and SLSA build provenance attestations.
+  SBOM per archive, and a SLSA build provenance attestation for each archive and SBOM (verify one
+  with `gh attestation verify <archive> --owner jflavan`).
 - Cookie Consent (Customer REST API) calls retry `429` and `503` responses with exponential backoff,
   honoring `Retry-After` (capped at one minute). Reads, updates, deletes, and the publish request also
   retry other `5xx` responses, and reads retry dropped connections. Config and rule creates are not

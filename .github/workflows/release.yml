@@ -196,10 +196,13 @@ jobs:
           args: -p 3 release --clean --timeout 60m0s
           version: "~> v2"
 
+      # subject-checksums attests every file listed in checksums.txt (each archive and its SBOM) by
+      # its own digest, so `gh attestation verify <archive>.tar.gz` finds the archive's provenance.
+      # subject-path would attest only checksums.txt itself.
       - name: Generate SLSA Provenance for Go Binaries
         uses: actions/attest-build-provenance@v3
         with:
-          subject-path: 'dist/checksums.txt'
+          subject-checksums: 'dist/checksums.txt'
 
   # Dry-run counterpart of `publish`: builds the same release archives without creating a GitHub
   # release, uploading assets or attesting provenance.
