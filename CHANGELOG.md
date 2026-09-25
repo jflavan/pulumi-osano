@@ -8,6 +8,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Until 1.0
 
 ## [Unreleased]
 
+### Changed
+
+- The npm, PyPI, NuGet, and pkg.go.dev pages now show a README written for their own language, with
+  TypeScript, Python, C#, or Go examples respectively. Previously npm, PyPI, and NuGet all showed the
+  repository README with its TypeScript examples, and pkg.go.dev showed no README.
+
 ## [0.2.0] - 2026-09-25
 
 This release brings the provider up to date with Osano's current Customer REST API and Unified

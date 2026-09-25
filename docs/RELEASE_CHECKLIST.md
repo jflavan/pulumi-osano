@@ -53,7 +53,7 @@ Use this checklist whenever publishing a new `pulumi-osano` provider release.
      use only absolute links.
    - `docs/PUBLISHING.md` and the README badges and install commands name the published
      packages, and the version-pinned commands name the new version: the README's Java and plugin
-     commands, `docs/PUBLISHING.md`, `docs/UPGRADE.md`, `docs/troubleshooting.md`,
+     commands, the plugin command in each `docs/package-readmes/` file (and its `sdk/` copy), `docs/PUBLISHING.md`, `docs/UPGRADE.md`, `docs/troubleshooting.md`,
      `docs/installation-configuration.md`, `docs/logging.md` (the user agent example), the
      released-package sections of the example READMEs, and, for a new minor version, the
      supported-versions table in `SECURITY.md`.
