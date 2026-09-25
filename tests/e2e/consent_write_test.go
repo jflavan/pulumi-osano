@@ -88,12 +88,14 @@ func buildConsentSubject(t *testing.T) api.ConsentSubject {
 	}
 }
 
+// resolveSubjectRef returns the reference to read the subject back with. Osano's ref parameter only
+// accepts subject and session: verified and anonymous IDs are both subject references.
 func resolveSubjectRef(subject api.ConsentSubject) (reference, referenceType string) {
 	if subject.VerifiedID != "" {
 		return subject.VerifiedID, "subject"
 	}
 	if subject.AnonymousID != "" {
-		return subject.AnonymousID, "anonymous"
+		return subject.AnonymousID, "subject"
 	}
 	return "", ""
 }

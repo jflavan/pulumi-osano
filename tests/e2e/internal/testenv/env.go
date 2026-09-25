@@ -19,6 +19,7 @@ const (
 	EnvVerificationEmail           = "OSANO_VERIFICATION_EMAIL"
 	EnvVerificationPhone           = "OSANO_VERIFICATION_PHONE"
 	EnvVerificationCode            = "OSANO_VERIFICATION_CODE"
+	EnvVerificationSession         = "OSANO_VERIFICATION_SESSION"
 	EnvTestSubjectRef              = "OSANO_TEST_SUBJECT_REF"
 	EnvTestReferenceType           = "OSANO_TEST_REFERENCE_TYPE"
 	EnvTestConfigID                = "OSANO_TEST_CONFIG_ID"

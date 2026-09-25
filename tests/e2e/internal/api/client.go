@@ -142,11 +142,8 @@ func (c *Client) FetchUnifiedConsent(
 	ctx context.Context,
 	subjectRef, referenceType string,
 ) (*UnifiedConsentPayload, bool, error) {
-	if referenceType == "" {
-		referenceType = "subject"
-	}
 	query := url.Values{}
-	query.Set("ref", referenceType)
+	query.Set("ref", refParam(referenceType))
 	path := "/v2/consents/unified/" + url.PathEscape(subjectRef)
 	body, status, err := c.doJSON(
 		ctx,
@@ -175,11 +172,8 @@ func (c *Client) FetchUnifiedConsent(
 }
 
 func (c *Client) FetchSubject(ctx context.Context, subjectRef, referenceType string) (*SubjectPayload, bool, error) {
-	if referenceType == "" {
-		referenceType = "subject"
-	}
 	query := url.Values{}
-	query.Set("ref", referenceType)
+	query.Set("ref", refParam(referenceType))
 	path := "/v2/subjects/" + url.PathEscape(subjectRef)
 	body, status, err := c.doJSON(
 		ctx,
@@ -322,11 +316,18 @@ func (c *Client) FetchCollection(
 	return collection, true, nil
 }
 
-func (c *Client) SendVerificationCode(ctx context.Context, channel, contact, hashedSubjectID string) error {
+// SendVerificationCode sends a one-time code and returns the decoded response body, which Osano does
+// not document; for SMS it is expected to carry the session that verification requires.
+func (c *Client) SendVerificationCode(
+	ctx context.Context, channel, contact, hashedSubjectID string,
+) (map[string]any, error) {
 	if c.osanoKey == "" {
-		return fmt.Errorf("Osano API key is required to send verification codes; set %s", testenv.EnvOsanoAPIKey)
+		return nil, fmt.Errorf("Osano API key is required to send verification codes; set %s", testenv.EnvOsanoAPIKey)
 	}
-	payload := map[string]string{"hashedSubjectId": hashedSubjectID}
+	payload := map[string]string{}
+	if hashedSubjectID != "" {
+		payload["hashedSubjectId"] = hashedSubjectID
+	}
 	endpoint := "/v2/subjects/send-code"
 	switch strings.ToLower(channel) {
 	case "email":
@@ -335,22 +336,34 @@ func (c *Client) SendVerificationCode(ctx context.Context, channel, contact, has
 		endpoint = "/v2/subjects/send-code/sms"
 		payload["phone"] = contact
 	default:
-		return fmt.Errorf("unsupported verification channel %q", channel)
+		return nil, fmt.Errorf("unsupported verification channel %q", channel)
 	}
-	_, _, err := c.doJSON(ctx, http.MethodPost, endpoint, nil, payload, headerOsano, http.StatusOK)
-	return err
+	body, _, err := c.doJSON(ctx, http.MethodPost, endpoint, nil, payload, headerOsano, http.StatusOK)
+	if err != nil {
+		return nil, err
+	}
+	var data map[string]any
+	if len(body) > 0 {
+		// The response is undocumented, so a body that is not a JSON object is ignored.
+		_ = json.Unmarshal(body, &data)
+	}
+	return data, nil
 }
 
+// VerifySubjectCode verifies a code. SMS verification also requires the session of the SMS challenge.
 func (c *Client) VerifySubjectCode(
 	ctx context.Context,
-	channel, contact, hashedSubjectID, code string,
+	channel, contact, hashedSubjectID, code, session string,
 ) (map[string]any, error) {
 	if c.osanoKey == "" {
 		return nil, fmt.Errorf("Osano API key is required to verify subject codes; set %s", testenv.EnvOsanoAPIKey)
 	}
-	payload := map[string]string{
-		"hashedSubjectId": hashedSubjectID,
-		"code":            code,
+	payload := map[string]string{"code": code}
+	if hashedSubjectID != "" {
+		payload["hashedSubjectId"] = hashedSubjectID
+	}
+	if session != "" {
+		payload["session"] = session
 	}
 	var endpoint string
 	switch strings.ToLower(channel) {
@@ -452,4 +465,13 @@ func (c *Client) doJSON(
 		}
 	}
 	return nil, resp.StatusCode, &apiError{StatusCode: resp.StatusCode, body: respBody}
+}
+
+// refParam maps a reference type to Osano's ref query value. Osano accepts only subject and session;
+// anonymous IDs are subject references, so the provider's deprecated "anonymous" maps to subject too.
+func refParam(referenceType string) string {
+	if referenceType == "" || referenceType == "anonymous" {
+		return "subject"
+	}
+	return referenceType
 }

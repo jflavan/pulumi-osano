@@ -25,6 +25,9 @@ type recordedUCRequest struct {
 	UCKey  string
 	Key    string
 	Body   map[string]any
+	// Country and Region record the geolocation override headers.
+	Country string
+	Region  string
 }
 
 type ucMockAPI struct {
@@ -42,6 +45,9 @@ func (m *ucMockAPI) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Query:  map[string]string{},
 		UCKey:  r.Header.Get("x-uc-api-key"),
 		Key:    r.Header.Get("x-osano-api-key"),
+
+		Country: r.Header.Get("x-country-code-override"),
+		Region:  r.Header.Get("x-region-code-override"),
 	}
 	for key := range r.URL.Query() {
 		record.Query[key] = r.URL.Query().Get(key)
@@ -133,7 +139,8 @@ func TestUnifiedConsentInvokes(t *testing.T) {
 			},
 		},
 		{
-			name:  "getUnifiedConsent maps 400 to a missing subject",
+			// Osano's ref parameter accepts only subject and session; anonymous IDs are subject references.
+			name:  "getUnifiedConsent maps 400 to a missing subject and sends anonymous IDs as subject refs",
 			token: "getUnifiedConsent",
 			args: map[string]property.Value{
 				"subjectRef":    property.New("anon-1"),
@@ -143,7 +150,7 @@ func TestUnifiedConsentInvokes(t *testing.T) {
 			wantRequest: recordedUCRequest{
 				Method: http.MethodGet,
 				Path:   ucTestPathPrefix + "/v2/consents/unified/anon-1",
-				Query:  map[string]string{"ref": "anonymous"},
+				Query:  map[string]string{"ref": "subject"},
 				UCKey:  "test-uc-key",
 			},
 			assert: func(t *testing.T, ret property.Map) { assertBool(t, ret, "exists", false) },
