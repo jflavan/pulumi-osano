@@ -48,7 +48,7 @@ func TestValidateCookieConsentConfiguration(t *testing.T) {
 	for name, configuration := range valid {
 		t.Run("accepts "+name, func(t *testing.T) {
 			t.Parallel()
-			failures, _ := validateCookieConsentConfiguration(configuration, "production")
+			failures, _ := validateCookieConsentConfiguration(configuration, "production", true)
 			if len(failures) != 0 {
 				t.Fatalf("unexpected failures: %#v", failures)
 			}
@@ -103,7 +103,7 @@ func TestValidateCookieConsentConfiguration(t *testing.T) {
 	for _, tc := range invalid {
 		t.Run("rejects "+tc.name, func(t *testing.T) {
 			t.Parallel()
-			failures, _ := validateCookieConsentConfiguration(tc.configuration, "production")
+			failures, _ := validateCookieConsentConfiguration(tc.configuration, "production", true)
 			assertFailureProperty(t, failures, tc.property)
 		})
 	}
@@ -144,7 +144,7 @@ func TestValidateCookieConsentConfiguration(t *testing.T) {
 	for _, tc := range warnings {
 		t.Run("warns about "+tc.name, func(t *testing.T) {
 			t.Parallel()
-			failures, got := validateCookieConsentConfiguration(tc.configuration, tc.mode)
+			failures, got := validateCookieConsentConfiguration(tc.configuration, tc.mode, true)
 			if len(failures) != 0 {
 				t.Fatalf("warnings must not fail the check: %#v", failures)
 			}
@@ -159,7 +159,7 @@ func TestValidateCookieConsentConfiguration(t *testing.T) {
 
 	t.Run("debug mode with Google Consent Mode off does not warn", func(t *testing.T) {
 		t.Parallel()
-		_, got := validateCookieConsentConfiguration(with("googleConsent", false), "debug")
+		_, got := validateCookieConsentConfiguration(with("googleConsent", false), "debug", true)
 		if len(got) != 0 {
 			t.Fatalf("unexpected warnings: %#v", got)
 		}

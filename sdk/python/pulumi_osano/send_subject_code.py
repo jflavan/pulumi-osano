@@ -87,7 +87,7 @@ def send_subject_code(email: Optional[_builtins.str] = None,
                       phone: Optional[_builtins.str] = None,
                       opts: Optional[pulumi.InvokeOptions] = None) -> AwaitableSendSubjectCodeResult:
     """
-    Sends a verification code to a subject's email or phone using the Osano API key (or the Unified Consent API key when no Osano API key is set). Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
+    Sends a verification code to a subject's email or phone, authenticating with every configured key (the Osano API key, the Unified Consent API key, or both). Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
 
     :param _builtins.str email: Email address to send the code to. Set exactly one of email or phone.
     :param _builtins.str hashed_subject_id: Optional hashed subject identifier, sent only when set. Osano's current API identifies the subject by email or phone.
@@ -110,7 +110,7 @@ def send_subject_code_output(email: pulumi.Input[Optional[Optional[_builtins.str
                              phone: pulumi.Input[Optional[Optional[_builtins.str]]] = None,
                              opts: Optional[Union[pulumi.InvokeOptions, pulumi.InvokeOutputOptions]] = None) -> pulumi.Output[SendSubjectCodeResult]:
     """
-    Sends a verification code to a subject's email or phone using the Osano API key (or the Unified Consent API key when no Osano API key is set). Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
+    Sends a verification code to a subject's email or phone, authenticating with every configured key (the Osano API key, the Unified Consent API key, or both). Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
 
     :param _builtins.str email: Email address to send the code to. Set exactly one of email or phone.
     :param _builtins.str hashed_subject_id: Optional hashed subject identifier, sent only when set. Osano's current API identifies the subject by email or phone.

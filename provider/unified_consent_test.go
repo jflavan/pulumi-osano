@@ -260,12 +260,12 @@ func TestUnifiedConsentInvokes(t *testing.T) {
 			},
 		},
 		{
-			name:  "sendSubjectCode uses the SMS route and the Osano API key",
+			name:  "sendSubjectCode uses the SMS route and sends every configured key",
 			token: "sendSubjectCode",
 			args:  map[string]property.Value{"hashedSubjectId": property.New("hash-1"), "phone": property.New("+15555550100")},
 			wantRequest: recordedUCRequest{
 				Method: http.MethodPost, Path: ucTestPathPrefix + "/v2/subjects/send-code/sms",
-				Query: map[string]string{}, Key: "test-osano-key",
+				Query: map[string]string{}, Key: "test-osano-key", UCKey: "test-uc-key",
 				Body: map[string]any{"hashedSubjectId": "hash-1", "phone": "+15555550100"},
 			},
 			assert: func(t *testing.T, ret property.Map) {
@@ -284,7 +284,7 @@ func TestUnifiedConsentInvokes(t *testing.T) {
 			response: map[string]any{"verified": true},
 			wantRequest: recordedUCRequest{
 				Method: http.MethodPost, Path: ucTestPathPrefix + "/v2/subjects/profile/verify",
-				Query: map[string]string{}, Key: "test-osano-key",
+				Query: map[string]string{}, Key: "test-osano-key", UCKey: "test-uc-key",
 				Body: map[string]any{"hashedSubjectId": "hash-1", "email": "person@example.com", "code": "123456"},
 			},
 			assert: func(t *testing.T, ret property.Map) {

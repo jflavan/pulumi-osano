@@ -135,8 +135,18 @@ func (r *CookieConsentConfig) Check(
 	if propertyKnown("mode") {
 		mode = args.Mode
 	}
-	configurationFailures, warnings := validateCookieConsentConfiguration(args.Configuration, mode)
-	failures = append(failures, configurationFailures...)
+	creating := req.OldInputs.Get("configuration").IsNull()
+	configurationFailures, warnings := validateCookieConsentConfiguration(args.Configuration, mode, creating)
+	if !creating && unchangedInputs(req, "configuration") {
+		// Osano accepted this configuration when it was applied, so a stricter check in a newer
+		// provider version must not block the stack; report the problem until the next change.
+		for _, failure := range configurationFailures {
+			warnings = append(warnings, failure.Reason+
+				" (the configuration is unchanged, so this is not enforced until you next change it)")
+		}
+	} else {
+		failures = append(failures, configurationFailures...)
+	}
 	logger := p.GetLogger(ctx)
 	for _, warning := range warnings {
 		logger.Warning(warning)

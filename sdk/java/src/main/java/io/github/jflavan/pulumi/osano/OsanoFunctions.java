@@ -607,49 +607,49 @@ public final class OsanoFunctions {
         return Deployment.getInstance().invokeAsync("osano:index:getUnifiedConsent", TypeShape.of(GetUnifiedConsentResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Sends a verification code to a subject&#39;s email or phone using the Osano API key (or the Unified Consent API key when no Osano API key is set). Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
+     * Sends a verification code to a subject&#39;s email or phone, authenticating with every configured key (the Osano API key, the Unified Consent API key, or both). Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
      *
      */
     public static Output<SendSubjectCodeResult> sendSubjectCode() {
         return sendSubjectCode(SendSubjectCodeArgs.Empty, InvokeOptions.Empty);
     }
     /**
-     * Sends a verification code to a subject&#39;s email or phone using the Osano API key (or the Unified Consent API key when no Osano API key is set). Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
+     * Sends a verification code to a subject&#39;s email or phone, authenticating with every configured key (the Osano API key, the Unified Consent API key, or both). Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
      *
      */
     public static CompletableFuture<SendSubjectCodeResult> sendSubjectCodePlain() {
         return sendSubjectCodePlain(SendSubjectCodePlainArgs.Empty, InvokeOptions.Empty);
     }
     /**
-     * Sends a verification code to a subject&#39;s email or phone using the Osano API key (or the Unified Consent API key when no Osano API key is set). Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
+     * Sends a verification code to a subject&#39;s email or phone, authenticating with every configured key (the Osano API key, the Unified Consent API key, or both). Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
      *
      */
     public static Output<SendSubjectCodeResult> sendSubjectCode(SendSubjectCodeArgs args) {
         return sendSubjectCode(args, InvokeOptions.Empty);
     }
     /**
-     * Sends a verification code to a subject&#39;s email or phone using the Osano API key (or the Unified Consent API key when no Osano API key is set). Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
+     * Sends a verification code to a subject&#39;s email or phone, authenticating with every configured key (the Osano API key, the Unified Consent API key, or both). Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
      *
      */
     public static CompletableFuture<SendSubjectCodeResult> sendSubjectCodePlain(SendSubjectCodePlainArgs args) {
         return sendSubjectCodePlain(args, InvokeOptions.Empty);
     }
     /**
-     * Sends a verification code to a subject&#39;s email or phone using the Osano API key (or the Unified Consent API key when no Osano API key is set). Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
+     * Sends a verification code to a subject&#39;s email or phone, authenticating with every configured key (the Osano API key, the Unified Consent API key, or both). Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
      *
      */
     public static Output<SendSubjectCodeResult> sendSubjectCode(SendSubjectCodeArgs args, InvokeOptions options) {
         return Deployment.getInstance().invoke("osano:index:sendSubjectCode", TypeShape.of(SendSubjectCodeResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Sends a verification code to a subject&#39;s email or phone using the Osano API key (or the Unified Consent API key when no Osano API key is set). Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
+     * Sends a verification code to a subject&#39;s email or phone, authenticating with every configured key (the Osano API key, the Unified Consent API key, or both). Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
      *
      */
     public static Output<SendSubjectCodeResult> sendSubjectCode(SendSubjectCodeArgs args, InvokeOutputOptions options) {
         return Deployment.getInstance().invoke("osano:index:sendSubjectCode", TypeShape.of(SendSubjectCodeResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Sends a verification code to a subject&#39;s email or phone using the Osano API key (or the Unified Consent API key when no Osano API key is set). Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
+     * Sends a verification code to a subject&#39;s email or phone, authenticating with every configured key (the Osano API key, the Unified Consent API key, or both). Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
      *
      */
     public static CompletableFuture<SendSubjectCodeResult> sendSubjectCodePlain(SendSubjectCodePlainArgs args, InvokeOptions options) {

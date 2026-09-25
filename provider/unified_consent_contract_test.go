@@ -173,7 +173,7 @@ func TestSubjectVerificationFollowsSpec(t *testing.T) {
 		}
 		want := recordedUCRequest{
 			Method: http.MethodPost, Path: "/v2/subjects/send-code", Query: map[string]string{},
-			Key: "test-osano-key", Body: map[string]any{"email": "person@example.com"},
+			Key: "test-osano-key", UCKey: "test-uc-key", Body: map[string]any{"email": "person@example.com"},
 		}
 		if len(requests) != 1 || !reflect.DeepEqual(requests[0], want) {
 			t.Fatalf("unexpected request: %#v", requests)
@@ -217,7 +217,7 @@ func TestSubjectVerificationFollowsSpec(t *testing.T) {
 		}
 		want := recordedUCRequest{
 			Method: http.MethodPost, Path: "/v2/subjects/profile/verify/sms", Query: map[string]string{},
-			Key: "test-osano-key",
+			Key: "test-osano-key", UCKey: "test-uc-key",
 			Body: map[string]any{
 				"phone": "+15555550100", "code": "12345678", "session": "sms-session-1",
 			},
@@ -229,7 +229,7 @@ func TestSubjectVerificationFollowsSpec(t *testing.T) {
 		assertBool(t, resp.Return, "verified", true)
 	})
 
-	t.Run("subject routes fall back to the Unified Consent key without an Osano key", func(t *testing.T) {
+	t.Run("subject routes work with only the Unified Consent key", func(t *testing.T) {
 		mock := &ucMockAPI{t: t}
 		api := httptest.NewServer(mock)
 		defer api.Close()

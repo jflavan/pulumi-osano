@@ -87,9 +87,9 @@ var (
 )
 
 // validateCookieConsentConfiguration checks a fully known configuration object. mode is the
-// configuration's compliance mode, or "" when it is unknown.
+// configuration's compliance mode, or "" when it is unknown; creating reports a new configuration.
 func validateCookieConsentConfiguration(
-	configuration map[string]any, mode string,
+	configuration map[string]any, mode string, creating bool,
 ) (failures []p.CheckFailure, warnings []string) {
 	fail := func(key, format string, args ...any) {
 		failures = append(failures, p.CheckFailure{
@@ -186,8 +186,11 @@ func validateCookieConsentConfiguration(
 		}
 	}
 
+	// Osano enables Google Consent Mode by default for new configurations. An existing configuration
+	// that leaves the key undeclared may already have it off, so only warn when it is declared on or
+	// when the configuration is being created.
 	if mode == "debug" {
-		if enabled, set := configuration["googleConsent"].(bool); !set || enabled {
+		if enabled, set := configuration["googleConsent"].(bool); (set && enabled) || (!set && creating) {
 			warnings = append(warnings,
 				"configuration.googleConsent is enabled (Osano's default) while mode is debug: Osano then signals "+
 					"denied Google Consent Mode consent for every visitor. Set googleConsent to false until the "+
@@ -295,7 +298,8 @@ func validatePalette(value any) (failures, warnings []string) {
 		return []string{"must be an object"}, nil
 	}
 	for _, key := range sortedKeys(palette) {
-		if allowed, isEnum := cookieConsentPaletteEnums[key]; isEnum {
+		// Every palette property is nullable: null removes the value.
+		if allowed, isEnum := cookieConsentPaletteEnums[key]; isEnum && palette[key] != nil {
 			if s, isString := palette[key].(string); !isString || !slices.Contains(allowed, s) {
 				failures = append(failures, fmt.Sprintf("%s must be one of %s", key, strings.Join(allowed, ", ")))
 			}
@@ -310,13 +314,19 @@ func validatePalette(value any) (failures, warnings []string) {
 		}
 	}
 	if position, ok := palette["displayPosition"].(string); ok {
-		allowed := []string{"top", "bottom"}
-		if palette["dialogType"] == "box" {
-			allowed = []string{"top-left", "top-right", "bottom-left", "bottom-right", "center"}
+		barPositions := []string{"top", "bottom"}
+		boxPositions := []string{"top-left", "top-right", "bottom-left", "bottom-right", "center"}
+		// Without a declared dialogType, the one stored in Osano applies, so accept either set.
+		allowed, context := append(append([]string{}, barPositions...), boxPositions...), ""
+		switch palette["dialogType"] {
+		case "bar":
+			allowed, context = barPositions, " when dialogType is bar"
+		case "box":
+			allowed, context = boxPositions, " when dialogType is box"
 		}
 		if !slices.Contains(allowed, position) {
 			failures = append(failures, fmt.Sprintf(
-				"displayPosition must be one of %s for this dialogType", strings.Join(allowed, ", ")))
+				"displayPosition must be one of %s%s", strings.Join(allowed, ", "), context))
 		}
 	}
 	return failures, warnings
@@ -348,11 +358,14 @@ func projectObject(server, declared map[string]any, topLevel bool) map[string]an
 	projected := make(map[string]any, len(declared))
 	for key, declaredValue := range declared {
 		serverValue, ok := server[key]
-		if !ok {
+		declaredObject, declaredIsObject := declaredValue.(map[string]any)
+		// A declared null removes a value and Osano reports its default instead, and a declared {}
+		// clears an object that Osano may report as null. Neither is drift.
+		clearedObject := declaredIsObject && len(declaredObject) == 0 && serverValue == nil
+		if !ok || declaredValue == nil || clearedObject {
 			projected[key] = declaredValue
 			continue
 		}
-		declaredObject, declaredIsObject := declaredValue.(map[string]any)
 		serverObject, serverIsObject := serverValue.(map[string]any)
 		atomic := topLevel && slices.Contains(cookieConsentAtomicConfigurationKeys, key)
 		if declaredIsObject && serverIsObject && !atomic {

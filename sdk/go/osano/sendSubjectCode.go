@@ -11,7 +11,7 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-// Sends a verification code to a subject's email or phone using the Osano API key (or the Unified Consent API key when no Osano API key is set). Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
+// Sends a verification code to a subject's email or phone, authenticating with every configured key (the Osano API key, the Unified Consent API key, or both). Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
 func SendSubjectCode(ctx *pulumi.Context, args *SendSubjectCodeArgs, opts ...pulumi.InvokeOption) (*SendSubjectCodeResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv SendSubjectCodeResult

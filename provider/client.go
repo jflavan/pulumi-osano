@@ -10,6 +10,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strings"
 )
 
@@ -18,9 +19,9 @@ type headerKind int
 const (
 	headerUnifiedConsent headerKind = iota
 	headerOsano
-	// headerSubject authenticates subject-verification routes with the Osano API key and falls back
-	// to the Unified Consent API key. Osano's guide requires the Osano key for routes that create or
-	// verify subjects, while its OpenAPI spec lists the Unified Consent key for these routes.
+	// headerSubject authenticates subject-verification routes with every configured key. Osano's guide
+	// requires the Osano key for routes that create or verify subjects, while its OpenAPI spec lists
+	// the Unified Consent key for these routes, so either key alone is enough.
 	headerSubject
 )
 
@@ -53,6 +54,27 @@ func normalizeReferenceType(referenceType string) (string, error) {
 type geoOverride struct {
 	CountryCode string
 	RegionCode  string
+}
+
+var (
+	countryCodePattern = regexp.MustCompile(`^[A-Za-z]{2}$`)
+	regionCodePattern  = regexp.MustCompile(`^[A-Za-z]{2}-[A-Za-z0-9]{1,3}$`)
+)
+
+// validateGeoOverride checks the ISO 3166 formats of the override headers. Osano answers a
+// malformed code with 400, which a unified consent lookup would read as "no consent".
+func validateGeoOverride(country, region *string) error {
+	if country != nil {
+		if code := strings.TrimSpace(*country); code != "" && !countryCodePattern.MatchString(code) {
+			return fmt.Errorf("countryCodeOverride must be an ISO 3166-1 alpha-2 code such as US; got %q", *country)
+		}
+	}
+	if region != nil {
+		if code := strings.TrimSpace(*region); code != "" && !regionCodePattern.MatchString(code) {
+			return fmt.Errorf("regionCodeOverride must be an ISO 3166-2 code such as US-CA; got %q", *region)
+		}
+	}
+	return nil
 }
 
 func (g geoOverride) headers() http.Header {
@@ -465,7 +487,7 @@ func (r verifyRequest) Payload() map[string]string {
 	if r.HashedSubjectID != "" {
 		body["hashedSubjectId"] = r.HashedSubjectID
 	}
-	if r.Session != "" {
+	if r.Session != "" && r.Channel == "sms" {
 		body["session"] = r.Session
 	}
 	switch r.Channel {
@@ -558,22 +580,23 @@ func (c *apiClient) doJSONWithHeaders(
 		}
 		req.Header.Set("x-osano-api-key", c.settings.osanoAPIKey)
 	case headerSubject:
-		switch {
-		case c.settings.osanoAPIKey != "":
-			req.Header.Set("x-osano-api-key", c.settings.osanoAPIKey)
-		case c.settings.unifiedConsentAPIKey != "":
-			req.Header.Set("x-uc-api-key", c.settings.unifiedConsentAPIKey)
-		default:
+		if c.settings.osanoAPIKey == "" && c.settings.unifiedConsentAPIKey == "" {
 			return nil, 0, errors.New(
 				"no Osano API key configured; set osano:osanoApiKey or OSANO_API_KEY " +
 					"(or osano:unifiedConsentApiKey or OSANO_UC_API_KEY)",
 			)
 		}
+		if c.settings.osanoAPIKey != "" {
+			req.Header.Set("x-osano-api-key", c.settings.osanoAPIKey)
+		}
+		if c.settings.unifiedConsentAPIKey != "" {
+			req.Header.Set("x-uc-api-key", c.settings.unifiedConsentAPIKey)
+		}
 	}
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return nil, 0, fmt.Errorf("Osano API request failed: %w", err)
+		return nil, 0, transportError(method, fullURL, err)
 	}
 	defer func() {
 		if closeErr := resp.Body.Close(); closeErr != nil && err == nil {
@@ -594,6 +617,16 @@ func (c *apiClient) doJSONWithHeaders(
 	}
 
 	return respBody, resp.StatusCode, nil
+}
+
+// transportError reports a request that got no response without the request path or query, which
+// can hold secret identifiers such as a session ID; *url.Error would print the full URL.
+func transportError(method string, target *url.URL, err error) error {
+	var urlErr *url.Error
+	if errors.As(err, &urlErr) {
+		err = urlErr.Err
+	}
+	return fmt.Errorf("Osano API request failed: %s %s://%s: %w", method, target.Scheme, target.Host, err)
 }
 
 type apiError struct {

@@ -208,7 +208,7 @@ Two API keys exist:
 | Key | Header | Usage |
 | --- | --- | --- |
 | Unified Consent API key | `x-uc-api-key` | Required for consent submissions and read operations |
-| Osano Customer REST API key | `x-osano-api-key` | Required for Cookie Consent resources and functions; also used by `sendSubjectCode` and `verifySubjectCode`, which fall back to the Unified Consent API key when no Osano API key is set |
+| Osano Customer REST API key | `x-osano-api-key` | Required for Cookie Consent resources and functions; `sendSubjectCode` and `verifySubjectCode` send every configured key, so either this key or the Unified Consent API key is enough |
 
 Configure them with Pulumi config:
 

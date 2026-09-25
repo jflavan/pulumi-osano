@@ -18,7 +18,10 @@ const (
 		"caller's IP address."
 )
 
-func geoOverrideFrom(country, region *string) geoOverride {
+func geoOverrideFrom(country, region *string) (geoOverride, error) {
+	if err := validateGeoOverride(country, region); err != nil {
+		return geoOverride{}, err
+	}
 	var geo geoOverride
 	if country != nil {
 		geo.CountryCode = *country
@@ -26,7 +29,7 @@ func geoOverrideFrom(country, region *string) geoOverride {
 	if region != nil {
 		geo.RegionCode = *region
 	}
-	return geo
+	return geo, nil
 }
 
 // GetUnifiedConsent exposes an invoke to fetch the latest unified consent summary for a subject.
@@ -84,11 +87,12 @@ func (g *GetUnifiedConsent) Invoke(
 		return infer.FunctionResponse[GetUnifiedConsentResult]{}, errors.New("subjectRef is required")
 	}
 
+	geo, err := geoOverrideFrom(req.Input.CountryCodeOverride, req.Input.RegionCodeOverride)
+	if err != nil {
+		return infer.FunctionResponse[GetUnifiedConsentResult]{}, err
+	}
 	client := newAPIClient(ctx)
-	payload, found, err := client.FetchUnifiedConsent(
-		ctx, subjectRef, req.Input.ReferenceType,
-		geoOverrideFrom(req.Input.CountryCodeOverride, req.Input.RegionCodeOverride),
-	)
+	payload, found, err := client.FetchUnifiedConsent(ctx, subjectRef, req.Input.ReferenceType, geo)
 	if err != nil {
 		return infer.FunctionResponse[GetUnifiedConsentResult]{}, err
 	}
@@ -125,8 +129,9 @@ func (g *GetUnifiedConsent) Invoke(
 	return infer.FunctionResponse[GetUnifiedConsentResult]{Output: result}, nil
 }
 
+// stringsToAny converts a string list for a map output, keeping an empty list empty rather than null.
 func stringsToAny(values []string) []any {
-	if len(values) == 0 {
+	if values == nil {
 		return nil
 	}
 	converted := make([]any, 0, len(values))
@@ -445,10 +450,12 @@ func (c *CheckConsent) Invoke(
 		return infer.FunctionResponse[CheckConsentResult]{}, errors.New("subjectId is required")
 	}
 
+	geo, err := geoOverrideFrom(req.Input.CountryCodeOverride, req.Input.RegionCodeOverride)
+	if err != nil {
+		return infer.FunctionResponse[CheckConsentResult]{}, err
+	}
 	client := newAPIClient(ctx)
-	exists, err := client.CheckConsent(
-		ctx, subjectID, geoOverrideFrom(req.Input.CountryCodeOverride, req.Input.RegionCodeOverride),
-	)
+	exists, err := client.CheckConsent(ctx, subjectID, geo)
 	if err != nil {
 		return infer.FunctionResponse[CheckConsentResult]{}, err
 	}
@@ -516,10 +523,12 @@ func (g *GetConsentProfile) Invoke(
 		return infer.FunctionResponse[GetConsentProfileResult]{}, errors.New("configId is required")
 	}
 
+	geo, err := geoOverrideFrom(req.Input.CountryCodeOverride, req.Input.RegionCodeOverride)
+	if err != nil {
+		return infer.FunctionResponse[GetConsentProfileResult]{}, err
+	}
 	client := newAPIClient(ctx)
-	profile, found, err := client.FetchConsentProfile(
-		ctx, hashed, configID, geoOverrideFrom(req.Input.CountryCodeOverride, req.Input.RegionCodeOverride),
-	)
+	profile, found, err := client.FetchConsentProfile(ctx, hashed, configID, geo)
 	if err != nil {
 		return infer.FunctionResponse[GetConsentProfileResult]{}, err
 	}
@@ -707,8 +716,8 @@ func (s *SendSubjectCode) Annotate(a infer.Annotator) {
 	a.SetToken("index", "sendSubjectCode")
 	a.Describe(
 		s,
-		"Sends a verification code to a subject's email or phone using the Osano API key (or the Unified "+
-			"Consent API key when no Osano API key is set). Pulumi runs invokes on every preview, update, and "+
+		"Sends a verification code to a subject's email or phone, authenticating with every configured "+
+			"key (the Osano API key, the Unified Consent API key, or both). Pulumi runs invokes on every preview, update, and "+
 			"refresh, so declaring this in a stack sends a new code each time; call it from automation rather "+
 			"than from long-lived stack code.",
 	)

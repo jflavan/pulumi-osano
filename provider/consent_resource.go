@@ -251,6 +251,10 @@ func applyConsent(
 }
 
 // Check validates consent inputs, deferring any section that is unknown until apply.
+//
+// The action and origin values are listed only in the prose of Osano's API reference, not in its
+// schema, so Osano may have accepted other values. Those two checks apply only to new or changed
+// values: a consent that an earlier provider version submitted keeps previewing unchanged.
 func (r *ConsentResource) Check(
 	ctx context.Context, req infer.CheckRequest,
 ) (infer.CheckResponse[ConsentArgs], error) {
@@ -260,21 +264,37 @@ func (r *ConsentResource) Check(
 	}
 
 	checks := []struct {
-		properties []string
-		property   string
-		validate   func(ConsentArgs) error
+		properties    []string
+		property      string
+		validate      func(ConsentArgs) error
+		onlyIfChanged bool
 	}{
-		{[]string{"actions", "origin"}, "actions", validateConsentActions},
-		{[]string{"subject"}, "subject", validateConsentSubject},
-		{[]string{"compliance"}, "compliance", validateConsentCompliance},
-		{[]string{"origin"}, "origin", validateConsentOrigin},
+		{[]string{"actions", "origin"}, "actions", validateConsentActions, false},
+		{[]string{"actions"}, "actions", validateConsentActionValues, true},
+		{[]string{"subject"}, "subject", validateConsentSubject, false},
+		{[]string{"compliance"}, "compliance", validateConsentCompliance, false},
+		{[]string{"origin"}, "origin", validateConsentOrigin, true},
+		{[]string{"countryCodeOverride"}, "countryCodeOverride", validateConsentCountryCode, false},
+		{[]string{"regionCodeOverride"}, "regionCodeOverride", validateConsentRegionCode, false},
 	}
 	for _, check := range checks {
 		if anyComputed(req, check.properties...) {
 			continue
 		}
+		if check.onlyIfChanged && unchangedInputs(req, check.properties...) {
+			continue
+		}
 		if err := check.validate(args); err != nil {
 			failures = append(failures, p.CheckFailure{Property: check.property, Reason: err.Error()})
+		}
+	}
+
+	if !anyComputed(req, "origin", "actions", "tags", "sessionToken", "compliance") && args.submitsGPC() {
+		for _, ignored := range args.gpcIgnoredInputs() {
+			p.GetLogger(ctx).Warningf(
+				"%s is not sent: a gpc consent without actions goes to Osano's GPC endpoint, which does not accept it",
+				ignored,
+			)
 		}
 	}
 	return infer.CheckResponse[ConsentArgs]{Inputs: args, Failures: failures}, nil
@@ -289,9 +309,23 @@ func anyComputed(req infer.CheckRequest, properties ...string) bool {
 	return false
 }
 
+// unchangedInputs reports whether every property equals its value in the previous inputs.
+func unchangedInputs(req infer.CheckRequest, properties ...string) bool {
+	for _, property := range properties {
+		previous := req.OldInputs.Get(property)
+		if previous.IsNull() || !previous.Equals(req.NewInputs.Get(property)) {
+			return false
+		}
+	}
+	return true
+}
+
+// validateConsentArgs re-checks, at apply, the rules for values that may have been unknown during
+// preview. The action and origin values are left to Check, which applies them to changed values only.
 func validateConsentArgs(args ConsentArgs) error {
 	for _, validate := range []func(ConsentArgs) error{
-		validateConsentActions, validateConsentSubject, validateConsentCompliance, validateConsentOrigin,
+		validateConsentActions, validateConsentSubject, validateConsentCompliance,
+		validateConsentCountryCode, validateConsentRegionCode,
 	} {
 		if err := validate(args); err != nil {
 			return err
@@ -316,6 +350,15 @@ func validateConsentActions(args ConsentArgs) error {
 		}
 		if action.Action == "" {
 			return fmt.Errorf("actions[%d].action is required", idx)
+		}
+	}
+	return nil
+}
+
+func validateConsentActionValues(args ConsentArgs) error {
+	for idx, action := range args.Actions {
+		if action.Action == "" {
+			continue
 		}
 		if err := oneOf(fmt.Sprintf("actions[%d].action", idx), action.Action, validConsentActions); err != nil {
 			return err
@@ -356,6 +399,29 @@ func validateConsentOrigin(args ConsentArgs) error {
 		return nil
 	}
 	return oneOf("origin", args.Origin, []string{consentOriginAPI, consentOriginGPC})
+}
+
+func validateConsentCountryCode(args ConsentArgs) error {
+	return validateGeoOverride(args.CountryCodeOverride, nil)
+}
+
+func validateConsentRegionCode(args ConsentArgs) error {
+	return validateGeoOverride(nil, args.RegionCodeOverride)
+}
+
+// gpcIgnoredInputs lists the set inputs that Osano's GPC endpoint does not accept.
+func (args ConsentArgs) gpcIgnoredInputs() []string {
+	var ignored []string
+	if len(args.Tags) > 0 {
+		ignored = append(ignored, "tags")
+	}
+	if args.SessionToken != nil && *args.SessionToken != "" {
+		ignored = append(ignored, "sessionToken")
+	}
+	if args.Compliance != nil && args.Compliance.PrivacyPolicy != nil {
+		ignored = append(ignored, "compliance.privacyPolicy")
+	}
+	return ignored
 }
 
 func (s ConsentSubject) reference() (string, error) {
