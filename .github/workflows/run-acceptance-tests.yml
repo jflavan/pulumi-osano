@@ -46,14 +46,14 @@ jobs:
       pull-requests: write # For schema check comment.
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           lfs: true
           ref: ${{ env.PR_COMMIT_SHA || github.ref }}
 
       - id: version
         name: Set Provider Version
-        uses: pulumi/provider-version-action@3a647064cf4697c7c6352b9a1d9e554450cbe957 # v1.6.1
+        uses: pulumi/provider-version-action@c4f719182e607d0d8322f148f168d3372838e681 # v2.0.0
         with:
           set-env: PROVIDER_VERSION
         env:
@@ -67,7 +67,7 @@ jobs:
 
       - if: github.event_name == 'pull_request'
         name: Install Schema Tools
-        uses: jaxxstorm/action-install-gh-release@6096f2a2bbfee498ced520b6922ac2c06e990ed2 # v2.1.0
+        uses: jaxxstorm/action-install-gh-release@25e24d2d23ae098373794ef1d6faecb48ee52da8 # v3.0.0
         with:
           repo: pulumi/schema-tools
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -106,7 +106,7 @@ jobs:
         run: make provider
 
       - name: Check worktree clean
-        uses: pulumi/git-status-check-action@54000b91124a8dd9fd6a872cb41f5dd246a46e7c # v1.1.1
+        uses: pulumi/git-status-check-action@0d90c81496aa8d6a31d9c6a0d6297feea2f54057 # v2.0.0
         with:
           allowed-changes: |
             sdk/**/pulumi-plugin.json
@@ -122,7 +122,7 @@ jobs:
         run: tar -zcf ${{ github.workspace }}/bin/provider.tar.gz -C ${{ github.workspace }}/bin/ pulumi-resource-${{ env.PROVIDER }} pulumi-gen-${{ env.PROVIDER }}
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: pulumi-${{ env.PROVIDER }}-provider.tar.gz
           path: ${{ github.workspace }}/bin/provider.tar.gz
@@ -133,7 +133,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238 # v4.6.0
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         continue-on-error: true
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -153,14 +153,14 @@ jobs:
     name: build_sdks
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           lfs: true
           ref: ${{ env.PR_COMMIT_SHA || github.ref }}
 
       - id: version
         name: Set Provider Version
-        uses: pulumi/provider-version-action@3a647064cf4697c7c6352b9a1d9e554450cbe957 # v1.6.1
+        uses: pulumi/provider-version-action@c4f719182e607d0d8322f148f168d3372838e681 # v2.0.0
         with:
           set-env: PROVIDER_VERSION
         env:
@@ -181,7 +181,7 @@ jobs:
         run: make build_${{ matrix.language }}
 
       - name: Check worktree clean
-        uses: pulumi/git-status-check-action@54000b91124a8dd9fd6a872cb41f5dd246a46e7c # v1.1.1
+        uses: pulumi/git-status-check-action@0d90c81496aa8d6a31d9c6a0d6297feea2f54057 # v2.0.0
         with:
           allowed-changes: |
             sdk/**/pulumi-plugin.json
@@ -197,7 +197,7 @@ jobs:
         run: tar -zcf sdk/${{ matrix.language }}.tar.gz -C sdk/${{ matrix.language }} .
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.language }}-sdk.tar.gz
           path: ${{ github.workspace }}/sdk/${{ matrix.language }}.tar.gz
@@ -209,14 +209,14 @@ jobs:
     name: build_examples
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           lfs: true
           ref: ${{ env.PR_COMMIT_SHA || github.ref }}
 
       - id: version
         name: Set Provider Version
-        uses: pulumi/provider-version-action@3a647064cf4697c7c6352b9a1d9e554450cbe957 # v1.6.1
+        uses: pulumi/provider-version-action@c4f719182e607d0d8322f148f168d3372838e681 # v2.0.0
         with:
           set-env: PROVIDER_VERSION
         env:
@@ -245,7 +245,7 @@ jobs:
     name: acceptance_reads
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           lfs: true
           ref: ${{ env.PR_COMMIT_SHA || github.ref }}
@@ -306,7 +306,7 @@ jobs:
     name: lint
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           lfs: true
           ref: ${{ env.PR_COMMIT_SHA || github.ref }}
@@ -320,7 +320,7 @@ jobs:
         run: git grep -l 'go:embed' -- provider | xargs --no-run-if-empty sed -i 's/go:embed/ goembed/g'
 
       - name: golangci-lint provider pkg
-        uses: golangci/golangci-lint-action@55c2c1448f86e01eaae002a5a3a9624417608d84 # v6.5.2
+        uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9.3.0
         with:
           working-directory: .
           install-mode: none
@@ -335,7 +335,7 @@ jobs:
       - lint
     steps:
       - name: Mark workflow as successful
-        uses: guibranco/github-status-action-v2@631f55ea0251f0fb284525ad86c30e9f7a8dd284 # v1.1.14
+        uses: guibranco/github-status-action-v2@77639353504055053524efa7a3719aaf0b731ce9 # v1.2.4
         with:
           authToken: ${{ secrets.GITHUB_TOKEN }}
           context: Sentinel
