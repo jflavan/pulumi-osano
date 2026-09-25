@@ -6,8 +6,8 @@ Use this checklist whenever publishing a new `pulumi-osano` provider release.
 1. **Check the one-time setup** (first release, or after rotating credentials)
    - Repository secrets exist: `NUGET_USERNAME`, `MAVEN_CENTRAL_USERNAME`,
      `MAVEN_CENTRAL_PASSWORD`, `JAVA_SIGNING_KEY`, `JAVA_SIGNING_KEY_ID`, and
-     `JAVA_SIGNING_PASSWORD`. For the first release only, `NPM_TOKEN` holds a temporary
-     granular npm token.
+     `JAVA_SIGNING_PASSWORD`. `NPM_TOKEN` is optional (see the npm bootstrap in the release
+     guide).
    - Trusted publishers point at owner `jflavan`, repository `pulumi-osano`, workflow
      `release.yml`, and no environment: the PyPI pending publisher for `pulumi-osano` and the
      NuGet trusted publishing policy (and, from the second release on, the npm trusted publisher
@@ -71,9 +71,10 @@ Use this checklist whenever publishing a new `pulumi-osano` provider release.
 8. **Post-release follow-up**
    - Check that the plugin installs:
      `pulumi plugin install resource osano X.Y.Z --server github://api.github.com/jflavan/pulumi-osano`.
-   - After the first release only: add the npm trusted publisher, set npm publishing access to
-     **Require two-factor authentication and disallow tokens**, delete the `NPM_TOKEN` secret,
-     and revoke the token.
+   - First release of the npm package only: when the npm step fails for lack of a trusted
+     publisher, publish the CI-built `nodejs-sdk.tar.gz` by hand, add the npm trusted publisher
+     (allow **npm publish**, not only `npm stage publish`), and re-run the failed jobs. See
+     "npm: bootstrap, then trusted publishing" in the release guide.
    - After the first release only: list the package in the Pulumi Registry. Open a PR to
      [pulumi/registry](https://github.com/pulumi/registry) that adds
      `{"repoSlug": "jflavan/pulumi-osano", "schemaFile": "provider/cmd/pulumi-resource-osano/schema.json"}`

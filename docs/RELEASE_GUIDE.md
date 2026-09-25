@@ -31,7 +31,7 @@ is provided automatically.
 
 | Secret | Used by | Value |
 | --- | --- | --- |
-| `NPM_TOKEN` | `publish_sdks` (npm), **temporary** | A granular npm access token for the first publish only; see [npm: bootstrap, then trusted publishing](#npm-bootstrap-then-trusted-publishing). Delete it after the first release. |
+| `NPM_TOKEN` | `publish_sdks` (npm), **optional** | Not needed once the npm trusted publisher exists. Only an alternative way to bootstrap a brand-new npm package; see [npm: bootstrap, then trusted publishing](#npm-bootstrap-then-trusted-publishing). |
 | `NUGET_USERNAME` | `publish_sdks` (NuGet login) | The nuget.org account name (profile name, not the email address) that owns the trusted publishing policy. |
 | `MAVEN_CENTRAL_USERNAME` | `publish_java_sdk` | The username half of a Maven Central Portal user token. |
 | `MAVEN_CENTRAL_PASSWORD` | `publish_java_sdk` | The password half of the same user token. |
@@ -60,32 +60,43 @@ user token, and the signing key above.
 
 ### npm: bootstrap, then trusted publishing
 
-npm cannot configure a trusted publisher for a package that does not exist yet, so the first release
-of `@jflavan/pulumi-osano` publishes with a short-lived token and every later release uses trusted
-publishing. The workflow needs no change between the two: npm 11.5+ first tries to exchange the
-job's GitHub OIDC token, and only falls back to `NODE_AUTH_TOKEN` (the `NPM_TOKEN` secret, read
-through the `.npmrc` that `actions/setup-node` writes) when that exchange fails. Once a trusted
-publisher exists, its token replaces the `.npmrc` token, so an empty, missing, or leftover
-`NPM_TOKEN` cannot break trusted publishing. Both paths publish with provenance.
+npm cannot configure a trusted publisher for a package that does not exist yet, so the very first
+version of `@jflavan/pulumi-osano` has to be published some other way; every later release uses
+trusted publishing. npm 11.5+ first tries to exchange the job's GitHub OIDC token, and only falls back
+to `NODE_AUTH_TOKEN` (the optional `NPM_TOKEN` secret, read through the `.npmrc` that
+`actions/setup-node` writes) when that exchange fails. Once a trusted publisher exists, its token
+replaces the `.npmrc` token, so an empty, missing, or leftover `NPM_TOKEN` cannot break trusted
+publishing.
 
-1. On npmjs.com, sign in as `jflavan` and create a granular access token (**Access Tokens >
-   Generate New Token > Granular Access Token**):
-   - Permissions: **Read and write**.
-   - Packages and scopes: **All packages** (the package does not exist yet, so it cannot be
-     selected).
-   - Select **Bypass two-factor authentication** so the workflow can publish without an OTP.
-   - Expiration: the shortest period that covers the first release, for example 7 days.
-2. Save it as the `NPM_TOKEN` repository secret.
-3. Release `v0.1.0` (see [Cut the release](#cut-the-release)). The `publish_sdks` job publishes
-   with the token; the log shows `Publishing @jflavan/pulumi-osano@0.1.0 with dist-tag latest`.
-4. On npmjs.com, open the package settings and add the trusted publisher from the table above.
-5. Under **Publishing access**, select **Require two-factor authentication and disallow tokens**.
-   Trusted publishing keeps working because it does not use a token.
-6. Delete the `NPM_TOKEN` repository secret and revoke the token on npmjs.com.
+`v0.1.0` was bootstrapped without any token, by publishing the CI-built package by hand. npm is
+restricting tokens that bypass 2FA for direct publishing, so prefer this over an `NPM_TOKEN`:
 
-The next release publishes through trusted publishing. If it fails with an authentication error,
-check the trusted publisher values first: npm reports a failed OIDC exchange only in verbose logs
-and then falls back to the (now absent) token.
+1. Push the `vX.Y.Z` tag. With no trusted publisher and no `NPM_TOKEN`, the npm step of
+   `publish_sdks` fails with an authentication error before PyPI and NuGet run, and
+   `publish_go_sdk` is skipped. The GitHub release and SDK artifacts are already built.
+2. Download the Node.js SDK the run built and publish that exact package from a maintainer machine:
+
+   ```bash
+   gh run download <run-id> -R jflavan/pulumi-osano -n nodejs-sdk.tar.gz -D /tmp/npm-bootstrap
+   mkdir /tmp/npm-bootstrap/sdk && tar -zxf /tmp/npm-bootstrap/nodejs.tar.gz -C /tmp/npm-bootstrap/sdk
+   npm login --auth-type=web          # signs in through the browser, including 2FA
+   cd /tmp/npm-bootstrap/sdk/bin && npm publish --access public
+   ```
+
+   This first version has no provenance statement; later versions published by the workflow do.
+3. On npmjs.com, open the package's **Settings > Trusted publishing** and add the trusted publisher
+   from the table above. Trusted publishers created after 3 September 2026 allow only
+   `npm stage publish` by default: also allow **npm publish**, because the workflow publishes
+   directly.
+4. Re-run the failed jobs of the release run. The npm step skips the version that is now on npm,
+   PyPI and NuGet publish, and `publish_go_sdk` pushes the Go SDK tag.
+5. Optionally, under **Publishing access**, select **Require two-factor authentication and disallow
+   tokens**. Trusted publishing keeps working because it does not use a token.
+
+If you bootstrap with an `NPM_TOKEN` instead, delete the secret and revoke the token once the
+trusted publisher exists. If a later release fails with an authentication error, check the trusted
+publisher values first: npm reports a failed OIDC exchange only in verbose logs and then falls back
+to the (absent) token.
 
 ## Dry run
 
