@@ -21,16 +21,17 @@ class CookieConsentPublicationArgs:
     def __init__(__self__, *,
                  change_token: pulumi.Input[_builtins.str],
                  config_id: pulumi.Input[_builtins.str],
-                 description: Optional[pulumi.Input[_builtins.str]] = None,
-                 keep_unclassified_tattles: Optional[pulumi.Input[_builtins.bool]] = None,
-                 webhook_url: Optional[pulumi.Input[_builtins.str]] = None):
+                 description: pulumi.Input[Optional[_builtins.str]] = None,
+                 keep_unclassified_tattles: pulumi.Input[Optional[_builtins.bool]] = None,
+                 webhook_url: pulumi.Input[Optional[_builtins.str]] = None):
         """
         The set of arguments for constructing a CookieConsentPublication resource.
+
         :param pulumi.Input[_builtins.str] change_token: A caller-managed desired-state token. Changing it queues a new publication. Changing keepUnclassifiedTattles, description, or webhookUrl also republishes; when no input changes, nothing is published.
         :param pulumi.Input[_builtins.str] config_id: The Osano Cookie Consent config ID to publish. This is also the import ID.
         :param pulumi.Input[_builtins.str] description: Optional description sent with the publication request.
         :param pulumi.Input[_builtins.bool] keep_unclassified_tattles: Whether publication preserves unclassified discoveries. Defaults to true to avoid unexpected deletion.
-        :param pulumi.Input[_builtins.str] webhook_url: Optional absolute HTTP or HTTPS URL notified by Osano after publication.
+        :param pulumi.Input[_builtins.str] webhook_url: Optional absolute HTTP or HTTPS URL Osano calls when the publication completes. Osano does not document the call's payload or sign it, so use an unguessable URL; the value is stored as a secret.
         """
         pulumi.set(__self__, "change_token", change_token)
         pulumi.set(__self__, "config_id", config_id)
@@ -69,38 +70,38 @@ class CookieConsentPublicationArgs:
 
     @_builtins.property
     @pulumi.getter
-    def description(self) -> Optional[pulumi.Input[_builtins.str]]:
+    def description(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
         Optional description sent with the publication request.
         """
         return pulumi.get(self, "description")
 
     @description.setter
-    def description(self, value: Optional[pulumi.Input[_builtins.str]]):
+    def description(self, value: pulumi.Input[Optional[_builtins.str]]):
         pulumi.set(self, "description", value)
 
     @_builtins.property
     @pulumi.getter(name="keepUnclassifiedTattles")
-    def keep_unclassified_tattles(self) -> Optional[pulumi.Input[_builtins.bool]]:
+    def keep_unclassified_tattles(self) -> pulumi.Input[Optional[_builtins.bool]]:
         """
         Whether publication preserves unclassified discoveries. Defaults to true to avoid unexpected deletion.
         """
         return pulumi.get(self, "keep_unclassified_tattles")
 
     @keep_unclassified_tattles.setter
-    def keep_unclassified_tattles(self, value: Optional[pulumi.Input[_builtins.bool]]):
+    def keep_unclassified_tattles(self, value: pulumi.Input[Optional[_builtins.bool]]):
         pulumi.set(self, "keep_unclassified_tattles", value)
 
     @_builtins.property
     @pulumi.getter(name="webhookUrl")
-    def webhook_url(self) -> Optional[pulumi.Input[_builtins.str]]:
+    def webhook_url(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        Optional absolute HTTP or HTTPS URL notified by Osano after publication.
+        Optional absolute HTTP or HTTPS URL Osano calls when the publication completes. Osano does not document the call's payload or sign it, so use an unguessable URL; the value is stored as a secret.
         """
         return pulumi.get(self, "webhook_url")
 
     @webhook_url.setter
-    def webhook_url(self, value: Optional[pulumi.Input[_builtins.str]]):
+    def webhook_url(self, value: pulumi.Input[Optional[_builtins.str]]):
         pulumi.set(self, "webhook_url", value)
 
 
@@ -110,11 +111,11 @@ class CookieConsentPublication(pulumi.CustomResource):
     def __init__(__self__,
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
-                 change_token: Optional[pulumi.Input[_builtins.str]] = None,
-                 config_id: Optional[pulumi.Input[_builtins.str]] = None,
-                 description: Optional[pulumi.Input[_builtins.str]] = None,
-                 keep_unclassified_tattles: Optional[pulumi.Input[_builtins.bool]] = None,
-                 webhook_url: Optional[pulumi.Input[_builtins.str]] = None,
+                 change_token: pulumi.Input[Optional[_builtins.str]] = None,
+                 config_id: pulumi.Input[Optional[_builtins.str]] = None,
+                 description: pulumi.Input[Optional[_builtins.str]] = None,
+                 keep_unclassified_tattles: pulumi.Input[Optional[_builtins.bool]] = None,
+                 webhook_url: pulumi.Input[Optional[_builtins.str]] = None,
                  __props__=None):
         """
         Publishes an Osano Cookie Consent configuration, waits for completion, and returns its hosted CMP script. Import with the Osano config ID; deleting this resource only removes Pulumi state and does not unpublish the config.
@@ -125,7 +126,7 @@ class CookieConsentPublication(pulumi.CustomResource):
         :param pulumi.Input[_builtins.str] config_id: The Osano Cookie Consent config ID to publish. This is also the import ID.
         :param pulumi.Input[_builtins.str] description: Optional description sent with the publication request.
         :param pulumi.Input[_builtins.bool] keep_unclassified_tattles: Whether publication preserves unclassified discoveries. Defaults to true to avoid unexpected deletion.
-        :param pulumi.Input[_builtins.str] webhook_url: Optional absolute HTTP or HTTPS URL notified by Osano after publication.
+        :param pulumi.Input[_builtins.str] webhook_url: Optional absolute HTTP or HTTPS URL Osano calls when the publication completes. Osano does not document the call's payload or sign it, so use an unguessable URL; the value is stored as a secret.
         """
         ...
     @overload
@@ -151,11 +152,11 @@ class CookieConsentPublication(pulumi.CustomResource):
     def _internal_init(__self__,
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
-                 change_token: Optional[pulumi.Input[_builtins.str]] = None,
-                 config_id: Optional[pulumi.Input[_builtins.str]] = None,
-                 description: Optional[pulumi.Input[_builtins.str]] = None,
-                 keep_unclassified_tattles: Optional[pulumi.Input[_builtins.bool]] = None,
-                 webhook_url: Optional[pulumi.Input[_builtins.str]] = None,
+                 change_token: pulumi.Input[Optional[_builtins.str]] = None,
+                 config_id: pulumi.Input[Optional[_builtins.str]] = None,
+                 description: pulumi.Input[Optional[_builtins.str]] = None,
+                 keep_unclassified_tattles: pulumi.Input[Optional[_builtins.bool]] = None,
+                 webhook_url: pulumi.Input[Optional[_builtins.str]] = None,
                  __props__=None):
         opts = pulumi.ResourceOptions.merge(_utilities.get_resource_opts_defaults(), opts)
         if not isinstance(opts, pulumi.ResourceOptions):
@@ -175,13 +176,15 @@ class CookieConsentPublication(pulumi.CustomResource):
             if keep_unclassified_tattles is None:
                 keep_unclassified_tattles = True
             __props__.__dict__["keep_unclassified_tattles"] = keep_unclassified_tattles
-            __props__.__dict__["webhook_url"] = webhook_url
+            __props__.__dict__["webhook_url"] = None if webhook_url is None else pulumi.Output.secret(webhook_url)
             __props__.__dict__["customer_id"] = None
             __props__.__dict__["last_published"] = None
             __props__.__dict__["publish_status"] = None
             __props__.__dict__["published_revision"] = None
             __props__.__dict__["script_src"] = None
             __props__.__dict__["script_tag"] = None
+        secret_opts = pulumi.ResourceOptions(additional_secret_outputs=["webhookUrl"])
+        opts = pulumi.ResourceOptions.merge(opts, secret_opts)
         super(CookieConsentPublication, __self__).__init__(
             'osano:index:CookieConsentPublication',
             resource_name,
@@ -251,7 +254,7 @@ class CookieConsentPublication(pulumi.CustomResource):
 
     @_builtins.property
     @pulumi.getter(name="keepUnclassifiedTattles")
-    def keep_unclassified_tattles(self) -> pulumi.Output[Optional[_builtins.bool]]:
+    def keep_unclassified_tattles(self) -> pulumi.Output[_builtins.bool]:
         """
         Whether publication preserves unclassified discoveries. Defaults to true to avoid unexpected deletion.
         """
@@ -301,6 +304,6 @@ class CookieConsentPublication(pulumi.CustomResource):
     @pulumi.getter(name="webhookUrl")
     def webhook_url(self) -> pulumi.Output[Optional[_builtins.str]]:
         """
-        Optional absolute HTTP or HTTPS URL notified by Osano after publication.
+        Optional absolute HTTP or HTTPS URL Osano calls when the publication completes. Osano does not document the call's payload or sign it, so use an unguessable URL; the value is stored as a secret.
         """
         return pulumi.get(self, "webhook_url")

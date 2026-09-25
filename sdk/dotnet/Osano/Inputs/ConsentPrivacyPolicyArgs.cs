@@ -13,9 +13,15 @@ namespace Community.Pulumi.Osano.Inputs
 
     public sealed class ConsentPrivacyPolicyArgs : global::Pulumi.ResourceArgs
     {
+        /// <summary>
+        /// The privacy policy URL.
+        /// </summary>
         [Input("url", required: true)]
         public Input<string> Url { get; set; } = null!;
 
+        /// <summary>
+        /// The privacy policy version active when the consent was submitted.
+        /// </summary>
         [Input("version")]
         public Input<string>? Version { get; set; }
 

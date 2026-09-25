@@ -11,7 +11,7 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-// Sends a verification code to a subject's email or phone using the Osano API key. Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
+// Sends a verification code to a subject's email or phone using the Osano API key (or the Unified Consent API key when no Osano API key is set). Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
 func SendSubjectCode(ctx *pulumi.Context, args *SendSubjectCodeArgs, opts ...pulumi.InvokeOption) (*SendSubjectCodeResult, error) {
 	opts = internal.PkgInvokeDefaultOpts(opts)
 	var rv SendSubjectCodeResult
@@ -25,32 +25,33 @@ func SendSubjectCode(ctx *pulumi.Context, args *SendSubjectCodeArgs, opts ...pul
 type SendSubjectCodeArgs struct {
 	// Email address to send the code to. Set exactly one of email or phone.
 	Email *string `pulumi:"email"`
-	// The hashed subject identifier to verify.
-	HashedSubjectId string `pulumi:"hashedSubjectId"`
+	// Optional hashed subject identifier, sent only when set. Osano's current API identifies the subject by email or phone.
+	HashedSubjectId *string `pulumi:"hashedSubjectId"`
 	// Phone number to send the code to by SMS. Set exactly one of email or phone.
 	Phone *string `pulumi:"phone"`
 }
 
 type SendSubjectCodeResult struct {
-	Channel         string `pulumi:"channel"`
-	Destination     string `pulumi:"destination"`
+	// The delivery channel: email or sms.
+	Channel string `pulumi:"channel"`
+	// The email address or phone number the code was sent to. Secret, because it is personal data.
+	Destination string `pulumi:"destination"`
+	// The hashed subject identifier sent with the request, if any.
 	HashedSubjectId string `pulumi:"hashedSubjectId"`
+	// The SMS challenge session, when Osano returns one; pass it to verifySubjectCode. Empty for email.
+	Session string `pulumi:"session"`
 }
 
 func SendSubjectCodeOutput(ctx *pulumi.Context, args SendSubjectCodeOutputArgs, opts ...pulumi.InvokeOption) SendSubjectCodeResultOutput {
-	return pulumi.ToOutputWithContext(ctx.Context(), args).
-		ApplyT(func(v interface{}) (SendSubjectCodeResultOutput, error) {
-			args := v.(SendSubjectCodeArgs)
-			options := pulumi.InvokeOutputOptions{InvokeOptions: internal.PkgInvokeDefaultOpts(opts)}
-			return ctx.InvokeOutput("osano:index:sendSubjectCode", args, SendSubjectCodeResultOutput{}, options).(SendSubjectCodeResultOutput), nil
-		}).(SendSubjectCodeResultOutput)
+	options := pulumi.InvokeOutputOptions{InvokeOptions: internal.PkgInvokeDefaultOpts(opts)}
+	return ctx.InvokeOutput("osano:index:sendSubjectCode", args, SendSubjectCodeResultOutput{}, options).(SendSubjectCodeResultOutput)
 }
 
 type SendSubjectCodeOutputArgs struct {
 	// Email address to send the code to. Set exactly one of email or phone.
 	Email pulumi.StringPtrInput `pulumi:"email"`
-	// The hashed subject identifier to verify.
-	HashedSubjectId pulumi.StringInput `pulumi:"hashedSubjectId"`
+	// Optional hashed subject identifier, sent only when set. Osano's current API identifies the subject by email or phone.
+	HashedSubjectId pulumi.StringPtrInput `pulumi:"hashedSubjectId"`
 	// Phone number to send the code to by SMS. Set exactly one of email or phone.
 	Phone pulumi.StringPtrInput `pulumi:"phone"`
 }
@@ -73,16 +74,24 @@ func (o SendSubjectCodeResultOutput) ToSendSubjectCodeResultOutputWithContext(ct
 	return o
 }
 
+// The delivery channel: email or sms.
 func (o SendSubjectCodeResultOutput) Channel() pulumi.StringOutput {
 	return o.ApplyT(func(v SendSubjectCodeResult) string { return v.Channel }).(pulumi.StringOutput)
 }
 
+// The email address or phone number the code was sent to. Secret, because it is personal data.
 func (o SendSubjectCodeResultOutput) Destination() pulumi.StringOutput {
 	return o.ApplyT(func(v SendSubjectCodeResult) string { return v.Destination }).(pulumi.StringOutput)
 }
 
+// The hashed subject identifier sent with the request, if any.
 func (o SendSubjectCodeResultOutput) HashedSubjectId() pulumi.StringOutput {
 	return o.ApplyT(func(v SendSubjectCodeResult) string { return v.HashedSubjectId }).(pulumi.StringOutput)
+}
+
+// The SMS challenge session, when Osano returns one; pass it to verifySubjectCode. Empty for email.
+func (o SendSubjectCodeResultOutput) Session() pulumi.StringOutput {
+	return o.ApplyT(func(v SendSubjectCodeResult) string { return v.Session }).(pulumi.StringOutput)
 }
 
 func init() {

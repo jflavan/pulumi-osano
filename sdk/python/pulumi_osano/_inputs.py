@@ -25,16 +25,23 @@ __all__ = [
     'ConsentSubjectArgsDict',
 ]
 
-MYPY = False
-
-if not MYPY:
-    class ConsentActionArgsDict(TypedDict):
-        action: pulumi.Input[_builtins.str]
-        target: pulumi.Input[_builtins.str]
-        vendor: pulumi.Input[_builtins.str]
-        jurisdiction: NotRequired[pulumi.Input[_builtins.str]]
-elif False:
-    ConsentActionArgsDict: TypeAlias = Mapping[str, Any]
+class ConsentActionArgsDict(TypedDict):
+    action: pulumi.Input[_builtins.str]
+    """
+    The subject's choice: ACCEPT, REJECT, or UNSELECTED.
+    """
+    target: pulumi.Input[_builtins.str]
+    """
+    The privacy protocol ID (the Target ID on the privacy protocol's edit page).
+    """
+    vendor: pulumi.Input[_builtins.str]
+    """
+    The Unified Consent configuration ID the consent is recorded for.
+    """
+    jurisdiction: NotRequired[pulumi.Input[Optional[_builtins.str]]]
+    """
+    Optional jurisdiction for this action; overrides the top-level jurisdiction.
+    """
 
 @pulumi.input_type
 class ConsentActionArgs:
@@ -42,7 +49,13 @@ class ConsentActionArgs:
                  action: pulumi.Input[_builtins.str],
                  target: pulumi.Input[_builtins.str],
                  vendor: pulumi.Input[_builtins.str],
-                 jurisdiction: Optional[pulumi.Input[_builtins.str]] = None):
+                 jurisdiction: pulumi.Input[Optional[_builtins.str]] = None):
+        """
+        :param pulumi.Input[_builtins.str] action: The subject's choice: ACCEPT, REJECT, or UNSELECTED.
+        :param pulumi.Input[_builtins.str] target: The privacy protocol ID (the Target ID on the privacy protocol's edit page).
+        :param pulumi.Input[_builtins.str] vendor: The Unified Consent configuration ID the consent is recorded for.
+        :param pulumi.Input[_builtins.str] jurisdiction: Optional jurisdiction for this action; overrides the top-level jurisdiction.
+        """
         pulumi.set(__self__, "action", action)
         pulumi.set(__self__, "target", target)
         pulumi.set(__self__, "vendor", vendor)
@@ -52,6 +65,9 @@ class ConsentActionArgs:
     @_builtins.property
     @pulumi.getter
     def action(self) -> pulumi.Input[_builtins.str]:
+        """
+        The subject's choice: ACCEPT, REJECT, or UNSELECTED.
+        """
         return pulumi.get(self, "action")
 
     @action.setter
@@ -61,6 +77,9 @@ class ConsentActionArgs:
     @_builtins.property
     @pulumi.getter
     def target(self) -> pulumi.Input[_builtins.str]:
+        """
+        The privacy protocol ID (the Target ID on the privacy protocol's edit page).
+        """
         return pulumi.get(self, "target")
 
     @target.setter
@@ -70,6 +89,9 @@ class ConsentActionArgs:
     @_builtins.property
     @pulumi.getter
     def vendor(self) -> pulumi.Input[_builtins.str]:
+        """
+        The Unified Consent configuration ID the consent is recorded for.
+        """
         return pulumi.get(self, "vendor")
 
     @vendor.setter
@@ -78,26 +100,36 @@ class ConsentActionArgs:
 
     @_builtins.property
     @pulumi.getter
-    def jurisdiction(self) -> Optional[pulumi.Input[_builtins.str]]:
+    def jurisdiction(self) -> pulumi.Input[Optional[_builtins.str]]:
+        """
+        Optional jurisdiction for this action; overrides the top-level jurisdiction.
+        """
         return pulumi.get(self, "jurisdiction")
 
     @jurisdiction.setter
-    def jurisdiction(self, value: Optional[pulumi.Input[_builtins.str]]):
+    def jurisdiction(self, value: pulumi.Input[Optional[_builtins.str]]):
         pulumi.set(self, "jurisdiction", value)
 
 
-if not MYPY:
-    class ConsentComplianceArgsDict(TypedDict):
-        gpc: NotRequired[pulumi.Input[_builtins.int]]
-        privacy_policy: NotRequired[pulumi.Input['ConsentPrivacyPolicyArgsDict']]
-elif False:
-    ConsentComplianceArgsDict: TypeAlias = Mapping[str, Any]
+class ConsentComplianceArgsDict(TypedDict):
+    gpc: NotRequired[pulumi.Input[Optional[_builtins.int]]]
+    """
+    1 if the Global Privacy Control signal is enabled, 0 otherwise.
+    """
+    privacy_policy: NotRequired[pulumi.Input[Optional['ConsentPrivacyPolicyArgsDict']]]
+    """
+    The privacy policy in effect when the consent was given.
+    """
 
 @pulumi.input_type
 class ConsentComplianceArgs:
     def __init__(__self__, *,
-                 gpc: Optional[pulumi.Input[_builtins.int]] = None,
-                 privacy_policy: Optional[pulumi.Input['ConsentPrivacyPolicyArgs']] = None):
+                 gpc: pulumi.Input[Optional[_builtins.int]] = None,
+                 privacy_policy: pulumi.Input[Optional['ConsentPrivacyPolicyArgs']] = None):
+        """
+        :param pulumi.Input[_builtins.int] gpc: 1 if the Global Privacy Control signal is enabled, 0 otherwise.
+        :param pulumi.Input['ConsentPrivacyPolicyArgs'] privacy_policy: The privacy policy in effect when the consent was given.
+        """
         if gpc is not None:
             pulumi.set(__self__, "gpc", gpc)
         if privacy_policy is not None:
@@ -105,35 +137,48 @@ class ConsentComplianceArgs:
 
     @_builtins.property
     @pulumi.getter
-    def gpc(self) -> Optional[pulumi.Input[_builtins.int]]:
+    def gpc(self) -> pulumi.Input[Optional[_builtins.int]]:
+        """
+        1 if the Global Privacy Control signal is enabled, 0 otherwise.
+        """
         return pulumi.get(self, "gpc")
 
     @gpc.setter
-    def gpc(self, value: Optional[pulumi.Input[_builtins.int]]):
+    def gpc(self, value: pulumi.Input[Optional[_builtins.int]]):
         pulumi.set(self, "gpc", value)
 
     @_builtins.property
     @pulumi.getter(name="privacyPolicy")
-    def privacy_policy(self) -> Optional[pulumi.Input['ConsentPrivacyPolicyArgs']]:
+    def privacy_policy(self) -> pulumi.Input[Optional['ConsentPrivacyPolicyArgs']]:
+        """
+        The privacy policy in effect when the consent was given.
+        """
         return pulumi.get(self, "privacy_policy")
 
     @privacy_policy.setter
-    def privacy_policy(self, value: Optional[pulumi.Input['ConsentPrivacyPolicyArgs']]):
+    def privacy_policy(self, value: pulumi.Input[Optional['ConsentPrivacyPolicyArgs']]):
         pulumi.set(self, "privacy_policy", value)
 
 
-if not MYPY:
-    class ConsentPrivacyPolicyArgsDict(TypedDict):
-        url: pulumi.Input[_builtins.str]
-        version: NotRequired[pulumi.Input[_builtins.str]]
-elif False:
-    ConsentPrivacyPolicyArgsDict: TypeAlias = Mapping[str, Any]
+class ConsentPrivacyPolicyArgsDict(TypedDict):
+    url: pulumi.Input[_builtins.str]
+    """
+    The privacy policy URL.
+    """
+    version: NotRequired[pulumi.Input[Optional[_builtins.str]]]
+    """
+    The privacy policy version active when the consent was submitted.
+    """
 
 @pulumi.input_type
 class ConsentPrivacyPolicyArgs:
     def __init__(__self__, *,
                  url: pulumi.Input[_builtins.str],
-                 version: Optional[pulumi.Input[_builtins.str]] = None):
+                 version: pulumi.Input[Optional[_builtins.str]] = None):
+        """
+        :param pulumi.Input[_builtins.str] url: The privacy policy URL.
+        :param pulumi.Input[_builtins.str] version: The privacy policy version active when the consent was submitted.
+        """
         pulumi.set(__self__, "url", url)
         if version is not None:
             pulumi.set(__self__, "version", version)
@@ -141,6 +186,9 @@ class ConsentPrivacyPolicyArgs:
     @_builtins.property
     @pulumi.getter
     def url(self) -> pulumi.Input[_builtins.str]:
+        """
+        The privacy policy URL.
+        """
         return pulumi.get(self, "url")
 
     @url.setter
@@ -149,26 +197,36 @@ class ConsentPrivacyPolicyArgs:
 
     @_builtins.property
     @pulumi.getter
-    def version(self) -> Optional[pulumi.Input[_builtins.str]]:
+    def version(self) -> pulumi.Input[Optional[_builtins.str]]:
+        """
+        The privacy policy version active when the consent was submitted.
+        """
         return pulumi.get(self, "version")
 
     @version.setter
-    def version(self, value: Optional[pulumi.Input[_builtins.str]]):
+    def version(self, value: pulumi.Input[Optional[_builtins.str]]):
         pulumi.set(self, "version", value)
 
 
-if not MYPY:
-    class ConsentSubjectArgsDict(TypedDict):
-        anonymous_id: NotRequired[pulumi.Input[_builtins.str]]
-        verified_id: NotRequired[pulumi.Input[_builtins.str]]
-elif False:
-    ConsentSubjectArgsDict: TypeAlias = Mapping[str, Any]
+class ConsentSubjectArgsDict(TypedDict):
+    anonymous_id: NotRequired[pulumi.Input[Optional[_builtins.str]]]
+    """
+    The subject's anonymous ID. Must not contain #, %, or spaces.
+    """
+    verified_id: NotRequired[pulumi.Input[Optional[_builtins.str]]]
+    """
+    The subject's verified ID. Must not contain #, %, or spaces.
+    """
 
 @pulumi.input_type
 class ConsentSubjectArgs:
     def __init__(__self__, *,
-                 anonymous_id: Optional[pulumi.Input[_builtins.str]] = None,
-                 verified_id: Optional[pulumi.Input[_builtins.str]] = None):
+                 anonymous_id: pulumi.Input[Optional[_builtins.str]] = None,
+                 verified_id: pulumi.Input[Optional[_builtins.str]] = None):
+        """
+        :param pulumi.Input[_builtins.str] anonymous_id: The subject's anonymous ID. Must not contain #, %, or spaces.
+        :param pulumi.Input[_builtins.str] verified_id: The subject's verified ID. Must not contain #, %, or spaces.
+        """
         if anonymous_id is not None:
             pulumi.set(__self__, "anonymous_id", anonymous_id)
         if verified_id is not None:
@@ -176,18 +234,24 @@ class ConsentSubjectArgs:
 
     @_builtins.property
     @pulumi.getter(name="anonymousId")
-    def anonymous_id(self) -> Optional[pulumi.Input[_builtins.str]]:
+    def anonymous_id(self) -> pulumi.Input[Optional[_builtins.str]]:
+        """
+        The subject's anonymous ID. Must not contain #, %, or spaces.
+        """
         return pulumi.get(self, "anonymous_id")
 
     @anonymous_id.setter
-    def anonymous_id(self, value: Optional[pulumi.Input[_builtins.str]]):
+    def anonymous_id(self, value: pulumi.Input[Optional[_builtins.str]]):
         pulumi.set(self, "anonymous_id", value)
 
     @_builtins.property
     @pulumi.getter(name="verifiedId")
-    def verified_id(self) -> Optional[pulumi.Input[_builtins.str]]:
+    def verified_id(self) -> pulumi.Input[Optional[_builtins.str]]:
+        """
+        The subject's verified ID. Must not contain #, %, or spaces.
+        """
         return pulumi.get(self, "verified_id")
 
     @verified_id.setter
-    def verified_id(self, value: Optional[pulumi.Input[_builtins.str]]):
+    def verified_id(self, value: pulumi.Input[Optional[_builtins.str]]):
         pulumi.set(self, "verified_id", value)

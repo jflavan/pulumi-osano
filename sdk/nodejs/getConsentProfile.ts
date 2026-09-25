@@ -11,7 +11,9 @@ export function getConsentProfile(args: GetConsentProfileArgs, opts?: pulumi.Inv
     opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts || {});
     return pulumi.runtime.invoke("osano:index:getConsentProfile", {
         "configId": args.configId,
+        "countryCodeOverride": args.countryCodeOverride,
         "hashedSubjectId": args.hashedSubjectId,
+        "regionCodeOverride": args.regionCodeOverride,
     }, opts);
 }
 
@@ -21,15 +23,35 @@ export interface GetConsentProfileArgs {
      */
     configId: string;
     /**
+     * Optional ISO 3166-1 country code Osano uses instead of resolving the caller's IP address, which in a pipeline is the CI runner's.
+     */
+    countryCodeOverride?: string;
+    /**
      * The hashed subject identifier whose consent profile is returned.
      */
     hashedSubjectId: string;
+    /**
+     * Optional ISO 3166-2 region code Osano uses instead of resolving the caller's IP address.
+     */
+    regionCodeOverride?: string;
 }
 
 export interface GetConsentProfileResult {
+    /**
+     * The configuration ID that was looked up.
+     */
     readonly configId: string;
+    /**
+     * Whether Osano returned a consent profile.
+     */
     readonly exists: boolean;
+    /**
+     * The hashed subject identifier that was looked up.
+     */
     readonly hashedSubjectId: string;
+    /**
+     * The consent profile Osano returned, with unifiedConsent and conflicts keys.
+     */
     readonly profile: {[key: string]: any};
 }
 /**
@@ -39,7 +61,9 @@ export function getConsentProfileOutput(args: GetConsentProfileOutputArgs, opts?
     opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts || {});
     return pulumi.runtime.invokeOutput("osano:index:getConsentProfile", {
         "configId": args.configId,
+        "countryCodeOverride": args.countryCodeOverride,
         "hashedSubjectId": args.hashedSubjectId,
+        "regionCodeOverride": args.regionCodeOverride,
     }, opts);
 }
 
@@ -49,7 +73,15 @@ export interface GetConsentProfileOutputArgs {
      */
     configId: pulumi.Input<string>;
     /**
+     * Optional ISO 3166-1 country code Osano uses instead of resolving the caller's IP address, which in a pipeline is the CI runner's.
+     */
+    countryCodeOverride?: pulumi.Input<string | undefined>;
+    /**
      * The hashed subject identifier whose consent profile is returned.
      */
     hashedSubjectId: pulumi.Input<string>;
+    /**
+     * Optional ISO 3166-2 region code Osano uses instead of resolving the caller's IP address.
+     */
+    regionCodeOverride?: pulumi.Input<string | undefined>;
 }

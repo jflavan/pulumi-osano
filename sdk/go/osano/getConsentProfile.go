@@ -25,31 +25,39 @@ func GetConsentProfile(ctx *pulumi.Context, args *GetConsentProfileArgs, opts ..
 type GetConsentProfileArgs struct {
 	// The consent configuration ID the profile belongs to.
 	ConfigId string `pulumi:"configId"`
+	// Optional ISO 3166-1 country code Osano uses instead of resolving the caller's IP address, which in a pipeline is the CI runner's.
+	CountryCodeOverride *string `pulumi:"countryCodeOverride"`
 	// The hashed subject identifier whose consent profile is returned.
 	HashedSubjectId string `pulumi:"hashedSubjectId"`
+	// Optional ISO 3166-2 region code Osano uses instead of resolving the caller's IP address.
+	RegionCodeOverride *string `pulumi:"regionCodeOverride"`
 }
 
 type GetConsentProfileResult struct {
-	ConfigId        string                 `pulumi:"configId"`
-	Exists          bool                   `pulumi:"exists"`
-	HashedSubjectId string                 `pulumi:"hashedSubjectId"`
-	Profile         map[string]interface{} `pulumi:"profile"`
+	// The configuration ID that was looked up.
+	ConfigId string `pulumi:"configId"`
+	// Whether Osano returned a consent profile.
+	Exists bool `pulumi:"exists"`
+	// The hashed subject identifier that was looked up.
+	HashedSubjectId string `pulumi:"hashedSubjectId"`
+	// The consent profile Osano returned, with unifiedConsent and conflicts keys.
+	Profile map[string]interface{} `pulumi:"profile"`
 }
 
 func GetConsentProfileOutput(ctx *pulumi.Context, args GetConsentProfileOutputArgs, opts ...pulumi.InvokeOption) GetConsentProfileResultOutput {
-	return pulumi.ToOutputWithContext(ctx.Context(), args).
-		ApplyT(func(v interface{}) (GetConsentProfileResultOutput, error) {
-			args := v.(GetConsentProfileArgs)
-			options := pulumi.InvokeOutputOptions{InvokeOptions: internal.PkgInvokeDefaultOpts(opts)}
-			return ctx.InvokeOutput("osano:index:getConsentProfile", args, GetConsentProfileResultOutput{}, options).(GetConsentProfileResultOutput), nil
-		}).(GetConsentProfileResultOutput)
+	options := pulumi.InvokeOutputOptions{InvokeOptions: internal.PkgInvokeDefaultOpts(opts)}
+	return ctx.InvokeOutput("osano:index:getConsentProfile", args, GetConsentProfileResultOutput{}, options).(GetConsentProfileResultOutput)
 }
 
 type GetConsentProfileOutputArgs struct {
 	// The consent configuration ID the profile belongs to.
 	ConfigId pulumi.StringInput `pulumi:"configId"`
+	// Optional ISO 3166-1 country code Osano uses instead of resolving the caller's IP address, which in a pipeline is the CI runner's.
+	CountryCodeOverride pulumi.StringPtrInput `pulumi:"countryCodeOverride"`
 	// The hashed subject identifier whose consent profile is returned.
 	HashedSubjectId pulumi.StringInput `pulumi:"hashedSubjectId"`
+	// Optional ISO 3166-2 region code Osano uses instead of resolving the caller's IP address.
+	RegionCodeOverride pulumi.StringPtrInput `pulumi:"regionCodeOverride"`
 }
 
 func (GetConsentProfileOutputArgs) ElementType() reflect.Type {
@@ -70,18 +78,22 @@ func (o GetConsentProfileResultOutput) ToGetConsentProfileResultOutputWithContex
 	return o
 }
 
+// The configuration ID that was looked up.
 func (o GetConsentProfileResultOutput) ConfigId() pulumi.StringOutput {
 	return o.ApplyT(func(v GetConsentProfileResult) string { return v.ConfigId }).(pulumi.StringOutput)
 }
 
+// Whether Osano returned a consent profile.
 func (o GetConsentProfileResultOutput) Exists() pulumi.BoolOutput {
 	return o.ApplyT(func(v GetConsentProfileResult) bool { return v.Exists }).(pulumi.BoolOutput)
 }
 
+// The hashed subject identifier that was looked up.
 func (o GetConsentProfileResultOutput) HashedSubjectId() pulumi.StringOutput {
 	return o.ApplyT(func(v GetConsentProfileResult) string { return v.HashedSubjectId }).(pulumi.StringOutput)
 }
 
+// The consent profile Osano returned, with unifiedConsent and conflicts keys.
 func (o GetConsentProfileResultOutput) Profile() pulumi.MapOutput {
 	return o.ApplyT(func(v GetConsentProfileResult) map[string]interface{} { return v.Profile }).(pulumi.MapOutput)
 }

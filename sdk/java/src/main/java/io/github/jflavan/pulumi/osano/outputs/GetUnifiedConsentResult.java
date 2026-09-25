@@ -14,21 +14,53 @@ import java.util.Objects;
 
 @CustomType
 public final class GetUnifiedConsentResult {
+    /**
+     * @return Conflicting consents Osano resolved, with the resolution and the actions in conflict.
+     *
+     */
     private List<Map<String,Object>> conflicts;
+    /**
+     * @return Whether Osano has any consent for the subject.
+     *
+     */
     private Boolean exists;
+    /**
+     * @return The subject reference that was looked up.
+     *
+     */
     private String subjectRef;
+    /**
+     * @return The merged consent: subjectId, brandId, channelIds, jurisdiction, lastUpdateDate, lastConflictDate, actions, attributes, compliance, and tags.
+     *
+     */
     private Map<String,Object> unifiedConsent;
 
     private GetUnifiedConsentResult() {}
+    /**
+     * @return Conflicting consents Osano resolved, with the resolution and the actions in conflict.
+     *
+     */
     public List<Map<String,Object>> conflicts() {
         return this.conflicts;
     }
+    /**
+     * @return Whether Osano has any consent for the subject.
+     *
+     */
     public Boolean exists() {
         return this.exists;
     }
+    /**
+     * @return The subject reference that was looked up.
+     *
+     */
     public String subjectRef() {
         return this.subjectRef;
     }
+    /**
+     * @return The merged consent: subjectId, brandId, channelIds, jurisdiction, lastUpdateDate, lastConflictDate, actions, attributes, compliance, and tags.
+     *
+     */
     public Map<String,Object> unifiedConsent() {
         return this.unifiedConsent;
     }

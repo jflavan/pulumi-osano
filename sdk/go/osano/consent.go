@@ -12,24 +12,32 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-// Creates unified consent decisions within Osano for a given subject.
+// Submits a Unified Consent decision for a subject. Consents are immutable in Osano: changing any input submits a new consent (replacement), and destroying the resource only removes it from Pulumi state. Set origin to gpc and omit actions to submit a Global Privacy Control consent, whose actions Osano derives and returns in gpcActions.
 type Consent struct {
 	pulumi.CustomResourceState
 
-	// Consent actions referencing privacy protocols (target) within a configuration (vendor).
+	// Consent actions referencing privacy protocols (target) within a configuration (vendor). Required unless origin is gpc.
 	Actions ConsentActionArrayOutput `pulumi:"actions"`
-	// Optional key/value attributes stored with the consent record (e.g., ipAddress overrides).
+	// Optional key/value attributes stored with the consent record. Osano fills ipAddress and userAgent itself and overwrites values sent for those keys.
 	Attributes pulumi.StringMapOutput `pulumi:"attributes"`
 	// Optional compliance metadata such as the privacy policy version and GPC signal.
 	Compliance ConsentCompliancePtrOutput `pulumi:"compliance"`
 	// Synthetic identifier used by Pulumi to track consent submissions.
 	ConsentId pulumi.StringOutput `pulumi:"consentId"`
-	// Optional jurisdiction override matching one of the configuration's jurisdictions.
+	// Optional ISO 3166-1 country code Osano uses instead of resolving the caller's IP address. Set it when submitting from a pipeline, whose IP address says nothing about the subject.
+	CountryCodeOverride pulumi.StringPtrOutput `pulumi:"countryCodeOverride"`
+	// The actions Osano derived for a GPC consent submitted without actions.
+	GpcActions ConsentActionArrayOutput `pulumi:"gpcActions"`
+	// Optional jurisdiction, which must be one of the configuration's jurisdictions (see getCollections).
 	Jurisdiction pulumi.StringPtrOutput `pulumi:"jurisdiction"`
 	// Timestamp of the last refresh from the Osano API (RFC3339).
 	LastSynced pulumi.StringOutput `pulumi:"lastSynced"`
-	// Origin metadata for the consent, typically 'api' or 'gpc'.
+	// Origin of the consent: api (default) or gpc. With gpc and no actions, the consent is submitted to Osano's GPC endpoint, which derives the actions.
 	Origin pulumi.StringPtrOutput `pulumi:"origin"`
+	// Optional ISO 3166-2 region code Osano uses instead of resolving the caller's IP address.
+	RegionCodeOverride pulumi.StringPtrOutput `pulumi:"regionCodeOverride"`
+	// Optional session token returned when the subject's profile was created.
+	SessionToken pulumi.StringPtrOutput `pulumi:"sessionToken"`
 	// Subject identifiers used for the consent (verifiedId or anonymousId).
 	Subject ConsentSubjectOutput `pulumi:"subject"`
 	// Custom tags that Osano associates with the consent record.
@@ -43,18 +51,25 @@ func NewConsent(ctx *pulumi.Context,
 		return nil, errors.New("missing one or more required arguments")
 	}
 
-	if args.Actions == nil {
-		return nil, errors.New("invalid value for required argument 'Actions'")
-	}
 	if args.Subject == nil {
 		return nil, errors.New("invalid value for required argument 'Subject'")
 	}
+	if args.SessionToken != nil {
+		args.SessionToken = pulumi.ToSecret(args.SessionToken).(pulumi.StringPtrInput)
+	}
+	secrets := pulumi.AdditionalSecretOutputs([]string{
+		"sessionToken",
+	})
+	opts = append(opts, secrets)
 	replaceOnChanges := pulumi.ReplaceOnChanges([]string{
 		"actions[*]",
 		"attributes.*",
 		"compliance",
+		"countryCodeOverride",
 		"jurisdiction",
 		"origin",
+		"regionCodeOverride",
+		"sessionToken",
 		"subject",
 		"tags[*]",
 	})
@@ -92,16 +107,22 @@ func (ConsentState) ElementType() reflect.Type {
 }
 
 type consentArgs struct {
-	// Consent actions referencing privacy protocols (target) within a configuration (vendor).
+	// Consent actions referencing privacy protocols (target) within a configuration (vendor). Required unless origin is gpc.
 	Actions []ConsentAction `pulumi:"actions"`
-	// Optional key/value attributes stored with the consent record (e.g., ipAddress overrides).
+	// Optional key/value attributes stored with the consent record. Osano fills ipAddress and userAgent itself and overwrites values sent for those keys.
 	Attributes map[string]string `pulumi:"attributes"`
 	// Optional compliance metadata such as the privacy policy version and GPC signal.
 	Compliance *ConsentCompliance `pulumi:"compliance"`
-	// Optional jurisdiction override matching one of the configuration's jurisdictions.
+	// Optional ISO 3166-1 country code Osano uses instead of resolving the caller's IP address. Set it when submitting from a pipeline, whose IP address says nothing about the subject.
+	CountryCodeOverride *string `pulumi:"countryCodeOverride"`
+	// Optional jurisdiction, which must be one of the configuration's jurisdictions (see getCollections).
 	Jurisdiction *string `pulumi:"jurisdiction"`
-	// Origin metadata for the consent, typically 'api' or 'gpc'.
+	// Origin of the consent: api (default) or gpc. With gpc and no actions, the consent is submitted to Osano's GPC endpoint, which derives the actions.
 	Origin *string `pulumi:"origin"`
+	// Optional ISO 3166-2 region code Osano uses instead of resolving the caller's IP address.
+	RegionCodeOverride *string `pulumi:"regionCodeOverride"`
+	// Optional session token returned when the subject's profile was created.
+	SessionToken *string `pulumi:"sessionToken"`
 	// Subject identifiers used for the consent (verifiedId or anonymousId).
 	Subject ConsentSubject `pulumi:"subject"`
 	// Custom tags that Osano associates with the consent record.
@@ -110,16 +131,22 @@ type consentArgs struct {
 
 // The set of arguments for constructing a Consent resource.
 type ConsentArgs struct {
-	// Consent actions referencing privacy protocols (target) within a configuration (vendor).
+	// Consent actions referencing privacy protocols (target) within a configuration (vendor). Required unless origin is gpc.
 	Actions ConsentActionArrayInput
-	// Optional key/value attributes stored with the consent record (e.g., ipAddress overrides).
+	// Optional key/value attributes stored with the consent record. Osano fills ipAddress and userAgent itself and overwrites values sent for those keys.
 	Attributes pulumi.StringMapInput
 	// Optional compliance metadata such as the privacy policy version and GPC signal.
 	Compliance ConsentCompliancePtrInput
-	// Optional jurisdiction override matching one of the configuration's jurisdictions.
+	// Optional ISO 3166-1 country code Osano uses instead of resolving the caller's IP address. Set it when submitting from a pipeline, whose IP address says nothing about the subject.
+	CountryCodeOverride pulumi.StringPtrInput
+	// Optional jurisdiction, which must be one of the configuration's jurisdictions (see getCollections).
 	Jurisdiction pulumi.StringPtrInput
-	// Origin metadata for the consent, typically 'api' or 'gpc'.
+	// Origin of the consent: api (default) or gpc. With gpc and no actions, the consent is submitted to Osano's GPC endpoint, which derives the actions.
 	Origin pulumi.StringPtrInput
+	// Optional ISO 3166-2 region code Osano uses instead of resolving the caller's IP address.
+	RegionCodeOverride pulumi.StringPtrInput
+	// Optional session token returned when the subject's profile was created.
+	SessionToken pulumi.StringPtrInput
 	// Subject identifiers used for the consent (verifiedId or anonymousId).
 	Subject ConsentSubjectInput
 	// Custom tags that Osano associates with the consent record.
@@ -149,6 +176,56 @@ func (i *Consent) ToConsentOutputWithContext(ctx context.Context) ConsentOutput 
 	return pulumi.ToOutputWithContext(ctx, i).(ConsentOutput)
 }
 
+// ConsentArrayInput is an input type that accepts ConsentArray and ConsentArrayOutput values.
+// You can construct a concrete instance of `ConsentArrayInput` via:
+//
+//	ConsentArray{ ConsentArgs{...} }
+type ConsentArrayInput interface {
+	pulumi.Input
+
+	ToConsentArrayOutput() ConsentArrayOutput
+	ToConsentArrayOutputWithContext(context.Context) ConsentArrayOutput
+}
+
+type ConsentArray []ConsentInput
+
+func (ConsentArray) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]*Consent)(nil)).Elem()
+}
+
+func (i ConsentArray) ToConsentArrayOutput() ConsentArrayOutput {
+	return i.ToConsentArrayOutputWithContext(context.Background())
+}
+
+func (i ConsentArray) ToConsentArrayOutputWithContext(ctx context.Context) ConsentArrayOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(ConsentArrayOutput)
+}
+
+// ConsentMapInput is an input type that accepts ConsentMap and ConsentMapOutput values.
+// You can construct a concrete instance of `ConsentMapInput` via:
+//
+//	ConsentMap{ "key": ConsentArgs{...} }
+type ConsentMapInput interface {
+	pulumi.Input
+
+	ToConsentMapOutput() ConsentMapOutput
+	ToConsentMapOutputWithContext(context.Context) ConsentMapOutput
+}
+
+type ConsentMap map[string]ConsentInput
+
+func (ConsentMap) ElementType() reflect.Type {
+	return reflect.TypeOf((*map[string]*Consent)(nil)).Elem()
+}
+
+func (i ConsentMap) ToConsentMapOutput() ConsentMapOutput {
+	return i.ToConsentMapOutputWithContext(context.Background())
+}
+
+func (i ConsentMap) ToConsentMapOutputWithContext(ctx context.Context) ConsentMapOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(ConsentMapOutput)
+}
+
 type ConsentOutput struct{ *pulumi.OutputState }
 
 func (ConsentOutput) ElementType() reflect.Type {
@@ -163,12 +240,12 @@ func (o ConsentOutput) ToConsentOutputWithContext(ctx context.Context) ConsentOu
 	return o
 }
 
-// Consent actions referencing privacy protocols (target) within a configuration (vendor).
+// Consent actions referencing privacy protocols (target) within a configuration (vendor). Required unless origin is gpc.
 func (o ConsentOutput) Actions() ConsentActionArrayOutput {
 	return o.ApplyT(func(v *Consent) ConsentActionArrayOutput { return v.Actions }).(ConsentActionArrayOutput)
 }
 
-// Optional key/value attributes stored with the consent record (e.g., ipAddress overrides).
+// Optional key/value attributes stored with the consent record. Osano fills ipAddress and userAgent itself and overwrites values sent for those keys.
 func (o ConsentOutput) Attributes() pulumi.StringMapOutput {
 	return o.ApplyT(func(v *Consent) pulumi.StringMapOutput { return v.Attributes }).(pulumi.StringMapOutput)
 }
@@ -183,7 +260,17 @@ func (o ConsentOutput) ConsentId() pulumi.StringOutput {
 	return o.ApplyT(func(v *Consent) pulumi.StringOutput { return v.ConsentId }).(pulumi.StringOutput)
 }
 
-// Optional jurisdiction override matching one of the configuration's jurisdictions.
+// Optional ISO 3166-1 country code Osano uses instead of resolving the caller's IP address. Set it when submitting from a pipeline, whose IP address says nothing about the subject.
+func (o ConsentOutput) CountryCodeOverride() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *Consent) pulumi.StringPtrOutput { return v.CountryCodeOverride }).(pulumi.StringPtrOutput)
+}
+
+// The actions Osano derived for a GPC consent submitted without actions.
+func (o ConsentOutput) GpcActions() ConsentActionArrayOutput {
+	return o.ApplyT(func(v *Consent) ConsentActionArrayOutput { return v.GpcActions }).(ConsentActionArrayOutput)
+}
+
+// Optional jurisdiction, which must be one of the configuration's jurisdictions (see getCollections).
 func (o ConsentOutput) Jurisdiction() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Consent) pulumi.StringPtrOutput { return v.Jurisdiction }).(pulumi.StringPtrOutput)
 }
@@ -193,9 +280,19 @@ func (o ConsentOutput) LastSynced() pulumi.StringOutput {
 	return o.ApplyT(func(v *Consent) pulumi.StringOutput { return v.LastSynced }).(pulumi.StringOutput)
 }
 
-// Origin metadata for the consent, typically 'api' or 'gpc'.
+// Origin of the consent: api (default) or gpc. With gpc and no actions, the consent is submitted to Osano's GPC endpoint, which derives the actions.
 func (o ConsentOutput) Origin() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Consent) pulumi.StringPtrOutput { return v.Origin }).(pulumi.StringPtrOutput)
+}
+
+// Optional ISO 3166-2 region code Osano uses instead of resolving the caller's IP address.
+func (o ConsentOutput) RegionCodeOverride() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *Consent) pulumi.StringPtrOutput { return v.RegionCodeOverride }).(pulumi.StringPtrOutput)
+}
+
+// Optional session token returned when the subject's profile was created.
+func (o ConsentOutput) SessionToken() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *Consent) pulumi.StringPtrOutput { return v.SessionToken }).(pulumi.StringPtrOutput)
 }
 
 // Subject identifiers used for the consent (verifiedId or anonymousId).
@@ -208,7 +305,51 @@ func (o ConsentOutput) Tags() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v *Consent) pulumi.StringArrayOutput { return v.Tags }).(pulumi.StringArrayOutput)
 }
 
+type ConsentArrayOutput struct{ *pulumi.OutputState }
+
+func (ConsentArrayOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]*Consent)(nil)).Elem()
+}
+
+func (o ConsentArrayOutput) ToConsentArrayOutput() ConsentArrayOutput {
+	return o
+}
+
+func (o ConsentArrayOutput) ToConsentArrayOutputWithContext(ctx context.Context) ConsentArrayOutput {
+	return o
+}
+
+func (o ConsentArrayOutput) Index(i pulumi.IntInput) ConsentOutput {
+	return pulumi.All(o, i).ApplyT(func(vs []interface{}) *Consent {
+		return vs[0].([]*Consent)[vs[1].(int)]
+	}).(ConsentOutput)
+}
+
+type ConsentMapOutput struct{ *pulumi.OutputState }
+
+func (ConsentMapOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*map[string]*Consent)(nil)).Elem()
+}
+
+func (o ConsentMapOutput) ToConsentMapOutput() ConsentMapOutput {
+	return o
+}
+
+func (o ConsentMapOutput) ToConsentMapOutputWithContext(ctx context.Context) ConsentMapOutput {
+	return o
+}
+
+func (o ConsentMapOutput) MapIndex(k pulumi.StringInput) ConsentOutput {
+	return pulumi.All(o, k).ApplyT(func(vs []interface{}) *Consent {
+		return vs[0].(map[string]*Consent)[vs[1].(string)]
+	}).(ConsentOutput)
+}
+
 func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*ConsentInput)(nil)).Elem(), &Consent{})
+	pulumi.RegisterInputType(reflect.TypeOf((*ConsentArrayInput)(nil)).Elem(), ConsentArray{})
+	pulumi.RegisterInputType(reflect.TypeOf((*ConsentMapInput)(nil)).Elem(), ConsentMap{})
 	pulumi.RegisterOutputType(ConsentOutput{})
+	pulumi.RegisterOutputType(ConsentArrayOutput{})
+	pulumi.RegisterOutputType(ConsentMapOutput{})
 }

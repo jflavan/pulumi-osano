@@ -18,17 +18,23 @@ export function getCollections(args?: GetCollectionsArgs, opts?: pulumi.InvokeOp
 
 export interface GetCollectionsArgs {
     /**
-     * Optional jurisdiction filter, sent as the jurisdiction query parameter.
+     * Optional jurisdiction filter. When unset, Osano resolves the jurisdiction from the caller's IP address.
      */
     jurisdiction?: string;
     /**
-     * Optional collection type filter, sent as the type query parameter.
+     * Optional collection type: published (default) or draft.
      */
     type?: string;
 }
 
 export interface GetCollectionsResult {
+    /**
+     * The collection of privacy protocols that applies to the jurisdiction.
+     */
     readonly collection: {[key: string]: any};
+    /**
+     * Every jurisdiction the configuration defines.
+     */
     readonly jurisdictions: string[];
 }
 /**
@@ -45,11 +51,11 @@ export function getCollectionsOutput(args?: GetCollectionsOutputArgs, opts?: pul
 
 export interface GetCollectionsOutputArgs {
     /**
-     * Optional jurisdiction filter, sent as the jurisdiction query parameter.
+     * Optional jurisdiction filter. When unset, Osano resolves the jurisdiction from the caller's IP address.
      */
-    jurisdiction?: pulumi.Input<string>;
+    jurisdiction?: pulumi.Input<string | undefined>;
     /**
-     * Optional collection type filter, sent as the type query parameter.
+     * Optional collection type: published (default) or draft.
      */
-    type?: pulumi.Input<string>;
+    type?: pulumi.Input<string | undefined>;
 }

@@ -41,10 +41,22 @@ namespace Community.Pulumi.Osano
         public string ConfigId { get; set; } = null!;
 
         /// <summary>
+        /// Optional ISO 3166-1 country code Osano uses instead of resolving the caller's IP address, which in a pipeline is the CI runner's.
+        /// </summary>
+        [Input("countryCodeOverride")]
+        public string? CountryCodeOverride { get; set; }
+
+        /// <summary>
         /// The hashed subject identifier whose consent profile is returned.
         /// </summary>
         [Input("hashedSubjectId", required: true)]
         public string HashedSubjectId { get; set; } = null!;
+
+        /// <summary>
+        /// Optional ISO 3166-2 region code Osano uses instead of resolving the caller's IP address.
+        /// </summary>
+        [Input("regionCodeOverride")]
+        public string? RegionCodeOverride { get; set; }
 
         public GetConsentProfileArgs()
         {
@@ -61,10 +73,22 @@ namespace Community.Pulumi.Osano
         public Input<string> ConfigId { get; set; } = null!;
 
         /// <summary>
+        /// Optional ISO 3166-1 country code Osano uses instead of resolving the caller's IP address, which in a pipeline is the CI runner's.
+        /// </summary>
+        [Input("countryCodeOverride")]
+        public Input<string>? CountryCodeOverride { get; set; }
+
+        /// <summary>
         /// The hashed subject identifier whose consent profile is returned.
         /// </summary>
         [Input("hashedSubjectId", required: true)]
         public Input<string> HashedSubjectId { get; set; } = null!;
+
+        /// <summary>
+        /// Optional ISO 3166-2 region code Osano uses instead of resolving the caller's IP address.
+        /// </summary>
+        [Input("regionCodeOverride")]
+        public Input<string>? RegionCodeOverride { get; set; }
 
         public GetConsentProfileInvokeArgs()
         {
@@ -76,9 +100,21 @@ namespace Community.Pulumi.Osano
     [OutputType]
     public sealed class GetConsentProfileResult
     {
+        /// <summary>
+        /// The configuration ID that was looked up.
+        /// </summary>
         public readonly string ConfigId;
+        /// <summary>
+        /// Whether Osano returned a consent profile.
+        /// </summary>
         public readonly bool Exists;
+        /// <summary>
+        /// The hashed subject identifier that was looked up.
+        /// </summary>
         public readonly string HashedSubjectId;
+        /// <summary>
+        /// The consent profile Osano returned, with unifiedConsent and conflicts keys.
+        /// </summary>
         public readonly ImmutableDictionary<string, object> Profile;
 
         [OutputConstructor]

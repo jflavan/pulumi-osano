@@ -7,6 +7,8 @@ import com.pulumi.core.annotations.Import;
 import com.pulumi.exceptions.MissingRequiredPropertyException;
 import java.lang.String;
 import java.util.Objects;
+import java.util.Optional;
+import javax.annotation.Nullable;
 
 
 public final class GetConsentProfilePlainArgs extends com.pulumi.resources.InvokeArgs {
@@ -29,6 +31,21 @@ public final class GetConsentProfilePlainArgs extends com.pulumi.resources.Invok
     }
 
     /**
+     * Optional ISO 3166-1 country code Osano uses instead of resolving the caller&#39;s IP address, which in a pipeline is the CI runner&#39;s.
+     *
+     */
+    @Import(name="countryCodeOverride")
+    private @Nullable String countryCodeOverride;
+
+    /**
+     * @return Optional ISO 3166-1 country code Osano uses instead of resolving the caller&#39;s IP address, which in a pipeline is the CI runner&#39;s.
+     *
+     */
+    public Optional<String> countryCodeOverride() {
+        return Optional.ofNullable(this.countryCodeOverride);
+    }
+
+    /**
      * The hashed subject identifier whose consent profile is returned.
      *
      */
@@ -43,11 +60,28 @@ public final class GetConsentProfilePlainArgs extends com.pulumi.resources.Invok
         return this.hashedSubjectId;
     }
 
+    /**
+     * Optional ISO 3166-2 region code Osano uses instead of resolving the caller&#39;s IP address.
+     *
+     */
+    @Import(name="regionCodeOverride")
+    private @Nullable String regionCodeOverride;
+
+    /**
+     * @return Optional ISO 3166-2 region code Osano uses instead of resolving the caller&#39;s IP address.
+     *
+     */
+    public Optional<String> regionCodeOverride() {
+        return Optional.ofNullable(this.regionCodeOverride);
+    }
+
     private GetConsentProfilePlainArgs() {}
 
     private GetConsentProfilePlainArgs(GetConsentProfilePlainArgs $) {
         this.configId = $.configId;
+        this.countryCodeOverride = $.countryCodeOverride;
         this.hashedSubjectId = $.hashedSubjectId;
+        this.regionCodeOverride = $.regionCodeOverride;
     }
 
     public static Builder builder() {
@@ -80,6 +114,17 @@ public final class GetConsentProfilePlainArgs extends com.pulumi.resources.Invok
         }
 
         /**
+         * @param countryCodeOverride Optional ISO 3166-1 country code Osano uses instead of resolving the caller&#39;s IP address, which in a pipeline is the CI runner&#39;s.
+         *
+         * @return builder
+         *
+         */
+        public Builder countryCodeOverride(@Nullable String countryCodeOverride) {
+            $.countryCodeOverride = countryCodeOverride;
+            return this;
+        }
+
+        /**
          * @param hashedSubjectId The hashed subject identifier whose consent profile is returned.
          *
          * @return builder
@@ -87,6 +132,17 @@ public final class GetConsentProfilePlainArgs extends com.pulumi.resources.Invok
          */
         public Builder hashedSubjectId(String hashedSubjectId) {
             $.hashedSubjectId = hashedSubjectId;
+            return this;
+        }
+
+        /**
+         * @param regionCodeOverride Optional ISO 3166-2 region code Osano uses instead of resolving the caller&#39;s IP address.
+         *
+         * @return builder
+         *
+         */
+        public Builder regionCodeOverride(@Nullable String regionCodeOverride) {
+            $.regionCodeOverride = regionCodeOverride;
             return this;
         }
 

@@ -5,7 +5,6 @@ package io.github.jflavan.pulumi.osano.inputs;
 
 import com.pulumi.core.Output;
 import com.pulumi.core.annotations.Import;
-import com.pulumi.exceptions.MissingRequiredPropertyException;
 import java.lang.String;
 import java.util.Objects;
 import java.util.Optional;
@@ -32,18 +31,18 @@ public final class SendSubjectCodeArgs extends com.pulumi.resources.InvokeArgs {
     }
 
     /**
-     * The hashed subject identifier to verify.
+     * Optional hashed subject identifier, sent only when set. Osano&#39;s current API identifies the subject by email or phone.
      *
      */
-    @Import(name="hashedSubjectId", required=true)
-    private Output<String> hashedSubjectId;
+    @Import(name="hashedSubjectId")
+    private @Nullable Output<String> hashedSubjectId;
 
     /**
-     * @return The hashed subject identifier to verify.
+     * @return Optional hashed subject identifier, sent only when set. Osano&#39;s current API identifies the subject by email or phone.
      *
      */
-    public Output<String> hashedSubjectId() {
-        return this.hashedSubjectId;
+    public Optional<Output<String>> hashedSubjectId() {
+        return Optional.ofNullable(this.hashedSubjectId);
     }
 
     /**
@@ -109,18 +108,18 @@ public final class SendSubjectCodeArgs extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param hashedSubjectId The hashed subject identifier to verify.
+         * @param hashedSubjectId Optional hashed subject identifier, sent only when set. Osano&#39;s current API identifies the subject by email or phone.
          *
          * @return builder
          *
          */
-        public Builder hashedSubjectId(Output<String> hashedSubjectId) {
+        public Builder hashedSubjectId(@Nullable Output<String> hashedSubjectId) {
             $.hashedSubjectId = hashedSubjectId;
             return this;
         }
 
         /**
-         * @param hashedSubjectId The hashed subject identifier to verify.
+         * @param hashedSubjectId Optional hashed subject identifier, sent only when set. Osano&#39;s current API identifies the subject by email or phone.
          *
          * @return builder
          *
@@ -151,9 +150,6 @@ public final class SendSubjectCodeArgs extends com.pulumi.resources.InvokeArgs {
         }
 
         public SendSubjectCodeArgs build() {
-            if ($.hashedSubjectId == null) {
-                throw new MissingRequiredPropertyException("SendSubjectCodeArgs", "hashedSubjectId");
-            }
             return $;
         }
     }

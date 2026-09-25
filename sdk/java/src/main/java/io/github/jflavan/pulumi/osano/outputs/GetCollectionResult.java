@@ -13,17 +13,41 @@ import java.util.Objects;
 
 @CustomType
 public final class GetCollectionResult {
+    /**
+     * @return The collection: collectionId, name, frameworks, configIds, jurisdiction, type, consents, and preferences.
+     *
+     */
     private Map<String,Object> collection;
+    /**
+     * @return The collection ID that was looked up.
+     *
+     */
     private String collectionId;
+    /**
+     * @return Whether Osano returned the collection.
+     *
+     */
     private Boolean exists;
 
     private GetCollectionResult() {}
+    /**
+     * @return The collection: collectionId, name, frameworks, configIds, jurisdiction, type, consents, and preferences.
+     *
+     */
     public Map<String,Object> collection() {
         return this.collection;
     }
+    /**
+     * @return The collection ID that was looked up.
+     *
+     */
     public String collectionId() {
         return this.collectionId;
     }
+    /**
+     * @return Whether Osano returned the collection.
+     *
+     */
     public Boolean exists() {
         return this.exists;
     }

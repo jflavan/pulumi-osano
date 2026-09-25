@@ -23,7 +23,7 @@ __all__ = [
 
 @pulumi.output_type
 class SendSubjectCodeResult:
-    def __init__(__self__, channel=None, destination=None, hashed_subject_id=None):
+    def __init__(__self__, channel=None, destination=None, hashed_subject_id=None, session=None):
         if channel and not isinstance(channel, str):
             raise TypeError("Expected argument 'channel' to be a str")
         pulumi.set(__self__, "channel", channel)
@@ -33,21 +33,41 @@ class SendSubjectCodeResult:
         if hashed_subject_id and not isinstance(hashed_subject_id, str):
             raise TypeError("Expected argument 'hashed_subject_id' to be a str")
         pulumi.set(__self__, "hashed_subject_id", hashed_subject_id)
+        if session and not isinstance(session, str):
+            raise TypeError("Expected argument 'session' to be a str")
+        pulumi.set(__self__, "session", session)
 
     @_builtins.property
     @pulumi.getter
     def channel(self) -> _builtins.str:
+        """
+        The delivery channel: email or sms.
+        """
         return pulumi.get(self, "channel")
 
     @_builtins.property
     @pulumi.getter
     def destination(self) -> _builtins.str:
+        """
+        The email address or phone number the code was sent to. Secret, because it is personal data.
+        """
         return pulumi.get(self, "destination")
 
     @_builtins.property
     @pulumi.getter(name="hashedSubjectId")
     def hashed_subject_id(self) -> _builtins.str:
+        """
+        The hashed subject identifier sent with the request, if any.
+        """
         return pulumi.get(self, "hashed_subject_id")
+
+    @_builtins.property
+    @pulumi.getter
+    def session(self) -> _builtins.str:
+        """
+        The SMS challenge session, when Osano returns one; pass it to verifySubjectCode. Empty for email.
+        """
+        return pulumi.get(self, "session")
 
 
 class AwaitableSendSubjectCodeResult(SendSubjectCodeResult):
@@ -58,7 +78,8 @@ class AwaitableSendSubjectCodeResult(SendSubjectCodeResult):
         return SendSubjectCodeResult(
             channel=self.channel,
             destination=self.destination,
-            hashed_subject_id=self.hashed_subject_id)
+            hashed_subject_id=self.hashed_subject_id,
+            session=self.session)
 
 
 def send_subject_code(email: Optional[_builtins.str] = None,
@@ -66,11 +87,10 @@ def send_subject_code(email: Optional[_builtins.str] = None,
                       phone: Optional[_builtins.str] = None,
                       opts: Optional[pulumi.InvokeOptions] = None) -> AwaitableSendSubjectCodeResult:
     """
-    Sends a verification code to a subject's email or phone using the Osano API key. Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
-
+    Sends a verification code to a subject's email or phone using the Osano API key (or the Unified Consent API key when no Osano API key is set). Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
 
     :param _builtins.str email: Email address to send the code to. Set exactly one of email or phone.
-    :param _builtins.str hashed_subject_id: The hashed subject identifier to verify.
+    :param _builtins.str hashed_subject_id: Optional hashed subject identifier, sent only when set. Osano's current API identifies the subject by email or phone.
     :param _builtins.str phone: Phone number to send the code to by SMS. Set exactly one of email or phone.
     """
     __args__ = dict()
@@ -83,17 +103,17 @@ def send_subject_code(email: Optional[_builtins.str] = None,
     return AwaitableSendSubjectCodeResult(
         channel=pulumi.get(__ret__, 'channel'),
         destination=pulumi.get(__ret__, 'destination'),
-        hashed_subject_id=pulumi.get(__ret__, 'hashed_subject_id'))
-def send_subject_code_output(email: Optional[pulumi.Input[Optional[_builtins.str]]] = None,
-                             hashed_subject_id: Optional[pulumi.Input[_builtins.str]] = None,
-                             phone: Optional[pulumi.Input[Optional[_builtins.str]]] = None,
+        hashed_subject_id=pulumi.get(__ret__, 'hashed_subject_id'),
+        session=pulumi.get(__ret__, 'session'))
+def send_subject_code_output(email: pulumi.Input[Optional[Optional[_builtins.str]]] = None,
+                             hashed_subject_id: pulumi.Input[Optional[Optional[_builtins.str]]] = None,
+                             phone: pulumi.Input[Optional[Optional[_builtins.str]]] = None,
                              opts: Optional[Union[pulumi.InvokeOptions, pulumi.InvokeOutputOptions]] = None) -> pulumi.Output[SendSubjectCodeResult]:
     """
-    Sends a verification code to a subject's email or phone using the Osano API key. Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
-
+    Sends a verification code to a subject's email or phone using the Osano API key (or the Unified Consent API key when no Osano API key is set). Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
 
     :param _builtins.str email: Email address to send the code to. Set exactly one of email or phone.
-    :param _builtins.str hashed_subject_id: The hashed subject identifier to verify.
+    :param _builtins.str hashed_subject_id: Optional hashed subject identifier, sent only when set. Osano's current API identifies the subject by email or phone.
     :param _builtins.str phone: Phone number to send the code to by SMS. Set exactly one of email or phone.
     """
     __args__ = dict()
@@ -105,4 +125,5 @@ def send_subject_code_output(email: Optional[pulumi.Input[Optional[_builtins.str
     return __ret__.apply(lambda __response__: SendSubjectCodeResult(
         channel=pulumi.get(__response__, 'channel'),
         destination=pulumi.get(__response__, 'destination'),
-        hashed_subject_id=pulumi.get(__response__, 'hashed_subject_id')))
+        hashed_subject_id=pulumi.get(__response__, 'hashed_subject_id'),
+        session=pulumi.get(__response__, 'session')))

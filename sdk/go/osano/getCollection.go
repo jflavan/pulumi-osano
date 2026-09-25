@@ -28,18 +28,17 @@ type GetCollectionArgs struct {
 }
 
 type GetCollectionResult struct {
-	Collection   map[string]interface{} `pulumi:"collection"`
-	CollectionId string                 `pulumi:"collectionId"`
-	Exists       bool                   `pulumi:"exists"`
+	// The collection: collectionId, name, frameworks, configIds, jurisdiction, type, consents, and preferences.
+	Collection map[string]interface{} `pulumi:"collection"`
+	// The collection ID that was looked up.
+	CollectionId string `pulumi:"collectionId"`
+	// Whether Osano returned the collection.
+	Exists bool `pulumi:"exists"`
 }
 
 func GetCollectionOutput(ctx *pulumi.Context, args GetCollectionOutputArgs, opts ...pulumi.InvokeOption) GetCollectionResultOutput {
-	return pulumi.ToOutputWithContext(ctx.Context(), args).
-		ApplyT(func(v interface{}) (GetCollectionResultOutput, error) {
-			args := v.(GetCollectionArgs)
-			options := pulumi.InvokeOutputOptions{InvokeOptions: internal.PkgInvokeDefaultOpts(opts)}
-			return ctx.InvokeOutput("osano:index:getCollection", args, GetCollectionResultOutput{}, options).(GetCollectionResultOutput), nil
-		}).(GetCollectionResultOutput)
+	options := pulumi.InvokeOutputOptions{InvokeOptions: internal.PkgInvokeDefaultOpts(opts)}
+	return ctx.InvokeOutput("osano:index:getCollection", args, GetCollectionResultOutput{}, options).(GetCollectionResultOutput)
 }
 
 type GetCollectionOutputArgs struct {
@@ -65,14 +64,17 @@ func (o GetCollectionResultOutput) ToGetCollectionResultOutputWithContext(ctx co
 	return o
 }
 
+// The collection: collectionId, name, frameworks, configIds, jurisdiction, type, consents, and preferences.
 func (o GetCollectionResultOutput) Collection() pulumi.MapOutput {
 	return o.ApplyT(func(v GetCollectionResult) map[string]interface{} { return v.Collection }).(pulumi.MapOutput)
 }
 
+// The collection ID that was looked up.
 func (o GetCollectionResultOutput) CollectionId() pulumi.StringOutput {
 	return o.ApplyT(func(v GetCollectionResult) string { return v.CollectionId }).(pulumi.StringOutput)
 }
 
+// Whether Osano returned the collection.
 func (o GetCollectionResultOutput) Exists() pulumi.BoolOutput {
 	return o.ApplyT(func(v GetCollectionResult) bool { return v.Exists }).(pulumi.BoolOutput)
 }

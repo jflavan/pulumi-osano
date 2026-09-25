@@ -13,9 +13,15 @@ namespace Community.Pulumi.Osano.Inputs
 
     public sealed class ConsentComplianceArgs : global::Pulumi.ResourceArgs
     {
+        /// <summary>
+        /// 1 if the Global Privacy Control signal is enabled, 0 otherwise.
+        /// </summary>
         [Input("gpc")]
         public Input<int>? Gpc { get; set; }
 
+        /// <summary>
+        /// The privacy policy in effect when the consent was given.
+        /// </summary>
         [Input("privacyPolicy")]
         public Input<Inputs.ConsentPrivacyPolicyArgs>? PrivacyPolicy { get; set; }
 

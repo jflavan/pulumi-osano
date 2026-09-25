@@ -16,30 +16,62 @@ public final class ConsentActionArgs extends com.pulumi.resources.ResourceArgs {
 
     public static final ConsentActionArgs Empty = new ConsentActionArgs();
 
+    /**
+     * The subject&#39;s choice: ACCEPT, REJECT, or UNSELECTED.
+     *
+     */
     @Import(name="action", required=true)
     private Output<String> action;
 
+    /**
+     * @return The subject&#39;s choice: ACCEPT, REJECT, or UNSELECTED.
+     *
+     */
     public Output<String> action() {
         return this.action;
     }
 
+    /**
+     * Optional jurisdiction for this action; overrides the top-level jurisdiction.
+     *
+     */
     @Import(name="jurisdiction")
     private @Nullable Output<String> jurisdiction;
 
+    /**
+     * @return Optional jurisdiction for this action; overrides the top-level jurisdiction.
+     *
+     */
     public Optional<Output<String>> jurisdiction() {
         return Optional.ofNullable(this.jurisdiction);
     }
 
+    /**
+     * The privacy protocol ID (the Target ID on the privacy protocol&#39;s edit page).
+     *
+     */
     @Import(name="target", required=true)
     private Output<String> target;
 
+    /**
+     * @return The privacy protocol ID (the Target ID on the privacy protocol&#39;s edit page).
+     *
+     */
     public Output<String> target() {
         return this.target;
     }
 
+    /**
+     * The Unified Consent configuration ID the consent is recorded for.
+     *
+     */
     @Import(name="vendor", required=true)
     private Output<String> vendor;
 
+    /**
+     * @return The Unified Consent configuration ID the consent is recorded for.
+     *
+     */
     public Output<String> vendor() {
         return this.vendor;
     }
@@ -71,38 +103,86 @@ public final class ConsentActionArgs extends com.pulumi.resources.ResourceArgs {
             $ = new ConsentActionArgs(Objects.requireNonNull(defaults));
         }
 
+        /**
+         * @param action The subject&#39;s choice: ACCEPT, REJECT, or UNSELECTED.
+         *
+         * @return builder
+         *
+         */
         public Builder action(Output<String> action) {
             $.action = action;
             return this;
         }
 
+        /**
+         * @param action The subject&#39;s choice: ACCEPT, REJECT, or UNSELECTED.
+         *
+         * @return builder
+         *
+         */
         public Builder action(String action) {
             return action(Output.of(action));
         }
 
+        /**
+         * @param jurisdiction Optional jurisdiction for this action; overrides the top-level jurisdiction.
+         *
+         * @return builder
+         *
+         */
         public Builder jurisdiction(@Nullable Output<String> jurisdiction) {
             $.jurisdiction = jurisdiction;
             return this;
         }
 
+        /**
+         * @param jurisdiction Optional jurisdiction for this action; overrides the top-level jurisdiction.
+         *
+         * @return builder
+         *
+         */
         public Builder jurisdiction(String jurisdiction) {
             return jurisdiction(Output.of(jurisdiction));
         }
 
+        /**
+         * @param target The privacy protocol ID (the Target ID on the privacy protocol&#39;s edit page).
+         *
+         * @return builder
+         *
+         */
         public Builder target(Output<String> target) {
             $.target = target;
             return this;
         }
 
+        /**
+         * @param target The privacy protocol ID (the Target ID on the privacy protocol&#39;s edit page).
+         *
+         * @return builder
+         *
+         */
         public Builder target(String target) {
             return target(Output.of(target));
         }
 
+        /**
+         * @param vendor The Unified Consent configuration ID the consent is recorded for.
+         *
+         * @return builder
+         *
+         */
         public Builder vendor(Output<String> vendor) {
             $.vendor = vendor;
             return this;
         }
 
+        /**
+         * @param vendor The Unified Consent configuration ID the consent is recorded for.
+         *
+         * @return builder
+         *
+         */
         public Builder vendor(String vendor) {
             return vendor(Output.of(vendor));
         }

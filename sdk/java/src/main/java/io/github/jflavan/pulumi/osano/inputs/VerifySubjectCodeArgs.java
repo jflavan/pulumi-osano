@@ -17,14 +17,14 @@ public final class VerifySubjectCodeArgs extends com.pulumi.resources.InvokeArgs
     public static final VerifySubjectCodeArgs Empty = new VerifySubjectCodeArgs();
 
     /**
-     * The one-time verification code the subject received.
+     * The one-time verification code the subject received (6 characters by email, 8 by SMS).
      *
      */
     @Import(name="code", required=true)
     private Output<String> code;
 
     /**
-     * @return The one-time verification code the subject received.
+     * @return The one-time verification code the subject received (6 characters by email, 8 by SMS).
      *
      */
     public Output<String> code() {
@@ -47,18 +47,18 @@ public final class VerifySubjectCodeArgs extends com.pulumi.resources.InvokeArgs
     }
 
     /**
-     * The hashed subject identifier being verified.
+     * Optional hashed subject identifier, sent only when set.
      *
      */
-    @Import(name="hashedSubjectId", required=true)
-    private Output<String> hashedSubjectId;
+    @Import(name="hashedSubjectId")
+    private @Nullable Output<String> hashedSubjectId;
 
     /**
-     * @return The hashed subject identifier being verified.
+     * @return Optional hashed subject identifier, sent only when set.
      *
      */
-    public Output<String> hashedSubjectId() {
-        return this.hashedSubjectId;
+    public Optional<Output<String>> hashedSubjectId() {
+        return Optional.ofNullable(this.hashedSubjectId);
     }
 
     /**
@@ -76,6 +76,21 @@ public final class VerifySubjectCodeArgs extends com.pulumi.resources.InvokeArgs
         return Optional.ofNullable(this.phone);
     }
 
+    /**
+     * The SMS challenge session. Required with phone; not used with email.
+     *
+     */
+    @Import(name="session")
+    private @Nullable Output<String> session;
+
+    /**
+     * @return The SMS challenge session. Required with phone; not used with email.
+     *
+     */
+    public Optional<Output<String>> session() {
+        return Optional.ofNullable(this.session);
+    }
+
     private VerifySubjectCodeArgs() {}
 
     private VerifySubjectCodeArgs(VerifySubjectCodeArgs $) {
@@ -83,6 +98,7 @@ public final class VerifySubjectCodeArgs extends com.pulumi.resources.InvokeArgs
         this.email = $.email;
         this.hashedSubjectId = $.hashedSubjectId;
         this.phone = $.phone;
+        this.session = $.session;
     }
 
     public static Builder builder() {
@@ -104,7 +120,7 @@ public final class VerifySubjectCodeArgs extends com.pulumi.resources.InvokeArgs
         }
 
         /**
-         * @param code The one-time verification code the subject received.
+         * @param code The one-time verification code the subject received (6 characters by email, 8 by SMS).
          *
          * @return builder
          *
@@ -115,7 +131,7 @@ public final class VerifySubjectCodeArgs extends com.pulumi.resources.InvokeArgs
         }
 
         /**
-         * @param code The one-time verification code the subject received.
+         * @param code The one-time verification code the subject received (6 characters by email, 8 by SMS).
          *
          * @return builder
          *
@@ -146,18 +162,18 @@ public final class VerifySubjectCodeArgs extends com.pulumi.resources.InvokeArgs
         }
 
         /**
-         * @param hashedSubjectId The hashed subject identifier being verified.
+         * @param hashedSubjectId Optional hashed subject identifier, sent only when set.
          *
          * @return builder
          *
          */
-        public Builder hashedSubjectId(Output<String> hashedSubjectId) {
+        public Builder hashedSubjectId(@Nullable Output<String> hashedSubjectId) {
             $.hashedSubjectId = hashedSubjectId;
             return this;
         }
 
         /**
-         * @param hashedSubjectId The hashed subject identifier being verified.
+         * @param hashedSubjectId Optional hashed subject identifier, sent only when set.
          *
          * @return builder
          *
@@ -187,12 +203,30 @@ public final class VerifySubjectCodeArgs extends com.pulumi.resources.InvokeArgs
             return phone(Output.of(phone));
         }
 
+        /**
+         * @param session The SMS challenge session. Required with phone; not used with email.
+         *
+         * @return builder
+         *
+         */
+        public Builder session(@Nullable Output<String> session) {
+            $.session = session;
+            return this;
+        }
+
+        /**
+         * @param session The SMS challenge session. Required with phone; not used with email.
+         *
+         * @return builder
+         *
+         */
+        public Builder session(String session) {
+            return session(Output.of(session));
+        }
+
         public VerifySubjectCodeArgs build() {
             if ($.code == null) {
                 throw new MissingRequiredPropertyException("VerifySubjectCodeArgs", "code");
-            }
-            if ($.hashedSubjectId == null) {
-                throw new MissingRequiredPropertyException("VerifySubjectCodeArgs", "hashedSubjectId");
             }
             return $;
         }

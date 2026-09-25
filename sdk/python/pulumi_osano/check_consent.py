@@ -34,11 +34,17 @@ class CheckConsentResult:
     @_builtins.property
     @pulumi.getter
     def exists(self) -> _builtins.bool:
+        """
+        Whether the subject has given consent in the configuration.
+        """
         return pulumi.get(self, "exists")
 
     @_builtins.property
     @pulumi.getter(name="subjectId")
     def subject_id(self) -> _builtins.str:
+        """
+        The subject ID that was checked.
+        """
         return pulumi.get(self, "subject_id")
 
 
@@ -52,15 +58,20 @@ class AwaitableCheckConsentResult(CheckConsentResult):
             subject_id=self.subject_id)
 
 
-def check_consent(subject_id: Optional[_builtins.str] = None,
+def check_consent(country_code_override: Optional[_builtins.str] = None,
+                  region_code_override: Optional[_builtins.str] = None,
+                  subject_id: Optional[_builtins.str] = None,
                   opts: Optional[pulumi.InvokeOptions] = None) -> AwaitableCheckConsentResult:
     """
     Checks whether a unified consent record exists for a given subject ID.
 
-
+    :param _builtins.str country_code_override: Optional ISO 3166-1 country code Osano uses instead of resolving the caller's IP address, which in a pipeline is the CI runner's.
+    :param _builtins.str region_code_override: Optional ISO 3166-2 region code Osano uses instead of resolving the caller's IP address.
     :param _builtins.str subject_id: The subject ID to check.
     """
     __args__ = dict()
+    __args__['countryCodeOverride'] = country_code_override
+    __args__['regionCodeOverride'] = region_code_override
     __args__['subjectId'] = subject_id
     opts = pulumi.InvokeOptions.merge(_utilities.get_invoke_opts_defaults(), opts)
     __ret__ = pulumi.runtime.invoke('osano:index:checkConsent', __args__, opts=opts, typ=CheckConsentResult).value
@@ -68,15 +79,20 @@ def check_consent(subject_id: Optional[_builtins.str] = None,
     return AwaitableCheckConsentResult(
         exists=pulumi.get(__ret__, 'exists'),
         subject_id=pulumi.get(__ret__, 'subject_id'))
-def check_consent_output(subject_id: Optional[pulumi.Input[_builtins.str]] = None,
+def check_consent_output(country_code_override: pulumi.Input[Optional[Optional[_builtins.str]]] = None,
+                         region_code_override: pulumi.Input[Optional[Optional[_builtins.str]]] = None,
+                         subject_id: pulumi.Input[Optional[_builtins.str]] = None,
                          opts: Optional[Union[pulumi.InvokeOptions, pulumi.InvokeOutputOptions]] = None) -> pulumi.Output[CheckConsentResult]:
     """
     Checks whether a unified consent record exists for a given subject ID.
 
-
+    :param _builtins.str country_code_override: Optional ISO 3166-1 country code Osano uses instead of resolving the caller's IP address, which in a pipeline is the CI runner's.
+    :param _builtins.str region_code_override: Optional ISO 3166-2 region code Osano uses instead of resolving the caller's IP address.
     :param _builtins.str subject_id: The subject ID to check.
     """
     __args__ = dict()
+    __args__['countryCodeOverride'] = country_code_override
+    __args__['regionCodeOverride'] = region_code_override
     __args__['subjectId'] = subject_id
     opts = pulumi.InvokeOutputOptions.merge(_utilities.get_invoke_opts_defaults(), opts)
     __ret__ = pulumi.runtime.invoke_output('osano:index:checkConsent', __args__, opts=opts, typ=CheckConsentResult)

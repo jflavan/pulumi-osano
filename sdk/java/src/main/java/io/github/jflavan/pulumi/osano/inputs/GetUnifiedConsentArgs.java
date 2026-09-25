@@ -17,14 +17,29 @@ public final class GetUnifiedConsentArgs extends com.pulumi.resources.InvokeArgs
     public static final GetUnifiedConsentArgs Empty = new GetUnifiedConsentArgs();
 
     /**
-     * Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
+     * Optional ISO 3166-1 country code Osano uses instead of resolving the caller&#39;s IP address, which in a pipeline is the CI runner&#39;s.
+     *
+     */
+    @Import(name="countryCodeOverride")
+    private @Nullable Output<String> countryCodeOverride;
+
+    /**
+     * @return Optional ISO 3166-1 country code Osano uses instead of resolving the caller&#39;s IP address, which in a pipeline is the CI runner&#39;s.
+     *
+     */
+    public Optional<Output<String>> countryCodeOverride() {
+        return Optional.ofNullable(this.countryCodeOverride);
+    }
+
+    /**
+     * Reference type: subject (default) for a subject&#39;s verified or anonymous ID, or session for a session ID. anonymous is accepted as a deprecated alias of subject.
      *
      */
     @Import(name="referenceType")
     private @Nullable Output<String> referenceType;
 
     /**
-     * @return Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
+     * @return Reference type: subject (default) for a subject&#39;s verified or anonymous ID, or session for a session ID. anonymous is accepted as a deprecated alias of subject.
      *
      */
     public Optional<Output<String>> referenceType() {
@@ -32,14 +47,29 @@ public final class GetUnifiedConsentArgs extends com.pulumi.resources.InvokeArgs
     }
 
     /**
-     * The subject reference to look up.
+     * Optional ISO 3166-2 region code Osano uses instead of resolving the caller&#39;s IP address.
+     *
+     */
+    @Import(name="regionCodeOverride")
+    private @Nullable Output<String> regionCodeOverride;
+
+    /**
+     * @return Optional ISO 3166-2 region code Osano uses instead of resolving the caller&#39;s IP address.
+     *
+     */
+    public Optional<Output<String>> regionCodeOverride() {
+        return Optional.ofNullable(this.regionCodeOverride);
+    }
+
+    /**
+     * The subject reference to look up: an anonymous ID, verified ID, or session ID.
      *
      */
     @Import(name="subjectRef", required=true)
     private Output<String> subjectRef;
 
     /**
-     * @return The subject reference to look up.
+     * @return The subject reference to look up: an anonymous ID, verified ID, or session ID.
      *
      */
     public Output<String> subjectRef() {
@@ -49,7 +79,9 @@ public final class GetUnifiedConsentArgs extends com.pulumi.resources.InvokeArgs
     private GetUnifiedConsentArgs() {}
 
     private GetUnifiedConsentArgs(GetUnifiedConsentArgs $) {
+        this.countryCodeOverride = $.countryCodeOverride;
         this.referenceType = $.referenceType;
+        this.regionCodeOverride = $.regionCodeOverride;
         this.subjectRef = $.subjectRef;
     }
 
@@ -72,7 +104,28 @@ public final class GetUnifiedConsentArgs extends com.pulumi.resources.InvokeArgs
         }
 
         /**
-         * @param referenceType Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
+         * @param countryCodeOverride Optional ISO 3166-1 country code Osano uses instead of resolving the caller&#39;s IP address, which in a pipeline is the CI runner&#39;s.
+         *
+         * @return builder
+         *
+         */
+        public Builder countryCodeOverride(@Nullable Output<String> countryCodeOverride) {
+            $.countryCodeOverride = countryCodeOverride;
+            return this;
+        }
+
+        /**
+         * @param countryCodeOverride Optional ISO 3166-1 country code Osano uses instead of resolving the caller&#39;s IP address, which in a pipeline is the CI runner&#39;s.
+         *
+         * @return builder
+         *
+         */
+        public Builder countryCodeOverride(String countryCodeOverride) {
+            return countryCodeOverride(Output.of(countryCodeOverride));
+        }
+
+        /**
+         * @param referenceType Reference type: subject (default) for a subject&#39;s verified or anonymous ID, or session for a session ID. anonymous is accepted as a deprecated alias of subject.
          *
          * @return builder
          *
@@ -83,7 +136,7 @@ public final class GetUnifiedConsentArgs extends com.pulumi.resources.InvokeArgs
         }
 
         /**
-         * @param referenceType Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
+         * @param referenceType Reference type: subject (default) for a subject&#39;s verified or anonymous ID, or session for a session ID. anonymous is accepted as a deprecated alias of subject.
          *
          * @return builder
          *
@@ -93,7 +146,28 @@ public final class GetUnifiedConsentArgs extends com.pulumi.resources.InvokeArgs
         }
 
         /**
-         * @param subjectRef The subject reference to look up.
+         * @param regionCodeOverride Optional ISO 3166-2 region code Osano uses instead of resolving the caller&#39;s IP address.
+         *
+         * @return builder
+         *
+         */
+        public Builder regionCodeOverride(@Nullable Output<String> regionCodeOverride) {
+            $.regionCodeOverride = regionCodeOverride;
+            return this;
+        }
+
+        /**
+         * @param regionCodeOverride Optional ISO 3166-2 region code Osano uses instead of resolving the caller&#39;s IP address.
+         *
+         * @return builder
+         *
+         */
+        public Builder regionCodeOverride(String regionCodeOverride) {
+            return regionCodeOverride(Output.of(regionCodeOverride));
+        }
+
+        /**
+         * @param subjectRef The subject reference to look up: an anonymous ID, verified ID, or session ID.
          *
          * @return builder
          *
@@ -104,7 +178,7 @@ public final class GetUnifiedConsentArgs extends com.pulumi.resources.InvokeArgs
         }
 
         /**
-         * @param subjectRef The subject reference to look up.
+         * @param subjectRef The subject reference to look up: an anonymous ID, verified ID, or session ID.
          *
          * @return builder
          *

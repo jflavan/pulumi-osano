@@ -11,13 +11,29 @@ import javax.annotation.Nullable;
 
 @CustomType
 public final class ConsentSubject {
+    /**
+     * @return The subject&#39;s anonymous ID. Must not contain #, %, or spaces.
+     *
+     */
     private @Nullable String anonymousId;
+    /**
+     * @return The subject&#39;s verified ID. Must not contain #, %, or spaces.
+     *
+     */
     private @Nullable String verifiedId;
 
     private ConsentSubject() {}
+    /**
+     * @return The subject&#39;s anonymous ID. Must not contain #, %, or spaces.
+     *
+     */
     public Optional<String> anonymousId() {
         return Optional.ofNullable(this.anonymousId);
     }
+    /**
+     * @return The subject&#39;s verified ID. Must not contain #, %, or spaces.
+     *
+     */
     public Optional<String> verifiedId() {
         return Optional.ofNullable(this.verifiedId);
     }

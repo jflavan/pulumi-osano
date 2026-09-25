@@ -44,6 +44,9 @@ namespace Community.Pulumi.Osano
     [OutputType]
     public sealed class GetConfigResult
     {
+        /// <summary>
+        /// The Unified Consent configuration: configId, customerId, name, domains, privacy policy, privacyProtocols, frameworks, styling, publication state, and text customizations.
+        /// </summary>
         public readonly ImmutableDictionary<string, object> Config;
 
         [OutputConstructor]

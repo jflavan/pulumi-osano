@@ -166,5 +166,5 @@ export interface CookieConsentConfigArgs {
     /**
      * Optional organization IDs associated with the config.
      */
-    orgIds?: pulumi.Input<pulumi.Input<string>[]>;
+    orgIds?: pulumi.Input<pulumi.Input<string>[] | undefined>;
 }

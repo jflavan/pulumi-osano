@@ -16,16 +16,32 @@ public final class ConsentPrivacyPolicyArgs extends com.pulumi.resources.Resourc
 
     public static final ConsentPrivacyPolicyArgs Empty = new ConsentPrivacyPolicyArgs();
 
+    /**
+     * The privacy policy URL.
+     *
+     */
     @Import(name="url", required=true)
     private Output<String> url;
 
+    /**
+     * @return The privacy policy URL.
+     *
+     */
     public Output<String> url() {
         return this.url;
     }
 
+    /**
+     * The privacy policy version active when the consent was submitted.
+     *
+     */
     @Import(name="version")
     private @Nullable Output<String> version;
 
+    /**
+     * @return The privacy policy version active when the consent was submitted.
+     *
+     */
     public Optional<Output<String>> version() {
         return Optional.ofNullable(this.version);
     }
@@ -55,20 +71,44 @@ public final class ConsentPrivacyPolicyArgs extends com.pulumi.resources.Resourc
             $ = new ConsentPrivacyPolicyArgs(Objects.requireNonNull(defaults));
         }
 
+        /**
+         * @param url The privacy policy URL.
+         *
+         * @return builder
+         *
+         */
         public Builder url(Output<String> url) {
             $.url = url;
             return this;
         }
 
+        /**
+         * @param url The privacy policy URL.
+         *
+         * @return builder
+         *
+         */
         public Builder url(String url) {
             return url(Output.of(url));
         }
 
+        /**
+         * @param version The privacy policy version active when the consent was submitted.
+         *
+         * @return builder
+         *
+         */
         public Builder version(@Nullable Output<String> version) {
             $.version = version;
             return this;
         }
 
+        /**
+         * @param version The privacy policy version active when the consent was submitted.
+         *
+         * @return builder
+         *
+         */
         public Builder version(String version) {
             return version(Output.of(version));
         }

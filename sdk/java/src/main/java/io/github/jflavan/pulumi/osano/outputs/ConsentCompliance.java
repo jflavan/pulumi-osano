@@ -12,13 +12,29 @@ import javax.annotation.Nullable;
 
 @CustomType
 public final class ConsentCompliance {
+    /**
+     * @return 1 if the Global Privacy Control signal is enabled, 0 otherwise.
+     *
+     */
     private @Nullable Integer gpc;
+    /**
+     * @return The privacy policy in effect when the consent was given.
+     *
+     */
     private @Nullable ConsentPrivacyPolicy privacyPolicy;
 
     private ConsentCompliance() {}
+    /**
+     * @return 1 if the Global Privacy Control signal is enabled, 0 otherwise.
+     *
+     */
     public Optional<Integer> gpc() {
         return Optional.ofNullable(this.gpc);
     }
+    /**
+     * @return The privacy policy in effect when the consent was given.
+     *
+     */
     public Optional<ConsentPrivacyPolicy> privacyPolicy() {
         return Optional.ofNullable(this.privacyPolicy);
     }

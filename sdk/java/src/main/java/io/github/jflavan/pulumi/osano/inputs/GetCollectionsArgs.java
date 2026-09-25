@@ -16,14 +16,14 @@ public final class GetCollectionsArgs extends com.pulumi.resources.InvokeArgs {
     public static final GetCollectionsArgs Empty = new GetCollectionsArgs();
 
     /**
-     * Optional jurisdiction filter, sent as the jurisdiction query parameter.
+     * Optional jurisdiction filter. When unset, Osano resolves the jurisdiction from the caller&#39;s IP address.
      *
      */
     @Import(name="jurisdiction")
     private @Nullable Output<String> jurisdiction;
 
     /**
-     * @return Optional jurisdiction filter, sent as the jurisdiction query parameter.
+     * @return Optional jurisdiction filter. When unset, Osano resolves the jurisdiction from the caller&#39;s IP address.
      *
      */
     public Optional<Output<String>> jurisdiction() {
@@ -31,14 +31,14 @@ public final class GetCollectionsArgs extends com.pulumi.resources.InvokeArgs {
     }
 
     /**
-     * Optional collection type filter, sent as the type query parameter.
+     * Optional collection type: published (default) or draft.
      *
      */
     @Import(name="type")
     private @Nullable Output<String> type;
 
     /**
-     * @return Optional collection type filter, sent as the type query parameter.
+     * @return Optional collection type: published (default) or draft.
      *
      */
     public Optional<Output<String>> type() {
@@ -71,7 +71,7 @@ public final class GetCollectionsArgs extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param jurisdiction Optional jurisdiction filter, sent as the jurisdiction query parameter.
+         * @param jurisdiction Optional jurisdiction filter. When unset, Osano resolves the jurisdiction from the caller&#39;s IP address.
          *
          * @return builder
          *
@@ -82,7 +82,7 @@ public final class GetCollectionsArgs extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param jurisdiction Optional jurisdiction filter, sent as the jurisdiction query parameter.
+         * @param jurisdiction Optional jurisdiction filter. When unset, Osano resolves the jurisdiction from the caller&#39;s IP address.
          *
          * @return builder
          *
@@ -92,7 +92,7 @@ public final class GetCollectionsArgs extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param type Optional collection type filter, sent as the type query parameter.
+         * @param type Optional collection type: published (default) or draft.
          *
          * @return builder
          *
@@ -103,7 +103,7 @@ public final class GetCollectionsArgs extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param type Optional collection type filter, sent as the type query parameter.
+         * @param type Optional collection type: published (default) or draft.
          *
          * @return builder
          *

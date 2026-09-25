@@ -16,16 +16,32 @@ public final class ConsentComplianceArgs extends com.pulumi.resources.ResourceAr
 
     public static final ConsentComplianceArgs Empty = new ConsentComplianceArgs();
 
+    /**
+     * 1 if the Global Privacy Control signal is enabled, 0 otherwise.
+     *
+     */
     @Import(name="gpc")
     private @Nullable Output<Integer> gpc;
 
+    /**
+     * @return 1 if the Global Privacy Control signal is enabled, 0 otherwise.
+     *
+     */
     public Optional<Output<Integer>> gpc() {
         return Optional.ofNullable(this.gpc);
     }
 
+    /**
+     * The privacy policy in effect when the consent was given.
+     *
+     */
     @Import(name="privacyPolicy")
     private @Nullable Output<ConsentPrivacyPolicyArgs> privacyPolicy;
 
+    /**
+     * @return The privacy policy in effect when the consent was given.
+     *
+     */
     public Optional<Output<ConsentPrivacyPolicyArgs>> privacyPolicy() {
         return Optional.ofNullable(this.privacyPolicy);
     }
@@ -55,20 +71,44 @@ public final class ConsentComplianceArgs extends com.pulumi.resources.ResourceAr
             $ = new ConsentComplianceArgs(Objects.requireNonNull(defaults));
         }
 
+        /**
+         * @param gpc 1 if the Global Privacy Control signal is enabled, 0 otherwise.
+         *
+         * @return builder
+         *
+         */
         public Builder gpc(@Nullable Output<Integer> gpc) {
             $.gpc = gpc;
             return this;
         }
 
+        /**
+         * @param gpc 1 if the Global Privacy Control signal is enabled, 0 otherwise.
+         *
+         * @return builder
+         *
+         */
         public Builder gpc(Integer gpc) {
             return gpc(Output.of(gpc));
         }
 
+        /**
+         * @param privacyPolicy The privacy policy in effect when the consent was given.
+         *
+         * @return builder
+         *
+         */
         public Builder privacyPolicy(@Nullable Output<ConsentPrivacyPolicyArgs> privacyPolicy) {
             $.privacyPolicy = privacyPolicy;
             return this;
         }
 
+        /**
+         * @param privacyPolicy The privacy policy in effect when the consent was given.
+         *
+         * @return builder
+         *
+         */
         public Builder privacyPolicy(ConsentPrivacyPolicyArgs privacyPolicy) {
             return privacyPolicy(Output.of(privacyPolicy));
         }

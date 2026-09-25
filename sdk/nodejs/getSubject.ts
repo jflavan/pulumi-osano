@@ -17,20 +17,35 @@ export function getSubject(args: GetSubjectArgs, opts?: pulumi.InvokeOptions): P
 
 export interface GetSubjectArgs {
     /**
-     * Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
+     * Reference type: subject (default) for a subject's verified or anonymous ID, or session for a session ID. anonymous is accepted as a deprecated alias of subject.
      */
     referenceType?: string;
     /**
-     * The subject reference to resolve.
+     * The subject reference to resolve: an anonymous ID, verified ID, or session ID.
      */
     subjectRef: string;
 }
 
 export interface GetSubjectResult {
+    /**
+     * The subject's anonymous ID, if any.
+     */
     readonly anonymousId: string;
+    /**
+     * Whether Osano knows the subject. The ID outputs are empty when false.
+     */
     readonly exists: boolean;
+    /**
+     * The subject's Osano ID.
+     */
     readonly subjectId: string;
+    /**
+     * The subject reference that was resolved.
+     */
     readonly subjectRef: string;
+    /**
+     * The subject's verified ID, if the subject is verified.
+     */
     readonly verifiedId: string;
 }
 /**
@@ -46,11 +61,11 @@ export function getSubjectOutput(args: GetSubjectOutputArgs, opts?: pulumi.Invok
 
 export interface GetSubjectOutputArgs {
     /**
-     * Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
+     * Reference type: subject (default) for a subject's verified or anonymous ID, or session for a session ID. anonymous is accepted as a deprecated alias of subject.
      */
-    referenceType?: pulumi.Input<string>;
+    referenceType?: pulumi.Input<string | undefined>;
     /**
-     * The subject reference to resolve.
+     * The subject reference to resolve: an anonymous ID, verified ID, or session ID.
      */
     subjectRef: pulumi.Input<string>;
 }

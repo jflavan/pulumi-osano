@@ -14,7 +14,13 @@ namespace Community.Pulumi.Osano.Outputs
     [OutputType]
     public sealed class ConsentCompliance
     {
+        /// <summary>
+        /// 1 if the Global Privacy Control signal is enabled, 0 otherwise.
+        /// </summary>
         public readonly int? Gpc;
+        /// <summary>
+        /// The privacy policy in effect when the consent was given.
+        /// </summary>
         public readonly Outputs.ConsentPrivacyPolicy? PrivacyPolicy;
 
         [OutputConstructor]

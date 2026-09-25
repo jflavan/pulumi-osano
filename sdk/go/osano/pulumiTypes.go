@@ -14,10 +14,14 @@ import (
 var _ = internal.GetEnvOrDefault
 
 type ConsentAction struct {
-	Action       string  `pulumi:"action"`
+	// The subject's choice: ACCEPT, REJECT, or UNSELECTED.
+	Action string `pulumi:"action"`
+	// Optional jurisdiction for this action; overrides the top-level jurisdiction.
 	Jurisdiction *string `pulumi:"jurisdiction"`
-	Target       string  `pulumi:"target"`
-	Vendor       string  `pulumi:"vendor"`
+	// The privacy protocol ID (the Target ID on the privacy protocol's edit page).
+	Target string `pulumi:"target"`
+	// The Unified Consent configuration ID the consent is recorded for.
+	Vendor string `pulumi:"vendor"`
 }
 
 // ConsentActionInput is an input type that accepts ConsentActionArgs and ConsentActionOutput values.
@@ -32,10 +36,14 @@ type ConsentActionInput interface {
 }
 
 type ConsentActionArgs struct {
-	Action       pulumi.StringInput    `pulumi:"action"`
+	// The subject's choice: ACCEPT, REJECT, or UNSELECTED.
+	Action pulumi.StringInput `pulumi:"action"`
+	// Optional jurisdiction for this action; overrides the top-level jurisdiction.
 	Jurisdiction pulumi.StringPtrInput `pulumi:"jurisdiction"`
-	Target       pulumi.StringInput    `pulumi:"target"`
-	Vendor       pulumi.StringInput    `pulumi:"vendor"`
+	// The privacy protocol ID (the Target ID on the privacy protocol's edit page).
+	Target pulumi.StringInput `pulumi:"target"`
+	// The Unified Consent configuration ID the consent is recorded for.
+	Vendor pulumi.StringInput `pulumi:"vendor"`
 }
 
 func (ConsentActionArgs) ElementType() reflect.Type {
@@ -89,18 +97,22 @@ func (o ConsentActionOutput) ToConsentActionOutputWithContext(ctx context.Contex
 	return o
 }
 
+// The subject's choice: ACCEPT, REJECT, or UNSELECTED.
 func (o ConsentActionOutput) Action() pulumi.StringOutput {
 	return o.ApplyT(func(v ConsentAction) string { return v.Action }).(pulumi.StringOutput)
 }
 
+// Optional jurisdiction for this action; overrides the top-level jurisdiction.
 func (o ConsentActionOutput) Jurisdiction() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v ConsentAction) *string { return v.Jurisdiction }).(pulumi.StringPtrOutput)
 }
 
+// The privacy protocol ID (the Target ID on the privacy protocol's edit page).
 func (o ConsentActionOutput) Target() pulumi.StringOutput {
 	return o.ApplyT(func(v ConsentAction) string { return v.Target }).(pulumi.StringOutput)
 }
 
+// The Unified Consent configuration ID the consent is recorded for.
 func (o ConsentActionOutput) Vendor() pulumi.StringOutput {
 	return o.ApplyT(func(v ConsentAction) string { return v.Vendor }).(pulumi.StringOutput)
 }
@@ -126,7 +138,9 @@ func (o ConsentActionArrayOutput) Index(i pulumi.IntInput) ConsentActionOutput {
 }
 
 type ConsentCompliance struct {
-	Gpc           *int                  `pulumi:"gpc"`
+	// 1 if the Global Privacy Control signal is enabled, 0 otherwise.
+	Gpc *int `pulumi:"gpc"`
+	// The privacy policy in effect when the consent was given.
 	PrivacyPolicy *ConsentPrivacyPolicy `pulumi:"privacyPolicy"`
 }
 
@@ -142,7 +156,9 @@ type ConsentComplianceInput interface {
 }
 
 type ConsentComplianceArgs struct {
-	Gpc           pulumi.IntPtrInput           `pulumi:"gpc"`
+	// 1 if the Global Privacy Control signal is enabled, 0 otherwise.
+	Gpc pulumi.IntPtrInput `pulumi:"gpc"`
+	// The privacy policy in effect when the consent was given.
 	PrivacyPolicy ConsentPrivacyPolicyPtrInput `pulumi:"privacyPolicy"`
 }
 
@@ -223,10 +239,12 @@ func (o ConsentComplianceOutput) ToConsentCompliancePtrOutputWithContext(ctx con
 	}).(ConsentCompliancePtrOutput)
 }
 
+// 1 if the Global Privacy Control signal is enabled, 0 otherwise.
 func (o ConsentComplianceOutput) Gpc() pulumi.IntPtrOutput {
 	return o.ApplyT(func(v ConsentCompliance) *int { return v.Gpc }).(pulumi.IntPtrOutput)
 }
 
+// The privacy policy in effect when the consent was given.
 func (o ConsentComplianceOutput) PrivacyPolicy() ConsentPrivacyPolicyPtrOutput {
 	return o.ApplyT(func(v ConsentCompliance) *ConsentPrivacyPolicy { return v.PrivacyPolicy }).(ConsentPrivacyPolicyPtrOutput)
 }
@@ -255,6 +273,7 @@ func (o ConsentCompliancePtrOutput) Elem() ConsentComplianceOutput {
 	}).(ConsentComplianceOutput)
 }
 
+// 1 if the Global Privacy Control signal is enabled, 0 otherwise.
 func (o ConsentCompliancePtrOutput) Gpc() pulumi.IntPtrOutput {
 	return o.ApplyT(func(v *ConsentCompliance) *int {
 		if v == nil {
@@ -264,6 +283,7 @@ func (o ConsentCompliancePtrOutput) Gpc() pulumi.IntPtrOutput {
 	}).(pulumi.IntPtrOutput)
 }
 
+// The privacy policy in effect when the consent was given.
 func (o ConsentCompliancePtrOutput) PrivacyPolicy() ConsentPrivacyPolicyPtrOutput {
 	return o.ApplyT(func(v *ConsentCompliance) *ConsentPrivacyPolicy {
 		if v == nil {
@@ -274,7 +294,9 @@ func (o ConsentCompliancePtrOutput) PrivacyPolicy() ConsentPrivacyPolicyPtrOutpu
 }
 
 type ConsentPrivacyPolicy struct {
-	Url     string  `pulumi:"url"`
+	// The privacy policy URL.
+	Url string `pulumi:"url"`
+	// The privacy policy version active when the consent was submitted.
 	Version *string `pulumi:"version"`
 }
 
@@ -290,7 +312,9 @@ type ConsentPrivacyPolicyInput interface {
 }
 
 type ConsentPrivacyPolicyArgs struct {
-	Url     pulumi.StringInput    `pulumi:"url"`
+	// The privacy policy URL.
+	Url pulumi.StringInput `pulumi:"url"`
+	// The privacy policy version active when the consent was submitted.
 	Version pulumi.StringPtrInput `pulumi:"version"`
 }
 
@@ -371,10 +395,12 @@ func (o ConsentPrivacyPolicyOutput) ToConsentPrivacyPolicyPtrOutputWithContext(c
 	}).(ConsentPrivacyPolicyPtrOutput)
 }
 
+// The privacy policy URL.
 func (o ConsentPrivacyPolicyOutput) Url() pulumi.StringOutput {
 	return o.ApplyT(func(v ConsentPrivacyPolicy) string { return v.Url }).(pulumi.StringOutput)
 }
 
+// The privacy policy version active when the consent was submitted.
 func (o ConsentPrivacyPolicyOutput) Version() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v ConsentPrivacyPolicy) *string { return v.Version }).(pulumi.StringPtrOutput)
 }
@@ -403,6 +429,7 @@ func (o ConsentPrivacyPolicyPtrOutput) Elem() ConsentPrivacyPolicyOutput {
 	}).(ConsentPrivacyPolicyOutput)
 }
 
+// The privacy policy URL.
 func (o ConsentPrivacyPolicyPtrOutput) Url() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *ConsentPrivacyPolicy) *string {
 		if v == nil {
@@ -412,6 +439,7 @@ func (o ConsentPrivacyPolicyPtrOutput) Url() pulumi.StringPtrOutput {
 	}).(pulumi.StringPtrOutput)
 }
 
+// The privacy policy version active when the consent was submitted.
 func (o ConsentPrivacyPolicyPtrOutput) Version() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *ConsentPrivacyPolicy) *string {
 		if v == nil {
@@ -422,8 +450,10 @@ func (o ConsentPrivacyPolicyPtrOutput) Version() pulumi.StringPtrOutput {
 }
 
 type ConsentSubject struct {
+	// The subject's anonymous ID. Must not contain #, %, or spaces.
 	AnonymousId *string `pulumi:"anonymousId"`
-	VerifiedId  *string `pulumi:"verifiedId"`
+	// The subject's verified ID. Must not contain #, %, or spaces.
+	VerifiedId *string `pulumi:"verifiedId"`
 }
 
 // ConsentSubjectInput is an input type that accepts ConsentSubjectArgs and ConsentSubjectOutput values.
@@ -438,8 +468,10 @@ type ConsentSubjectInput interface {
 }
 
 type ConsentSubjectArgs struct {
+	// The subject's anonymous ID. Must not contain #, %, or spaces.
 	AnonymousId pulumi.StringPtrInput `pulumi:"anonymousId"`
-	VerifiedId  pulumi.StringPtrInput `pulumi:"verifiedId"`
+	// The subject's verified ID. Must not contain #, %, or spaces.
+	VerifiedId pulumi.StringPtrInput `pulumi:"verifiedId"`
 }
 
 func (ConsentSubjectArgs) ElementType() reflect.Type {
@@ -468,12 +500,528 @@ func (o ConsentSubjectOutput) ToConsentSubjectOutputWithContext(ctx context.Cont
 	return o
 }
 
+// The subject's anonymous ID. Must not contain #, %, or spaces.
 func (o ConsentSubjectOutput) AnonymousId() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v ConsentSubject) *string { return v.AnonymousId }).(pulumi.StringPtrOutput)
 }
 
+// The subject's verified ID. Must not contain #, %, or spaces.
 func (o ConsentSubjectOutput) VerifiedId() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v ConsentSubject) *string { return v.VerifiedId }).(pulumi.StringPtrOutput)
+}
+
+type CookieConsentAuditEvent struct {
+	// The email of the user who performed the action, when known.
+	Actor *string `pulumi:"actor"`
+	// The machine-readable event type, such as cmp.configPublished.
+	EventType string `pulumi:"eventType"`
+	// The audit event ID.
+	Id string `pulumi:"id"`
+	// Event-specific details, such as changed fields and before/after values.
+	Metadata map[string]interface{} `pulumi:"metadata"`
+	// The Osano module, currently always CMP.
+	Module string `pulumi:"module"`
+	// The resources the event acted on.
+	Resources []CookieConsentAuditResource `pulumi:"resources"`
+	// When the event occurred (UTC ISO 8601).
+	Timestamp string `pulumi:"timestamp"`
+}
+
+type CookieConsentAuditEventOutput struct{ *pulumi.OutputState }
+
+func (CookieConsentAuditEventOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*CookieConsentAuditEvent)(nil)).Elem()
+}
+
+func (o CookieConsentAuditEventOutput) ToCookieConsentAuditEventOutput() CookieConsentAuditEventOutput {
+	return o
+}
+
+func (o CookieConsentAuditEventOutput) ToCookieConsentAuditEventOutputWithContext(ctx context.Context) CookieConsentAuditEventOutput {
+	return o
+}
+
+// The email of the user who performed the action, when known.
+func (o CookieConsentAuditEventOutput) Actor() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v CookieConsentAuditEvent) *string { return v.Actor }).(pulumi.StringPtrOutput)
+}
+
+// The machine-readable event type, such as cmp.configPublished.
+func (o CookieConsentAuditEventOutput) EventType() pulumi.StringOutput {
+	return o.ApplyT(func(v CookieConsentAuditEvent) string { return v.EventType }).(pulumi.StringOutput)
+}
+
+// The audit event ID.
+func (o CookieConsentAuditEventOutput) Id() pulumi.StringOutput {
+	return o.ApplyT(func(v CookieConsentAuditEvent) string { return v.Id }).(pulumi.StringOutput)
+}
+
+// Event-specific details, such as changed fields and before/after values.
+func (o CookieConsentAuditEventOutput) Metadata() pulumi.MapOutput {
+	return o.ApplyT(func(v CookieConsentAuditEvent) map[string]interface{} { return v.Metadata }).(pulumi.MapOutput)
+}
+
+// The Osano module, currently always CMP.
+func (o CookieConsentAuditEventOutput) Module() pulumi.StringOutput {
+	return o.ApplyT(func(v CookieConsentAuditEvent) string { return v.Module }).(pulumi.StringOutput)
+}
+
+// The resources the event acted on.
+func (o CookieConsentAuditEventOutput) Resources() CookieConsentAuditResourceArrayOutput {
+	return o.ApplyT(func(v CookieConsentAuditEvent) []CookieConsentAuditResource { return v.Resources }).(CookieConsentAuditResourceArrayOutput)
+}
+
+// When the event occurred (UTC ISO 8601).
+func (o CookieConsentAuditEventOutput) Timestamp() pulumi.StringOutput {
+	return o.ApplyT(func(v CookieConsentAuditEvent) string { return v.Timestamp }).(pulumi.StringOutput)
+}
+
+type CookieConsentAuditEventArrayOutput struct{ *pulumi.OutputState }
+
+func (CookieConsentAuditEventArrayOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]CookieConsentAuditEvent)(nil)).Elem()
+}
+
+func (o CookieConsentAuditEventArrayOutput) ToCookieConsentAuditEventArrayOutput() CookieConsentAuditEventArrayOutput {
+	return o
+}
+
+func (o CookieConsentAuditEventArrayOutput) ToCookieConsentAuditEventArrayOutputWithContext(ctx context.Context) CookieConsentAuditEventArrayOutput {
+	return o
+}
+
+func (o CookieConsentAuditEventArrayOutput) Index(i pulumi.IntInput) CookieConsentAuditEventOutput {
+	return pulumi.All(o, i).ApplyT(func(vs []interface{}) CookieConsentAuditEvent {
+		return vs[0].([]CookieConsentAuditEvent)[vs[1].(int)]
+	}).(CookieConsentAuditEventOutput)
+}
+
+type CookieConsentAuditResource struct {
+	// Whether this is the event's primary resource.
+	IsPrimary bool `pulumi:"isPrimary"`
+	// The resource ID; for CMP events, the config ID.
+	ResourceId string `pulumi:"resourceId"`
+	// The resource name, when known.
+	ResourceName *string `pulumi:"resourceName"`
+	// The resource type, such as CMP.
+	ResourceType string `pulumi:"resourceType"`
+}
+
+type CookieConsentAuditResourceOutput struct{ *pulumi.OutputState }
+
+func (CookieConsentAuditResourceOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*CookieConsentAuditResource)(nil)).Elem()
+}
+
+func (o CookieConsentAuditResourceOutput) ToCookieConsentAuditResourceOutput() CookieConsentAuditResourceOutput {
+	return o
+}
+
+func (o CookieConsentAuditResourceOutput) ToCookieConsentAuditResourceOutputWithContext(ctx context.Context) CookieConsentAuditResourceOutput {
+	return o
+}
+
+// Whether this is the event's primary resource.
+func (o CookieConsentAuditResourceOutput) IsPrimary() pulumi.BoolOutput {
+	return o.ApplyT(func(v CookieConsentAuditResource) bool { return v.IsPrimary }).(pulumi.BoolOutput)
+}
+
+// The resource ID; for CMP events, the config ID.
+func (o CookieConsentAuditResourceOutput) ResourceId() pulumi.StringOutput {
+	return o.ApplyT(func(v CookieConsentAuditResource) string { return v.ResourceId }).(pulumi.StringOutput)
+}
+
+// The resource name, when known.
+func (o CookieConsentAuditResourceOutput) ResourceName() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v CookieConsentAuditResource) *string { return v.ResourceName }).(pulumi.StringPtrOutput)
+}
+
+// The resource type, such as CMP.
+func (o CookieConsentAuditResourceOutput) ResourceType() pulumi.StringOutput {
+	return o.ApplyT(func(v CookieConsentAuditResource) string { return v.ResourceType }).(pulumi.StringOutput)
+}
+
+type CookieConsentAuditResourceArrayOutput struct{ *pulumi.OutputState }
+
+func (CookieConsentAuditResourceArrayOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]CookieConsentAuditResource)(nil)).Elem()
+}
+
+func (o CookieConsentAuditResourceArrayOutput) ToCookieConsentAuditResourceArrayOutput() CookieConsentAuditResourceArrayOutput {
+	return o
+}
+
+func (o CookieConsentAuditResourceArrayOutput) ToCookieConsentAuditResourceArrayOutputWithContext(ctx context.Context) CookieConsentAuditResourceArrayOutput {
+	return o
+}
+
+func (o CookieConsentAuditResourceArrayOutput) Index(i pulumi.IntInput) CookieConsentAuditResourceOutput {
+	return pulumi.All(o, i).ApplyT(func(vs []interface{}) CookieConsentAuditResource {
+		return vs[0].([]CookieConsentAuditResource)[vs[1].(int)]
+	}).(CookieConsentAuditResourceOutput)
+}
+
+type CookieConsentConfigDetails struct {
+	// The Osano config ID (UUID).
+	ConfigId string `pulumi:"configId"`
+	// The CMP configuration object as Osano reports it, including server defaults.
+	Configuration map[string]interface{} `pulumi:"configuration"`
+	// Unix timestamp when Osano created the configuration.
+	Created int `pulumi:"created"`
+	// The Osano customer ID that owns the configuration.
+	CustomerId string `pulumi:"customerId"`
+	// Domains permitted to host the configuration.
+	Domains []string `pulumi:"domains"`
+	// Unix timestamp when Osano last published the configuration (0 if never).
+	LastPublished int `pulumi:"lastPublished"`
+	// Compliance mode: debug, permissive, or production.
+	Mode string `pulumi:"mode"`
+	// The configuration name.
+	Name string `pulumi:"name"`
+	// Organization IDs associated with the configuration.
+	OrgIds []string `pulumi:"orgIds"`
+	// Osano publication status: unpublished, in-progress, published, outdated (changed since the last publish), or error.
+	PublishStatus string `pulumi:"publishStatus"`
+	// Revision number most recently published by Osano.
+	PublishedRevision int `pulumi:"publishedRevision"`
+	// The public hosted CMP JavaScript URL, https://cmp.osano.com/{customerId}/{configId}/osano.js. It serves the most recently published revision.
+	ScriptSrc string `pulumi:"scriptSrc"`
+	// The complete public CMP script tag to place first in the site head, without async or defer attributes.
+	ScriptTag string `pulumi:"scriptTag"`
+	// Whether Osano stopped recording discoveries (tattles) for the configuration.
+	TattleRecordStopped bool `pulumi:"tattleRecordStopped"`
+	// Unix timestamp when Osano last updated the configuration.
+	Updated int `pulumi:"updated"`
+}
+
+type CookieConsentConfigDetailsOutput struct{ *pulumi.OutputState }
+
+func (CookieConsentConfigDetailsOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*CookieConsentConfigDetails)(nil)).Elem()
+}
+
+func (o CookieConsentConfigDetailsOutput) ToCookieConsentConfigDetailsOutput() CookieConsentConfigDetailsOutput {
+	return o
+}
+
+func (o CookieConsentConfigDetailsOutput) ToCookieConsentConfigDetailsOutputWithContext(ctx context.Context) CookieConsentConfigDetailsOutput {
+	return o
+}
+
+// The Osano config ID (UUID).
+func (o CookieConsentConfigDetailsOutput) ConfigId() pulumi.StringOutput {
+	return o.ApplyT(func(v CookieConsentConfigDetails) string { return v.ConfigId }).(pulumi.StringOutput)
+}
+
+// The CMP configuration object as Osano reports it, including server defaults.
+func (o CookieConsentConfigDetailsOutput) Configuration() pulumi.MapOutput {
+	return o.ApplyT(func(v CookieConsentConfigDetails) map[string]interface{} { return v.Configuration }).(pulumi.MapOutput)
+}
+
+// Unix timestamp when Osano created the configuration.
+func (o CookieConsentConfigDetailsOutput) Created() pulumi.IntOutput {
+	return o.ApplyT(func(v CookieConsentConfigDetails) int { return v.Created }).(pulumi.IntOutput)
+}
+
+// The Osano customer ID that owns the configuration.
+func (o CookieConsentConfigDetailsOutput) CustomerId() pulumi.StringOutput {
+	return o.ApplyT(func(v CookieConsentConfigDetails) string { return v.CustomerId }).(pulumi.StringOutput)
+}
+
+// Domains permitted to host the configuration.
+func (o CookieConsentConfigDetailsOutput) Domains() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v CookieConsentConfigDetails) []string { return v.Domains }).(pulumi.StringArrayOutput)
+}
+
+// Unix timestamp when Osano last published the configuration (0 if never).
+func (o CookieConsentConfigDetailsOutput) LastPublished() pulumi.IntOutput {
+	return o.ApplyT(func(v CookieConsentConfigDetails) int { return v.LastPublished }).(pulumi.IntOutput)
+}
+
+// Compliance mode: debug, permissive, or production.
+func (o CookieConsentConfigDetailsOutput) Mode() pulumi.StringOutput {
+	return o.ApplyT(func(v CookieConsentConfigDetails) string { return v.Mode }).(pulumi.StringOutput)
+}
+
+// The configuration name.
+func (o CookieConsentConfigDetailsOutput) Name() pulumi.StringOutput {
+	return o.ApplyT(func(v CookieConsentConfigDetails) string { return v.Name }).(pulumi.StringOutput)
+}
+
+// Organization IDs associated with the configuration.
+func (o CookieConsentConfigDetailsOutput) OrgIds() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v CookieConsentConfigDetails) []string { return v.OrgIds }).(pulumi.StringArrayOutput)
+}
+
+// Osano publication status: unpublished, in-progress, published, outdated (changed since the last publish), or error.
+func (o CookieConsentConfigDetailsOutput) PublishStatus() pulumi.StringOutput {
+	return o.ApplyT(func(v CookieConsentConfigDetails) string { return v.PublishStatus }).(pulumi.StringOutput)
+}
+
+// Revision number most recently published by Osano.
+func (o CookieConsentConfigDetailsOutput) PublishedRevision() pulumi.IntOutput {
+	return o.ApplyT(func(v CookieConsentConfigDetails) int { return v.PublishedRevision }).(pulumi.IntOutput)
+}
+
+// The public hosted CMP JavaScript URL, https://cmp.osano.com/{customerId}/{configId}/osano.js. It serves the most recently published revision.
+func (o CookieConsentConfigDetailsOutput) ScriptSrc() pulumi.StringOutput {
+	return o.ApplyT(func(v CookieConsentConfigDetails) string { return v.ScriptSrc }).(pulumi.StringOutput)
+}
+
+// The complete public CMP script tag to place first in the site head, without async or defer attributes.
+func (o CookieConsentConfigDetailsOutput) ScriptTag() pulumi.StringOutput {
+	return o.ApplyT(func(v CookieConsentConfigDetails) string { return v.ScriptTag }).(pulumi.StringOutput)
+}
+
+// Whether Osano stopped recording discoveries (tattles) for the configuration.
+func (o CookieConsentConfigDetailsOutput) TattleRecordStopped() pulumi.BoolOutput {
+	return o.ApplyT(func(v CookieConsentConfigDetails) bool { return v.TattleRecordStopped }).(pulumi.BoolOutput)
+}
+
+// Unix timestamp when Osano last updated the configuration.
+func (o CookieConsentConfigDetailsOutput) Updated() pulumi.IntOutput {
+	return o.ApplyT(func(v CookieConsentConfigDetails) int { return v.Updated }).(pulumi.IntOutput)
+}
+
+type CookieConsentConfigDetailsArrayOutput struct{ *pulumi.OutputState }
+
+func (CookieConsentConfigDetailsArrayOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]CookieConsentConfigDetails)(nil)).Elem()
+}
+
+func (o CookieConsentConfigDetailsArrayOutput) ToCookieConsentConfigDetailsArrayOutput() CookieConsentConfigDetailsArrayOutput {
+	return o
+}
+
+func (o CookieConsentConfigDetailsArrayOutput) ToCookieConsentConfigDetailsArrayOutputWithContext(ctx context.Context) CookieConsentConfigDetailsArrayOutput {
+	return o
+}
+
+func (o CookieConsentConfigDetailsArrayOutput) Index(i pulumi.IntInput) CookieConsentConfigDetailsOutput {
+	return pulumi.All(o, i).ApplyT(func(vs []interface{}) CookieConsentConfigDetails {
+		return vs[0].([]CookieConsentConfigDetails)[vs[1].(int)]
+	}).(CookieConsentConfigDetailsOutput)
+}
+
+type CookieConsentDiscovery struct {
+	// Osano's AI classification confidence (Unknown, Low, Medium, or High). Only reported for cookies.
+	Confidence *string `pulumi:"confidence"`
+	// When the discovery was first seen (ISO 8601).
+	Created string `pulumi:"created"`
+	// The page URL where the item was first seen.
+	FirstPageSeen string `pulumi:"firstPageSeen"`
+	// "URL Scan" or "osano.js"; unset when Osano does not know the origin.
+	ScanOrigin *string `pulumi:"scanOrigin"`
+	// The discovered cookie name, script or iframe URL, or localStorage key.
+	StoreKey string `pulumi:"storeKey"`
+	// The discovery's storage type as Osano reports it.
+	StoreType string `pulumi:"storeType"`
+	// When the discovery was last updated (ISO 8601).
+	Updated string `pulumi:"updated"`
+}
+
+type CookieConsentDiscoveryOutput struct{ *pulumi.OutputState }
+
+func (CookieConsentDiscoveryOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*CookieConsentDiscovery)(nil)).Elem()
+}
+
+func (o CookieConsentDiscoveryOutput) ToCookieConsentDiscoveryOutput() CookieConsentDiscoveryOutput {
+	return o
+}
+
+func (o CookieConsentDiscoveryOutput) ToCookieConsentDiscoveryOutputWithContext(ctx context.Context) CookieConsentDiscoveryOutput {
+	return o
+}
+
+// Osano's AI classification confidence (Unknown, Low, Medium, or High). Only reported for cookies.
+func (o CookieConsentDiscoveryOutput) Confidence() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v CookieConsentDiscovery) *string { return v.Confidence }).(pulumi.StringPtrOutput)
+}
+
+// When the discovery was first seen (ISO 8601).
+func (o CookieConsentDiscoveryOutput) Created() pulumi.StringOutput {
+	return o.ApplyT(func(v CookieConsentDiscovery) string { return v.Created }).(pulumi.StringOutput)
+}
+
+// The page URL where the item was first seen.
+func (o CookieConsentDiscoveryOutput) FirstPageSeen() pulumi.StringOutput {
+	return o.ApplyT(func(v CookieConsentDiscovery) string { return v.FirstPageSeen }).(pulumi.StringOutput)
+}
+
+// "URL Scan" or "osano.js"; unset when Osano does not know the origin.
+func (o CookieConsentDiscoveryOutput) ScanOrigin() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v CookieConsentDiscovery) *string { return v.ScanOrigin }).(pulumi.StringPtrOutput)
+}
+
+// The discovered cookie name, script or iframe URL, or localStorage key.
+func (o CookieConsentDiscoveryOutput) StoreKey() pulumi.StringOutput {
+	return o.ApplyT(func(v CookieConsentDiscovery) string { return v.StoreKey }).(pulumi.StringOutput)
+}
+
+// The discovery's storage type as Osano reports it.
+func (o CookieConsentDiscoveryOutput) StoreType() pulumi.StringOutput {
+	return o.ApplyT(func(v CookieConsentDiscovery) string { return v.StoreType }).(pulumi.StringOutput)
+}
+
+// When the discovery was last updated (ISO 8601).
+func (o CookieConsentDiscoveryOutput) Updated() pulumi.StringOutput {
+	return o.ApplyT(func(v CookieConsentDiscovery) string { return v.Updated }).(pulumi.StringOutput)
+}
+
+type CookieConsentDiscoveryArrayOutput struct{ *pulumi.OutputState }
+
+func (CookieConsentDiscoveryArrayOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]CookieConsentDiscovery)(nil)).Elem()
+}
+
+func (o CookieConsentDiscoveryArrayOutput) ToCookieConsentDiscoveryArrayOutput() CookieConsentDiscoveryArrayOutput {
+	return o
+}
+
+func (o CookieConsentDiscoveryArrayOutput) ToCookieConsentDiscoveryArrayOutputWithContext(ctx context.Context) CookieConsentDiscoveryArrayOutput {
+	return o
+}
+
+func (o CookieConsentDiscoveryArrayOutput) Index(i pulumi.IntInput) CookieConsentDiscoveryOutput {
+	return pulumi.All(o, i).ApplyT(func(vs []interface{}) CookieConsentDiscovery {
+		return vs[0].([]CookieConsentDiscovery)[vs[1].(int)]
+	}).(CookieConsentDiscoveryOutput)
+}
+
+type CookieConsentRuleDetails struct {
+	// The rule classification.
+	Classification string `pulumi:"classification"`
+	// The configuration the rule belongs to.
+	ConfigId string `pulumi:"configId"`
+	// When the rule was created (ISO 8601).
+	Created string `pulumi:"created"`
+	// The cookie description, if set (cookies only).
+	Description *string `pulumi:"description"`
+	// Whether the rule is disclosed.
+	Disclosure bool `pulumi:"disclosure"`
+	// The cookie expiry description, if set (cookies only).
+	Expiry *string `pulumi:"expiry"`
+	// The rule pattern.
+	Rule string `pulumi:"rule"`
+	// The server-assigned integer rule ID. Import a rule with <configId>/<ruleId>.
+	RuleId int `pulumi:"ruleId"`
+	// The matching mode, if set.
+	RuleType *string `pulumi:"ruleType"`
+	// The storage type: cookies, scripts, iframes, or localStorage. Osano's raw type is passed through when it is not one of these.
+	StoreType string `pulumi:"storeType"`
+	// The disclosure title, if set.
+	Title *string `pulumi:"title"`
+	// When the rule was last updated (ISO 8601).
+	Updated string `pulumi:"updated"`
+	// The Osano vendor ID, if set.
+	VendorId *string `pulumi:"vendorId"`
+	// The vendor name, if set.
+	VendorName *string `pulumi:"vendorName"`
+}
+
+type CookieConsentRuleDetailsOutput struct{ *pulumi.OutputState }
+
+func (CookieConsentRuleDetailsOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*CookieConsentRuleDetails)(nil)).Elem()
+}
+
+func (o CookieConsentRuleDetailsOutput) ToCookieConsentRuleDetailsOutput() CookieConsentRuleDetailsOutput {
+	return o
+}
+
+func (o CookieConsentRuleDetailsOutput) ToCookieConsentRuleDetailsOutputWithContext(ctx context.Context) CookieConsentRuleDetailsOutput {
+	return o
+}
+
+// The rule classification.
+func (o CookieConsentRuleDetailsOutput) Classification() pulumi.StringOutput {
+	return o.ApplyT(func(v CookieConsentRuleDetails) string { return v.Classification }).(pulumi.StringOutput)
+}
+
+// The configuration the rule belongs to.
+func (o CookieConsentRuleDetailsOutput) ConfigId() pulumi.StringOutput {
+	return o.ApplyT(func(v CookieConsentRuleDetails) string { return v.ConfigId }).(pulumi.StringOutput)
+}
+
+// When the rule was created (ISO 8601).
+func (o CookieConsentRuleDetailsOutput) Created() pulumi.StringOutput {
+	return o.ApplyT(func(v CookieConsentRuleDetails) string { return v.Created }).(pulumi.StringOutput)
+}
+
+// The cookie description, if set (cookies only).
+func (o CookieConsentRuleDetailsOutput) Description() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v CookieConsentRuleDetails) *string { return v.Description }).(pulumi.StringPtrOutput)
+}
+
+// Whether the rule is disclosed.
+func (o CookieConsentRuleDetailsOutput) Disclosure() pulumi.BoolOutput {
+	return o.ApplyT(func(v CookieConsentRuleDetails) bool { return v.Disclosure }).(pulumi.BoolOutput)
+}
+
+// The cookie expiry description, if set (cookies only).
+func (o CookieConsentRuleDetailsOutput) Expiry() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v CookieConsentRuleDetails) *string { return v.Expiry }).(pulumi.StringPtrOutput)
+}
+
+// The rule pattern.
+func (o CookieConsentRuleDetailsOutput) Rule() pulumi.StringOutput {
+	return o.ApplyT(func(v CookieConsentRuleDetails) string { return v.Rule }).(pulumi.StringOutput)
+}
+
+// The server-assigned integer rule ID. Import a rule with <configId>/<ruleId>.
+func (o CookieConsentRuleDetailsOutput) RuleId() pulumi.IntOutput {
+	return o.ApplyT(func(v CookieConsentRuleDetails) int { return v.RuleId }).(pulumi.IntOutput)
+}
+
+// The matching mode, if set.
+func (o CookieConsentRuleDetailsOutput) RuleType() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v CookieConsentRuleDetails) *string { return v.RuleType }).(pulumi.StringPtrOutput)
+}
+
+// The storage type: cookies, scripts, iframes, or localStorage. Osano's raw type is passed through when it is not one of these.
+func (o CookieConsentRuleDetailsOutput) StoreType() pulumi.StringOutput {
+	return o.ApplyT(func(v CookieConsentRuleDetails) string { return v.StoreType }).(pulumi.StringOutput)
+}
+
+// The disclosure title, if set.
+func (o CookieConsentRuleDetailsOutput) Title() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v CookieConsentRuleDetails) *string { return v.Title }).(pulumi.StringPtrOutput)
+}
+
+// When the rule was last updated (ISO 8601).
+func (o CookieConsentRuleDetailsOutput) Updated() pulumi.StringOutput {
+	return o.ApplyT(func(v CookieConsentRuleDetails) string { return v.Updated }).(pulumi.StringOutput)
+}
+
+// The Osano vendor ID, if set.
+func (o CookieConsentRuleDetailsOutput) VendorId() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v CookieConsentRuleDetails) *string { return v.VendorId }).(pulumi.StringPtrOutput)
+}
+
+// The vendor name, if set.
+func (o CookieConsentRuleDetailsOutput) VendorName() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v CookieConsentRuleDetails) *string { return v.VendorName }).(pulumi.StringPtrOutput)
+}
+
+type CookieConsentRuleDetailsArrayOutput struct{ *pulumi.OutputState }
+
+func (CookieConsentRuleDetailsArrayOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]CookieConsentRuleDetails)(nil)).Elem()
+}
+
+func (o CookieConsentRuleDetailsArrayOutput) ToCookieConsentRuleDetailsArrayOutput() CookieConsentRuleDetailsArrayOutput {
+	return o
+}
+
+func (o CookieConsentRuleDetailsArrayOutput) ToCookieConsentRuleDetailsArrayOutputWithContext(ctx context.Context) CookieConsentRuleDetailsArrayOutput {
+	return o
+}
+
+func (o CookieConsentRuleDetailsArrayOutput) Index(i pulumi.IntInput) CookieConsentRuleDetailsOutput {
+	return pulumi.All(o, i).ApplyT(func(vs []interface{}) CookieConsentRuleDetails {
+		return vs[0].([]CookieConsentRuleDetails)[vs[1].(int)]
+	}).(CookieConsentRuleDetailsOutput)
 }
 
 func init() {
@@ -491,4 +1039,14 @@ func init() {
 	pulumi.RegisterOutputType(ConsentPrivacyPolicyOutput{})
 	pulumi.RegisterOutputType(ConsentPrivacyPolicyPtrOutput{})
 	pulumi.RegisterOutputType(ConsentSubjectOutput{})
+	pulumi.RegisterOutputType(CookieConsentAuditEventOutput{})
+	pulumi.RegisterOutputType(CookieConsentAuditEventArrayOutput{})
+	pulumi.RegisterOutputType(CookieConsentAuditResourceOutput{})
+	pulumi.RegisterOutputType(CookieConsentAuditResourceArrayOutput{})
+	pulumi.RegisterOutputType(CookieConsentConfigDetailsOutput{})
+	pulumi.RegisterOutputType(CookieConsentConfigDetailsArrayOutput{})
+	pulumi.RegisterOutputType(CookieConsentDiscoveryOutput{})
+	pulumi.RegisterOutputType(CookieConsentDiscoveryArrayOutput{})
+	pulumi.RegisterOutputType(CookieConsentRuleDetailsOutput{})
+	pulumi.RegisterOutputType(CookieConsentRuleDetailsArrayOutput{})
 }

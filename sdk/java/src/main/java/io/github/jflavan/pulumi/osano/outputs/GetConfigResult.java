@@ -12,9 +12,17 @@ import java.util.Objects;
 
 @CustomType
 public final class GetConfigResult {
+    /**
+     * @return The Unified Consent configuration: configId, customerId, name, domains, privacy policy, privacyProtocols, frameworks, styling, publication state, and text customizations.
+     *
+     */
     private Map<String,Object> config;
 
     private GetConfigResult() {}
+    /**
+     * @return The Unified Consent configuration: configId, customerId, name, domains, privacy policy, privacyProtocols, frameworks, styling, publication state, and text customizations.
+     *
+     */
     public Map<String,Object> config() {
         return this.config;
     }

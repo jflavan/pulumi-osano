@@ -6,23 +6,54 @@ import * as inputs from "../types/input";
 import * as outputs from "../types/output";
 
 export interface ConsentActionArgs {
+    /**
+     * The subject's choice: ACCEPT, REJECT, or UNSELECTED.
+     */
     action: pulumi.Input<string>;
-    jurisdiction?: pulumi.Input<string>;
+    /**
+     * Optional jurisdiction for this action; overrides the top-level jurisdiction.
+     */
+    jurisdiction?: pulumi.Input<string | undefined>;
+    /**
+     * The privacy protocol ID (the Target ID on the privacy protocol's edit page).
+     */
     target: pulumi.Input<string>;
+    /**
+     * The Unified Consent configuration ID the consent is recorded for.
+     */
     vendor: pulumi.Input<string>;
 }
 
 export interface ConsentComplianceArgs {
-    gpc?: pulumi.Input<number>;
-    privacyPolicy?: pulumi.Input<inputs.ConsentPrivacyPolicyArgs>;
+    /**
+     * 1 if the Global Privacy Control signal is enabled, 0 otherwise.
+     */
+    gpc?: pulumi.Input<number | undefined>;
+    /**
+     * The privacy policy in effect when the consent was given.
+     */
+    privacyPolicy?: pulumi.Input<inputs.ConsentPrivacyPolicyArgs | undefined>;
 }
 
 export interface ConsentPrivacyPolicyArgs {
+    /**
+     * The privacy policy URL.
+     */
     url: pulumi.Input<string>;
-    version?: pulumi.Input<string>;
+    /**
+     * The privacy policy version active when the consent was submitted.
+     */
+    version?: pulumi.Input<string | undefined>;
 }
 
 export interface ConsentSubjectArgs {
-    anonymousId?: pulumi.Input<string>;
-    verifiedId?: pulumi.Input<string>;
+    /**
+     * The subject's anonymous ID. Must not contain #, %, or spaces.
+     */
+    anonymousId?: pulumi.Input<string | undefined>;
+    /**
+     * The subject's verified ID. Must not contain #, %, or spaces.
+     */
+    verifiedId?: pulumi.Input<string | undefined>;
 }
+

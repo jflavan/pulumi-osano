@@ -23,25 +23,31 @@ func CheckConsent(ctx *pulumi.Context, args *CheckConsentArgs, opts ...pulumi.In
 }
 
 type CheckConsentArgs struct {
+	// Optional ISO 3166-1 country code Osano uses instead of resolving the caller's IP address, which in a pipeline is the CI runner's.
+	CountryCodeOverride *string `pulumi:"countryCodeOverride"`
+	// Optional ISO 3166-2 region code Osano uses instead of resolving the caller's IP address.
+	RegionCodeOverride *string `pulumi:"regionCodeOverride"`
 	// The subject ID to check.
 	SubjectId string `pulumi:"subjectId"`
 }
 
 type CheckConsentResult struct {
-	Exists    bool   `pulumi:"exists"`
+	// Whether the subject has given consent in the configuration.
+	Exists bool `pulumi:"exists"`
+	// The subject ID that was checked.
 	SubjectId string `pulumi:"subjectId"`
 }
 
 func CheckConsentOutput(ctx *pulumi.Context, args CheckConsentOutputArgs, opts ...pulumi.InvokeOption) CheckConsentResultOutput {
-	return pulumi.ToOutputWithContext(ctx.Context(), args).
-		ApplyT(func(v interface{}) (CheckConsentResultOutput, error) {
-			args := v.(CheckConsentArgs)
-			options := pulumi.InvokeOutputOptions{InvokeOptions: internal.PkgInvokeDefaultOpts(opts)}
-			return ctx.InvokeOutput("osano:index:checkConsent", args, CheckConsentResultOutput{}, options).(CheckConsentResultOutput), nil
-		}).(CheckConsentResultOutput)
+	options := pulumi.InvokeOutputOptions{InvokeOptions: internal.PkgInvokeDefaultOpts(opts)}
+	return ctx.InvokeOutput("osano:index:checkConsent", args, CheckConsentResultOutput{}, options).(CheckConsentResultOutput)
 }
 
 type CheckConsentOutputArgs struct {
+	// Optional ISO 3166-1 country code Osano uses instead of resolving the caller's IP address, which in a pipeline is the CI runner's.
+	CountryCodeOverride pulumi.StringPtrInput `pulumi:"countryCodeOverride"`
+	// Optional ISO 3166-2 region code Osano uses instead of resolving the caller's IP address.
+	RegionCodeOverride pulumi.StringPtrInput `pulumi:"regionCodeOverride"`
 	// The subject ID to check.
 	SubjectId pulumi.StringInput `pulumi:"subjectId"`
 }
@@ -64,10 +70,12 @@ func (o CheckConsentResultOutput) ToCheckConsentResultOutputWithContext(ctx cont
 	return o
 }
 
+// Whether the subject has given consent in the configuration.
 func (o CheckConsentResultOutput) Exists() pulumi.BoolOutput {
 	return o.ApplyT(func(v CheckConsentResult) bool { return v.Exists }).(pulumi.BoolOutput)
 }
 
+// The subject ID that was checked.
 func (o CheckConsentResultOutput) SubjectId() pulumi.StringOutput {
 	return o.ApplyT(func(v CheckConsentResult) string { return v.SubjectId }).(pulumi.StringOutput)
 }

@@ -15,14 +15,14 @@ public final class GetCollectionsPlainArgs extends com.pulumi.resources.InvokeAr
     public static final GetCollectionsPlainArgs Empty = new GetCollectionsPlainArgs();
 
     /**
-     * Optional jurisdiction filter, sent as the jurisdiction query parameter.
+     * Optional jurisdiction filter. When unset, Osano resolves the jurisdiction from the caller&#39;s IP address.
      *
      */
     @Import(name="jurisdiction")
     private @Nullable String jurisdiction;
 
     /**
-     * @return Optional jurisdiction filter, sent as the jurisdiction query parameter.
+     * @return Optional jurisdiction filter. When unset, Osano resolves the jurisdiction from the caller&#39;s IP address.
      *
      */
     public Optional<String> jurisdiction() {
@@ -30,14 +30,14 @@ public final class GetCollectionsPlainArgs extends com.pulumi.resources.InvokeAr
     }
 
     /**
-     * Optional collection type filter, sent as the type query parameter.
+     * Optional collection type: published (default) or draft.
      *
      */
     @Import(name="type")
     private @Nullable String type;
 
     /**
-     * @return Optional collection type filter, sent as the type query parameter.
+     * @return Optional collection type: published (default) or draft.
      *
      */
     public Optional<String> type() {
@@ -70,7 +70,7 @@ public final class GetCollectionsPlainArgs extends com.pulumi.resources.InvokeAr
         }
 
         /**
-         * @param jurisdiction Optional jurisdiction filter, sent as the jurisdiction query parameter.
+         * @param jurisdiction Optional jurisdiction filter. When unset, Osano resolves the jurisdiction from the caller&#39;s IP address.
          *
          * @return builder
          *
@@ -81,7 +81,7 @@ public final class GetCollectionsPlainArgs extends com.pulumi.resources.InvokeAr
         }
 
         /**
-         * @param type Optional collection type filter, sent as the type query parameter.
+         * @param type Optional collection type: published (default) or draft.
          *
          * @return builder
          *

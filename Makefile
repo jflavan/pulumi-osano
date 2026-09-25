@@ -30,9 +30,11 @@ export PULUMI_IGNORE_AMBIENT_PLUGINS = true
 ensure::
 	go mod tidy
 
+# The provider sets language.go.importBasePath itself; the version is dropped so the committed
+# schema does not change with every build version.
 $(SCHEMA_FILE): provider
 	$(PULUMI) package get-schema $(WORKING_DIR)/bin/${PROVIDER} | \
-		jq 'del(.version) | (.language.go.importBasePath="github.com/jflavan/pulumi-osano/sdk/go/osano")' > $(SCHEMA_FILE)
+		jq 'del(.version)' > $(SCHEMA_FILE)
 
 # Codegen generates the schema file and *generates* all sdks. This is a local process and
 # does not require the ability to build all SDKs.
@@ -69,9 +71,8 @@ sdk/java: $(SCHEMA_FILE)
 
 sdk/python: $(SCHEMA_FILE)
 	rm -rf $@
+	# The provider enables pyproject.toml generation, which takes the package version from --version.
 	$(PULUMI) package gen-sdk --language python $(SCHEMA_FILE) --version "${VERSION_GENERIC}"
-	# Pulumi SDK generator doesn't set version in setup.py, so we patch it manually
-	sed -i.bak 's/VERSION = "0.0.0"/VERSION = "${VERSION_GENERIC}"/' ${PACKDIR}/python/setup.py && rm ${PACKDIR}/python/setup.py.bak
 	@python3 scripts/normalize-python-sdk.py ${PACKDIR}/python
 	cp README.md ${PACKDIR}/python/
 

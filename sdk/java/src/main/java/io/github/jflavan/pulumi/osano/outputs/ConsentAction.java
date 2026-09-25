@@ -12,21 +12,53 @@ import javax.annotation.Nullable;
 
 @CustomType
 public final class ConsentAction {
+    /**
+     * @return The subject&#39;s choice: ACCEPT, REJECT, or UNSELECTED.
+     *
+     */
     private String action;
+    /**
+     * @return Optional jurisdiction for this action; overrides the top-level jurisdiction.
+     *
+     */
     private @Nullable String jurisdiction;
+    /**
+     * @return The privacy protocol ID (the Target ID on the privacy protocol&#39;s edit page).
+     *
+     */
     private String target;
+    /**
+     * @return The Unified Consent configuration ID the consent is recorded for.
+     *
+     */
     private String vendor;
 
     private ConsentAction() {}
+    /**
+     * @return The subject&#39;s choice: ACCEPT, REJECT, or UNSELECTED.
+     *
+     */
     public String action() {
         return this.action;
     }
+    /**
+     * @return Optional jurisdiction for this action; overrides the top-level jurisdiction.
+     *
+     */
     public Optional<String> jurisdiction() {
         return Optional.ofNullable(this.jurisdiction);
     }
+    /**
+     * @return The privacy protocol ID (the Target ID on the privacy protocol&#39;s edit page).
+     *
+     */
     public String target() {
         return this.target;
     }
+    /**
+     * @return The Unified Consent configuration ID the consent is recorded for.
+     *
+     */
     public String vendor() {
         return this.vendor;
     }

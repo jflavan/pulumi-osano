@@ -13,13 +13,29 @@ import java.util.Objects;
 
 @CustomType
 public final class GetCollectionsResult {
+    /**
+     * @return The collection of privacy protocols that applies to the jurisdiction.
+     *
+     */
     private Map<String,Object> collection;
+    /**
+     * @return Every jurisdiction the configuration defines.
+     *
+     */
     private List<String> jurisdictions;
 
     private GetCollectionsResult() {}
+    /**
+     * @return The collection of privacy protocols that applies to the jurisdiction.
+     *
+     */
     public Map<String,Object> collection() {
         return this.collection;
     }
+    /**
+     * @return Every jurisdiction the configuration defines.
+     *
+     */
     public List<String> jurisdictions() {
         return this.jurisdictions;
     }

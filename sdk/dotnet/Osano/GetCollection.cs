@@ -64,8 +64,17 @@ namespace Community.Pulumi.Osano
     [OutputType]
     public sealed class GetCollectionResult
     {
+        /// <summary>
+        /// The collection: collectionId, name, frameworks, configIds, jurisdiction, type, consents, and preferences.
+        /// </summary>
         public readonly ImmutableDictionary<string, object> Collection;
+        /// <summary>
+        /// The collection ID that was looked up.
+        /// </summary>
         public readonly string CollectionId;
+        /// <summary>
+        /// Whether Osano returned the collection.
+        /// </summary>
         public readonly bool Exists;
 
         [OutputConstructor]

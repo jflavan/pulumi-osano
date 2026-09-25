@@ -26,16 +26,13 @@ type GetConfigArgs struct {
 }
 
 type GetConfigResult struct {
+	// The Unified Consent configuration: configId, customerId, name, domains, privacy policy, privacyProtocols, frameworks, styling, publication state, and text customizations.
 	Config map[string]interface{} `pulumi:"config"`
 }
 
 func GetConfigOutput(ctx *pulumi.Context, args GetConfigOutputArgs, opts ...pulumi.InvokeOption) GetConfigResultOutput {
-	return pulumi.ToOutputWithContext(ctx.Context(), args).
-		ApplyT(func(v interface{}) (GetConfigResultOutput, error) {
-			args := v.(GetConfigArgs)
-			options := pulumi.InvokeOutputOptions{InvokeOptions: internal.PkgInvokeDefaultOpts(opts)}
-			return ctx.InvokeOutput("osano:index:getConfig", args, GetConfigResultOutput{}, options).(GetConfigResultOutput), nil
-		}).(GetConfigResultOutput)
+	options := pulumi.InvokeOutputOptions{InvokeOptions: internal.PkgInvokeDefaultOpts(opts)}
+	return ctx.InvokeOutput("osano:index:getConfig", args, GetConfigResultOutput{}, options).(GetConfigResultOutput)
 }
 
 type GetConfigOutputArgs struct {
@@ -59,6 +56,7 @@ func (o GetConfigResultOutput) ToGetConfigResultOutputWithContext(ctx context.Co
 	return o
 }
 
+// The Unified Consent configuration: configId, customerId, name, domains, privacy policy, privacyProtocols, frameworks, styling, publication state, and text customizations.
 func (o GetConfigResultOutput) Config() pulumi.MapOutput {
 	return o.ApplyT(func(v GetConfigResult) map[string]interface{} { return v.Config }).(pulumi.MapOutput)
 }

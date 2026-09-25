@@ -35,6 +35,18 @@ namespace Community.Pulumi.Osano
     public sealed class CheckConsentArgs : global::Pulumi.InvokeArgs
     {
         /// <summary>
+        /// Optional ISO 3166-1 country code Osano uses instead of resolving the caller's IP address, which in a pipeline is the CI runner's.
+        /// </summary>
+        [Input("countryCodeOverride")]
+        public string? CountryCodeOverride { get; set; }
+
+        /// <summary>
+        /// Optional ISO 3166-2 region code Osano uses instead of resolving the caller's IP address.
+        /// </summary>
+        [Input("regionCodeOverride")]
+        public string? RegionCodeOverride { get; set; }
+
+        /// <summary>
         /// The subject ID to check.
         /// </summary>
         [Input("subjectId", required: true)]
@@ -48,6 +60,18 @@ namespace Community.Pulumi.Osano
 
     public sealed class CheckConsentInvokeArgs : global::Pulumi.InvokeArgs
     {
+        /// <summary>
+        /// Optional ISO 3166-1 country code Osano uses instead of resolving the caller's IP address, which in a pipeline is the CI runner's.
+        /// </summary>
+        [Input("countryCodeOverride")]
+        public Input<string>? CountryCodeOverride { get; set; }
+
+        /// <summary>
+        /// Optional ISO 3166-2 region code Osano uses instead of resolving the caller's IP address.
+        /// </summary>
+        [Input("regionCodeOverride")]
+        public Input<string>? RegionCodeOverride { get; set; }
+
         /// <summary>
         /// The subject ID to check.
         /// </summary>
@@ -64,7 +88,13 @@ namespace Community.Pulumi.Osano
     [OutputType]
     public sealed class CheckConsentResult
     {
+        /// <summary>
+        /// Whether the subject has given consent in the configuration.
+        /// </summary>
         public readonly bool Exists;
+        /// <summary>
+        /// The subject ID that was checked.
+        /// </summary>
         public readonly string SubjectId;
 
         [OutputConstructor]

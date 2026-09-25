@@ -11,13 +11,29 @@ import java.util.Objects;
 
 @CustomType
 public final class CheckConsentResult {
+    /**
+     * @return Whether the subject has given consent in the configuration.
+     *
+     */
     private Boolean exists;
+    /**
+     * @return The subject ID that was checked.
+     *
+     */
     private String subjectId;
 
     private CheckConsentResult() {}
+    /**
+     * @return Whether the subject has given consent in the configuration.
+     *
+     */
     public Boolean exists() {
         return this.exists;
     }
+    /**
+     * @return The subject ID that was checked.
+     *
+     */
     public String subjectId() {
         return this.subjectId;
     }

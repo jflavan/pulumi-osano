@@ -158,15 +158,15 @@ export interface CookieConsentRuleArgs {
     /**
      * Optional cookie description. Only supported for cookies; max 1000 characters.
      */
-    description?: pulumi.Input<string>;
+    description?: pulumi.Input<string | undefined>;
     /**
      * Whether the rule should be disclosed. Defaults to false.
      */
-    disclosure?: pulumi.Input<boolean>;
+    disclosure?: pulumi.Input<boolean | undefined>;
     /**
      * Optional cookie expiry description. Only supported for cookies; max 50 characters.
      */
-    expiry?: pulumi.Input<string>;
+    expiry?: pulumi.Input<string | undefined>;
     /**
      * The rule pattern (e.g. a cookie name pattern). Min 3, max 1000 characters.
      */
@@ -174,7 +174,7 @@ export interface CookieConsentRuleArgs {
     /**
      * Optional matching mode: FILENAME, DOMAIN, PATH, REGEXP, STARTS_WITH, ENDS_WITH, CONTAINS, or EXACT_MATCH.
      */
-    ruleType?: pulumi.Input<string>;
+    ruleType?: pulumi.Input<string | undefined>;
     /**
      * The storage type category: cookies, scripts, iframes, or localStorage.
      */
@@ -182,9 +182,9 @@ export interface CookieConsentRuleArgs {
     /**
      * Optional title for the rule, used in consent disclosure. Max 64 characters.
      */
-    title?: pulumi.Input<string>;
+    title?: pulumi.Input<string | undefined>;
     /**
      * Optional vendor name for the rule. Max 100 characters.
      */
-    vendorName?: pulumi.Input<string>;
+    vendorName?: pulumi.Input<string | undefined>;
 }

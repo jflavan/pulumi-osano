@@ -14,9 +14,21 @@ namespace Community.Pulumi.Osano.Outputs
     [OutputType]
     public sealed class ConsentAction
     {
+        /// <summary>
+        /// The subject's choice: ACCEPT, REJECT, or UNSELECTED.
+        /// </summary>
         public readonly string Action;
+        /// <summary>
+        /// Optional jurisdiction for this action; overrides the top-level jurisdiction.
+        /// </summary>
         public readonly string? Jurisdiction;
+        /// <summary>
+        /// The privacy protocol ID (the Target ID on the privacy protocol's edit page).
+        /// </summary>
         public readonly string Target;
+        /// <summary>
+        /// The Unified Consent configuration ID the consent is recorded for.
+        /// </summary>
         public readonly string Vendor;
 
         [OutputConstructor]

@@ -11,19 +11,19 @@ using Pulumi;
 namespace Community.Pulumi.Osano
 {
     /// <summary>
-    /// Creates unified consent decisions within Osano for a given subject.
+    /// Submits a Unified Consent decision for a subject. Consents are immutable in Osano: changing any input submits a new consent (replacement), and destroying the resource only removes it from Pulumi state. Set origin to gpc and omit actions to submit a Global Privacy Control consent, whose actions Osano derives and returns in gpcActions.
     /// </summary>
     [OsanoResourceType("osano:index:Consent")]
     public partial class Consent : global::Pulumi.CustomResource
     {
         /// <summary>
-        /// Consent actions referencing privacy protocols (target) within a configuration (vendor).
+        /// Consent actions referencing privacy protocols (target) within a configuration (vendor). Required unless origin is gpc.
         /// </summary>
         [Output("actions")]
         public Output<ImmutableArray<Outputs.ConsentAction>> Actions { get; private set; } = null!;
 
         /// <summary>
-        /// Optional key/value attributes stored with the consent record (e.g., ipAddress overrides).
+        /// Optional key/value attributes stored with the consent record. Osano fills ipAddress and userAgent itself and overwrites values sent for those keys.
         /// </summary>
         [Output("attributes")]
         public Output<ImmutableDictionary<string, string>?> Attributes { get; private set; } = null!;
@@ -41,7 +41,19 @@ namespace Community.Pulumi.Osano
         public Output<string> ConsentId { get; private set; } = null!;
 
         /// <summary>
-        /// Optional jurisdiction override matching one of the configuration's jurisdictions.
+        /// Optional ISO 3166-1 country code Osano uses instead of resolving the caller's IP address. Set it when submitting from a pipeline, whose IP address says nothing about the subject.
+        /// </summary>
+        [Output("countryCodeOverride")]
+        public Output<string?> CountryCodeOverride { get; private set; } = null!;
+
+        /// <summary>
+        /// The actions Osano derived for a GPC consent submitted without actions.
+        /// </summary>
+        [Output("gpcActions")]
+        public Output<ImmutableArray<Outputs.ConsentAction>> GpcActions { get; private set; } = null!;
+
+        /// <summary>
+        /// Optional jurisdiction, which must be one of the configuration's jurisdictions (see getCollections).
         /// </summary>
         [Output("jurisdiction")]
         public Output<string?> Jurisdiction { get; private set; } = null!;
@@ -53,10 +65,22 @@ namespace Community.Pulumi.Osano
         public Output<string> LastSynced { get; private set; } = null!;
 
         /// <summary>
-        /// Origin metadata for the consent, typically 'api' or 'gpc'.
+        /// Origin of the consent: api (default) or gpc. With gpc and no actions, the consent is submitted to Osano's GPC endpoint, which derives the actions.
         /// </summary>
         [Output("origin")]
         public Output<string?> Origin { get; private set; } = null!;
+
+        /// <summary>
+        /// Optional ISO 3166-2 region code Osano uses instead of resolving the caller's IP address.
+        /// </summary>
+        [Output("regionCodeOverride")]
+        public Output<string?> RegionCodeOverride { get; private set; } = null!;
+
+        /// <summary>
+        /// Optional session token returned when the subject's profile was created.
+        /// </summary>
+        [Output("sessionToken")]
+        public Output<string?> SessionToken { get; private set; } = null!;
 
         /// <summary>
         /// Subject identifiers used for the consent (verifiedId or anonymousId).
@@ -94,13 +118,20 @@ namespace Community.Pulumi.Osano
             {
                 Version = Utilities.Version,
                 PluginDownloadURL = "github://api.github.com/jflavan/pulumi-osano",
+                AdditionalSecretOutputs =
+                {
+                    "sessionToken",
+                },
                 ReplaceOnChanges =
                 {
                     "actions[*]",
                     "attributes.*",
                     "compliance",
+                    "countryCodeOverride",
                     "jurisdiction",
                     "origin",
+                    "regionCodeOverride",
+                    "sessionToken",
                     "subject",
                     "tags[*]",
                 },
@@ -126,11 +157,11 @@ namespace Community.Pulumi.Osano
 
     public sealed class ConsentArgs : global::Pulumi.ResourceArgs
     {
-        [Input("actions", required: true)]
+        [Input("actions")]
         private InputList<Inputs.ConsentActionArgs>? _actions;
 
         /// <summary>
-        /// Consent actions referencing privacy protocols (target) within a configuration (vendor).
+        /// Consent actions referencing privacy protocols (target) within a configuration (vendor). Required unless origin is gpc.
         /// </summary>
         public InputList<Inputs.ConsentActionArgs> Actions
         {
@@ -142,7 +173,7 @@ namespace Community.Pulumi.Osano
         private InputMap<string>? _attributes;
 
         /// <summary>
-        /// Optional key/value attributes stored with the consent record (e.g., ipAddress overrides).
+        /// Optional key/value attributes stored with the consent record. Osano fills ipAddress and userAgent itself and overwrites values sent for those keys.
         /// </summary>
         public InputMap<string> Attributes
         {
@@ -157,16 +188,44 @@ namespace Community.Pulumi.Osano
         public Input<Inputs.ConsentComplianceArgs>? Compliance { get; set; }
 
         /// <summary>
-        /// Optional jurisdiction override matching one of the configuration's jurisdictions.
+        /// Optional ISO 3166-1 country code Osano uses instead of resolving the caller's IP address. Set it when submitting from a pipeline, whose IP address says nothing about the subject.
+        /// </summary>
+        [Input("countryCodeOverride")]
+        public Input<string>? CountryCodeOverride { get; set; }
+
+        /// <summary>
+        /// Optional jurisdiction, which must be one of the configuration's jurisdictions (see getCollections).
         /// </summary>
         [Input("jurisdiction")]
         public Input<string>? Jurisdiction { get; set; }
 
         /// <summary>
-        /// Origin metadata for the consent, typically 'api' or 'gpc'.
+        /// Origin of the consent: api (default) or gpc. With gpc and no actions, the consent is submitted to Osano's GPC endpoint, which derives the actions.
         /// </summary>
         [Input("origin")]
         public Input<string>? Origin { get; set; }
+
+        /// <summary>
+        /// Optional ISO 3166-2 region code Osano uses instead of resolving the caller's IP address.
+        /// </summary>
+        [Input("regionCodeOverride")]
+        public Input<string>? RegionCodeOverride { get; set; }
+
+        [Input("sessionToken")]
+        private Input<string>? _sessionToken;
+
+        /// <summary>
+        /// Optional session token returned when the subject's profile was created.
+        /// </summary>
+        public Input<string>? SessionToken
+        {
+            get => _sessionToken;
+            set
+            {
+                var emptySecret = Output.CreateSecret(0);
+                _sessionToken = Output.Tuple<Input<string>?, int>(value, emptySecret).Apply(t => t.Item1);
+            }
+        }
 
         /// <summary>
         /// Subject identifiers used for the consent (verifiedId or anonymousId).

@@ -13,15 +13,27 @@ namespace Community.Pulumi.Osano.Inputs
 
     public sealed class ConsentActionArgs : global::Pulumi.ResourceArgs
     {
+        /// <summary>
+        /// The subject's choice: ACCEPT, REJECT, or UNSELECTED.
+        /// </summary>
         [Input("action", required: true)]
         public Input<string> Action { get; set; } = null!;
 
+        /// <summary>
+        /// Optional jurisdiction for this action; overrides the top-level jurisdiction.
+        /// </summary>
         [Input("jurisdiction")]
         public Input<string>? Jurisdiction { get; set; }
 
+        /// <summary>
+        /// The privacy protocol ID (the Target ID on the privacy protocol's edit page).
+        /// </summary>
         [Input("target", required: true)]
         public Input<string> Target { get; set; } = null!;
 
+        /// <summary>
+        /// The Unified Consent configuration ID the consent is recorded for.
+        /// </summary>
         [Input("vendor", required: true)]
         public Input<string> Vendor { get; set; } = null!;
 

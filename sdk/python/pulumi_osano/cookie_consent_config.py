@@ -23,9 +23,10 @@ class CookieConsentConfigArgs:
                  domains: pulumi.Input[Sequence[pulumi.Input[_builtins.str]]],
                  mode: pulumi.Input[_builtins.str],
                  name: pulumi.Input[_builtins.str],
-                 org_ids: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]] = None):
+                 org_ids: pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]] = None):
         """
         The set of arguments for constructing a CookieConsentConfig resource.
+
         :param pulumi.Input[Mapping[str, Any]] configuration: CMP configuration object. At minimum, must include storagePolicyHref.
         :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] domains: Domains permitted to host the configuration.
         :param pulumi.Input[_builtins.str] mode: Compliance mode: debug, permissive, or production.
@@ -89,14 +90,14 @@ class CookieConsentConfigArgs:
 
     @_builtins.property
     @pulumi.getter(name="orgIds")
-    def org_ids(self) -> Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]:
+    def org_ids(self) -> pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]]:
         """
         Optional organization IDs associated with the config.
         """
         return pulumi.get(self, "org_ids")
 
     @org_ids.setter
-    def org_ids(self, value: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]):
+    def org_ids(self, value: pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]]):
         pulumi.set(self, "org_ids", value)
 
 
@@ -106,11 +107,11 @@ class CookieConsentConfig(pulumi.CustomResource):
     def __init__(__self__,
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
-                 configuration: Optional[pulumi.Input[Mapping[str, Any]]] = None,
-                 domains: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]] = None,
-                 mode: Optional[pulumi.Input[_builtins.str]] = None,
-                 name: Optional[pulumi.Input[_builtins.str]] = None,
-                 org_ids: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]] = None,
+                 configuration: pulumi.Input[Optional[Mapping[str, Any]]] = None,
+                 domains: pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]] = None,
+                 mode: pulumi.Input[Optional[_builtins.str]] = None,
+                 name: pulumi.Input[Optional[_builtins.str]] = None,
+                 org_ids: pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]] = None,
                  __props__=None):
         """
         Manages an Osano Cookie Consent (CMP) configuration. Import with the Osano config ID. Osano has no delete endpoint for configs, so deleting this resource only removes it from Pulumi state and retains the upstream configuration.
@@ -147,11 +148,11 @@ class CookieConsentConfig(pulumi.CustomResource):
     def _internal_init(__self__,
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
-                 configuration: Optional[pulumi.Input[Mapping[str, Any]]] = None,
-                 domains: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]] = None,
-                 mode: Optional[pulumi.Input[_builtins.str]] = None,
-                 name: Optional[pulumi.Input[_builtins.str]] = None,
-                 org_ids: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]] = None,
+                 configuration: pulumi.Input[Optional[Mapping[str, Any]]] = None,
+                 domains: pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]] = None,
+                 mode: pulumi.Input[Optional[_builtins.str]] = None,
+                 name: pulumi.Input[Optional[_builtins.str]] = None,
+                 org_ids: pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]] = None,
                  __props__=None):
         opts = pulumi.ResourceOptions.merge(_utilities.get_resource_opts_defaults(), opts)
         if not isinstance(opts, pulumi.ResourceOptions):

@@ -15,7 +15,14 @@ from .get_collection import *
 from .get_collections import *
 from .get_config import *
 from .get_consent_profile import *
+from .get_cookie_consent_audit_log import *
+from .get_cookie_consent_config import *
+from .get_cookie_consent_configs import *
+from .get_cookie_consent_discoveries import *
+from .get_cookie_consent_rules import *
+from .get_session import *
 from .get_subject import *
+from .get_subject_profile import *
 from .get_unified_consent import *
 from .provider import *
 from .send_subject_code import *

@@ -14,12 +14,13 @@ export function verifySubjectCode(args: VerifySubjectCodeArgs, opts?: pulumi.Inv
         "email": args.email,
         "hashedSubjectId": args.hashedSubjectId,
         "phone": args.phone,
+        "session": args.session,
     }, opts);
 }
 
 export interface VerifySubjectCodeArgs {
     /**
-     * The one-time verification code the subject received.
+     * The one-time verification code the subject received (6 characters by email, 8 by SMS).
      */
     code: string;
     /**
@@ -27,21 +28,44 @@ export interface VerifySubjectCodeArgs {
      */
     email?: string;
     /**
-     * The hashed subject identifier being verified.
+     * Optional hashed subject identifier, sent only when set.
      */
-    hashedSubjectId: string;
+    hashedSubjectId?: string;
     /**
      * Phone number the code was sent to. Set exactly one of email or phone.
      */
     phone?: string;
+    /**
+     * The SMS challenge session. Required with phone; not used with email.
+     */
+    session?: string;
 }
 
 export interface VerifySubjectCodeResult {
+    /**
+     * The verification channel: email or sms.
+     */
     readonly channel: string;
+    /**
+     * The email address or phone number that was verified. Secret, because it is personal data.
+     */
     readonly destination: string;
+    /**
+     * The hashed subject identifier sent with the request, if any.
+     */
     readonly hashedSubjectId: string;
+    /**
+     * The complete response Osano returned. Secret, because it can hold personal data.
+     */
     readonly profile: {[key: string]: any};
+    /**
+     * True when Osano accepted the code; a rejected code fails the invoke instead.
+     */
     readonly verified: boolean;
+    /**
+     * The subject's verified ID returned by Osano.
+     */
+    readonly verifiedId: string;
 }
 /**
  * Verifies a subject profile using the code sent via email or SMS. Pulumi runs invokes on every preview, update, and refresh, and one-time codes cannot be reused, so call this from automation rather than from long-lived stack code.
@@ -53,24 +77,29 @@ export function verifySubjectCodeOutput(args: VerifySubjectCodeOutputArgs, opts?
         "email": args.email,
         "hashedSubjectId": args.hashedSubjectId,
         "phone": args.phone,
+        "session": args.session,
     }, opts);
 }
 
 export interface VerifySubjectCodeOutputArgs {
     /**
-     * The one-time verification code the subject received.
+     * The one-time verification code the subject received (6 characters by email, 8 by SMS).
      */
     code: pulumi.Input<string>;
     /**
      * Email address the code was sent to. Set exactly one of email or phone.
      */
-    email?: pulumi.Input<string>;
+    email?: pulumi.Input<string | undefined>;
     /**
-     * The hashed subject identifier being verified.
+     * Optional hashed subject identifier, sent only when set.
      */
-    hashedSubjectId: pulumi.Input<string>;
+    hashedSubjectId?: pulumi.Input<string | undefined>;
     /**
      * Phone number the code was sent to. Set exactly one of email or phone.
      */
-    phone?: pulumi.Input<string>;
+    phone?: pulumi.Input<string | undefined>;
+    /**
+     * The SMS challenge session. Required with phone; not used with email.
+     */
+    session?: pulumi.Input<string | undefined>;
 }

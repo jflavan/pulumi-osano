@@ -19,8 +19,22 @@ import io.github.jflavan.pulumi.osano.inputs.GetConfigArgs;
 import io.github.jflavan.pulumi.osano.inputs.GetConfigPlainArgs;
 import io.github.jflavan.pulumi.osano.inputs.GetConsentProfileArgs;
 import io.github.jflavan.pulumi.osano.inputs.GetConsentProfilePlainArgs;
+import io.github.jflavan.pulumi.osano.inputs.GetCookieConsentAuditLogArgs;
+import io.github.jflavan.pulumi.osano.inputs.GetCookieConsentAuditLogPlainArgs;
+import io.github.jflavan.pulumi.osano.inputs.GetCookieConsentConfigArgs;
+import io.github.jflavan.pulumi.osano.inputs.GetCookieConsentConfigPlainArgs;
+import io.github.jflavan.pulumi.osano.inputs.GetCookieConsentConfigsArgs;
+import io.github.jflavan.pulumi.osano.inputs.GetCookieConsentConfigsPlainArgs;
+import io.github.jflavan.pulumi.osano.inputs.GetCookieConsentDiscoveriesArgs;
+import io.github.jflavan.pulumi.osano.inputs.GetCookieConsentDiscoveriesPlainArgs;
+import io.github.jflavan.pulumi.osano.inputs.GetCookieConsentRulesArgs;
+import io.github.jflavan.pulumi.osano.inputs.GetCookieConsentRulesPlainArgs;
+import io.github.jflavan.pulumi.osano.inputs.GetSessionArgs;
+import io.github.jflavan.pulumi.osano.inputs.GetSessionPlainArgs;
 import io.github.jflavan.pulumi.osano.inputs.GetSubjectArgs;
 import io.github.jflavan.pulumi.osano.inputs.GetSubjectPlainArgs;
+import io.github.jflavan.pulumi.osano.inputs.GetSubjectProfileArgs;
+import io.github.jflavan.pulumi.osano.inputs.GetSubjectProfilePlainArgs;
 import io.github.jflavan.pulumi.osano.inputs.GetUnifiedConsentArgs;
 import io.github.jflavan.pulumi.osano.inputs.GetUnifiedConsentPlainArgs;
 import io.github.jflavan.pulumi.osano.inputs.SendSubjectCodeArgs;
@@ -32,6 +46,13 @@ import io.github.jflavan.pulumi.osano.outputs.GetCollectionResult;
 import io.github.jflavan.pulumi.osano.outputs.GetCollectionsResult;
 import io.github.jflavan.pulumi.osano.outputs.GetConfigResult;
 import io.github.jflavan.pulumi.osano.outputs.GetConsentProfileResult;
+import io.github.jflavan.pulumi.osano.outputs.GetCookieConsentAuditLogResult;
+import io.github.jflavan.pulumi.osano.outputs.GetCookieConsentConfigResult;
+import io.github.jflavan.pulumi.osano.outputs.GetCookieConsentConfigsResult;
+import io.github.jflavan.pulumi.osano.outputs.GetCookieConsentDiscoveriesResult;
+import io.github.jflavan.pulumi.osano.outputs.GetCookieConsentRulesResult;
+import io.github.jflavan.pulumi.osano.outputs.GetSessionResult;
+import io.github.jflavan.pulumi.osano.outputs.GetSubjectProfileResult;
 import io.github.jflavan.pulumi.osano.outputs.GetSubjectResult;
 import io.github.jflavan.pulumi.osano.outputs.GetUnifiedConsentResult;
 import io.github.jflavan.pulumi.osano.outputs.SendSubjectCodeResult;
@@ -243,6 +264,244 @@ public final class OsanoFunctions {
         return Deployment.getInstance().invokeAsync("osano:index:getConsentProfile", TypeShape.of(GetConsentProfileResult.class), args, Utilities.withVersion(options));
     }
     /**
+     * Queries the Cookie Consent audit log: configuration and rule changes and publications, with who made them and when. Use it to confirm a pipeline&#39;s publication or to detect dashboard edits.
+     *
+     */
+    public static Output<GetCookieConsentAuditLogResult> getCookieConsentAuditLog() {
+        return getCookieConsentAuditLog(GetCookieConsentAuditLogArgs.Empty, InvokeOptions.Empty);
+    }
+    /**
+     * Queries the Cookie Consent audit log: configuration and rule changes and publications, with who made them and when. Use it to confirm a pipeline&#39;s publication or to detect dashboard edits.
+     *
+     */
+    public static CompletableFuture<GetCookieConsentAuditLogResult> getCookieConsentAuditLogPlain() {
+        return getCookieConsentAuditLogPlain(GetCookieConsentAuditLogPlainArgs.Empty, InvokeOptions.Empty);
+    }
+    /**
+     * Queries the Cookie Consent audit log: configuration and rule changes and publications, with who made them and when. Use it to confirm a pipeline&#39;s publication or to detect dashboard edits.
+     *
+     */
+    public static Output<GetCookieConsentAuditLogResult> getCookieConsentAuditLog(GetCookieConsentAuditLogArgs args) {
+        return getCookieConsentAuditLog(args, InvokeOptions.Empty);
+    }
+    /**
+     * Queries the Cookie Consent audit log: configuration and rule changes and publications, with who made them and when. Use it to confirm a pipeline&#39;s publication or to detect dashboard edits.
+     *
+     */
+    public static CompletableFuture<GetCookieConsentAuditLogResult> getCookieConsentAuditLogPlain(GetCookieConsentAuditLogPlainArgs args) {
+        return getCookieConsentAuditLogPlain(args, InvokeOptions.Empty);
+    }
+    /**
+     * Queries the Cookie Consent audit log: configuration and rule changes and publications, with who made them and when. Use it to confirm a pipeline&#39;s publication or to detect dashboard edits.
+     *
+     */
+    public static Output<GetCookieConsentAuditLogResult> getCookieConsentAuditLog(GetCookieConsentAuditLogArgs args, InvokeOptions options) {
+        return Deployment.getInstance().invoke("osano:index:getCookieConsentAuditLog", TypeShape.of(GetCookieConsentAuditLogResult.class), args, Utilities.withVersion(options));
+    }
+    /**
+     * Queries the Cookie Consent audit log: configuration and rule changes and publications, with who made them and when. Use it to confirm a pipeline&#39;s publication or to detect dashboard edits.
+     *
+     */
+    public static Output<GetCookieConsentAuditLogResult> getCookieConsentAuditLog(GetCookieConsentAuditLogArgs args, InvokeOutputOptions options) {
+        return Deployment.getInstance().invoke("osano:index:getCookieConsentAuditLog", TypeShape.of(GetCookieConsentAuditLogResult.class), args, Utilities.withVersion(options));
+    }
+    /**
+     * Queries the Cookie Consent audit log: configuration and rule changes and publications, with who made them and when. Use it to confirm a pipeline&#39;s publication or to detect dashboard edits.
+     *
+     */
+    public static CompletableFuture<GetCookieConsentAuditLogResult> getCookieConsentAuditLogPlain(GetCookieConsentAuditLogPlainArgs args, InvokeOptions options) {
+        return Deployment.getInstance().invokeAsync("osano:index:getCookieConsentAuditLog", TypeShape.of(GetCookieConsentAuditLogResult.class), args, Utilities.withVersion(options));
+    }
+    /**
+     * Reads a Cookie Consent configuration, including its publish status and the CMP script to install, without managing it. Use it to fetch the script for a configuration another stack or the Osano dashboard owns. The script serves the most recently published revision, so check publishStatus and lastPublished before relying on a new change.
+     *
+     */
+    public static Output<GetCookieConsentConfigResult> getCookieConsentConfig(GetCookieConsentConfigArgs args) {
+        return getCookieConsentConfig(args, InvokeOptions.Empty);
+    }
+    /**
+     * Reads a Cookie Consent configuration, including its publish status and the CMP script to install, without managing it. Use it to fetch the script for a configuration another stack or the Osano dashboard owns. The script serves the most recently published revision, so check publishStatus and lastPublished before relying on a new change.
+     *
+     */
+    public static CompletableFuture<GetCookieConsentConfigResult> getCookieConsentConfigPlain(GetCookieConsentConfigPlainArgs args) {
+        return getCookieConsentConfigPlain(args, InvokeOptions.Empty);
+    }
+    /**
+     * Reads a Cookie Consent configuration, including its publish status and the CMP script to install, without managing it. Use it to fetch the script for a configuration another stack or the Osano dashboard owns. The script serves the most recently published revision, so check publishStatus and lastPublished before relying on a new change.
+     *
+     */
+    public static Output<GetCookieConsentConfigResult> getCookieConsentConfig(GetCookieConsentConfigArgs args, InvokeOptions options) {
+        return Deployment.getInstance().invoke("osano:index:getCookieConsentConfig", TypeShape.of(GetCookieConsentConfigResult.class), args, Utilities.withVersion(options));
+    }
+    /**
+     * Reads a Cookie Consent configuration, including its publish status and the CMP script to install, without managing it. Use it to fetch the script for a configuration another stack or the Osano dashboard owns. The script serves the most recently published revision, so check publishStatus and lastPublished before relying on a new change.
+     *
+     */
+    public static Output<GetCookieConsentConfigResult> getCookieConsentConfig(GetCookieConsentConfigArgs args, InvokeOutputOptions options) {
+        return Deployment.getInstance().invoke("osano:index:getCookieConsentConfig", TypeShape.of(GetCookieConsentConfigResult.class), args, Utilities.withVersion(options));
+    }
+    /**
+     * Reads a Cookie Consent configuration, including its publish status and the CMP script to install, without managing it. Use it to fetch the script for a configuration another stack or the Osano dashboard owns. The script serves the most recently published revision, so check publishStatus and lastPublished before relying on a new change.
+     *
+     */
+    public static CompletableFuture<GetCookieConsentConfigResult> getCookieConsentConfigPlain(GetCookieConsentConfigPlainArgs args, InvokeOptions options) {
+        return Deployment.getInstance().invokeAsync("osano:index:getCookieConsentConfig", TypeShape.of(GetCookieConsentConfigResult.class), args, Utilities.withVersion(options));
+    }
+    /**
+     * Lists Cookie Consent configurations, optionally filtered by name, domains, organization, mode, or publish status, and returns each one&#39;s install script. Follows pagination until maxResults or the last page.
+     *
+     */
+    public static Output<GetCookieConsentConfigsResult> getCookieConsentConfigs() {
+        return getCookieConsentConfigs(GetCookieConsentConfigsArgs.Empty, InvokeOptions.Empty);
+    }
+    /**
+     * Lists Cookie Consent configurations, optionally filtered by name, domains, organization, mode, or publish status, and returns each one&#39;s install script. Follows pagination until maxResults or the last page.
+     *
+     */
+    public static CompletableFuture<GetCookieConsentConfigsResult> getCookieConsentConfigsPlain() {
+        return getCookieConsentConfigsPlain(GetCookieConsentConfigsPlainArgs.Empty, InvokeOptions.Empty);
+    }
+    /**
+     * Lists Cookie Consent configurations, optionally filtered by name, domains, organization, mode, or publish status, and returns each one&#39;s install script. Follows pagination until maxResults or the last page.
+     *
+     */
+    public static Output<GetCookieConsentConfigsResult> getCookieConsentConfigs(GetCookieConsentConfigsArgs args) {
+        return getCookieConsentConfigs(args, InvokeOptions.Empty);
+    }
+    /**
+     * Lists Cookie Consent configurations, optionally filtered by name, domains, organization, mode, or publish status, and returns each one&#39;s install script. Follows pagination until maxResults or the last page.
+     *
+     */
+    public static CompletableFuture<GetCookieConsentConfigsResult> getCookieConsentConfigsPlain(GetCookieConsentConfigsPlainArgs args) {
+        return getCookieConsentConfigsPlain(args, InvokeOptions.Empty);
+    }
+    /**
+     * Lists Cookie Consent configurations, optionally filtered by name, domains, organization, mode, or publish status, and returns each one&#39;s install script. Follows pagination until maxResults or the last page.
+     *
+     */
+    public static Output<GetCookieConsentConfigsResult> getCookieConsentConfigs(GetCookieConsentConfigsArgs args, InvokeOptions options) {
+        return Deployment.getInstance().invoke("osano:index:getCookieConsentConfigs", TypeShape.of(GetCookieConsentConfigsResult.class), args, Utilities.withVersion(options));
+    }
+    /**
+     * Lists Cookie Consent configurations, optionally filtered by name, domains, organization, mode, or publish status, and returns each one&#39;s install script. Follows pagination until maxResults or the last page.
+     *
+     */
+    public static Output<GetCookieConsentConfigsResult> getCookieConsentConfigs(GetCookieConsentConfigsArgs args, InvokeOutputOptions options) {
+        return Deployment.getInstance().invoke("osano:index:getCookieConsentConfigs", TypeShape.of(GetCookieConsentConfigsResult.class), args, Utilities.withVersion(options));
+    }
+    /**
+     * Lists Cookie Consent configurations, optionally filtered by name, domains, organization, mode, or publish status, and returns each one&#39;s install script. Follows pagination until maxResults or the last page.
+     *
+     */
+    public static CompletableFuture<GetCookieConsentConfigsResult> getCookieConsentConfigsPlain(GetCookieConsentConfigsPlainArgs args, InvokeOptions options) {
+        return Deployment.getInstance().invokeAsync("osano:index:getCookieConsentConfigs", TypeShape.of(GetCookieConsentConfigsResult.class), args, Utilities.withVersion(options));
+    }
+    /**
+     * Lists the cookies, scripts, iframes, or localStorage keys that osano.js or URL scans discovered for a configuration. Use it to review what still needs a rule before switching a configuration to production mode, which blocks everything unclassified.
+     *
+     */
+    public static Output<GetCookieConsentDiscoveriesResult> getCookieConsentDiscoveries(GetCookieConsentDiscoveriesArgs args) {
+        return getCookieConsentDiscoveries(args, InvokeOptions.Empty);
+    }
+    /**
+     * Lists the cookies, scripts, iframes, or localStorage keys that osano.js or URL scans discovered for a configuration. Use it to review what still needs a rule before switching a configuration to production mode, which blocks everything unclassified.
+     *
+     */
+    public static CompletableFuture<GetCookieConsentDiscoveriesResult> getCookieConsentDiscoveriesPlain(GetCookieConsentDiscoveriesPlainArgs args) {
+        return getCookieConsentDiscoveriesPlain(args, InvokeOptions.Empty);
+    }
+    /**
+     * Lists the cookies, scripts, iframes, or localStorage keys that osano.js or URL scans discovered for a configuration. Use it to review what still needs a rule before switching a configuration to production mode, which blocks everything unclassified.
+     *
+     */
+    public static Output<GetCookieConsentDiscoveriesResult> getCookieConsentDiscoveries(GetCookieConsentDiscoveriesArgs args, InvokeOptions options) {
+        return Deployment.getInstance().invoke("osano:index:getCookieConsentDiscoveries", TypeShape.of(GetCookieConsentDiscoveriesResult.class), args, Utilities.withVersion(options));
+    }
+    /**
+     * Lists the cookies, scripts, iframes, or localStorage keys that osano.js or URL scans discovered for a configuration. Use it to review what still needs a rule before switching a configuration to production mode, which blocks everything unclassified.
+     *
+     */
+    public static Output<GetCookieConsentDiscoveriesResult> getCookieConsentDiscoveries(GetCookieConsentDiscoveriesArgs args, InvokeOutputOptions options) {
+        return Deployment.getInstance().invoke("osano:index:getCookieConsentDiscoveries", TypeShape.of(GetCookieConsentDiscoveriesResult.class), args, Utilities.withVersion(options));
+    }
+    /**
+     * Lists the cookies, scripts, iframes, or localStorage keys that osano.js or URL scans discovered for a configuration. Use it to review what still needs a rule before switching a configuration to production mode, which blocks everything unclassified.
+     *
+     */
+    public static CompletableFuture<GetCookieConsentDiscoveriesResult> getCookieConsentDiscoveriesPlain(GetCookieConsentDiscoveriesPlainArgs args, InvokeOptions options) {
+        return Deployment.getInstance().invokeAsync("osano:index:getCookieConsentDiscoveries", TypeShape.of(GetCookieConsentDiscoveriesResult.class), args, Utilities.withVersion(options));
+    }
+    /**
+     * Lists the classification rules of a Cookie Consent configuration, optionally filtered by storage type and classification. Useful for auditing rules managed outside Pulumi or finding rule IDs to import.
+     *
+     */
+    public static Output<GetCookieConsentRulesResult> getCookieConsentRules(GetCookieConsentRulesArgs args) {
+        return getCookieConsentRules(args, InvokeOptions.Empty);
+    }
+    /**
+     * Lists the classification rules of a Cookie Consent configuration, optionally filtered by storage type and classification. Useful for auditing rules managed outside Pulumi or finding rule IDs to import.
+     *
+     */
+    public static CompletableFuture<GetCookieConsentRulesResult> getCookieConsentRulesPlain(GetCookieConsentRulesPlainArgs args) {
+        return getCookieConsentRulesPlain(args, InvokeOptions.Empty);
+    }
+    /**
+     * Lists the classification rules of a Cookie Consent configuration, optionally filtered by storage type and classification. Useful for auditing rules managed outside Pulumi or finding rule IDs to import.
+     *
+     */
+    public static Output<GetCookieConsentRulesResult> getCookieConsentRules(GetCookieConsentRulesArgs args, InvokeOptions options) {
+        return Deployment.getInstance().invoke("osano:index:getCookieConsentRules", TypeShape.of(GetCookieConsentRulesResult.class), args, Utilities.withVersion(options));
+    }
+    /**
+     * Lists the classification rules of a Cookie Consent configuration, optionally filtered by storage type and classification. Useful for auditing rules managed outside Pulumi or finding rule IDs to import.
+     *
+     */
+    public static Output<GetCookieConsentRulesResult> getCookieConsentRules(GetCookieConsentRulesArgs args, InvokeOutputOptions options) {
+        return Deployment.getInstance().invoke("osano:index:getCookieConsentRules", TypeShape.of(GetCookieConsentRulesResult.class), args, Utilities.withVersion(options));
+    }
+    /**
+     * Lists the classification rules of a Cookie Consent configuration, optionally filtered by storage type and classification. Useful for auditing rules managed outside Pulumi or finding rule IDs to import.
+     *
+     */
+    public static CompletableFuture<GetCookieConsentRulesResult> getCookieConsentRulesPlain(GetCookieConsentRulesPlainArgs args, InvokeOptions options) {
+        return Deployment.getInstance().invokeAsync("osano:index:getCookieConsentRules", TypeShape.of(GetCookieConsentRulesResult.class), args, Utilities.withVersion(options));
+    }
+    /**
+     * Resolves a Unified Consent session ID to its subject&#39;s verified ID and profile, using the Unified Consent API key.
+     *
+     */
+    public static Output<GetSessionResult> getSession(GetSessionArgs args) {
+        return getSession(args, InvokeOptions.Empty);
+    }
+    /**
+     * Resolves a Unified Consent session ID to its subject&#39;s verified ID and profile, using the Unified Consent API key.
+     *
+     */
+    public static CompletableFuture<GetSessionResult> getSessionPlain(GetSessionPlainArgs args) {
+        return getSessionPlain(args, InvokeOptions.Empty);
+    }
+    /**
+     * Resolves a Unified Consent session ID to its subject&#39;s verified ID and profile, using the Unified Consent API key.
+     *
+     */
+    public static Output<GetSessionResult> getSession(GetSessionArgs args, InvokeOptions options) {
+        return Deployment.getInstance().invoke("osano:index:getSession", TypeShape.of(GetSessionResult.class), args, Utilities.withVersion(options));
+    }
+    /**
+     * Resolves a Unified Consent session ID to its subject&#39;s verified ID and profile, using the Unified Consent API key.
+     *
+     */
+    public static Output<GetSessionResult> getSession(GetSessionArgs args, InvokeOutputOptions options) {
+        return Deployment.getInstance().invoke("osano:index:getSession", TypeShape.of(GetSessionResult.class), args, Utilities.withVersion(options));
+    }
+    /**
+     * Resolves a Unified Consent session ID to its subject&#39;s verified ID and profile, using the Unified Consent API key.
+     *
+     */
+    public static CompletableFuture<GetSessionResult> getSessionPlain(GetSessionPlainArgs args, InvokeOptions options) {
+        return Deployment.getInstance().invokeAsync("osano:index:getSession", TypeShape.of(GetSessionResult.class), args, Utilities.withVersion(options));
+    }
+    /**
      * Fetches subject identifiers (subject, verified, anonymous IDs) for a reference or session ID.
      *
      */
@@ -276,6 +535,41 @@ public final class OsanoFunctions {
      */
     public static CompletableFuture<GetSubjectResult> getSubjectPlain(GetSubjectPlainArgs args, InvokeOptions options) {
         return Deployment.getInstance().invokeAsync("osano:index:getSubject", TypeShape.of(GetSubjectResult.class), args, Utilities.withVersion(options));
+    }
+    /**
+     * Reads a subject&#39;s profile (email and subject ID) using the Unified Consent API key. The outputs are secrets because they hold personal data.
+     *
+     */
+    public static Output<GetSubjectProfileResult> getSubjectProfile(GetSubjectProfileArgs args) {
+        return getSubjectProfile(args, InvokeOptions.Empty);
+    }
+    /**
+     * Reads a subject&#39;s profile (email and subject ID) using the Unified Consent API key. The outputs are secrets because they hold personal data.
+     *
+     */
+    public static CompletableFuture<GetSubjectProfileResult> getSubjectProfilePlain(GetSubjectProfilePlainArgs args) {
+        return getSubjectProfilePlain(args, InvokeOptions.Empty);
+    }
+    /**
+     * Reads a subject&#39;s profile (email and subject ID) using the Unified Consent API key. The outputs are secrets because they hold personal data.
+     *
+     */
+    public static Output<GetSubjectProfileResult> getSubjectProfile(GetSubjectProfileArgs args, InvokeOptions options) {
+        return Deployment.getInstance().invoke("osano:index:getSubjectProfile", TypeShape.of(GetSubjectProfileResult.class), args, Utilities.withVersion(options));
+    }
+    /**
+     * Reads a subject&#39;s profile (email and subject ID) using the Unified Consent API key. The outputs are secrets because they hold personal data.
+     *
+     */
+    public static Output<GetSubjectProfileResult> getSubjectProfile(GetSubjectProfileArgs args, InvokeOutputOptions options) {
+        return Deployment.getInstance().invoke("osano:index:getSubjectProfile", TypeShape.of(GetSubjectProfileResult.class), args, Utilities.withVersion(options));
+    }
+    /**
+     * Reads a subject&#39;s profile (email and subject ID) using the Unified Consent API key. The outputs are secrets because they hold personal data.
+     *
+     */
+    public static CompletableFuture<GetSubjectProfileResult> getSubjectProfilePlain(GetSubjectProfilePlainArgs args, InvokeOptions options) {
+        return Deployment.getInstance().invokeAsync("osano:index:getSubjectProfile", TypeShape.of(GetSubjectProfileResult.class), args, Utilities.withVersion(options));
     }
     /**
      * Fetches the unified consent state for a subject reference using the Unified Consent API key.
@@ -313,35 +607,49 @@ public final class OsanoFunctions {
         return Deployment.getInstance().invokeAsync("osano:index:getUnifiedConsent", TypeShape.of(GetUnifiedConsentResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Sends a verification code to a subject&#39;s email or phone using the Osano API key. Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
+     * Sends a verification code to a subject&#39;s email or phone using the Osano API key (or the Unified Consent API key when no Osano API key is set). Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
+     *
+     */
+    public static Output<SendSubjectCodeResult> sendSubjectCode() {
+        return sendSubjectCode(SendSubjectCodeArgs.Empty, InvokeOptions.Empty);
+    }
+    /**
+     * Sends a verification code to a subject&#39;s email or phone using the Osano API key (or the Unified Consent API key when no Osano API key is set). Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
+     *
+     */
+    public static CompletableFuture<SendSubjectCodeResult> sendSubjectCodePlain() {
+        return sendSubjectCodePlain(SendSubjectCodePlainArgs.Empty, InvokeOptions.Empty);
+    }
+    /**
+     * Sends a verification code to a subject&#39;s email or phone using the Osano API key (or the Unified Consent API key when no Osano API key is set). Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
      *
      */
     public static Output<SendSubjectCodeResult> sendSubjectCode(SendSubjectCodeArgs args) {
         return sendSubjectCode(args, InvokeOptions.Empty);
     }
     /**
-     * Sends a verification code to a subject&#39;s email or phone using the Osano API key. Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
+     * Sends a verification code to a subject&#39;s email or phone using the Osano API key (or the Unified Consent API key when no Osano API key is set). Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
      *
      */
     public static CompletableFuture<SendSubjectCodeResult> sendSubjectCodePlain(SendSubjectCodePlainArgs args) {
         return sendSubjectCodePlain(args, InvokeOptions.Empty);
     }
     /**
-     * Sends a verification code to a subject&#39;s email or phone using the Osano API key. Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
+     * Sends a verification code to a subject&#39;s email or phone using the Osano API key (or the Unified Consent API key when no Osano API key is set). Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
      *
      */
     public static Output<SendSubjectCodeResult> sendSubjectCode(SendSubjectCodeArgs args, InvokeOptions options) {
         return Deployment.getInstance().invoke("osano:index:sendSubjectCode", TypeShape.of(SendSubjectCodeResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Sends a verification code to a subject&#39;s email or phone using the Osano API key. Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
+     * Sends a verification code to a subject&#39;s email or phone using the Osano API key (or the Unified Consent API key when no Osano API key is set). Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
      *
      */
     public static Output<SendSubjectCodeResult> sendSubjectCode(SendSubjectCodeArgs args, InvokeOutputOptions options) {
         return Deployment.getInstance().invoke("osano:index:sendSubjectCode", TypeShape.of(SendSubjectCodeResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Sends a verification code to a subject&#39;s email or phone using the Osano API key. Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
+     * Sends a verification code to a subject&#39;s email or phone using the Osano API key (or the Unified Consent API key when no Osano API key is set). Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
      *
      */
     public static CompletableFuture<SendSubjectCodeResult> sendSubjectCodePlain(SendSubjectCodePlainArgs args, InvokeOptions options) {

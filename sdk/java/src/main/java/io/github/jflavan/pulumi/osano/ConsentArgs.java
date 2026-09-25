@@ -22,29 +22,29 @@ public final class ConsentArgs extends com.pulumi.resources.ResourceArgs {
     public static final ConsentArgs Empty = new ConsentArgs();
 
     /**
-     * Consent actions referencing privacy protocols (target) within a configuration (vendor).
+     * Consent actions referencing privacy protocols (target) within a configuration (vendor). Required unless origin is gpc.
      *
      */
-    @Import(name="actions", required=true)
-    private Output<List<ConsentActionArgs>> actions;
+    @Import(name="actions")
+    private @Nullable Output<List<ConsentActionArgs>> actions;
 
     /**
-     * @return Consent actions referencing privacy protocols (target) within a configuration (vendor).
+     * @return Consent actions referencing privacy protocols (target) within a configuration (vendor). Required unless origin is gpc.
      *
      */
-    public Output<List<ConsentActionArgs>> actions() {
-        return this.actions;
+    public Optional<Output<List<ConsentActionArgs>>> actions() {
+        return Optional.ofNullable(this.actions);
     }
 
     /**
-     * Optional key/value attributes stored with the consent record (e.g., ipAddress overrides).
+     * Optional key/value attributes stored with the consent record. Osano fills ipAddress and userAgent itself and overwrites values sent for those keys.
      *
      */
     @Import(name="attributes")
     private @Nullable Output<Map<String,String>> attributes;
 
     /**
-     * @return Optional key/value attributes stored with the consent record (e.g., ipAddress overrides).
+     * @return Optional key/value attributes stored with the consent record. Osano fills ipAddress and userAgent itself and overwrites values sent for those keys.
      *
      */
     public Optional<Output<Map<String,String>>> attributes() {
@@ -67,14 +67,29 @@ public final class ConsentArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * Optional jurisdiction override matching one of the configuration&#39;s jurisdictions.
+     * Optional ISO 3166-1 country code Osano uses instead of resolving the caller&#39;s IP address. Set it when submitting from a pipeline, whose IP address says nothing about the subject.
+     *
+     */
+    @Import(name="countryCodeOverride")
+    private @Nullable Output<String> countryCodeOverride;
+
+    /**
+     * @return Optional ISO 3166-1 country code Osano uses instead of resolving the caller&#39;s IP address. Set it when submitting from a pipeline, whose IP address says nothing about the subject.
+     *
+     */
+    public Optional<Output<String>> countryCodeOverride() {
+        return Optional.ofNullable(this.countryCodeOverride);
+    }
+
+    /**
+     * Optional jurisdiction, which must be one of the configuration&#39;s jurisdictions (see getCollections).
      *
      */
     @Import(name="jurisdiction")
     private @Nullable Output<String> jurisdiction;
 
     /**
-     * @return Optional jurisdiction override matching one of the configuration&#39;s jurisdictions.
+     * @return Optional jurisdiction, which must be one of the configuration&#39;s jurisdictions (see getCollections).
      *
      */
     public Optional<Output<String>> jurisdiction() {
@@ -82,18 +97,48 @@ public final class ConsentArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * Origin metadata for the consent, typically &#39;api&#39; or &#39;gpc&#39;.
+     * Origin of the consent: api (default) or gpc. With gpc and no actions, the consent is submitted to Osano&#39;s GPC endpoint, which derives the actions.
      *
      */
     @Import(name="origin")
     private @Nullable Output<String> origin;
 
     /**
-     * @return Origin metadata for the consent, typically &#39;api&#39; or &#39;gpc&#39;.
+     * @return Origin of the consent: api (default) or gpc. With gpc and no actions, the consent is submitted to Osano&#39;s GPC endpoint, which derives the actions.
      *
      */
     public Optional<Output<String>> origin() {
         return Optional.ofNullable(this.origin);
+    }
+
+    /**
+     * Optional ISO 3166-2 region code Osano uses instead of resolving the caller&#39;s IP address.
+     *
+     */
+    @Import(name="regionCodeOverride")
+    private @Nullable Output<String> regionCodeOverride;
+
+    /**
+     * @return Optional ISO 3166-2 region code Osano uses instead of resolving the caller&#39;s IP address.
+     *
+     */
+    public Optional<Output<String>> regionCodeOverride() {
+        return Optional.ofNullable(this.regionCodeOverride);
+    }
+
+    /**
+     * Optional session token returned when the subject&#39;s profile was created.
+     *
+     */
+    @Import(name="sessionToken")
+    private @Nullable Output<String> sessionToken;
+
+    /**
+     * @return Optional session token returned when the subject&#39;s profile was created.
+     *
+     */
+    public Optional<Output<String>> sessionToken() {
+        return Optional.ofNullable(this.sessionToken);
     }
 
     /**
@@ -132,8 +177,11 @@ public final class ConsentArgs extends com.pulumi.resources.ResourceArgs {
         this.actions = $.actions;
         this.attributes = $.attributes;
         this.compliance = $.compliance;
+        this.countryCodeOverride = $.countryCodeOverride;
         this.jurisdiction = $.jurisdiction;
         this.origin = $.origin;
+        this.regionCodeOverride = $.regionCodeOverride;
+        this.sessionToken = $.sessionToken;
         this.subject = $.subject;
         this.tags = $.tags;
     }
@@ -157,18 +205,18 @@ public final class ConsentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param actions Consent actions referencing privacy protocols (target) within a configuration (vendor).
+         * @param actions Consent actions referencing privacy protocols (target) within a configuration (vendor). Required unless origin is gpc.
          *
          * @return builder
          *
          */
-        public Builder actions(Output<List<ConsentActionArgs>> actions) {
+        public Builder actions(@Nullable Output<List<ConsentActionArgs>> actions) {
             $.actions = actions;
             return this;
         }
 
         /**
-         * @param actions Consent actions referencing privacy protocols (target) within a configuration (vendor).
+         * @param actions Consent actions referencing privacy protocols (target) within a configuration (vendor). Required unless origin is gpc.
          *
          * @return builder
          *
@@ -178,7 +226,7 @@ public final class ConsentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param actions Consent actions referencing privacy protocols (target) within a configuration (vendor).
+         * @param actions Consent actions referencing privacy protocols (target) within a configuration (vendor). Required unless origin is gpc.
          *
          * @return builder
          *
@@ -188,7 +236,7 @@ public final class ConsentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param attributes Optional key/value attributes stored with the consent record (e.g., ipAddress overrides).
+         * @param attributes Optional key/value attributes stored with the consent record. Osano fills ipAddress and userAgent itself and overwrites values sent for those keys.
          *
          * @return builder
          *
@@ -199,7 +247,7 @@ public final class ConsentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param attributes Optional key/value attributes stored with the consent record (e.g., ipAddress overrides).
+         * @param attributes Optional key/value attributes stored with the consent record. Osano fills ipAddress and userAgent itself and overwrites values sent for those keys.
          *
          * @return builder
          *
@@ -230,7 +278,28 @@ public final class ConsentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param jurisdiction Optional jurisdiction override matching one of the configuration&#39;s jurisdictions.
+         * @param countryCodeOverride Optional ISO 3166-1 country code Osano uses instead of resolving the caller&#39;s IP address. Set it when submitting from a pipeline, whose IP address says nothing about the subject.
+         *
+         * @return builder
+         *
+         */
+        public Builder countryCodeOverride(@Nullable Output<String> countryCodeOverride) {
+            $.countryCodeOverride = countryCodeOverride;
+            return this;
+        }
+
+        /**
+         * @param countryCodeOverride Optional ISO 3166-1 country code Osano uses instead of resolving the caller&#39;s IP address. Set it when submitting from a pipeline, whose IP address says nothing about the subject.
+         *
+         * @return builder
+         *
+         */
+        public Builder countryCodeOverride(String countryCodeOverride) {
+            return countryCodeOverride(Output.of(countryCodeOverride));
+        }
+
+        /**
+         * @param jurisdiction Optional jurisdiction, which must be one of the configuration&#39;s jurisdictions (see getCollections).
          *
          * @return builder
          *
@@ -241,7 +310,7 @@ public final class ConsentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param jurisdiction Optional jurisdiction override matching one of the configuration&#39;s jurisdictions.
+         * @param jurisdiction Optional jurisdiction, which must be one of the configuration&#39;s jurisdictions (see getCollections).
          *
          * @return builder
          *
@@ -251,7 +320,7 @@ public final class ConsentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param origin Origin metadata for the consent, typically &#39;api&#39; or &#39;gpc&#39;.
+         * @param origin Origin of the consent: api (default) or gpc. With gpc and no actions, the consent is submitted to Osano&#39;s GPC endpoint, which derives the actions.
          *
          * @return builder
          *
@@ -262,13 +331,55 @@ public final class ConsentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param origin Origin metadata for the consent, typically &#39;api&#39; or &#39;gpc&#39;.
+         * @param origin Origin of the consent: api (default) or gpc. With gpc and no actions, the consent is submitted to Osano&#39;s GPC endpoint, which derives the actions.
          *
          * @return builder
          *
          */
         public Builder origin(String origin) {
             return origin(Output.of(origin));
+        }
+
+        /**
+         * @param regionCodeOverride Optional ISO 3166-2 region code Osano uses instead of resolving the caller&#39;s IP address.
+         *
+         * @return builder
+         *
+         */
+        public Builder regionCodeOverride(@Nullable Output<String> regionCodeOverride) {
+            $.regionCodeOverride = regionCodeOverride;
+            return this;
+        }
+
+        /**
+         * @param regionCodeOverride Optional ISO 3166-2 region code Osano uses instead of resolving the caller&#39;s IP address.
+         *
+         * @return builder
+         *
+         */
+        public Builder regionCodeOverride(String regionCodeOverride) {
+            return regionCodeOverride(Output.of(regionCodeOverride));
+        }
+
+        /**
+         * @param sessionToken Optional session token returned when the subject&#39;s profile was created.
+         *
+         * @return builder
+         *
+         */
+        public Builder sessionToken(@Nullable Output<String> sessionToken) {
+            $.sessionToken = sessionToken;
+            return this;
+        }
+
+        /**
+         * @param sessionToken Optional session token returned when the subject&#39;s profile was created.
+         *
+         * @return builder
+         *
+         */
+        public Builder sessionToken(String sessionToken) {
+            return sessionToken(Output.of(sessionToken));
         }
 
         /**
@@ -324,9 +435,6 @@ public final class ConsentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         public ConsentArgs build() {
-            if ($.actions == null) {
-                throw new MissingRequiredPropertyException("ConsentArgs", "actions");
-            }
             if ($.subject == null) {
                 throw new MissingRequiredPropertyException("ConsentArgs", "subject");
             }

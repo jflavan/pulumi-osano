@@ -7,11 +7,43 @@ import com.pulumi.core.annotations.Import;
 import com.pulumi.exceptions.MissingRequiredPropertyException;
 import java.lang.String;
 import java.util.Objects;
+import java.util.Optional;
+import javax.annotation.Nullable;
 
 
 public final class CheckConsentPlainArgs extends com.pulumi.resources.InvokeArgs {
 
     public static final CheckConsentPlainArgs Empty = new CheckConsentPlainArgs();
+
+    /**
+     * Optional ISO 3166-1 country code Osano uses instead of resolving the caller&#39;s IP address, which in a pipeline is the CI runner&#39;s.
+     *
+     */
+    @Import(name="countryCodeOverride")
+    private @Nullable String countryCodeOverride;
+
+    /**
+     * @return Optional ISO 3166-1 country code Osano uses instead of resolving the caller&#39;s IP address, which in a pipeline is the CI runner&#39;s.
+     *
+     */
+    public Optional<String> countryCodeOverride() {
+        return Optional.ofNullable(this.countryCodeOverride);
+    }
+
+    /**
+     * Optional ISO 3166-2 region code Osano uses instead of resolving the caller&#39;s IP address.
+     *
+     */
+    @Import(name="regionCodeOverride")
+    private @Nullable String regionCodeOverride;
+
+    /**
+     * @return Optional ISO 3166-2 region code Osano uses instead of resolving the caller&#39;s IP address.
+     *
+     */
+    public Optional<String> regionCodeOverride() {
+        return Optional.ofNullable(this.regionCodeOverride);
+    }
 
     /**
      * The subject ID to check.
@@ -31,6 +63,8 @@ public final class CheckConsentPlainArgs extends com.pulumi.resources.InvokeArgs
     private CheckConsentPlainArgs() {}
 
     private CheckConsentPlainArgs(CheckConsentPlainArgs $) {
+        this.countryCodeOverride = $.countryCodeOverride;
+        this.regionCodeOverride = $.regionCodeOverride;
         this.subjectId = $.subjectId;
     }
 
@@ -50,6 +84,28 @@ public final class CheckConsentPlainArgs extends com.pulumi.resources.InvokeArgs
 
         public Builder(CheckConsentPlainArgs defaults) {
             $ = new CheckConsentPlainArgs(Objects.requireNonNull(defaults));
+        }
+
+        /**
+         * @param countryCodeOverride Optional ISO 3166-1 country code Osano uses instead of resolving the caller&#39;s IP address, which in a pipeline is the CI runner&#39;s.
+         *
+         * @return builder
+         *
+         */
+        public Builder countryCodeOverride(@Nullable String countryCodeOverride) {
+            $.countryCodeOverride = countryCodeOverride;
+            return this;
+        }
+
+        /**
+         * @param regionCodeOverride Optional ISO 3166-2 region code Osano uses instead of resolving the caller&#39;s IP address.
+         *
+         * @return builder
+         *
+         */
+        public Builder regionCodeOverride(@Nullable String regionCodeOverride) {
+            $.regionCodeOverride = regionCodeOverride;
+            return this;
         }
 
         /**
