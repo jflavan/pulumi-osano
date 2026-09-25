@@ -80,6 +80,9 @@ sdk/dotnet: $(SCHEMA_FILE)
 	$(PULUMI) package gen-sdk --language dotnet $(SCHEMA_FILE) --version "${VERSION_GENERIC}"
 	cp README.md ${PACKDIR}/dotnet/
 	@python3 scripts/patch-dotnet-csproj.py sdk/dotnet/Community.Pulumi.Osano.csproj
+	# The generator downloads the schema's logoUrl into logo.png (the NuGet package icon). Use the
+	# committed copy instead so codegen output never depends on what that URL serves.
+	cp assets/logo.png ${PACKDIR}/dotnet/logo.png
 
 
 

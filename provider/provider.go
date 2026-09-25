@@ -30,6 +30,21 @@ func Provider() p.Provider {
 		WithHomepage("https://github.com/jflavan/pulumi-osano").
 		WithRepository("https://github.com/jflavan/pulumi-osano").
 		WithLicense("MIT").
+		// Pulumi Registry metadata. The registry requires a publisher and reads the category/ and kind/
+		// keywords; the other keywords become search terms. The logo is an original mark kept in this
+		// repository (assets/logo.png), not Osano's or Pulumi's.
+		WithPublisher("John Flavan").
+		WithLogoURL("https://raw.githubusercontent.com/jflavan/pulumi-osano/main/assets/logo.png").
+		WithKeywords(
+			"pulumi",
+			"osano",
+			"consent",
+			"cookie-consent",
+			"privacy",
+			"cmp",
+			"category/infrastructure",
+			"kind/native",
+		).
 		WithPluginDownloadURL("github://api.github.com/jflavan/pulumi-osano").
 		WithNamespace(Name).
 		WithConfig(infer.Config(&Config{})).

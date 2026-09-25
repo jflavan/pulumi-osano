@@ -28,15 +28,20 @@ type apiClient struct {
 
 func newAPIClient(ctx context.Context) *apiClient {
 	settings := loadAPISettings(ctx)
-	ua := "pulumi-osano/" + providerVersion
-	if strings.TrimSpace(ua) == "" {
-		ua = "pulumi-osano/dev"
-	}
 	return &apiClient{
 		settings:   settings,
 		httpClient: newHTTPClient(settings.timeout),
-		userAgent:  ua,
+		userAgent:  providerUserAgent(),
 	}
+}
+
+// providerUserAgent identifies this provider and its version to the Osano APIs, for example
+// pulumi-osano/0.1.0.
+func providerUserAgent() string {
+	if strings.TrimSpace(providerVersion) == "" {
+		return "pulumi-osano/dev"
+	}
+	return "pulumi-osano/" + providerVersion
 }
 
 func (c *apiClient) CreateConsent(ctx context.Context, payload consentRequestPayload) (map[string]any, error) {

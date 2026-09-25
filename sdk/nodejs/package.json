@@ -2,6 +2,16 @@
     "name": "@jflavan/pulumi-osano",
     "version": "0.1.0-alpha.0+dev",
     "description": "Pulumi provider for Osano Cookie Consent and Unified Consent APIs.",
+    "keywords": [
+        "pulumi",
+        "osano",
+        "consent",
+        "cookie-consent",
+        "privacy",
+        "cmp",
+        "category/infrastructure",
+        "kind/native"
+    ],
     "homepage": "https://github.com/jflavan/pulumi-osano",
     "repository": "https://github.com/jflavan/pulumi-osano",
     "license": "MIT",

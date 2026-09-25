@@ -2,7 +2,10 @@
 package provider
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 )
@@ -26,6 +29,31 @@ func TestCustomerSettingsFromConfig(t *testing.T) {
 	}
 	if settings.baseURL.String() != "https://customer.example.test/root" {
 		t.Fatalf("unexpected base URL %s", settings.baseURL)
+	}
+}
+
+// The Pulumi Registry asks providers to identify themselves to the vendor API, so Customer REST API
+// calls send the same pulumi-osano/<version> user agent as Unified Consent calls.
+func TestCustomerClientSendsProviderUserAgent(t *testing.T) {
+	var got atomic.Value
+	api := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		got.Store(r.Header.Get("User-Agent"))
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{}`))
+	}))
+	defer api.Close()
+	t.Setenv(envOsanoAPIKey, "")
+	t.Setenv(envRequestTimeout, "")
+
+	client, err := customerClientFromConfig(Config{OsanoAPIKey: "config-key", CustomerBaseURL: api.URL})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := client.DoJSON(t.Context(), http.MethodGet, "/v1/ping", nil, nil, nil); err != nil {
+		t.Fatal(err)
+	}
+	if ua, _ := got.Load().(string); ua != providerUserAgent() || !strings.HasPrefix(ua, "pulumi-osano/") {
+		t.Fatalf("expected the provider user agent %q, got %q", providerUserAgent(), ua)
 	}
 }
 

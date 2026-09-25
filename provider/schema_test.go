@@ -2,6 +2,7 @@ package provider
 
 import (
 	"encoding/json"
+	"strings"
 	"testing"
 
 	"github.com/blang/semver"
@@ -28,10 +29,16 @@ type schemaObject struct {
 }
 
 type providerSchema struct {
-	License   string                                        `json:"license"`
-	Config    struct{ Variables map[string]schemaProperty } `json:"config"`
-	Resources map[string]schemaObject                       `json:"resources"`
-	Functions map[string]schemaObject                       `json:"functions"`
+	Name              string                                        `json:"name"`
+	DisplayName       string                                        `json:"displayName"`
+	License           string                                        `json:"license"`
+	Publisher         string                                        `json:"publisher"`
+	LogoURL           string                                        `json:"logoUrl"`
+	Keywords          []string                                      `json:"keywords"`
+	PluginDownloadURL string                                        `json:"pluginDownloadURL"`
+	Config            struct{ Variables map[string]schemaProperty } `json:"config"`
+	Resources         map[string]schemaObject                       `json:"resources"`
+	Functions         map[string]schemaObject                       `json:"functions"`
 }
 
 func loadProviderSchema(t *testing.T) providerSchema {
@@ -127,6 +134,46 @@ func TestProviderSchemaDescribesEveryInput(t *testing.T) {
 			t.Errorf("config %s has no description", name)
 		}
 	}
+}
+
+// TestProviderSchemaRegistryMetadata checks the fields the Pulumi Registry's resourcedocsgen validates
+// when it lists a community package: a publisher, exactly one known category/ keyword, and the
+// kind/native keyword. The logo must be an absolute https URL the registry can load.
+func TestProviderSchemaRegistryMetadata(t *testing.T) {
+	t.Parallel()
+	schema := loadProviderSchema(t)
+
+	if schema.Name != "osano" || schema.DisplayName == "" {
+		t.Fatalf("unexpected package name %q / displayName %q", schema.Name, schema.DisplayName)
+	}
+	if schema.Publisher == "" {
+		t.Fatal("the registry requires a publisher in the schema")
+	}
+	if !strings.HasPrefix(schema.LogoURL, "https://") || !strings.HasSuffix(schema.LogoURL, ".png") {
+		t.Fatalf("expected an https PNG logoUrl, got %q", schema.LogoURL)
+	}
+	if schema.PluginDownloadURL != "github://api.github.com/jflavan/pulumi-osano" {
+		t.Fatalf("unexpected pluginDownloadURL %q", schema.PluginDownloadURL)
+	}
+
+	// The registry's category names (tools/resourcedocsgen/pkg/lookup.go CategoryNameMap).
+	knownCategories := map[string]bool{
+		"cloud": true, "database": true, "infrastructure": true, "monitoring": true,
+		"network": true, "utility": true, "vcs": true,
+	}
+	var categories []string
+	for _, keyword := range schema.Keywords {
+		if category, ok := strings.CutPrefix(keyword, "category/"); ok {
+			if !knownCategories[category] {
+				t.Errorf("unknown registry category keyword %q", keyword)
+			}
+			categories = append(categories, category)
+		}
+	}
+	if len(categories) != 1 {
+		t.Errorf("expected exactly one category/ keyword, got %v", categories)
+	}
+	assertContains(t, schema.Keywords, "kind/native", "osano")
 }
 
 func assertContains(t *testing.T, values []string, want ...string) {
