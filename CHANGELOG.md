@@ -8,6 +8,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Until 1.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-09-25
+
 ### Changed
 
 - The npm, PyPI, NuGet, and pkg.go.dev pages now show a README written for their own language, with
@@ -195,6 +197,7 @@ or Pulumi Corporation.
 - The `ucApiKey` and `ucBaseUrl` provider configuration keys. They are still read as fallbacks;
   use `unifiedConsentApiKey` and `apiBaseUrl` instead.
 
-[Unreleased]: https://github.com/jflavan/pulumi-osano/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/jflavan/pulumi-osano/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/jflavan/pulumi-osano/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/jflavan/pulumi-osano/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/jflavan/pulumi-osano/releases/tag/v0.1.0

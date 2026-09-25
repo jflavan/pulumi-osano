@@ -2,6 +2,13 @@
 
 This guide captures breaking changes and migration tips between provider versions.
 
+## Upgrading from 0.2.0 to 0.2.1
+
+`0.2.1` changes no resource, function, input, output, or provider setting, and the provider
+plugin behaves as in `0.2.0`. It republishes the SDKs so that npm, PyPI, NuGet, and pkg.go.dev
+show a README with examples in their own language. Update the pinned version; nothing else is
+needed.
+
 ## Upgrading from 0.1.0 to 0.2.0
 
 `0.2.0` keeps every resource and function token and never replaces a Cookie
@@ -198,11 +205,11 @@ pinned SDK version.
 
 | Language | Exact pin |
 | --- | --- |
-| Node.js | `npm install --save-exact @jflavan/pulumi-osano@0.2.0` (`package.json`) |
-| Python | `pulumi-osano==0.2.0` in `requirements.txt` |
-| Go | `go get github.com/jflavan/pulumi-osano/sdk/go/osano@v0.2.0` (`go.mod`) |
-| .NET | `<PackageReference Include="Community.Pulumi.Osano" Version="0.2.0" />` in the `.csproj` |
-| Java | `io.github.jflavan.pulumi:pulumi-osano:0.2.0` in `pom.xml` or `build.gradle` |
+| Node.js | `npm install --save-exact @jflavan/pulumi-osano@0.2.1` (`package.json`) |
+| Python | `pulumi-osano==0.2.1` in `requirements.txt` |
+| Go | `go get github.com/jflavan/pulumi-osano/sdk/go/osano@v0.2.1` (`go.mod`) |
+| .NET | `<PackageReference Include="Community.Pulumi.Osano" Version="0.2.1" />` in the `.csproj` |
+| Java | `io.github.jflavan.pulumi:pulumi-osano:0.2.1` in `pom.xml` or `build.gradle` |
 
 - Fields may be renamed as Osano expands the API. Review the release notes for
   each version and update your Pulumi code accordingly.
