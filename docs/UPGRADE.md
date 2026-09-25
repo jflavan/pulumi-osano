@@ -103,13 +103,14 @@ deleting either of those resources removes only Pulumi state. A destroyed stack
 therefore retains the upstream configuration and published script; review and
 disable retained customer resources in Osano separately when required.
 
-## Pinning alpha releases
+## Pinning pre-1.0 releases
 
-The provider is pre-1.0 (`1.0.0-alpha.*`), so breaking changes can ship between
-alpha builds. Pin the SDK package to an exact version in your program's
-dependency manifest (`package.json`, `requirements.txt`, `.csproj`, or `go.mod`)
-and review the release notes before upgrading. The Pulumi engine installs the
-matching provider plugin for the pinned SDK version.
+The provider is pre-1.0 (`0.x`, starting with `v0.1.0`). Under semantic
+versioning a `0.x` minor release may contain breaking changes, so pin the SDK
+package to an exact version in your program's dependency manifest
+(`package.json`, `requirements.txt`, `.csproj`, or `go.mod`) and review the
+[CHANGELOG](../CHANGELOG.md) and release notes before upgrading. The Pulumi
+engine installs the matching provider plugin for the pinned SDK version.
 
 - Fields may be renamed as Osano expands the API. Review the release notes for
   each version and update your Pulumi code accordingly.
