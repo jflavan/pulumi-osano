@@ -111,8 +111,11 @@ for direct publishing, so prefer this over an `NPM_TOKEN`:
    from the table above. Trusted publishers created after 3 September 2026 allow only
    `npm stage publish` by default: also allow **npm publish**, because the workflow publishes
    directly.
-4. Re-run the failed jobs of the release run. The npm step skips the version that is now on npm,
-   PyPI and NuGet publish, and `publish_go_sdk` pushes the Go SDK tag.
+4. Wait a few minutes, until `npm view @jflavan/pulumi-osano@X.Y.Z version --prefer-online` prints
+   the version, then re-run the failed jobs of the release run. The npm step skips the version that
+   is now on npm, PyPI and NuGet publish, and `publish_go_sdk` pushes the Go SDK tag. A re-run that
+   starts too soon can miss the new version and fail the npm step again (see
+   [Re-run a partially failed release](#re-run-a-partially-failed-release)).
 5. Optionally, under **Publishing access**, select **Require two-factor authentication and disallow
    tokens**. Trusted publishing keeps working because it does not use a token.
 
@@ -182,7 +185,7 @@ it on `main` and release the next patch version.
 
 Use **Re-run failed jobs** on the failed run (or `gh run rerun <run-id> --failed`). It re-runs only
 the failed jobs and the jobs that depend on them, and they reuse the artifacts the successful jobs
-already uploaded. Every publishing step skips work that already happened:
+already uploaded. Every publishing step skips work that the registry already reports as done:
 
 | Job | On re-run |
 | --- | --- |
@@ -192,8 +195,14 @@ already uploaded. Every publishing step skips work that already happened:
 | `publish_java_sdk` | Skips when `io/github/jflavan/pulumi/pulumi-osano/X.Y.Z/pulumi-osano-X.Y.Z.pom` exists on `repo1.maven.org`. |
 | `publish_go_sdk` | `pulumi/publish-go-sdk-action` skips the commit and push when the `sdk/go/osano/vX.Y.Z` tag exists, and only refreshes the Go module cache. |
 
-Two cases need care:
+Three cases need care:
 
+- **npm lag.** The npm step looks the version up with `npm view`, which can miss a version published
+  a few minutes earlier. The step then tries to publish that version again and fails; npm never
+  accepts the same version twice, so the published package does not change. Before re-running soon
+  after an npm publish, including a manual bootstrap publish, wait until
+  `npm view @jflavan/pulumi-osano@X.Y.Z version --prefer-online` prints the version. If the npm step
+  still fails this way, re-run the failed jobs again.
 - **Maven Central lag.** A released version usually appears on `repo1.maven.org` 10 to 30 minutes
   after its Central Portal deployment shows PUBLISHING, sometimes longer. Before re-running
   `publish_java_sdk` soon after a Java publish, check the deployment on the
@@ -207,10 +216,12 @@ Two cases need care:
   re-run the failed jobs. Do not use **Re-run all jobs** after `publish` succeeded: GoReleaser would
   fail on the existing release.
 
-`v0.1.0` took four run attempts. The npm step failed until the package was bootstrapped by hand, and
-then `publish_java_sdk` failed with `Task 'publishToSonatype' not found` until the Maven Central
-secrets were added. Each time, **Re-run failed jobs** was safe because every publishing step skipped
-what was already published.
+`v0.1.0` took four run attempts. The npm step failed with `ENEEDAUTH` in attempts 1 and 2: in
+attempt 1 the package did not exist yet, and attempt 2 started less than two minutes after the
+manual bootstrap publish, so its `npm view` lookup did not see `0.1.0` yet and the step tried to
+publish again. `publish_java_sdk` failed in attempts 1 to 3 with `Task 'publishToSonatype' not found`
+until the Maven Central secrets were added. Attempt 3 skipped npm and published PyPI, NuGet, and the
+Go SDK tag, and attempt 4 published Maven Central. No attempt published a version twice.
 
 ## After the release
 

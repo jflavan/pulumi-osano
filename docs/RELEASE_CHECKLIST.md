@@ -70,8 +70,10 @@ Use this checklist whenever publishing a new `pulumi-osano` provider release.
    - After the release PR merges: `git checkout main && git pull && git tag vX.Y.Z && git push origin vX.Y.Z`.
    - Verify the GitHub Actions `release` workflow completes successfully for provider binaries and every SDK.
    - If a job fails, fix the cause and use **Re-run failed jobs**; publishing steps skip versions
-     that are already published. If the `publish` (GoReleaser) job failed after creating the
-     GitHub release, delete the release (keep the tag) first. Never move a published tag.
+     that are already published. Right after an npm or Maven Central publish the lookup can miss
+     the new version, so wait for it to appear first (see "Re-run a partially failed release" in
+     the release guide). If the `publish` (GoReleaser) job failed after creating the GitHub
+     release, delete the release (keep the tag) first. Never move a published tag.
    - Confirm npm, PyPI, NuGet, Maven Central, and Go publication all completed before announcing the release.
 8. **Post-release follow-up**
    - Check that the plugin installs:
