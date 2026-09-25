@@ -129,14 +129,17 @@ func (r *CookieConsentConfig) Check(
 	}
 	if args.Configuration == nil {
 		failures = append(failures, p.CheckFailure{Property: "configuration", Reason: "configuration is required"})
-	} else if _, ok := args.Configuration["storagePolicyHref"]; !ok {
-		failures = append(
-			failures,
-			p.CheckFailure{
-				Property: "configuration.storagePolicyHref",
-				Reason:   "configuration.storagePolicyHref is required",
-			},
-		)
+		return infer.CheckResponse[CookieConsentConfigArgs]{Inputs: args, Failures: failures}, nil
+	}
+	mode := ""
+	if propertyKnown("mode") {
+		mode = args.Mode
+	}
+	configurationFailures, warnings := validateCookieConsentConfiguration(args.Configuration, mode)
+	failures = append(failures, configurationFailures...)
+	logger := p.GetLogger(ctx)
+	for _, warning := range warnings {
+		logger.Warning(warning)
 	}
 
 	return infer.CheckResponse[CookieConsentConfigArgs]{Inputs: args, Failures: failures}, nil
@@ -362,16 +365,4 @@ func cookieConsentConfigArgsFromResponse(
 		args.Configuration = projectConfiguration(resp.Configuration, declared.Configuration)
 	}
 	return args
-}
-
-func projectConfiguration(server, declared map[string]any) map[string]any {
-	projected := make(map[string]any, len(declared))
-	for key, declaredValue := range declared {
-		if serverValue, ok := server[key]; ok {
-			projected[key] = serverValue
-		} else {
-			projected[key] = declaredValue
-		}
-	}
-	return projected
 }

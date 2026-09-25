@@ -111,7 +111,9 @@ func (c *Client) DoJSON(
 	}
 	requestURL.Path = unescapedPath
 	requestURL.RawPath = escapedPath
-	requestURL.RawQuery = query.Encode()
+	// Encode spaces as %20 rather than form-style "+": Osano documents URL-encoded spaces for filters
+	// such as the config name search. Encode escapes a literal "+" as %2B, so any "+" left is a space.
+	requestURL.RawQuery = strings.ReplaceAll(query.Encode(), "+", "%20")
 
 	var bodyBytes []byte
 	var body io.Reader
