@@ -8,6 +8,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Until 1.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-09-25
+
 This release brings the provider up to date with Osano's current Customer REST API and Unified
 Consent Core API specs (both published 2026-09-23) and with pulumi-go-provider v1.6.0 and Pulumi
 v3.264.0. Upgrade notes: [docs/UPGRADE.md](docs/UPGRADE.md#upgrading-from-010-to-020).
@@ -187,5 +189,6 @@ or Pulumi Corporation.
 - The `ucApiKey` and `ucBaseUrl` provider configuration keys. They are still read as fallbacks;
   use `unifiedConsentApiKey` and `apiBaseUrl` instead.
 
-[Unreleased]: https://github.com/jflavan/pulumi-osano/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/jflavan/pulumi-osano/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/jflavan/pulumi-osano/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/jflavan/pulumi-osano/releases/tag/v0.1.0
