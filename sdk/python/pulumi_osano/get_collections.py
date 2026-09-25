@@ -34,11 +34,17 @@ class GetCollectionsResult:
     @_builtins.property
     @pulumi.getter
     def collection(self) -> Mapping[str, Any]:
+        """
+        The collection of privacy protocols that applies to the jurisdiction.
+        """
         return pulumi.get(self, "collection")
 
     @_builtins.property
     @pulumi.getter
     def jurisdictions(self) -> Sequence[_builtins.str]:
+        """
+        Every jurisdiction the configuration defines.
+        """
         return pulumi.get(self, "jurisdictions")
 
 
@@ -58,9 +64,8 @@ def get_collections(jurisdiction: Optional[_builtins.str] = None,
     """
     Retrieves the aggregated privacy protocol collections, optionally filtered by jurisdiction and type.
 
-
-    :param _builtins.str jurisdiction: Optional jurisdiction filter, sent as the jurisdiction query parameter.
-    :param _builtins.str type: Optional collection type filter, sent as the type query parameter.
+    :param _builtins.str jurisdiction: Optional jurisdiction filter. When unset, Osano resolves the jurisdiction from the caller's IP address.
+    :param _builtins.str type: Optional collection type: published (default) or draft.
     """
     __args__ = dict()
     __args__['jurisdiction'] = jurisdiction
@@ -71,15 +76,14 @@ def get_collections(jurisdiction: Optional[_builtins.str] = None,
     return AwaitableGetCollectionsResult(
         collection=pulumi.get(__ret__, 'collection'),
         jurisdictions=pulumi.get(__ret__, 'jurisdictions'))
-def get_collections_output(jurisdiction: Optional[pulumi.Input[Optional[_builtins.str]]] = None,
-                           type: Optional[pulumi.Input[Optional[_builtins.str]]] = None,
+def get_collections_output(jurisdiction: pulumi.Input[Optional[Optional[_builtins.str]]] = None,
+                           type: pulumi.Input[Optional[Optional[_builtins.str]]] = None,
                            opts: Optional[Union[pulumi.InvokeOptions, pulumi.InvokeOutputOptions]] = None) -> pulumi.Output[GetCollectionsResult]:
     """
     Retrieves the aggregated privacy protocol collections, optionally filtered by jurisdiction and type.
 
-
-    :param _builtins.str jurisdiction: Optional jurisdiction filter, sent as the jurisdiction query parameter.
-    :param _builtins.str type: Optional collection type filter, sent as the type query parameter.
+    :param _builtins.str jurisdiction: Optional jurisdiction filter. When unset, Osano resolves the jurisdiction from the caller's IP address.
+    :param _builtins.str type: Optional collection type: published (default) or draft.
     """
     __args__ = dict()
     __args__['jurisdiction'] = jurisdiction

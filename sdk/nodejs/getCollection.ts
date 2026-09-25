@@ -22,8 +22,17 @@ export interface GetCollectionArgs {
 }
 
 export interface GetCollectionResult {
+    /**
+     * The collection: collectionId, name, frameworks, configIds, jurisdiction, type, consents, and preferences.
+     */
     readonly collection: {[key: string]: any};
+    /**
+     * The collection ID that was looked up.
+     */
     readonly collectionId: string;
+    /**
+     * Whether Osano returned the collection.
+     */
     readonly exists: boolean;
 }
 /**

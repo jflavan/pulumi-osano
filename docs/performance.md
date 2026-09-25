@@ -5,7 +5,8 @@ The provider is lightweight: it serializes Pulumi inputs and calls the Osano RES
 ## Throughput
 
 - Osano enforces rate limits per API key. Batch multiple consent actions into a single `Consent` resource when possible to minimize calls.
-- Cookie Consent calls retry `429` and `503` responses with bounded backoff (honoring `Retry-After`, capped at one minute per wait). Reads, updates, deletes, and the publish request also retry other `5xx` responses, and reads retry dropped connections; config and rule creates do not, so an ambiguous server error never creates a duplicate config or rule.
+- Cookie Consent calls retry `429` and `503` responses with bounded backoff (honoring `Retry-After`, capped at one minute per wait). Reads, including the `getCookieConsent*` functions, updates, deletes, and the publish request also retry other `5xx` responses, and reads retry dropped connections; config and rule creates do not, so an ambiguous server error never creates a duplicate config or rule.
+- Osano runs one publication per configuration at a time, queues at most 300 configurations per account, and publishes in batches of up to 250 per 30 minutes. A pipeline that publishes many configurations in one update can wait behind these limits; stagger those updates or allow longer `customTimeouts`.
 - Separate workloads into distinct stacks (for example, `consents-eu`, `consents-us`) to avoid throttling large previews.
 
 ## Latency
@@ -16,9 +17,19 @@ The provider is lightweight: it serializes Pulumi inputs and calls the Osano RES
 
 ## State Size
 
-- Each `osano:index:Consent` resource stores its inputs plus `consentId` and `lastSynced`. Keep attributes compact to avoid bloating state snapshots.
+- Each `osano:index:Consent` resource stores its inputs plus `consentId`, `lastSynced`, and, for a GPC consent, the derived `gpcActions`. Keep attributes compact to avoid bloating state snapshots.
 - Use stack outputs sparingly; export aggregated values instead of large payloads.
 
 ## Preview Optimization
 
-During `pulumi preview`, resources make no outbound HTTP calls: create previews report server-assigned outputs as unknown, and update previews carry the prior outputs forward. Functions (invokes) are different: Pulumi runs them during preview, so every `get*` lookup, and any `sendSubjectCode` or `verifySubjectCode` call, contacts Osano on each preview.
+During `pulumi preview`, resources make no outbound HTTP calls: create previews report server-assigned outputs as unknown, and update previews carry the prior outputs forward. Functions (invokes) are different: Pulumi runs them during preview, update, and refresh, so every `get*` lookup, and any `sendSubjectCode` or `verifySubjectCode` call, contacts Osano on each run.
+
+The list functions follow Osano's pagination, so one call can make several requests:
+
+| Function | Page size | Returns |
+| --- | --- | --- |
+| `getCookieConsentConfigs` | 1000 | Every match, or the first `maxResults` |
+| `getCookieConsentRules` | 500 | Every matching rule of the configuration |
+| `getCookieConsentAuditLog` | 200 | The newest 200 events by default; set `maxResults` (`0` returns every match) |
+
+Narrow them with their filters (for example `configIds`, `eventTypes`, and a date range for the audit log) in programs that run often.

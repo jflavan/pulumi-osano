@@ -2,6 +2,34 @@
 
 ## Cookie Consent resources
 
+Use Pulumi CLI 3.252 or later for `pulumi import`. Earlier versions can delete
+an imported resource when the import ID differs from the canonical ID the
+provider reports, which can happen with rule IDs.
+
+### Find the IDs
+
+The configuration ID is in the Osano dashboard, or list configurations with
+`getCookieConsentConfigs`, filtered by name, domains, organization, mode, or
+publish status. List a configuration's rules, with each `ruleId`, with
+`getCookieConsentRules`, optionally filtered by `storeType` and
+`classification`. For example, in a scratch TypeScript program that has the
+Customer REST API key configured:
+
+```ts
+import * as osano from "@jflavan/pulumi-osano";
+
+export const configs = osano.getCookieConsentConfigsOutput({ domains: ["example.com"] })
+    .configs.apply((items) => items.map((c) => ({ configId: c.configId, name: c.name, mode: c.mode })));
+
+export const ruleImportIds = osano.getCookieConsentRulesOutput({ configId: "<configId>" })
+    .rules.apply((rules) => rules.map((r) => `${r.configId}/${r.ruleId}`));
+```
+
+`pulumi preview` prints the outputs without creating anything. Both functions
+follow Osano's pagination and return every match.
+
+### Import
+
 Existing Cookie Consent configurations, rules, and publications can be adopted
 with these exact ID formats:
 

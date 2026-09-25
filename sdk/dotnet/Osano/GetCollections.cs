@@ -35,13 +35,13 @@ namespace Community.Pulumi.Osano
     public sealed class GetCollectionsArgs : global::Pulumi.InvokeArgs
     {
         /// <summary>
-        /// Optional jurisdiction filter, sent as the jurisdiction query parameter.
+        /// Optional jurisdiction filter. When unset, Osano resolves the jurisdiction from the caller's IP address.
         /// </summary>
         [Input("jurisdiction")]
         public string? Jurisdiction { get; set; }
 
         /// <summary>
-        /// Optional collection type filter, sent as the type query parameter.
+        /// Optional collection type: published (default) or draft.
         /// </summary>
         [Input("type")]
         public string? Type { get; set; }
@@ -55,13 +55,13 @@ namespace Community.Pulumi.Osano
     public sealed class GetCollectionsInvokeArgs : global::Pulumi.InvokeArgs
     {
         /// <summary>
-        /// Optional jurisdiction filter, sent as the jurisdiction query parameter.
+        /// Optional jurisdiction filter. When unset, Osano resolves the jurisdiction from the caller's IP address.
         /// </summary>
         [Input("jurisdiction")]
         public Input<string>? Jurisdiction { get; set; }
 
         /// <summary>
-        /// Optional collection type filter, sent as the type query parameter.
+        /// Optional collection type: published (default) or draft.
         /// </summary>
         [Input("type")]
         public Input<string>? Type { get; set; }
@@ -76,7 +76,13 @@ namespace Community.Pulumi.Osano
     [OutputType]
     public sealed class GetCollectionsResult
     {
+        /// <summary>
+        /// The collection of privacy protocols that applies to the jurisdiction.
+        /// </summary>
         public readonly ImmutableDictionary<string, object> Collection;
+        /// <summary>
+        /// Every jurisdiction the configuration defines.
+        /// </summary>
         public readonly ImmutableArray<string> Jurisdictions;
 
         [OutputConstructor]

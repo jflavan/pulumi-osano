@@ -19,34 +19,34 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 
 /**
- * Creates unified consent decisions within Osano for a given subject.
+ * Submits a Unified Consent decision for a subject. Consents are immutable in Osano: changing any input submits a new consent (replacement), and destroying the resource only removes it from Pulumi state. Set origin to gpc and omit actions to submit a Global Privacy Control consent, whose actions Osano derives and returns in gpcActions.
  *
  */
 @ResourceType(type="osano:index:Consent")
 public class Consent extends com.pulumi.resources.CustomResource {
     /**
-     * Consent actions referencing privacy protocols (target) within a configuration (vendor).
+     * Consent actions referencing privacy protocols (target) within a configuration (vendor). Required unless origin is gpc.
      *
      */
     @Export(name="actions", refs={List.class,ConsentAction.class}, tree="[0,1]")
-    private Output<List<ConsentAction>> actions;
+    private Output</* @Nullable */ List<ConsentAction>> actions;
 
     /**
-     * @return Consent actions referencing privacy protocols (target) within a configuration (vendor).
+     * @return Consent actions referencing privacy protocols (target) within a configuration (vendor). Required unless origin is gpc.
      *
      */
-    public Output<List<ConsentAction>> actions() {
-        return this.actions;
+    public Output<Optional<List<ConsentAction>>> actions() {
+        return Codegen.optional(this.actions);
     }
     /**
-     * Optional key/value attributes stored with the consent record (e.g., ipAddress overrides).
+     * Optional key/value attributes stored with the consent record. Osano fills ipAddress and userAgent itself and overwrites values sent for those keys.
      *
      */
     @Export(name="attributes", refs={Map.class,String.class}, tree="[0,1,1]")
     private Output</* @Nullable */ Map<String,String>> attributes;
 
     /**
-     * @return Optional key/value attributes stored with the consent record (e.g., ipAddress overrides).
+     * @return Optional key/value attributes stored with the consent record. Osano fills ipAddress and userAgent itself and overwrites values sent for those keys.
      *
      */
     public Output<Optional<Map<String,String>>> attributes() {
@@ -81,14 +81,42 @@ public class Consent extends com.pulumi.resources.CustomResource {
         return this.consentId;
     }
     /**
-     * Optional jurisdiction override matching one of the configuration&#39;s jurisdictions.
+     * Optional ISO 3166-1 country code Osano uses instead of resolving the caller&#39;s IP address. Set it when submitting from a pipeline, whose IP address says nothing about the subject.
+     *
+     */
+    @Export(name="countryCodeOverride", refs={String.class}, tree="[0]")
+    private Output</* @Nullable */ String> countryCodeOverride;
+
+    /**
+     * @return Optional ISO 3166-1 country code Osano uses instead of resolving the caller&#39;s IP address. Set it when submitting from a pipeline, whose IP address says nothing about the subject.
+     *
+     */
+    public Output<Optional<String>> countryCodeOverride() {
+        return Codegen.optional(this.countryCodeOverride);
+    }
+    /**
+     * The actions Osano derived for a GPC consent submitted without actions.
+     *
+     */
+    @Export(name="gpcActions", refs={List.class,ConsentAction.class}, tree="[0,1]")
+    private Output</* @Nullable */ List<ConsentAction>> gpcActions;
+
+    /**
+     * @return The actions Osano derived for a GPC consent submitted without actions.
+     *
+     */
+    public Output<Optional<List<ConsentAction>>> gpcActions() {
+        return Codegen.optional(this.gpcActions);
+    }
+    /**
+     * Optional jurisdiction, which must be one of the configuration&#39;s jurisdictions (see getCollections).
      *
      */
     @Export(name="jurisdiction", refs={String.class}, tree="[0]")
     private Output</* @Nullable */ String> jurisdiction;
 
     /**
-     * @return Optional jurisdiction override matching one of the configuration&#39;s jurisdictions.
+     * @return Optional jurisdiction, which must be one of the configuration&#39;s jurisdictions (see getCollections).
      *
      */
     public Output<Optional<String>> jurisdiction() {
@@ -109,18 +137,46 @@ public class Consent extends com.pulumi.resources.CustomResource {
         return this.lastSynced;
     }
     /**
-     * Origin metadata for the consent, typically &#39;api&#39; or &#39;gpc&#39;.
+     * Origin of the consent: api (default) or gpc. With gpc and no actions, the consent is submitted to Osano&#39;s GPC endpoint, which derives the actions.
      *
      */
     @Export(name="origin", refs={String.class}, tree="[0]")
     private Output</* @Nullable */ String> origin;
 
     /**
-     * @return Origin metadata for the consent, typically &#39;api&#39; or &#39;gpc&#39;.
+     * @return Origin of the consent: api (default) or gpc. With gpc and no actions, the consent is submitted to Osano&#39;s GPC endpoint, which derives the actions.
      *
      */
     public Output<Optional<String>> origin() {
         return Codegen.optional(this.origin);
+    }
+    /**
+     * Optional ISO 3166-2 region code Osano uses instead of resolving the caller&#39;s IP address.
+     *
+     */
+    @Export(name="regionCodeOverride", refs={String.class}, tree="[0]")
+    private Output</* @Nullable */ String> regionCodeOverride;
+
+    /**
+     * @return Optional ISO 3166-2 region code Osano uses instead of resolving the caller&#39;s IP address.
+     *
+     */
+    public Output<Optional<String>> regionCodeOverride() {
+        return Codegen.optional(this.regionCodeOverride);
+    }
+    /**
+     * Optional session token returned when the subject&#39;s profile was created.
+     *
+     */
+    @Export(name="sessionToken", refs={String.class}, tree="[0]")
+    private Output</* @Nullable */ String> sessionToken;
+
+    /**
+     * @return Optional session token returned when the subject&#39;s profile was created.
+     *
+     */
+    public Output<Optional<String>> sessionToken() {
+        return Codegen.optional(this.sessionToken);
     }
     /**
      * Subject identifiers used for the consent (verifiedId or anonymousId).
@@ -191,6 +247,21 @@ public class Consent extends com.pulumi.resources.CustomResource {
         var defaultOptions = com.pulumi.resources.CustomResourceOptions.builder()
             .version(Utilities.getVersion())
             .pluginDownloadURL("github://api.github.com/jflavan/pulumi-osano")
+            .additionalSecretOutputs(List.of(
+                "sessionToken"
+            ))
+            .replaceOnChanges(List.of(
+                "actions[*]",
+                "attributes.*",
+                "compliance",
+                "countryCodeOverride",
+                "jurisdiction",
+                "origin",
+                "regionCodeOverride",
+                "sessionToken",
+                "subject",
+                "tags[*]"
+            ))
             .build();
         return com.pulumi.resources.CustomResourceOptions.merge(defaultOptions, options, id);
     }

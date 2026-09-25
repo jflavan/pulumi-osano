@@ -12,6 +12,7 @@ import io.github.jflavan.pulumi.osano.Utilities;
 import java.lang.Boolean;
 import java.lang.Integer;
 import java.lang.String;
+import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
 
@@ -82,14 +83,14 @@ public class CookieConsentPublication extends com.pulumi.resources.CustomResourc
      *
      */
     @Export(name="keepUnclassifiedTattles", refs={Boolean.class}, tree="[0]")
-    private Output</* @Nullable */ Boolean> keepUnclassifiedTattles;
+    private Output<Boolean> keepUnclassifiedTattles;
 
     /**
      * @return Whether publication preserves unclassified discoveries. Defaults to true to avoid unexpected deletion.
      *
      */
-    public Output<Optional<Boolean>> keepUnclassifiedTattles() {
-        return Codegen.optional(this.keepUnclassifiedTattles);
+    public Output<Boolean> keepUnclassifiedTattles() {
+        return this.keepUnclassifiedTattles;
     }
     /**
      * Unix timestamp of the completed Osano publication.
@@ -162,14 +163,14 @@ public class CookieConsentPublication extends com.pulumi.resources.CustomResourc
         return this.scriptTag;
     }
     /**
-     * Optional absolute HTTP or HTTPS URL notified by Osano after publication.
+     * Optional absolute HTTP or HTTPS URL Osano calls when the publication completes. Osano does not document the call&#39;s payload or sign it, so use an unguessable URL; the value is stored as a secret.
      *
      */
     @Export(name="webhookUrl", refs={String.class}, tree="[0]")
     private Output</* @Nullable */ String> webhookUrl;
 
     /**
-     * @return Optional absolute HTTP or HTTPS URL notified by Osano after publication.
+     * @return Optional absolute HTTP or HTTPS URL Osano calls when the publication completes. Osano does not document the call&#39;s payload or sign it, so use an unguessable URL; the value is stored as a secret.
      *
      */
     public Output<Optional<String>> webhookUrl() {
@@ -216,6 +217,9 @@ public class CookieConsentPublication extends com.pulumi.resources.CustomResourc
         var defaultOptions = com.pulumi.resources.CustomResourceOptions.builder()
             .version(Utilities.getVersion())
             .pluginDownloadURL("github://api.github.com/jflavan/pulumi-osano")
+            .additionalSecretOutputs(List.of(
+                "webhookUrl"
+            ))
             .build();
         return com.pulumi.resources.CustomResourceOptions.merge(defaultOptions, options, id);
     }

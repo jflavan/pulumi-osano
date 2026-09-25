@@ -35,7 +35,8 @@ type CookieConsentPublicationArgs struct {
 	ChangeToken             string  `pulumi:"changeToken"`
 	KeepUnclassifiedTattles *bool   `pulumi:"keepUnclassifiedTattles,optional"`
 	Description             *string `pulumi:"description,optional"`
-	WebhookURL              *string `pulumi:"webhookUrl,optional"`
+	// Osano calls the publish webhook without authentication, so the URL is often the only secret.
+	WebhookURL *string `pulumi:"webhookUrl,optional" provider:"secret"`
 }
 
 // CookieConsentPublicationState extends publication inputs with Osano metadata and public script outputs.
@@ -75,7 +76,11 @@ func (args *CookieConsentPublicationArgs) Annotate(a infer.Annotator) {
 	)
 	a.SetDefault(&args.KeepUnclassifiedTattles, true)
 	a.Describe(&args.Description, "Optional description sent with the publication request.")
-	a.Describe(&args.WebhookURL, "Optional absolute HTTP or HTTPS URL notified by Osano after publication.")
+	a.Describe(
+		&args.WebhookURL,
+		"Optional absolute HTTP or HTTPS URL Osano calls when the publication completes. Osano does not "+
+			"document the call's payload or sign it, so use an unguessable URL; the value is stored as a secret.",
+	)
 }
 
 // Annotate documents CookieConsentPublication outputs.

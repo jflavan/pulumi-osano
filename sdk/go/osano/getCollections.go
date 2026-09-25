@@ -23,30 +23,28 @@ func GetCollections(ctx *pulumi.Context, args *GetCollectionsArgs, opts ...pulum
 }
 
 type GetCollectionsArgs struct {
-	// Optional jurisdiction filter, sent as the jurisdiction query parameter.
+	// Optional jurisdiction filter. When unset, Osano resolves the jurisdiction from the caller's IP address.
 	Jurisdiction *string `pulumi:"jurisdiction"`
-	// Optional collection type filter, sent as the type query parameter.
+	// Optional collection type: published (default) or draft.
 	Type *string `pulumi:"type"`
 }
 
 type GetCollectionsResult struct {
-	Collection    map[string]interface{} `pulumi:"collection"`
-	Jurisdictions []string               `pulumi:"jurisdictions"`
+	// The collection of privacy protocols that applies to the jurisdiction.
+	Collection map[string]interface{} `pulumi:"collection"`
+	// Every jurisdiction the configuration defines.
+	Jurisdictions []string `pulumi:"jurisdictions"`
 }
 
 func GetCollectionsOutput(ctx *pulumi.Context, args GetCollectionsOutputArgs, opts ...pulumi.InvokeOption) GetCollectionsResultOutput {
-	return pulumi.ToOutputWithContext(ctx.Context(), args).
-		ApplyT(func(v interface{}) (GetCollectionsResultOutput, error) {
-			args := v.(GetCollectionsArgs)
-			options := pulumi.InvokeOutputOptions{InvokeOptions: internal.PkgInvokeDefaultOpts(opts)}
-			return ctx.InvokeOutput("osano:index:getCollections", args, GetCollectionsResultOutput{}, options).(GetCollectionsResultOutput), nil
-		}).(GetCollectionsResultOutput)
+	options := pulumi.InvokeOutputOptions{InvokeOptions: internal.PkgInvokeDefaultOpts(opts)}
+	return ctx.InvokeOutput("osano:index:getCollections", args, GetCollectionsResultOutput{}, options).(GetCollectionsResultOutput)
 }
 
 type GetCollectionsOutputArgs struct {
-	// Optional jurisdiction filter, sent as the jurisdiction query parameter.
+	// Optional jurisdiction filter. When unset, Osano resolves the jurisdiction from the caller's IP address.
 	Jurisdiction pulumi.StringPtrInput `pulumi:"jurisdiction"`
-	// Optional collection type filter, sent as the type query parameter.
+	// Optional collection type: published (default) or draft.
 	Type pulumi.StringPtrInput `pulumi:"type"`
 }
 
@@ -68,10 +66,12 @@ func (o GetCollectionsResultOutput) ToGetCollectionsResultOutputWithContext(ctx 
 	return o
 }
 
+// The collection of privacy protocols that applies to the jurisdiction.
 func (o GetCollectionsResultOutput) Collection() pulumi.MapOutput {
 	return o.ApplyT(func(v GetCollectionsResult) map[string]interface{} { return v.Collection }).(pulumi.MapOutput)
 }
 
+// Every jurisdiction the configuration defines.
 func (o GetCollectionsResultOutput) Jurisdictions() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v GetCollectionsResult) []string { return v.Jurisdictions }).(pulumi.StringArrayOutput)
 }

@@ -16,14 +16,14 @@ public final class VerifySubjectCodePlainArgs extends com.pulumi.resources.Invok
     public static final VerifySubjectCodePlainArgs Empty = new VerifySubjectCodePlainArgs();
 
     /**
-     * The one-time verification code the subject received.
+     * The one-time verification code the subject received (6 characters by email, 8 by SMS).
      *
      */
     @Import(name="code", required=true)
     private String code;
 
     /**
-     * @return The one-time verification code the subject received.
+     * @return The one-time verification code the subject received (6 characters by email, 8 by SMS).
      *
      */
     public String code() {
@@ -46,18 +46,18 @@ public final class VerifySubjectCodePlainArgs extends com.pulumi.resources.Invok
     }
 
     /**
-     * The hashed subject identifier being verified.
+     * Optional hashed subject identifier, sent only when set.
      *
      */
-    @Import(name="hashedSubjectId", required=true)
-    private String hashedSubjectId;
+    @Import(name="hashedSubjectId")
+    private @Nullable String hashedSubjectId;
 
     /**
-     * @return The hashed subject identifier being verified.
+     * @return Optional hashed subject identifier, sent only when set.
      *
      */
-    public String hashedSubjectId() {
-        return this.hashedSubjectId;
+    public Optional<String> hashedSubjectId() {
+        return Optional.ofNullable(this.hashedSubjectId);
     }
 
     /**
@@ -75,6 +75,21 @@ public final class VerifySubjectCodePlainArgs extends com.pulumi.resources.Invok
         return Optional.ofNullable(this.phone);
     }
 
+    /**
+     * The SMS challenge session. Required with phone; not used with email.
+     *
+     */
+    @Import(name="session")
+    private @Nullable String session;
+
+    /**
+     * @return The SMS challenge session. Required with phone; not used with email.
+     *
+     */
+    public Optional<String> session() {
+        return Optional.ofNullable(this.session);
+    }
+
     private VerifySubjectCodePlainArgs() {}
 
     private VerifySubjectCodePlainArgs(VerifySubjectCodePlainArgs $) {
@@ -82,6 +97,7 @@ public final class VerifySubjectCodePlainArgs extends com.pulumi.resources.Invok
         this.email = $.email;
         this.hashedSubjectId = $.hashedSubjectId;
         this.phone = $.phone;
+        this.session = $.session;
     }
 
     public static Builder builder() {
@@ -103,7 +119,7 @@ public final class VerifySubjectCodePlainArgs extends com.pulumi.resources.Invok
         }
 
         /**
-         * @param code The one-time verification code the subject received.
+         * @param code The one-time verification code the subject received (6 characters by email, 8 by SMS).
          *
          * @return builder
          *
@@ -125,12 +141,12 @@ public final class VerifySubjectCodePlainArgs extends com.pulumi.resources.Invok
         }
 
         /**
-         * @param hashedSubjectId The hashed subject identifier being verified.
+         * @param hashedSubjectId Optional hashed subject identifier, sent only when set.
          *
          * @return builder
          *
          */
-        public Builder hashedSubjectId(String hashedSubjectId) {
+        public Builder hashedSubjectId(@Nullable String hashedSubjectId) {
             $.hashedSubjectId = hashedSubjectId;
             return this;
         }
@@ -146,12 +162,20 @@ public final class VerifySubjectCodePlainArgs extends com.pulumi.resources.Invok
             return this;
         }
 
+        /**
+         * @param session The SMS challenge session. Required with phone; not used with email.
+         *
+         * @return builder
+         *
+         */
+        public Builder session(@Nullable String session) {
+            $.session = session;
+            return this;
+        }
+
         public VerifySubjectCodePlainArgs build() {
             if ($.code == null) {
                 throw new MissingRequiredPropertyException("VerifySubjectCodePlainArgs", "code");
-            }
-            if ($.hashedSubjectId == null) {
-                throw new MissingRequiredPropertyException("VerifySubjectCodePlainArgs", "hashedSubjectId");
             }
             return $;
         }

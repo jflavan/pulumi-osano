@@ -13,19 +13,19 @@ namespace Community.Pulumi.Osano
     public static class SendSubjectCode
     {
         /// <summary>
-        /// Sends a verification code to a subject's email or phone using the Osano API key. Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
+        /// Sends a verification code to a subject's email or phone, authenticating with every configured key (the Osano API key, the Unified Consent API key, or both). Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
         /// </summary>
-        public static Task<SendSubjectCodeResult> InvokeAsync(SendSubjectCodeArgs args, InvokeOptions? options = null)
+        public static Task<SendSubjectCodeResult> InvokeAsync(SendSubjectCodeArgs? args = null, InvokeOptions? options = null)
             => global::Pulumi.Deployment.Instance.InvokeAsync<SendSubjectCodeResult>("osano:index:sendSubjectCode", args ?? new SendSubjectCodeArgs(), options.WithDefaults());
 
         /// <summary>
-        /// Sends a verification code to a subject's email or phone using the Osano API key. Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
+        /// Sends a verification code to a subject's email or phone, authenticating with every configured key (the Osano API key, the Unified Consent API key, or both). Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
         /// </summary>
-        public static Output<SendSubjectCodeResult> Invoke(SendSubjectCodeInvokeArgs args, InvokeOptions? options = null)
+        public static Output<SendSubjectCodeResult> Invoke(SendSubjectCodeInvokeArgs? args = null, InvokeOptions? options = null)
             => global::Pulumi.Deployment.Instance.Invoke<SendSubjectCodeResult>("osano:index:sendSubjectCode", args ?? new SendSubjectCodeInvokeArgs(), options.WithDefaults());
 
         /// <summary>
-        /// Sends a verification code to a subject's email or phone using the Osano API key. Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
+        /// Sends a verification code to a subject's email or phone, authenticating with every configured key (the Osano API key, the Unified Consent API key, or both). Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
         /// </summary>
         public static Output<SendSubjectCodeResult> Invoke(SendSubjectCodeInvokeArgs args, InvokeOutputOptions options)
             => global::Pulumi.Deployment.Instance.Invoke<SendSubjectCodeResult>("osano:index:sendSubjectCode", args ?? new SendSubjectCodeInvokeArgs(), options.WithDefaults());
@@ -41,10 +41,10 @@ namespace Community.Pulumi.Osano
         public string? Email { get; set; }
 
         /// <summary>
-        /// The hashed subject identifier to verify.
+        /// Optional hashed subject identifier, sent only when set. Osano's current API identifies the subject by email or phone.
         /// </summary>
-        [Input("hashedSubjectId", required: true)]
-        public string HashedSubjectId { get; set; } = null!;
+        [Input("hashedSubjectId")]
+        public string? HashedSubjectId { get; set; }
 
         /// <summary>
         /// Phone number to send the code to by SMS. Set exactly one of email or phone.
@@ -67,10 +67,10 @@ namespace Community.Pulumi.Osano
         public Input<string>? Email { get; set; }
 
         /// <summary>
-        /// The hashed subject identifier to verify.
+        /// Optional hashed subject identifier, sent only when set. Osano's current API identifies the subject by email or phone.
         /// </summary>
-        [Input("hashedSubjectId", required: true)]
-        public Input<string> HashedSubjectId { get; set; } = null!;
+        [Input("hashedSubjectId")]
+        public Input<string>? HashedSubjectId { get; set; }
 
         /// <summary>
         /// Phone number to send the code to by SMS. Set exactly one of email or phone.
@@ -88,9 +88,22 @@ namespace Community.Pulumi.Osano
     [OutputType]
     public sealed class SendSubjectCodeResult
     {
+        /// <summary>
+        /// The delivery channel: email or sms.
+        /// </summary>
         public readonly string Channel;
+        /// <summary>
+        /// The email address or phone number the code was sent to. Secret, because it is personal data.
+        /// </summary>
         public readonly string Destination;
+        /// <summary>
+        /// The hashed subject identifier sent with the request, if any.
+        /// </summary>
         public readonly string HashedSubjectId;
+        /// <summary>
+        /// The SMS challenge session, when Osano returns one; pass it to verifySubjectCode. Empty for email.
+        /// </summary>
+        public readonly string Session;
 
         [OutputConstructor]
         private SendSubjectCodeResult(
@@ -98,11 +111,14 @@ namespace Community.Pulumi.Osano
 
             string destination,
 
-            string hashedSubjectId)
+            string hashedSubjectId,
+
+            string session)
         {
             Channel = channel;
             Destination = destination;
             HashedSubjectId = hashedSubjectId;
+            Session = session;
         }
     }
 }

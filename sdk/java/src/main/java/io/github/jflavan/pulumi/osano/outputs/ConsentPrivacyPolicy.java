@@ -12,13 +12,29 @@ import javax.annotation.Nullable;
 
 @CustomType
 public final class ConsentPrivacyPolicy {
+    /**
+     * @return The privacy policy URL.
+     *
+     */
     private String url;
+    /**
+     * @return The privacy policy version active when the consent was submitted.
+     *
+     */
     private @Nullable String version;
 
     private ConsentPrivacyPolicy() {}
+    /**
+     * @return The privacy policy URL.
+     *
+     */
     public String url() {
         return this.url;
     }
+    /**
+     * @return The privacy policy version active when the consent was submitted.
+     *
+     */
     public Optional<String> version() {
         return Optional.ofNullable(this.version);
     }

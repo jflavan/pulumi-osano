@@ -25,7 +25,7 @@ type CookieConsentPublication struct {
 	// Optional description sent with the publication request.
 	Description pulumi.StringPtrOutput `pulumi:"description"`
 	// Whether publication preserves unclassified discoveries. Defaults to true to avoid unexpected deletion.
-	KeepUnclassifiedTattles pulumi.BoolPtrOutput `pulumi:"keepUnclassifiedTattles"`
+	KeepUnclassifiedTattles pulumi.BoolOutput `pulumi:"keepUnclassifiedTattles"`
 	// Unix timestamp of the completed Osano publication.
 	LastPublished pulumi.IntOutput `pulumi:"lastPublished"`
 	// The Osano publication status: published after a completed publish, and possibly outdated after a refresh when the config changed outside a publish.
@@ -36,7 +36,7 @@ type CookieConsentPublication struct {
 	ScriptSrc pulumi.StringOutput `pulumi:"scriptSrc"`
 	// The complete public CMP script tag to place first in the site head, without async or defer attributes.
 	ScriptTag pulumi.StringOutput `pulumi:"scriptTag"`
-	// Optional absolute HTTP or HTTPS URL notified by Osano after publication.
+	// Optional absolute HTTP or HTTPS URL Osano calls when the publication completes. Osano does not document the call's payload or sign it, so use an unguessable URL; the value is stored as a secret.
 	WebhookUrl pulumi.StringPtrOutput `pulumi:"webhookUrl"`
 }
 
@@ -56,6 +56,13 @@ func NewCookieConsentPublication(ctx *pulumi.Context,
 	if args.KeepUnclassifiedTattles == nil {
 		args.KeepUnclassifiedTattles = pulumi.BoolPtr(true)
 	}
+	if args.WebhookUrl != nil {
+		args.WebhookUrl = pulumi.ToSecret(args.WebhookUrl).(pulumi.StringPtrInput)
+	}
+	secrets := pulumi.AdditionalSecretOutputs([]string{
+		"webhookUrl",
+	})
+	opts = append(opts, secrets)
 	opts = internal.PkgResourceDefaultOpts(opts)
 	var resource CookieConsentPublication
 	err := ctx.RegisterResource("osano:index:CookieConsentPublication", name, args, &resource, opts...)
@@ -97,7 +104,7 @@ type cookieConsentPublicationArgs struct {
 	Description *string `pulumi:"description"`
 	// Whether publication preserves unclassified discoveries. Defaults to true to avoid unexpected deletion.
 	KeepUnclassifiedTattles *bool `pulumi:"keepUnclassifiedTattles"`
-	// Optional absolute HTTP or HTTPS URL notified by Osano after publication.
+	// Optional absolute HTTP or HTTPS URL Osano calls when the publication completes. Osano does not document the call's payload or sign it, so use an unguessable URL; the value is stored as a secret.
 	WebhookUrl *string `pulumi:"webhookUrl"`
 }
 
@@ -111,7 +118,7 @@ type CookieConsentPublicationArgs struct {
 	Description pulumi.StringPtrInput
 	// Whether publication preserves unclassified discoveries. Defaults to true to avoid unexpected deletion.
 	KeepUnclassifiedTattles pulumi.BoolPtrInput
-	// Optional absolute HTTP or HTTPS URL notified by Osano after publication.
+	// Optional absolute HTTP or HTTPS URL Osano calls when the publication completes. Osano does not document the call's payload or sign it, so use an unguessable URL; the value is stored as a secret.
 	WebhookUrl pulumi.StringPtrInput
 }
 
@@ -136,6 +143,56 @@ func (i *CookieConsentPublication) ToCookieConsentPublicationOutput() CookieCons
 
 func (i *CookieConsentPublication) ToCookieConsentPublicationOutputWithContext(ctx context.Context) CookieConsentPublicationOutput {
 	return pulumi.ToOutputWithContext(ctx, i).(CookieConsentPublicationOutput)
+}
+
+// CookieConsentPublicationArrayInput is an input type that accepts CookieConsentPublicationArray and CookieConsentPublicationArrayOutput values.
+// You can construct a concrete instance of `CookieConsentPublicationArrayInput` via:
+//
+//	CookieConsentPublicationArray{ CookieConsentPublicationArgs{...} }
+type CookieConsentPublicationArrayInput interface {
+	pulumi.Input
+
+	ToCookieConsentPublicationArrayOutput() CookieConsentPublicationArrayOutput
+	ToCookieConsentPublicationArrayOutputWithContext(context.Context) CookieConsentPublicationArrayOutput
+}
+
+type CookieConsentPublicationArray []CookieConsentPublicationInput
+
+func (CookieConsentPublicationArray) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]*CookieConsentPublication)(nil)).Elem()
+}
+
+func (i CookieConsentPublicationArray) ToCookieConsentPublicationArrayOutput() CookieConsentPublicationArrayOutput {
+	return i.ToCookieConsentPublicationArrayOutputWithContext(context.Background())
+}
+
+func (i CookieConsentPublicationArray) ToCookieConsentPublicationArrayOutputWithContext(ctx context.Context) CookieConsentPublicationArrayOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(CookieConsentPublicationArrayOutput)
+}
+
+// CookieConsentPublicationMapInput is an input type that accepts CookieConsentPublicationMap and CookieConsentPublicationMapOutput values.
+// You can construct a concrete instance of `CookieConsentPublicationMapInput` via:
+//
+//	CookieConsentPublicationMap{ "key": CookieConsentPublicationArgs{...} }
+type CookieConsentPublicationMapInput interface {
+	pulumi.Input
+
+	ToCookieConsentPublicationMapOutput() CookieConsentPublicationMapOutput
+	ToCookieConsentPublicationMapOutputWithContext(context.Context) CookieConsentPublicationMapOutput
+}
+
+type CookieConsentPublicationMap map[string]CookieConsentPublicationInput
+
+func (CookieConsentPublicationMap) ElementType() reflect.Type {
+	return reflect.TypeOf((*map[string]*CookieConsentPublication)(nil)).Elem()
+}
+
+func (i CookieConsentPublicationMap) ToCookieConsentPublicationMapOutput() CookieConsentPublicationMapOutput {
+	return i.ToCookieConsentPublicationMapOutputWithContext(context.Background())
+}
+
+func (i CookieConsentPublicationMap) ToCookieConsentPublicationMapOutputWithContext(ctx context.Context) CookieConsentPublicationMapOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(CookieConsentPublicationMapOutput)
 }
 
 type CookieConsentPublicationOutput struct{ *pulumi.OutputState }
@@ -173,8 +230,8 @@ func (o CookieConsentPublicationOutput) Description() pulumi.StringPtrOutput {
 }
 
 // Whether publication preserves unclassified discoveries. Defaults to true to avoid unexpected deletion.
-func (o CookieConsentPublicationOutput) KeepUnclassifiedTattles() pulumi.BoolPtrOutput {
-	return o.ApplyT(func(v *CookieConsentPublication) pulumi.BoolPtrOutput { return v.KeepUnclassifiedTattles }).(pulumi.BoolPtrOutput)
+func (o CookieConsentPublicationOutput) KeepUnclassifiedTattles() pulumi.BoolOutput {
+	return o.ApplyT(func(v *CookieConsentPublication) pulumi.BoolOutput { return v.KeepUnclassifiedTattles }).(pulumi.BoolOutput)
 }
 
 // Unix timestamp of the completed Osano publication.
@@ -202,12 +259,56 @@ func (o CookieConsentPublicationOutput) ScriptTag() pulumi.StringOutput {
 	return o.ApplyT(func(v *CookieConsentPublication) pulumi.StringOutput { return v.ScriptTag }).(pulumi.StringOutput)
 }
 
-// Optional absolute HTTP or HTTPS URL notified by Osano after publication.
+// Optional absolute HTTP or HTTPS URL Osano calls when the publication completes. Osano does not document the call's payload or sign it, so use an unguessable URL; the value is stored as a secret.
 func (o CookieConsentPublicationOutput) WebhookUrl() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *CookieConsentPublication) pulumi.StringPtrOutput { return v.WebhookUrl }).(pulumi.StringPtrOutput)
 }
 
+type CookieConsentPublicationArrayOutput struct{ *pulumi.OutputState }
+
+func (CookieConsentPublicationArrayOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]*CookieConsentPublication)(nil)).Elem()
+}
+
+func (o CookieConsentPublicationArrayOutput) ToCookieConsentPublicationArrayOutput() CookieConsentPublicationArrayOutput {
+	return o
+}
+
+func (o CookieConsentPublicationArrayOutput) ToCookieConsentPublicationArrayOutputWithContext(ctx context.Context) CookieConsentPublicationArrayOutput {
+	return o
+}
+
+func (o CookieConsentPublicationArrayOutput) Index(i pulumi.IntInput) CookieConsentPublicationOutput {
+	return pulumi.All(o, i).ApplyT(func(vs []interface{}) *CookieConsentPublication {
+		return vs[0].([]*CookieConsentPublication)[vs[1].(int)]
+	}).(CookieConsentPublicationOutput)
+}
+
+type CookieConsentPublicationMapOutput struct{ *pulumi.OutputState }
+
+func (CookieConsentPublicationMapOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*map[string]*CookieConsentPublication)(nil)).Elem()
+}
+
+func (o CookieConsentPublicationMapOutput) ToCookieConsentPublicationMapOutput() CookieConsentPublicationMapOutput {
+	return o
+}
+
+func (o CookieConsentPublicationMapOutput) ToCookieConsentPublicationMapOutputWithContext(ctx context.Context) CookieConsentPublicationMapOutput {
+	return o
+}
+
+func (o CookieConsentPublicationMapOutput) MapIndex(k pulumi.StringInput) CookieConsentPublicationOutput {
+	return pulumi.All(o, k).ApplyT(func(vs []interface{}) *CookieConsentPublication {
+		return vs[0].(map[string]*CookieConsentPublication)[vs[1].(string)]
+	}).(CookieConsentPublicationOutput)
+}
+
 func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*CookieConsentPublicationInput)(nil)).Elem(), &CookieConsentPublication{})
+	pulumi.RegisterInputType(reflect.TypeOf((*CookieConsentPublicationArrayInput)(nil)).Elem(), CookieConsentPublicationArray{})
+	pulumi.RegisterInputType(reflect.TypeOf((*CookieConsentPublicationMapInput)(nil)).Elem(), CookieConsentPublicationMap{})
 	pulumi.RegisterOutputType(CookieConsentPublicationOutput{})
+	pulumi.RegisterOutputType(CookieConsentPublicationArrayOutput{})
+	pulumi.RegisterOutputType(CookieConsentPublicationMapOutput{})
 }

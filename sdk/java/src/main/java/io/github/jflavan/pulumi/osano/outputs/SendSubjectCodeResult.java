@@ -10,19 +10,55 @@ import java.util.Objects;
 
 @CustomType
 public final class SendSubjectCodeResult {
+    /**
+     * @return The delivery channel: email or sms.
+     *
+     */
     private String channel;
+    /**
+     * @return The email address or phone number the code was sent to. Secret, because it is personal data.
+     *
+     */
     private String destination;
+    /**
+     * @return The hashed subject identifier sent with the request, if any.
+     *
+     */
     private String hashedSubjectId;
+    /**
+     * @return The SMS challenge session, when Osano returns one; pass it to verifySubjectCode. Empty for email.
+     *
+     */
+    private String session;
 
     private SendSubjectCodeResult() {}
+    /**
+     * @return The delivery channel: email or sms.
+     *
+     */
     public String channel() {
         return this.channel;
     }
+    /**
+     * @return The email address or phone number the code was sent to. Secret, because it is personal data.
+     *
+     */
     public String destination() {
         return this.destination;
     }
+    /**
+     * @return The hashed subject identifier sent with the request, if any.
+     *
+     */
     public String hashedSubjectId() {
         return this.hashedSubjectId;
+    }
+    /**
+     * @return The SMS challenge session, when Osano returns one; pass it to verifySubjectCode. Empty for email.
+     *
+     */
+    public String session() {
+        return this.session;
     }
 
     public static Builder builder() {
@@ -37,12 +73,14 @@ public final class SendSubjectCodeResult {
         private String channel;
         private String destination;
         private String hashedSubjectId;
+        private String session;
         public Builder() {}
         public Builder(SendSubjectCodeResult defaults) {
     	      Objects.requireNonNull(defaults);
     	      this.channel = defaults.channel;
     	      this.destination = defaults.destination;
     	      this.hashedSubjectId = defaults.hashedSubjectId;
+    	      this.session = defaults.session;
         }
 
         @CustomType.Setter
@@ -69,11 +107,20 @@ public final class SendSubjectCodeResult {
             this.hashedSubjectId = hashedSubjectId;
             return this;
         }
+        @CustomType.Setter
+        public Builder session(String session) {
+            if (session == null) {
+              throw new MissingRequiredPropertyException("SendSubjectCodeResult", "session");
+            }
+            this.session = session;
+            return this;
+        }
         public SendSubjectCodeResult build() {
             final var _resultValue = new SendSubjectCodeResult();
             _resultValue.channel = channel;
             _resultValue.destination = destination;
             _resultValue.hashedSubjectId = hashedSubjectId;
+            _resultValue.session = session;
             return _resultValue;
         }
     }

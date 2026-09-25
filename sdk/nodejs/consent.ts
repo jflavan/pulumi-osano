@@ -7,7 +7,7 @@ import * as outputs from "./types/output";
 import * as utilities from "./utilities";
 
 /**
- * Creates unified consent decisions within Osano for a given subject.
+ * Submits a Unified Consent decision for a subject. Consents are immutable in Osano: changing any input submits a new consent (replacement), and destroying the resource only removes it from Pulumi state. Set origin to gpc and omit actions to submit a Global Privacy Control consent, whose actions Osano derives and returns in gpcActions.
  */
 export class Consent extends pulumi.CustomResource {
     /**
@@ -37,11 +37,11 @@ export class Consent extends pulumi.CustomResource {
     }
 
     /**
-     * Consent actions referencing privacy protocols (target) within a configuration (vendor).
+     * Consent actions referencing privacy protocols (target) within a configuration (vendor). Required unless origin is gpc.
      */
-    declare public readonly actions: pulumi.Output<outputs.ConsentAction[]>;
+    declare public readonly actions: pulumi.Output<outputs.ConsentAction[] | undefined>;
     /**
-     * Optional key/value attributes stored with the consent record (e.g., ipAddress overrides).
+     * Optional key/value attributes stored with the consent record. Osano fills ipAddress and userAgent itself and overwrites values sent for those keys.
      */
     declare public readonly attributes: pulumi.Output<{[key: string]: string} | undefined>;
     /**
@@ -53,7 +53,15 @@ export class Consent extends pulumi.CustomResource {
      */
     declare public /*out*/ readonly consentId: pulumi.Output<string>;
     /**
-     * Optional jurisdiction override matching one of the configuration's jurisdictions.
+     * Optional ISO 3166-1 country code Osano uses instead of resolving the caller's IP address. Set it when submitting from a pipeline, whose IP address says nothing about the subject.
+     */
+    declare public readonly countryCodeOverride: pulumi.Output<string | undefined>;
+    /**
+     * The actions Osano derived for a GPC consent submitted without actions.
+     */
+    declare public /*out*/ readonly gpcActions: pulumi.Output<outputs.ConsentAction[] | undefined>;
+    /**
+     * Optional jurisdiction, which must be one of the configuration's jurisdictions (see getCollections).
      */
     declare public readonly jurisdiction: pulumi.Output<string | undefined>;
     /**
@@ -61,9 +69,17 @@ export class Consent extends pulumi.CustomResource {
      */
     declare public /*out*/ readonly lastSynced: pulumi.Output<string>;
     /**
-     * Origin metadata for the consent, typically 'api' or 'gpc'.
+     * Origin of the consent: api (default) or gpc. With gpc and no actions, the consent is submitted to Osano's GPC endpoint, which derives the actions.
      */
     declare public readonly origin: pulumi.Output<string | undefined>;
+    /**
+     * Optional ISO 3166-2 region code Osano uses instead of resolving the caller's IP address.
+     */
+    declare public readonly regionCodeOverride: pulumi.Output<string | undefined>;
+    /**
+     * Optional session token returned when the subject's profile was created.
+     */
+    declare public readonly sessionToken: pulumi.Output<string | undefined>;
     /**
      * Subject identifiers used for the consent (verifiedId or anonymousId).
      */
@@ -84,34 +100,41 @@ export class Consent extends pulumi.CustomResource {
         let resourceInputs: pulumi.Inputs = {};
         opts = opts || {};
         if (!opts.id) {
-            if (args?.actions === undefined && !opts.urn) {
-                throw new Error("Missing required property 'actions'");
-            }
             if (args?.subject === undefined && !opts.urn) {
                 throw new Error("Missing required property 'subject'");
             }
             resourceInputs["actions"] = args?.actions;
             resourceInputs["attributes"] = args?.attributes;
             resourceInputs["compliance"] = args?.compliance;
+            resourceInputs["countryCodeOverride"] = args?.countryCodeOverride;
             resourceInputs["jurisdiction"] = args?.jurisdiction;
             resourceInputs["origin"] = args?.origin;
+            resourceInputs["regionCodeOverride"] = args?.regionCodeOverride;
+            resourceInputs["sessionToken"] = args?.sessionToken ? pulumi.secret(args.sessionToken) : undefined;
             resourceInputs["subject"] = args?.subject;
             resourceInputs["tags"] = args?.tags;
             resourceInputs["consentId"] = undefined /*out*/;
+            resourceInputs["gpcActions"] = undefined /*out*/;
             resourceInputs["lastSynced"] = undefined /*out*/;
         } else {
             resourceInputs["actions"] = undefined /*out*/;
             resourceInputs["attributes"] = undefined /*out*/;
             resourceInputs["compliance"] = undefined /*out*/;
             resourceInputs["consentId"] = undefined /*out*/;
+            resourceInputs["countryCodeOverride"] = undefined /*out*/;
+            resourceInputs["gpcActions"] = undefined /*out*/;
             resourceInputs["jurisdiction"] = undefined /*out*/;
             resourceInputs["lastSynced"] = undefined /*out*/;
             resourceInputs["origin"] = undefined /*out*/;
+            resourceInputs["regionCodeOverride"] = undefined /*out*/;
+            resourceInputs["sessionToken"] = undefined /*out*/;
             resourceInputs["subject"] = undefined /*out*/;
             resourceInputs["tags"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
-        const replaceOnChanges = { replaceOnChanges: ["actions[*]", "attributes.*", "compliance", "jurisdiction", "origin", "subject", "tags[*]"] };
+        const secretOpts = { additionalSecretOutputs: ["sessionToken"] };
+        opts = pulumi.mergeOptions(opts, secretOpts);
+        const replaceOnChanges = { replaceOnChanges: ["actions[*]", "attributes.*", "compliance", "countryCodeOverride", "jurisdiction", "origin", "regionCodeOverride", "sessionToken", "subject", "tags[*]"] };
         opts = pulumi.mergeOptions(opts, replaceOnChanges);
         super(Consent.__pulumiType, name, resourceInputs, opts);
     }
@@ -122,25 +145,37 @@ export class Consent extends pulumi.CustomResource {
  */
 export interface ConsentArgs {
     /**
-     * Consent actions referencing privacy protocols (target) within a configuration (vendor).
+     * Consent actions referencing privacy protocols (target) within a configuration (vendor). Required unless origin is gpc.
      */
-    actions: pulumi.Input<pulumi.Input<inputs.ConsentActionArgs>[]>;
+    actions?: pulumi.Input<pulumi.Input<inputs.ConsentActionArgs>[] | undefined>;
     /**
-     * Optional key/value attributes stored with the consent record (e.g., ipAddress overrides).
+     * Optional key/value attributes stored with the consent record. Osano fills ipAddress and userAgent itself and overwrites values sent for those keys.
      */
-    attributes?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    attributes?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
     /**
      * Optional compliance metadata such as the privacy policy version and GPC signal.
      */
-    compliance?: pulumi.Input<inputs.ConsentComplianceArgs>;
+    compliance?: pulumi.Input<inputs.ConsentComplianceArgs | undefined>;
     /**
-     * Optional jurisdiction override matching one of the configuration's jurisdictions.
+     * Optional ISO 3166-1 country code Osano uses instead of resolving the caller's IP address. Set it when submitting from a pipeline, whose IP address says nothing about the subject.
      */
-    jurisdiction?: pulumi.Input<string>;
+    countryCodeOverride?: pulumi.Input<string | undefined>;
     /**
-     * Origin metadata for the consent, typically 'api' or 'gpc'.
+     * Optional jurisdiction, which must be one of the configuration's jurisdictions (see getCollections).
      */
-    origin?: pulumi.Input<string>;
+    jurisdiction?: pulumi.Input<string | undefined>;
+    /**
+     * Origin of the consent: api (default) or gpc. With gpc and no actions, the consent is submitted to Osano's GPC endpoint, which derives the actions.
+     */
+    origin?: pulumi.Input<string | undefined>;
+    /**
+     * Optional ISO 3166-2 region code Osano uses instead of resolving the caller's IP address.
+     */
+    regionCodeOverride?: pulumi.Input<string | undefined>;
+    /**
+     * Optional session token returned when the subject's profile was created.
+     */
+    sessionToken?: pulumi.Input<string | undefined>;
     /**
      * Subject identifiers used for the consent (verifiedId or anonymousId).
      */
@@ -148,5 +183,5 @@ export interface ConsentArgs {
     /**
      * Custom tags that Osano associates with the consent record.
      */
-    tags?: pulumi.Input<pulumi.Input<string>[]>;
+    tags?: pulumi.Input<pulumi.Input<string>[] | undefined>;
 }

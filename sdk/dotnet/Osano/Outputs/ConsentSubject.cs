@@ -14,7 +14,13 @@ namespace Community.Pulumi.Osano.Outputs
     [OutputType]
     public sealed class ConsentSubject
     {
+        /// <summary>
+        /// The subject's anonymous ID. Must not contain #, %, or spaces.
+        /// </summary>
         public readonly string? AnonymousId;
+        /// <summary>
+        /// The subject's verified ID. Must not contain #, %, or spaces.
+        /// </summary>
         public readonly string? VerifiedId;
 
         [OutputConstructor]

@@ -23,42 +23,49 @@ func VerifySubjectCode(ctx *pulumi.Context, args *VerifySubjectCodeArgs, opts ..
 }
 
 type VerifySubjectCodeArgs struct {
-	// The one-time verification code the subject received.
+	// The one-time verification code the subject received (6 characters by email, 8 by SMS).
 	Code string `pulumi:"code"`
 	// Email address the code was sent to. Set exactly one of email or phone.
 	Email *string `pulumi:"email"`
-	// The hashed subject identifier being verified.
-	HashedSubjectId string `pulumi:"hashedSubjectId"`
+	// Optional hashed subject identifier, sent only when set.
+	HashedSubjectId *string `pulumi:"hashedSubjectId"`
 	// Phone number the code was sent to. Set exactly one of email or phone.
 	Phone *string `pulumi:"phone"`
+	// The SMS challenge session. Required with phone; not used with email.
+	Session *string `pulumi:"session"`
 }
 
 type VerifySubjectCodeResult struct {
-	Channel         string                 `pulumi:"channel"`
-	Destination     string                 `pulumi:"destination"`
-	HashedSubjectId string                 `pulumi:"hashedSubjectId"`
-	Profile         map[string]interface{} `pulumi:"profile"`
-	Verified        bool                   `pulumi:"verified"`
+	// The verification channel: email or sms.
+	Channel string `pulumi:"channel"`
+	// The email address or phone number that was verified. Secret, because it is personal data.
+	Destination string `pulumi:"destination"`
+	// The hashed subject identifier sent with the request, if any.
+	HashedSubjectId string `pulumi:"hashedSubjectId"`
+	// The complete response Osano returned. Secret, because it can hold personal data.
+	Profile map[string]interface{} `pulumi:"profile"`
+	// True when Osano accepted the code; a rejected code fails the invoke instead.
+	Verified bool `pulumi:"verified"`
+	// The subject's verified ID returned by Osano.
+	VerifiedId string `pulumi:"verifiedId"`
 }
 
 func VerifySubjectCodeOutput(ctx *pulumi.Context, args VerifySubjectCodeOutputArgs, opts ...pulumi.InvokeOption) VerifySubjectCodeResultOutput {
-	return pulumi.ToOutputWithContext(ctx.Context(), args).
-		ApplyT(func(v interface{}) (VerifySubjectCodeResultOutput, error) {
-			args := v.(VerifySubjectCodeArgs)
-			options := pulumi.InvokeOutputOptions{InvokeOptions: internal.PkgInvokeDefaultOpts(opts)}
-			return ctx.InvokeOutput("osano:index:verifySubjectCode", args, VerifySubjectCodeResultOutput{}, options).(VerifySubjectCodeResultOutput), nil
-		}).(VerifySubjectCodeResultOutput)
+	options := pulumi.InvokeOutputOptions{InvokeOptions: internal.PkgInvokeDefaultOpts(opts)}
+	return ctx.InvokeOutput("osano:index:verifySubjectCode", args, VerifySubjectCodeResultOutput{}, options).(VerifySubjectCodeResultOutput)
 }
 
 type VerifySubjectCodeOutputArgs struct {
-	// The one-time verification code the subject received.
+	// The one-time verification code the subject received (6 characters by email, 8 by SMS).
 	Code pulumi.StringInput `pulumi:"code"`
 	// Email address the code was sent to. Set exactly one of email or phone.
 	Email pulumi.StringPtrInput `pulumi:"email"`
-	// The hashed subject identifier being verified.
-	HashedSubjectId pulumi.StringInput `pulumi:"hashedSubjectId"`
+	// Optional hashed subject identifier, sent only when set.
+	HashedSubjectId pulumi.StringPtrInput `pulumi:"hashedSubjectId"`
 	// Phone number the code was sent to. Set exactly one of email or phone.
 	Phone pulumi.StringPtrInput `pulumi:"phone"`
+	// The SMS challenge session. Required with phone; not used with email.
+	Session pulumi.StringPtrInput `pulumi:"session"`
 }
 
 func (VerifySubjectCodeOutputArgs) ElementType() reflect.Type {
@@ -79,24 +86,34 @@ func (o VerifySubjectCodeResultOutput) ToVerifySubjectCodeResultOutputWithContex
 	return o
 }
 
+// The verification channel: email or sms.
 func (o VerifySubjectCodeResultOutput) Channel() pulumi.StringOutput {
 	return o.ApplyT(func(v VerifySubjectCodeResult) string { return v.Channel }).(pulumi.StringOutput)
 }
 
+// The email address or phone number that was verified. Secret, because it is personal data.
 func (o VerifySubjectCodeResultOutput) Destination() pulumi.StringOutput {
 	return o.ApplyT(func(v VerifySubjectCodeResult) string { return v.Destination }).(pulumi.StringOutput)
 }
 
+// The hashed subject identifier sent with the request, if any.
 func (o VerifySubjectCodeResultOutput) HashedSubjectId() pulumi.StringOutput {
 	return o.ApplyT(func(v VerifySubjectCodeResult) string { return v.HashedSubjectId }).(pulumi.StringOutput)
 }
 
+// The complete response Osano returned. Secret, because it can hold personal data.
 func (o VerifySubjectCodeResultOutput) Profile() pulumi.MapOutput {
 	return o.ApplyT(func(v VerifySubjectCodeResult) map[string]interface{} { return v.Profile }).(pulumi.MapOutput)
 }
 
+// True when Osano accepted the code; a rejected code fails the invoke instead.
 func (o VerifySubjectCodeResultOutput) Verified() pulumi.BoolOutput {
 	return o.ApplyT(func(v VerifySubjectCodeResult) bool { return v.Verified }).(pulumi.BoolOutput)
+}
+
+// The subject's verified ID returned by Osano.
+func (o VerifySubjectCodeResultOutput) VerifiedId() pulumi.StringOutput {
+	return o.ApplyT(func(v VerifySubjectCodeResult) string { return v.VerifiedId }).(pulumi.StringOutput)
 }
 
 func init() {

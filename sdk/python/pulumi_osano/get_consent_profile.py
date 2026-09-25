@@ -40,21 +40,33 @@ class GetConsentProfileResult:
     @_builtins.property
     @pulumi.getter(name="configId")
     def config_id(self) -> _builtins.str:
+        """
+        The configuration ID that was looked up.
+        """
         return pulumi.get(self, "config_id")
 
     @_builtins.property
     @pulumi.getter
     def exists(self) -> _builtins.bool:
+        """
+        Whether Osano returned a consent profile.
+        """
         return pulumi.get(self, "exists")
 
     @_builtins.property
     @pulumi.getter(name="hashedSubjectId")
     def hashed_subject_id(self) -> _builtins.str:
+        """
+        The hashed subject identifier that was looked up.
+        """
         return pulumi.get(self, "hashed_subject_id")
 
     @_builtins.property
     @pulumi.getter
     def profile(self) -> Mapping[str, Any]:
+        """
+        The consent profile Osano returned, with unifiedConsent and conflicts keys.
+        """
         return pulumi.get(self, "profile")
 
 
@@ -71,18 +83,23 @@ class AwaitableGetConsentProfileResult(GetConsentProfileResult):
 
 
 def get_consent_profile(config_id: Optional[_builtins.str] = None,
+                        country_code_override: Optional[_builtins.str] = None,
                         hashed_subject_id: Optional[_builtins.str] = None,
+                        region_code_override: Optional[_builtins.str] = None,
                         opts: Optional[pulumi.InvokeOptions] = None) -> AwaitableGetConsentProfileResult:
     """
     Retrieves a consent profile for a hashed subject identifier and config ID.
 
-
     :param _builtins.str config_id: The consent configuration ID the profile belongs to.
+    :param _builtins.str country_code_override: Optional ISO 3166-1 country code Osano uses instead of resolving the caller's IP address, which in a pipeline is the CI runner's.
     :param _builtins.str hashed_subject_id: The hashed subject identifier whose consent profile is returned.
+    :param _builtins.str region_code_override: Optional ISO 3166-2 region code Osano uses instead of resolving the caller's IP address.
     """
     __args__ = dict()
     __args__['configId'] = config_id
+    __args__['countryCodeOverride'] = country_code_override
     __args__['hashedSubjectId'] = hashed_subject_id
+    __args__['regionCodeOverride'] = region_code_override
     opts = pulumi.InvokeOptions.merge(_utilities.get_invoke_opts_defaults(), opts)
     __ret__ = pulumi.runtime.invoke('osano:index:getConsentProfile', __args__, opts=opts, typ=GetConsentProfileResult).value
 
@@ -91,19 +108,24 @@ def get_consent_profile(config_id: Optional[_builtins.str] = None,
         exists=pulumi.get(__ret__, 'exists'),
         hashed_subject_id=pulumi.get(__ret__, 'hashed_subject_id'),
         profile=pulumi.get(__ret__, 'profile'))
-def get_consent_profile_output(config_id: Optional[pulumi.Input[_builtins.str]] = None,
-                               hashed_subject_id: Optional[pulumi.Input[_builtins.str]] = None,
+def get_consent_profile_output(config_id: pulumi.Input[Optional[_builtins.str]] = None,
+                               country_code_override: pulumi.Input[Optional[Optional[_builtins.str]]] = None,
+                               hashed_subject_id: pulumi.Input[Optional[_builtins.str]] = None,
+                               region_code_override: pulumi.Input[Optional[Optional[_builtins.str]]] = None,
                                opts: Optional[Union[pulumi.InvokeOptions, pulumi.InvokeOutputOptions]] = None) -> pulumi.Output[GetConsentProfileResult]:
     """
     Retrieves a consent profile for a hashed subject identifier and config ID.
 
-
     :param _builtins.str config_id: The consent configuration ID the profile belongs to.
+    :param _builtins.str country_code_override: Optional ISO 3166-1 country code Osano uses instead of resolving the caller's IP address, which in a pipeline is the CI runner's.
     :param _builtins.str hashed_subject_id: The hashed subject identifier whose consent profile is returned.
+    :param _builtins.str region_code_override: Optional ISO 3166-2 region code Osano uses instead of resolving the caller's IP address.
     """
     __args__ = dict()
     __args__['configId'] = config_id
+    __args__['countryCodeOverride'] = country_code_override
     __args__['hashedSubjectId'] = hashed_subject_id
+    __args__['regionCodeOverride'] = region_code_override
     opts = pulumi.InvokeOutputOptions.merge(_utilities.get_invoke_opts_defaults(), opts)
     __ret__ = pulumi.runtime.invoke_output('osano:index:getConsentProfile', __args__, opts=opts, typ=GetConsentProfileResult)
     return __ret__.apply(lambda __response__: GetConsentProfileResult(

@@ -10,11 +10,21 @@ import * as utilities from "./utilities";
 export function checkConsent(args: CheckConsentArgs, opts?: pulumi.InvokeOptions): Promise<CheckConsentResult> {
     opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts || {});
     return pulumi.runtime.invoke("osano:index:checkConsent", {
+        "countryCodeOverride": args.countryCodeOverride,
+        "regionCodeOverride": args.regionCodeOverride,
         "subjectId": args.subjectId,
     }, opts);
 }
 
 export interface CheckConsentArgs {
+    /**
+     * Optional ISO 3166-1 country code Osano uses instead of resolving the caller's IP address, which in a pipeline is the CI runner's.
+     */
+    countryCodeOverride?: string;
+    /**
+     * Optional ISO 3166-2 region code Osano uses instead of resolving the caller's IP address.
+     */
+    regionCodeOverride?: string;
     /**
      * The subject ID to check.
      */
@@ -22,7 +32,13 @@ export interface CheckConsentArgs {
 }
 
 export interface CheckConsentResult {
+    /**
+     * Whether the subject has given consent in the configuration.
+     */
     readonly exists: boolean;
+    /**
+     * The subject ID that was checked.
+     */
     readonly subjectId: string;
 }
 /**
@@ -31,11 +47,21 @@ export interface CheckConsentResult {
 export function checkConsentOutput(args: CheckConsentOutputArgs, opts?: pulumi.InvokeOutputOptions): pulumi.Output<CheckConsentResult> {
     opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts || {});
     return pulumi.runtime.invokeOutput("osano:index:checkConsent", {
+        "countryCodeOverride": args.countryCodeOverride,
+        "regionCodeOverride": args.regionCodeOverride,
         "subjectId": args.subjectId,
     }, opts);
 }
 
 export interface CheckConsentOutputArgs {
+    /**
+     * Optional ISO 3166-1 country code Osano uses instead of resolving the caller's IP address, which in a pipeline is the CI runner's.
+     */
+    countryCodeOverride?: pulumi.Input<string | undefined>;
+    /**
+     * Optional ISO 3166-2 region code Osano uses instead of resolving the caller's IP address.
+     */
+    regionCodeOverride?: pulumi.Input<string | undefined>;
     /**
      * The subject ID to check.
      */

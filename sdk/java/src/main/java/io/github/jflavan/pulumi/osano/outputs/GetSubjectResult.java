@@ -11,25 +11,65 @@ import java.util.Objects;
 
 @CustomType
 public final class GetSubjectResult {
+    /**
+     * @return The subject&#39;s anonymous ID, if any.
+     *
+     */
     private String anonymousId;
+    /**
+     * @return Whether Osano knows the subject. The ID outputs are empty when false.
+     *
+     */
     private Boolean exists;
+    /**
+     * @return The subject&#39;s Osano ID.
+     *
+     */
     private String subjectId;
+    /**
+     * @return The subject reference that was resolved.
+     *
+     */
     private String subjectRef;
+    /**
+     * @return The subject&#39;s verified ID, if the subject is verified.
+     *
+     */
     private String verifiedId;
 
     private GetSubjectResult() {}
+    /**
+     * @return The subject&#39;s anonymous ID, if any.
+     *
+     */
     public String anonymousId() {
         return this.anonymousId;
     }
+    /**
+     * @return Whether Osano knows the subject. The ID outputs are empty when false.
+     *
+     */
     public Boolean exists() {
         return this.exists;
     }
+    /**
+     * @return The subject&#39;s Osano ID.
+     *
+     */
     public String subjectId() {
         return this.subjectId;
     }
+    /**
+     * @return The subject reference that was resolved.
+     *
+     */
     public String subjectRef() {
         return this.subjectRef;
     }
+    /**
+     * @return The subject&#39;s verified ID, if the subject is verified.
+     *
+     */
     public String verifiedId() {
         return this.verifiedId;
     }

@@ -18,6 +18,9 @@ export interface GetConfigArgs {
 }
 
 export interface GetConfigResult {
+    /**
+     * The Unified Consent configuration: configId, customerId, name, domains, privacy policy, privacyProtocols, frameworks, styling, publication state, and text customizations.
+     */
     readonly config: {[key: string]: any};
 }
 /**

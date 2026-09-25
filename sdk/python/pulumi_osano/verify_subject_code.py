@@ -23,7 +23,7 @@ __all__ = [
 
 @pulumi.output_type
 class VerifySubjectCodeResult:
-    def __init__(__self__, channel=None, destination=None, hashed_subject_id=None, profile=None, verified=None):
+    def __init__(__self__, channel=None, destination=None, hashed_subject_id=None, profile=None, verified=None, verified_id=None):
         if channel and not isinstance(channel, str):
             raise TypeError("Expected argument 'channel' to be a str")
         pulumi.set(__self__, "channel", channel)
@@ -39,31 +39,57 @@ class VerifySubjectCodeResult:
         if verified and not isinstance(verified, bool):
             raise TypeError("Expected argument 'verified' to be a bool")
         pulumi.set(__self__, "verified", verified)
+        if verified_id and not isinstance(verified_id, str):
+            raise TypeError("Expected argument 'verified_id' to be a str")
+        pulumi.set(__self__, "verified_id", verified_id)
 
     @_builtins.property
     @pulumi.getter
     def channel(self) -> _builtins.str:
+        """
+        The verification channel: email or sms.
+        """
         return pulumi.get(self, "channel")
 
     @_builtins.property
     @pulumi.getter
     def destination(self) -> _builtins.str:
+        """
+        The email address or phone number that was verified. Secret, because it is personal data.
+        """
         return pulumi.get(self, "destination")
 
     @_builtins.property
     @pulumi.getter(name="hashedSubjectId")
     def hashed_subject_id(self) -> _builtins.str:
+        """
+        The hashed subject identifier sent with the request, if any.
+        """
         return pulumi.get(self, "hashed_subject_id")
 
     @_builtins.property
     @pulumi.getter
     def profile(self) -> Mapping[str, Any]:
+        """
+        The complete response Osano returned. Secret, because it can hold personal data.
+        """
         return pulumi.get(self, "profile")
 
     @_builtins.property
     @pulumi.getter
     def verified(self) -> _builtins.bool:
+        """
+        True when Osano accepted the code; a rejected code fails the invoke instead.
+        """
         return pulumi.get(self, "verified")
+
+    @_builtins.property
+    @pulumi.getter(name="verifiedId")
+    def verified_id(self) -> _builtins.str:
+        """
+        The subject's verified ID returned by Osano.
+        """
+        return pulumi.get(self, "verified_id")
 
 
 class AwaitableVerifySubjectCodeResult(VerifySubjectCodeResult):
@@ -76,28 +102,31 @@ class AwaitableVerifySubjectCodeResult(VerifySubjectCodeResult):
             destination=self.destination,
             hashed_subject_id=self.hashed_subject_id,
             profile=self.profile,
-            verified=self.verified)
+            verified=self.verified,
+            verified_id=self.verified_id)
 
 
 def verify_subject_code(code: Optional[_builtins.str] = None,
                         email: Optional[_builtins.str] = None,
                         hashed_subject_id: Optional[_builtins.str] = None,
                         phone: Optional[_builtins.str] = None,
+                        session: Optional[_builtins.str] = None,
                         opts: Optional[pulumi.InvokeOptions] = None) -> AwaitableVerifySubjectCodeResult:
     """
     Verifies a subject profile using the code sent via email or SMS. Pulumi runs invokes on every preview, update, and refresh, and one-time codes cannot be reused, so call this from automation rather than from long-lived stack code.
 
-
-    :param _builtins.str code: The one-time verification code the subject received.
+    :param _builtins.str code: The one-time verification code the subject received (6 characters by email, 8 by SMS).
     :param _builtins.str email: Email address the code was sent to. Set exactly one of email or phone.
-    :param _builtins.str hashed_subject_id: The hashed subject identifier being verified.
+    :param _builtins.str hashed_subject_id: Optional hashed subject identifier, sent only when set.
     :param _builtins.str phone: Phone number the code was sent to. Set exactly one of email or phone.
+    :param _builtins.str session: The SMS challenge session. Required with phone; not used with email.
     """
     __args__ = dict()
     __args__['code'] = code
     __args__['email'] = email
     __args__['hashedSubjectId'] = hashed_subject_id
     __args__['phone'] = phone
+    __args__['session'] = session
     opts = pulumi.InvokeOptions.merge(_utilities.get_invoke_opts_defaults(), opts)
     __ret__ = pulumi.runtime.invoke('osano:index:verifySubjectCode', __args__, opts=opts, typ=VerifySubjectCodeResult).value
 
@@ -106,26 +135,29 @@ def verify_subject_code(code: Optional[_builtins.str] = None,
         destination=pulumi.get(__ret__, 'destination'),
         hashed_subject_id=pulumi.get(__ret__, 'hashed_subject_id'),
         profile=pulumi.get(__ret__, 'profile'),
-        verified=pulumi.get(__ret__, 'verified'))
-def verify_subject_code_output(code: Optional[pulumi.Input[_builtins.str]] = None,
-                               email: Optional[pulumi.Input[Optional[_builtins.str]]] = None,
-                               hashed_subject_id: Optional[pulumi.Input[_builtins.str]] = None,
-                               phone: Optional[pulumi.Input[Optional[_builtins.str]]] = None,
+        verified=pulumi.get(__ret__, 'verified'),
+        verified_id=pulumi.get(__ret__, 'verified_id'))
+def verify_subject_code_output(code: pulumi.Input[Optional[_builtins.str]] = None,
+                               email: pulumi.Input[Optional[Optional[_builtins.str]]] = None,
+                               hashed_subject_id: pulumi.Input[Optional[Optional[_builtins.str]]] = None,
+                               phone: pulumi.Input[Optional[Optional[_builtins.str]]] = None,
+                               session: pulumi.Input[Optional[Optional[_builtins.str]]] = None,
                                opts: Optional[Union[pulumi.InvokeOptions, pulumi.InvokeOutputOptions]] = None) -> pulumi.Output[VerifySubjectCodeResult]:
     """
     Verifies a subject profile using the code sent via email or SMS. Pulumi runs invokes on every preview, update, and refresh, and one-time codes cannot be reused, so call this from automation rather than from long-lived stack code.
 
-
-    :param _builtins.str code: The one-time verification code the subject received.
+    :param _builtins.str code: The one-time verification code the subject received (6 characters by email, 8 by SMS).
     :param _builtins.str email: Email address the code was sent to. Set exactly one of email or phone.
-    :param _builtins.str hashed_subject_id: The hashed subject identifier being verified.
+    :param _builtins.str hashed_subject_id: Optional hashed subject identifier, sent only when set.
     :param _builtins.str phone: Phone number the code was sent to. Set exactly one of email or phone.
+    :param _builtins.str session: The SMS challenge session. Required with phone; not used with email.
     """
     __args__ = dict()
     __args__['code'] = code
     __args__['email'] = email
     __args__['hashedSubjectId'] = hashed_subject_id
     __args__['phone'] = phone
+    __args__['session'] = session
     opts = pulumi.InvokeOutputOptions.merge(_utilities.get_invoke_opts_defaults(), opts)
     __ret__ = pulumi.runtime.invoke_output('osano:index:verifySubjectCode', __args__, opts=opts, typ=VerifySubjectCodeResult)
     return __ret__.apply(lambda __response__: VerifySubjectCodeResult(
@@ -133,4 +165,5 @@ def verify_subject_code_output(code: Optional[pulumi.Input[_builtins.str]] = Non
         destination=pulumi.get(__response__, 'destination'),
         hashed_subject_id=pulumi.get(__response__, 'hashed_subject_id'),
         profile=pulumi.get(__response__, 'profile'),
-        verified=pulumi.get(__response__, 'verified')))
+        verified=pulumi.get(__response__, 'verified'),
+        verified_id=pulumi.get(__response__, 'verified_id')))

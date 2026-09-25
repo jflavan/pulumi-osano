@@ -15,16 +15,32 @@ public final class ConsentSubjectArgs extends com.pulumi.resources.ResourceArgs 
 
     public static final ConsentSubjectArgs Empty = new ConsentSubjectArgs();
 
+    /**
+     * The subject&#39;s anonymous ID. Must not contain #, %, or spaces.
+     *
+     */
     @Import(name="anonymousId")
     private @Nullable Output<String> anonymousId;
 
+    /**
+     * @return The subject&#39;s anonymous ID. Must not contain #, %, or spaces.
+     *
+     */
     public Optional<Output<String>> anonymousId() {
         return Optional.ofNullable(this.anonymousId);
     }
 
+    /**
+     * The subject&#39;s verified ID. Must not contain #, %, or spaces.
+     *
+     */
     @Import(name="verifiedId")
     private @Nullable Output<String> verifiedId;
 
+    /**
+     * @return The subject&#39;s verified ID. Must not contain #, %, or spaces.
+     *
+     */
     public Optional<Output<String>> verifiedId() {
         return Optional.ofNullable(this.verifiedId);
     }
@@ -54,20 +70,44 @@ public final class ConsentSubjectArgs extends com.pulumi.resources.ResourceArgs 
             $ = new ConsentSubjectArgs(Objects.requireNonNull(defaults));
         }
 
+        /**
+         * @param anonymousId The subject&#39;s anonymous ID. Must not contain #, %, or spaces.
+         *
+         * @return builder
+         *
+         */
         public Builder anonymousId(@Nullable Output<String> anonymousId) {
             $.anonymousId = anonymousId;
             return this;
         }
 
+        /**
+         * @param anonymousId The subject&#39;s anonymous ID. Must not contain #, %, or spaces.
+         *
+         * @return builder
+         *
+         */
         public Builder anonymousId(String anonymousId) {
             return anonymousId(Output.of(anonymousId));
         }
 
+        /**
+         * @param verifiedId The subject&#39;s verified ID. Must not contain #, %, or spaces.
+         *
+         * @return builder
+         *
+         */
         public Builder verifiedId(@Nullable Output<String> verifiedId) {
             $.verifiedId = verifiedId;
             return this;
         }
 
+        /**
+         * @param verifiedId The subject&#39;s verified ID. Must not contain #, %, or spaces.
+         *
+         * @return builder
+         *
+         */
         public Builder verifiedId(String verifiedId) {
             return verifiedId(Output.of(verifiedId));
         }

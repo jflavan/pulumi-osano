@@ -10,13 +10,17 @@
 pulumi up --logtostderr --logflow -v=9 2> pulumi-debug.log
 ```
 
-Verbose logs can contain configuration values and resource inputs. Redact API keys, subject identifiers, and verification codes before sharing them.
+Verbose logs can contain configuration values and resource inputs. Redact API keys, subject identifiers, verification codes and sessions, and the publication `webhookUrl` before sharing them.
+
+`CookieConsentConfig` reports configuration problems that do not stop a deployment, such as unknown or deprecated configuration keys, as Pulumi warnings in the normal `pulumi preview` and `pulumi up` output; no verbose logging is needed to see them.
 
 ## Correlating with Osano
 
-Add a custom attribute (for example `attributes["pulumiDeploymentId"]`) so you can correlate Pulumi deployments with entries in Osano's audit log.
+For Unified Consent, add a custom attribute (for example `attributes["pulumiDeploymentId"]`) to each `Consent` so you can correlate Pulumi deployments with consent records in Osano.
 
-Every request the provider sends identifies it with the User-Agent `pulumi-osano/<version>` (for example `pulumi-osano/0.1.0`).
+For Cookie Consent, `getCookieConsentAuditLog` returns Osano's audit events with their type (for example `cmp.configPublished` or `cmp.configUpdated`), actor, and timestamp. Match a publication or configuration change against the time of the Pulumi update that made it, or find edits made in the Osano dashboard.
+
+Every request the provider sends identifies it with the User-Agent `pulumi-osano/<version>` (for example `pulumi-osano/0.2.0`).
 
 ## Troubleshooting Checklist
 

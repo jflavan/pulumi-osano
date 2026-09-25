@@ -35,13 +35,13 @@ namespace Community.Pulumi.Osano
     public sealed class GetSubjectArgs : global::Pulumi.InvokeArgs
     {
         /// <summary>
-        /// Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
+        /// Reference type: subject (default) for a subject's verified or anonymous ID, or session for a session ID. anonymous is accepted as a deprecated alias of subject.
         /// </summary>
         [Input("referenceType")]
         public string? ReferenceType { get; set; }
 
         /// <summary>
-        /// The subject reference to resolve.
+        /// The subject reference to resolve: an anonymous ID, verified ID, or session ID.
         /// </summary>
         [Input("subjectRef", required: true)]
         public string SubjectRef { get; set; } = null!;
@@ -55,13 +55,13 @@ namespace Community.Pulumi.Osano
     public sealed class GetSubjectInvokeArgs : global::Pulumi.InvokeArgs
     {
         /// <summary>
-        /// Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
+        /// Reference type: subject (default) for a subject's verified or anonymous ID, or session for a session ID. anonymous is accepted as a deprecated alias of subject.
         /// </summary>
         [Input("referenceType")]
         public Input<string>? ReferenceType { get; set; }
 
         /// <summary>
-        /// The subject reference to resolve.
+        /// The subject reference to resolve: an anonymous ID, verified ID, or session ID.
         /// </summary>
         [Input("subjectRef", required: true)]
         public Input<string> SubjectRef { get; set; } = null!;
@@ -76,10 +76,25 @@ namespace Community.Pulumi.Osano
     [OutputType]
     public sealed class GetSubjectResult
     {
+        /// <summary>
+        /// The subject's anonymous ID, if any.
+        /// </summary>
         public readonly string AnonymousId;
+        /// <summary>
+        /// Whether Osano knows the subject. The ID outputs are empty when false.
+        /// </summary>
         public readonly bool Exists;
+        /// <summary>
+        /// The subject's Osano ID.
+        /// </summary>
         public readonly string SubjectId;
+        /// <summary>
+        /// The subject reference that was resolved.
+        /// </summary>
         public readonly string SubjectRef;
+        /// <summary>
+        /// The subject's verified ID, if the subject is verified.
+        /// </summary>
         public readonly string VerifiedId;
 
         [OutputConstructor]

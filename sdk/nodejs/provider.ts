@@ -81,33 +81,33 @@ export interface ProviderArgs {
     /**
      * Base URL for the Osano Unified Consent API. Override only when targeting a custom domain (default https://uc.api.osano.com). OSANO_API_BASE_URL takes precedence when set.
      */
-    apiBaseUrl?: pulumi.Input<string>;
+    apiBaseUrl?: pulumi.Input<string | undefined>;
     /**
      * Override base URL for the Customer REST API (default: https://api.osano.com).
      */
-    customerBaseUrl?: pulumi.Input<string>;
+    customerBaseUrl?: pulumi.Input<string | undefined>;
     /**
      * Osano API key used for subject send-code/verify routes and Customer REST API/CMP operations (set via pulumi config set osano:osanoApiKey --secret, or OSANO_API_KEY, which takes precedence).
      */
-    osanoApiKey?: pulumi.Input<string>;
+    osanoApiKey?: pulumi.Input<string | undefined>;
     /**
      * HTTP request timeout in seconds for Customer REST API and Unified Consent calls (default 60). OSANO_API_TIMEOUT_SECONDS takes precedence when set to a positive integer.
      */
-    requestTimeoutSeconds?: pulumi.Input<number>;
+    requestTimeoutSeconds?: pulumi.Input<number | undefined>;
     /**
      * Unified Consent API key for the Unified Consent Core API (x-uc-api-key).
      *
      * @deprecated use unifiedConsentApiKey instead
      */
-    ucApiKey?: pulumi.Input<string>;
+    ucApiKey?: pulumi.Input<string | undefined>;
     /**
      * Override base URL for the Unified Consent Core API (default: https://uc.api.osano.com).
      *
      * @deprecated use apiBaseUrl instead
      */
-    ucBaseUrl?: pulumi.Input<string>;
+    ucBaseUrl?: pulumi.Input<string | undefined>;
     /**
      * Unified Consent API key used for consent collection routes (set via pulumi config set osano:unifiedConsentApiKey --secret, or OSANO_UC_API_KEY, which takes precedence).
      */
-    unifiedConsentApiKey?: pulumi.Input<string>;
+    unifiedConsentApiKey?: pulumi.Input<string | undefined>;
 }

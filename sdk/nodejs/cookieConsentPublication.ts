@@ -53,7 +53,7 @@ export class CookieConsentPublication extends pulumi.CustomResource {
     /**
      * Whether publication preserves unclassified discoveries. Defaults to true to avoid unexpected deletion.
      */
-    declare public readonly keepUnclassifiedTattles: pulumi.Output<boolean | undefined>;
+    declare public readonly keepUnclassifiedTattles: pulumi.Output<boolean>;
     /**
      * Unix timestamp of the completed Osano publication.
      */
@@ -75,7 +75,7 @@ export class CookieConsentPublication extends pulumi.CustomResource {
      */
     declare public /*out*/ readonly scriptTag: pulumi.Output<string>;
     /**
-     * Optional absolute HTTP or HTTPS URL notified by Osano after publication.
+     * Optional absolute HTTP or HTTPS URL Osano calls when the publication completes. Osano does not document the call's payload or sign it, so use an unguessable URL; the value is stored as a secret.
      */
     declare public readonly webhookUrl: pulumi.Output<string | undefined>;
 
@@ -100,7 +100,7 @@ export class CookieConsentPublication extends pulumi.CustomResource {
             resourceInputs["configId"] = args?.configId;
             resourceInputs["description"] = args?.description;
             resourceInputs["keepUnclassifiedTattles"] = (args?.keepUnclassifiedTattles) ?? true;
-            resourceInputs["webhookUrl"] = args?.webhookUrl;
+            resourceInputs["webhookUrl"] = args?.webhookUrl ? pulumi.secret(args.webhookUrl) : undefined;
             resourceInputs["customerId"] = undefined /*out*/;
             resourceInputs["lastPublished"] = undefined /*out*/;
             resourceInputs["publishStatus"] = undefined /*out*/;
@@ -121,6 +121,8 @@ export class CookieConsentPublication extends pulumi.CustomResource {
             resourceInputs["webhookUrl"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
+        const secretOpts = { additionalSecretOutputs: ["webhookUrl"] };
+        opts = pulumi.mergeOptions(opts, secretOpts);
         super(CookieConsentPublication.__pulumiType, name, resourceInputs, opts);
     }
 }
@@ -140,13 +142,13 @@ export interface CookieConsentPublicationArgs {
     /**
      * Optional description sent with the publication request.
      */
-    description?: pulumi.Input<string>;
+    description?: pulumi.Input<string | undefined>;
     /**
      * Whether publication preserves unclassified discoveries. Defaults to true to avoid unexpected deletion.
      */
-    keepUnclassifiedTattles?: pulumi.Input<boolean>;
+    keepUnclassifiedTattles?: pulumi.Input<boolean | undefined>;
     /**
-     * Optional absolute HTTP or HTTPS URL notified by Osano after publication.
+     * Optional absolute HTTP or HTTPS URL Osano calls when the publication completes. Osano does not document the call's payload or sign it, so use an unguessable URL; the value is stored as a secret.
      */
-    webhookUrl?: pulumi.Input<string>;
+    webhookUrl?: pulumi.Input<string | undefined>;
 }

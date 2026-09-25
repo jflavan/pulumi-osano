@@ -6,24 +6,257 @@ import * as inputs from "../types/input";
 import * as outputs from "../types/output";
 
 export interface ConsentAction {
+    /**
+     * The subject's choice: ACCEPT, REJECT, or UNSELECTED.
+     */
     action: string;
+    /**
+     * Optional jurisdiction for this action; overrides the top-level jurisdiction.
+     */
     jurisdiction?: string;
+    /**
+     * The privacy protocol ID (the Target ID on the privacy protocol's edit page).
+     */
     target: string;
+    /**
+     * The Unified Consent configuration ID the consent is recorded for.
+     */
     vendor: string;
 }
 
 export interface ConsentCompliance {
+    /**
+     * 1 if the Global Privacy Control signal is enabled, 0 otherwise.
+     */
     gpc?: number;
+    /**
+     * The privacy policy in effect when the consent was given.
+     */
     privacyPolicy?: outputs.ConsentPrivacyPolicy;
 }
 
 export interface ConsentPrivacyPolicy {
+    /**
+     * The privacy policy URL.
+     */
     url: string;
+    /**
+     * The privacy policy version active when the consent was submitted.
+     */
     version?: string;
 }
 
 export interface ConsentSubject {
+    /**
+     * The subject's anonymous ID. Must not contain #, %, or spaces.
+     */
     anonymousId?: string;
+    /**
+     * The subject's verified ID. Must not contain #, %, or spaces.
+     */
     verifiedId?: string;
+}
+
+export interface CookieConsentAuditEvent {
+    /**
+     * The email of the user who performed the action, when known.
+     */
+    actor?: string;
+    /**
+     * The machine-readable event type, such as cmp.configPublished.
+     */
+    eventType: string;
+    /**
+     * The audit event ID.
+     */
+    id: string;
+    /**
+     * Event-specific details, such as changed fields and before/after values.
+     */
+    metadata?: {[key: string]: any};
+    /**
+     * The Osano module, currently always CMP.
+     */
+    module: string;
+    /**
+     * The resources the event acted on.
+     */
+    resources: outputs.CookieConsentAuditResource[];
+    /**
+     * When the event occurred (UTC ISO 8601).
+     */
+    timestamp: string;
+}
+
+export interface CookieConsentAuditResource {
+    /**
+     * Whether this is the event's primary resource.
+     */
+    isPrimary: boolean;
+    /**
+     * The resource ID; for CMP events, the config ID.
+     */
+    resourceId: string;
+    /**
+     * The resource name, when known.
+     */
+    resourceName?: string;
+    /**
+     * The resource type, such as CMP.
+     */
+    resourceType: string;
+}
+
+export interface CookieConsentConfigDetails {
+    /**
+     * The Osano config ID (UUID).
+     */
+    configId: string;
+    /**
+     * The CMP configuration object as Osano reports it, including server defaults.
+     */
+    configuration: {[key: string]: any};
+    /**
+     * Unix timestamp when Osano created the configuration.
+     */
+    created: number;
+    /**
+     * The Osano customer ID that owns the configuration.
+     */
+    customerId: string;
+    /**
+     * Domains permitted to host the configuration.
+     */
+    domains: string[];
+    /**
+     * Unix timestamp when Osano last published the configuration (0 if never).
+     */
+    lastPublished: number;
+    /**
+     * Compliance mode: debug, permissive, or production.
+     */
+    mode: string;
+    /**
+     * The configuration name.
+     */
+    name: string;
+    /**
+     * Organization IDs associated with the configuration.
+     */
+    orgIds: string[];
+    /**
+     * Osano publication status: unpublished, in-progress, published, outdated (changed since the last publish), or error.
+     */
+    publishStatus: string;
+    /**
+     * Revision number most recently published by Osano.
+     */
+    publishedRevision: number;
+    /**
+     * The public hosted CMP JavaScript URL, https://cmp.osano.com/{customerId}/{configId}/osano.js. It serves the most recently published revision.
+     */
+    scriptSrc: string;
+    /**
+     * The complete public CMP script tag to place first in the site head, without async or defer attributes.
+     */
+    scriptTag: string;
+    /**
+     * Whether Osano stopped recording discoveries (tattles) for the configuration.
+     */
+    tattleRecordStopped: boolean;
+    /**
+     * Unix timestamp when Osano last updated the configuration.
+     */
+    updated: number;
+}
+
+export interface CookieConsentDiscovery {
+    /**
+     * Osano's AI classification confidence (Unknown, Low, Medium, or High). Only reported for cookies.
+     */
+    confidence?: string;
+    /**
+     * When the discovery was first seen (ISO 8601).
+     */
+    created: string;
+    /**
+     * The page URL where the item was first seen.
+     */
+    firstPageSeen: string;
+    /**
+     * "URL Scan" or "osano.js"; unset when Osano does not know the origin.
+     */
+    scanOrigin?: string;
+    /**
+     * The discovered cookie name, script or iframe URL, or localStorage key.
+     */
+    storeKey: string;
+    /**
+     * The discovery's storage type as Osano reports it.
+     */
+    storeType: string;
+    /**
+     * When the discovery was last updated (ISO 8601).
+     */
+    updated: string;
+}
+
+export interface CookieConsentRuleDetails {
+    /**
+     * The rule classification.
+     */
+    classification: string;
+    /**
+     * The configuration the rule belongs to.
+     */
+    configId: string;
+    /**
+     * When the rule was created (ISO 8601).
+     */
+    created: string;
+    /**
+     * The cookie description, if set (cookies only).
+     */
+    description?: string;
+    /**
+     * Whether the rule is disclosed.
+     */
+    disclosure: boolean;
+    /**
+     * The cookie expiry description, if set (cookies only).
+     */
+    expiry?: string;
+    /**
+     * The rule pattern.
+     */
+    rule: string;
+    /**
+     * The server-assigned integer rule ID. Import a rule with <configId>/<ruleId>.
+     */
+    ruleId: number;
+    /**
+     * The matching mode, if set.
+     */
+    ruleType?: string;
+    /**
+     * The storage type: cookies, scripts, iframes, or localStorage. Osano's raw type is passed through when it is not one of these.
+     */
+    storeType: string;
+    /**
+     * The disclosure title, if set.
+     */
+    title?: string;
+    /**
+     * When the rule was last updated (ISO 8601).
+     */
+    updated: string;
+    /**
+     * The Osano vendor ID, if set.
+     */
+    vendorId?: string;
+    /**
+     * The vendor name, if set.
+     */
+    vendorName?: string;
 }
 

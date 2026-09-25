@@ -23,33 +23,34 @@ func GetSubject(ctx *pulumi.Context, args *GetSubjectArgs, opts ...pulumi.Invoke
 }
 
 type GetSubjectArgs struct {
-	// Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
+	// Reference type: subject (default) for a subject's verified or anonymous ID, or session for a session ID. anonymous is accepted as a deprecated alias of subject.
 	ReferenceType *string `pulumi:"referenceType"`
-	// The subject reference to resolve.
+	// The subject reference to resolve: an anonymous ID, verified ID, or session ID.
 	SubjectRef string `pulumi:"subjectRef"`
 }
 
 type GetSubjectResult struct {
+	// The subject's anonymous ID, if any.
 	AnonymousId string `pulumi:"anonymousId"`
-	Exists      bool   `pulumi:"exists"`
-	SubjectId   string `pulumi:"subjectId"`
-	SubjectRef  string `pulumi:"subjectRef"`
-	VerifiedId  string `pulumi:"verifiedId"`
+	// Whether Osano knows the subject. The ID outputs are empty when false.
+	Exists bool `pulumi:"exists"`
+	// The subject's Osano ID.
+	SubjectId string `pulumi:"subjectId"`
+	// The subject reference that was resolved.
+	SubjectRef string `pulumi:"subjectRef"`
+	// The subject's verified ID, if the subject is verified.
+	VerifiedId string `pulumi:"verifiedId"`
 }
 
 func GetSubjectOutput(ctx *pulumi.Context, args GetSubjectOutputArgs, opts ...pulumi.InvokeOption) GetSubjectResultOutput {
-	return pulumi.ToOutputWithContext(ctx.Context(), args).
-		ApplyT(func(v interface{}) (GetSubjectResultOutput, error) {
-			args := v.(GetSubjectArgs)
-			options := pulumi.InvokeOutputOptions{InvokeOptions: internal.PkgInvokeDefaultOpts(opts)}
-			return ctx.InvokeOutput("osano:index:getSubject", args, GetSubjectResultOutput{}, options).(GetSubjectResultOutput), nil
-		}).(GetSubjectResultOutput)
+	options := pulumi.InvokeOutputOptions{InvokeOptions: internal.PkgInvokeDefaultOpts(opts)}
+	return ctx.InvokeOutput("osano:index:getSubject", args, GetSubjectResultOutput{}, options).(GetSubjectResultOutput)
 }
 
 type GetSubjectOutputArgs struct {
-	// Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
+	// Reference type: subject (default) for a subject's verified or anonymous ID, or session for a session ID. anonymous is accepted as a deprecated alias of subject.
 	ReferenceType pulumi.StringPtrInput `pulumi:"referenceType"`
-	// The subject reference to resolve.
+	// The subject reference to resolve: an anonymous ID, verified ID, or session ID.
 	SubjectRef pulumi.StringInput `pulumi:"subjectRef"`
 }
 
@@ -71,22 +72,27 @@ func (o GetSubjectResultOutput) ToGetSubjectResultOutputWithContext(ctx context.
 	return o
 }
 
+// The subject's anonymous ID, if any.
 func (o GetSubjectResultOutput) AnonymousId() pulumi.StringOutput {
 	return o.ApplyT(func(v GetSubjectResult) string { return v.AnonymousId }).(pulumi.StringOutput)
 }
 
+// Whether Osano knows the subject. The ID outputs are empty when false.
 func (o GetSubjectResultOutput) Exists() pulumi.BoolOutput {
 	return o.ApplyT(func(v GetSubjectResult) bool { return v.Exists }).(pulumi.BoolOutput)
 }
 
+// The subject's Osano ID.
 func (o GetSubjectResultOutput) SubjectId() pulumi.StringOutput {
 	return o.ApplyT(func(v GetSubjectResult) string { return v.SubjectId }).(pulumi.StringOutput)
 }
 
+// The subject reference that was resolved.
 func (o GetSubjectResultOutput) SubjectRef() pulumi.StringOutput {
 	return o.ApplyT(func(v GetSubjectResult) string { return v.SubjectRef }).(pulumi.StringOutput)
 }
 
+// The subject's verified ID, if the subject is verified.
 func (o GetSubjectResultOutput) VerifiedId() pulumi.StringOutput {
 	return o.ApplyT(func(v GetSubjectResult) string { return v.VerifiedId }).(pulumi.StringOutput)
 }

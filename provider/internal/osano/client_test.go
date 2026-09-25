@@ -523,3 +523,29 @@ func TestDoJSONRetriesTransportErrorsForGetOnly(t *testing.T) {
 		}
 	})
 }
+
+// Osano documents URL-encoded spaces (%20) for query filters such as the config name search, while
+// url.Values encodes spaces as "+". A literal "+" must still arrive as a plus sign.
+func TestDoJSONEncodesQuerySpacesAsPercent20(t *testing.T) {
+	t.Parallel()
+
+	var rawQuery atomic.Value
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		rawQuery.Store(r.URL.RawQuery)
+		if got := r.URL.Query().Get("name"); got != "marketing site+eu" {
+			t.Errorf("expected decoded name %q, got %q", "marketing site+eu", got)
+		}
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	defer server.Close()
+
+	baseURL, _ := url.Parse(server.URL)
+	client := NewClient(baseURL, "x-api-key", "test-key")
+	query := url.Values{"name": []string{"marketing site+eu"}}
+	if err := client.DoJSON(context.Background(), http.MethodGet, "/v1/configs", query, nil, nil); err != nil {
+		t.Fatal(err)
+	}
+	if got := rawQuery.Load(); got != "name=marketing%20site%2Beu" {
+		t.Fatalf("unexpected raw query %q", got)
+	}
+}

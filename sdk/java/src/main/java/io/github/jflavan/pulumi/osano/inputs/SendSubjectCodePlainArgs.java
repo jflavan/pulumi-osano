@@ -4,7 +4,6 @@
 package io.github.jflavan.pulumi.osano.inputs;
 
 import com.pulumi.core.annotations.Import;
-import com.pulumi.exceptions.MissingRequiredPropertyException;
 import java.lang.String;
 import java.util.Objects;
 import java.util.Optional;
@@ -31,18 +30,18 @@ public final class SendSubjectCodePlainArgs extends com.pulumi.resources.InvokeA
     }
 
     /**
-     * The hashed subject identifier to verify.
+     * Optional hashed subject identifier, sent only when set. Osano&#39;s current API identifies the subject by email or phone.
      *
      */
-    @Import(name="hashedSubjectId", required=true)
-    private String hashedSubjectId;
+    @Import(name="hashedSubjectId")
+    private @Nullable String hashedSubjectId;
 
     /**
-     * @return The hashed subject identifier to verify.
+     * @return Optional hashed subject identifier, sent only when set. Osano&#39;s current API identifies the subject by email or phone.
      *
      */
-    public String hashedSubjectId() {
-        return this.hashedSubjectId;
+    public Optional<String> hashedSubjectId() {
+        return Optional.ofNullable(this.hashedSubjectId);
     }
 
     /**
@@ -98,12 +97,12 @@ public final class SendSubjectCodePlainArgs extends com.pulumi.resources.InvokeA
         }
 
         /**
-         * @param hashedSubjectId The hashed subject identifier to verify.
+         * @param hashedSubjectId Optional hashed subject identifier, sent only when set. Osano&#39;s current API identifies the subject by email or phone.
          *
          * @return builder
          *
          */
-        public Builder hashedSubjectId(String hashedSubjectId) {
+        public Builder hashedSubjectId(@Nullable String hashedSubjectId) {
             $.hashedSubjectId = hashedSubjectId;
             return this;
         }
@@ -120,9 +119,6 @@ public final class SendSubjectCodePlainArgs extends com.pulumi.resources.InvokeA
         }
 
         public SendSubjectCodePlainArgs build() {
-            if ($.hashedSubjectId == null) {
-                throw new MissingRequiredPropertyException("SendSubjectCodePlainArgs", "hashedSubjectId");
-            }
             return $;
         }
     }

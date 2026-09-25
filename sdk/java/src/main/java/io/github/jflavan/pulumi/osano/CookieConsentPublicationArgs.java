@@ -79,14 +79,14 @@ public final class CookieConsentPublicationArgs extends com.pulumi.resources.Res
     }
 
     /**
-     * Optional absolute HTTP or HTTPS URL notified by Osano after publication.
+     * Optional absolute HTTP or HTTPS URL Osano calls when the publication completes. Osano does not document the call&#39;s payload or sign it, so use an unguessable URL; the value is stored as a secret.
      *
      */
     @Import(name="webhookUrl")
     private @Nullable Output<String> webhookUrl;
 
     /**
-     * @return Optional absolute HTTP or HTTPS URL notified by Osano after publication.
+     * @return Optional absolute HTTP or HTTPS URL Osano calls when the publication completes. Osano does not document the call&#39;s payload or sign it, so use an unguessable URL; the value is stored as a secret.
      *
      */
     public Optional<Output<String>> webhookUrl() {
@@ -206,7 +206,7 @@ public final class CookieConsentPublicationArgs extends com.pulumi.resources.Res
         }
 
         /**
-         * @param webhookUrl Optional absolute HTTP or HTTPS URL notified by Osano after publication.
+         * @param webhookUrl Optional absolute HTTP or HTTPS URL Osano calls when the publication completes. Osano does not document the call&#39;s payload or sign it, so use an unguessable URL; the value is stored as a secret.
          *
          * @return builder
          *
@@ -217,7 +217,7 @@ public final class CookieConsentPublicationArgs extends com.pulumi.resources.Res
         }
 
         /**
-         * @param webhookUrl Optional absolute HTTP or HTTPS URL notified by Osano after publication.
+         * @param webhookUrl Optional absolute HTTP or HTTPS URL Osano calls when the publication completes. Osano does not document the call&#39;s payload or sign it, so use an unguessable URL; the value is stored as a secret.
          *
          * @return builder
          *

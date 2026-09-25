@@ -21,47 +21,49 @@ __all__ = ['ConsentArgs', 'Consent']
 @pulumi.input_type
 class ConsentArgs:
     def __init__(__self__, *,
-                 actions: pulumi.Input[Sequence[pulumi.Input['ConsentActionArgs']]],
                  subject: pulumi.Input['ConsentSubjectArgs'],
-                 attributes: Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
-                 compliance: Optional[pulumi.Input['ConsentComplianceArgs']] = None,
-                 jurisdiction: Optional[pulumi.Input[_builtins.str]] = None,
-                 origin: Optional[pulumi.Input[_builtins.str]] = None,
-                 tags: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]] = None):
+                 actions: pulumi.Input[Optional[Sequence[pulumi.Input['ConsentActionArgs']]]] = None,
+                 attributes: pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
+                 compliance: pulumi.Input[Optional['ConsentComplianceArgs']] = None,
+                 country_code_override: pulumi.Input[Optional[_builtins.str]] = None,
+                 jurisdiction: pulumi.Input[Optional[_builtins.str]] = None,
+                 origin: pulumi.Input[Optional[_builtins.str]] = None,
+                 region_code_override: pulumi.Input[Optional[_builtins.str]] = None,
+                 session_token: pulumi.Input[Optional[_builtins.str]] = None,
+                 tags: pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]] = None):
         """
         The set of arguments for constructing a Consent resource.
-        :param pulumi.Input[Sequence[pulumi.Input['ConsentActionArgs']]] actions: Consent actions referencing privacy protocols (target) within a configuration (vendor).
+
         :param pulumi.Input['ConsentSubjectArgs'] subject: Subject identifiers used for the consent (verifiedId or anonymousId).
-        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] attributes: Optional key/value attributes stored with the consent record (e.g., ipAddress overrides).
+        :param pulumi.Input[Sequence[pulumi.Input['ConsentActionArgs']]] actions: Consent actions referencing privacy protocols (target) within a configuration (vendor). Required unless origin is gpc.
+        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] attributes: Optional key/value attributes stored with the consent record. Osano fills ipAddress and userAgent itself and overwrites values sent for those keys.
         :param pulumi.Input['ConsentComplianceArgs'] compliance: Optional compliance metadata such as the privacy policy version and GPC signal.
-        :param pulumi.Input[_builtins.str] jurisdiction: Optional jurisdiction override matching one of the configuration's jurisdictions.
-        :param pulumi.Input[_builtins.str] origin: Origin metadata for the consent, typically 'api' or 'gpc'.
+        :param pulumi.Input[_builtins.str] country_code_override: Optional ISO 3166-1 country code Osano uses instead of resolving the caller's IP address. Set it when submitting from a pipeline, whose IP address says nothing about the subject.
+        :param pulumi.Input[_builtins.str] jurisdiction: Optional jurisdiction, which must be one of the configuration's jurisdictions (see getCollections).
+        :param pulumi.Input[_builtins.str] origin: Origin of the consent: api (default) or gpc. With gpc and no actions, the consent is submitted to Osano's GPC endpoint, which derives the actions.
+        :param pulumi.Input[_builtins.str] region_code_override: Optional ISO 3166-2 region code Osano uses instead of resolving the caller's IP address.
+        :param pulumi.Input[_builtins.str] session_token: Optional session token returned when the subject's profile was created.
         :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] tags: Custom tags that Osano associates with the consent record.
         """
-        pulumi.set(__self__, "actions", actions)
         pulumi.set(__self__, "subject", subject)
+        if actions is not None:
+            pulumi.set(__self__, "actions", actions)
         if attributes is not None:
             pulumi.set(__self__, "attributes", attributes)
         if compliance is not None:
             pulumi.set(__self__, "compliance", compliance)
+        if country_code_override is not None:
+            pulumi.set(__self__, "country_code_override", country_code_override)
         if jurisdiction is not None:
             pulumi.set(__self__, "jurisdiction", jurisdiction)
         if origin is not None:
             pulumi.set(__self__, "origin", origin)
+        if region_code_override is not None:
+            pulumi.set(__self__, "region_code_override", region_code_override)
+        if session_token is not None:
+            pulumi.set(__self__, "session_token", session_token)
         if tags is not None:
             pulumi.set(__self__, "tags", tags)
-
-    @_builtins.property
-    @pulumi.getter
-    def actions(self) -> pulumi.Input[Sequence[pulumi.Input['ConsentActionArgs']]]:
-        """
-        Consent actions referencing privacy protocols (target) within a configuration (vendor).
-        """
-        return pulumi.get(self, "actions")
-
-    @actions.setter
-    def actions(self, value: pulumi.Input[Sequence[pulumi.Input['ConsentActionArgs']]]):
-        pulumi.set(self, "actions", value)
 
     @_builtins.property
     @pulumi.getter
@@ -77,62 +79,110 @@ class ConsentArgs:
 
     @_builtins.property
     @pulumi.getter
-    def attributes(self) -> Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]]:
+    def actions(self) -> pulumi.Input[Optional[Sequence[pulumi.Input['ConsentActionArgs']]]]:
         """
-        Optional key/value attributes stored with the consent record (e.g., ipAddress overrides).
+        Consent actions referencing privacy protocols (target) within a configuration (vendor). Required unless origin is gpc.
+        """
+        return pulumi.get(self, "actions")
+
+    @actions.setter
+    def actions(self, value: pulumi.Input[Optional[Sequence[pulumi.Input['ConsentActionArgs']]]]):
+        pulumi.set(self, "actions", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def attributes(self) -> pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]]:
+        """
+        Optional key/value attributes stored with the consent record. Osano fills ipAddress and userAgent itself and overwrites values sent for those keys.
         """
         return pulumi.get(self, "attributes")
 
     @attributes.setter
-    def attributes(self, value: Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]]):
+    def attributes(self, value: pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]]):
         pulumi.set(self, "attributes", value)
 
     @_builtins.property
     @pulumi.getter
-    def compliance(self) -> Optional[pulumi.Input['ConsentComplianceArgs']]:
+    def compliance(self) -> pulumi.Input[Optional['ConsentComplianceArgs']]:
         """
         Optional compliance metadata such as the privacy policy version and GPC signal.
         """
         return pulumi.get(self, "compliance")
 
     @compliance.setter
-    def compliance(self, value: Optional[pulumi.Input['ConsentComplianceArgs']]):
+    def compliance(self, value: pulumi.Input[Optional['ConsentComplianceArgs']]):
         pulumi.set(self, "compliance", value)
 
     @_builtins.property
-    @pulumi.getter
-    def jurisdiction(self) -> Optional[pulumi.Input[_builtins.str]]:
+    @pulumi.getter(name="countryCodeOverride")
+    def country_code_override(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        Optional jurisdiction override matching one of the configuration's jurisdictions.
+        Optional ISO 3166-1 country code Osano uses instead of resolving the caller's IP address. Set it when submitting from a pipeline, whose IP address says nothing about the subject.
+        """
+        return pulumi.get(self, "country_code_override")
+
+    @country_code_override.setter
+    def country_code_override(self, value: pulumi.Input[Optional[_builtins.str]]):
+        pulumi.set(self, "country_code_override", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def jurisdiction(self) -> pulumi.Input[Optional[_builtins.str]]:
+        """
+        Optional jurisdiction, which must be one of the configuration's jurisdictions (see getCollections).
         """
         return pulumi.get(self, "jurisdiction")
 
     @jurisdiction.setter
-    def jurisdiction(self, value: Optional[pulumi.Input[_builtins.str]]):
+    def jurisdiction(self, value: pulumi.Input[Optional[_builtins.str]]):
         pulumi.set(self, "jurisdiction", value)
 
     @_builtins.property
     @pulumi.getter
-    def origin(self) -> Optional[pulumi.Input[_builtins.str]]:
+    def origin(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        Origin metadata for the consent, typically 'api' or 'gpc'.
+        Origin of the consent: api (default) or gpc. With gpc and no actions, the consent is submitted to Osano's GPC endpoint, which derives the actions.
         """
         return pulumi.get(self, "origin")
 
     @origin.setter
-    def origin(self, value: Optional[pulumi.Input[_builtins.str]]):
+    def origin(self, value: pulumi.Input[Optional[_builtins.str]]):
         pulumi.set(self, "origin", value)
 
     @_builtins.property
+    @pulumi.getter(name="regionCodeOverride")
+    def region_code_override(self) -> pulumi.Input[Optional[_builtins.str]]:
+        """
+        Optional ISO 3166-2 region code Osano uses instead of resolving the caller's IP address.
+        """
+        return pulumi.get(self, "region_code_override")
+
+    @region_code_override.setter
+    def region_code_override(self, value: pulumi.Input[Optional[_builtins.str]]):
+        pulumi.set(self, "region_code_override", value)
+
+    @_builtins.property
+    @pulumi.getter(name="sessionToken")
+    def session_token(self) -> pulumi.Input[Optional[_builtins.str]]:
+        """
+        Optional session token returned when the subject's profile was created.
+        """
+        return pulumi.get(self, "session_token")
+
+    @session_token.setter
+    def session_token(self, value: pulumi.Input[Optional[_builtins.str]]):
+        pulumi.set(self, "session_token", value)
+
+    @_builtins.property
     @pulumi.getter
-    def tags(self) -> Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]:
+    def tags(self) -> pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]]:
         """
         Custom tags that Osano associates with the consent record.
         """
         return pulumi.get(self, "tags")
 
     @tags.setter
-    def tags(self, value: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]):
+    def tags(self, value: pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]]):
         pulumi.set(self, "tags", value)
 
 
@@ -142,25 +192,31 @@ class Consent(pulumi.CustomResource):
     def __init__(__self__,
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
-                 actions: Optional[pulumi.Input[Sequence[pulumi.Input[Union['ConsentActionArgs', 'ConsentActionArgsDict']]]]] = None,
-                 attributes: Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
-                 compliance: Optional[pulumi.Input[Union['ConsentComplianceArgs', 'ConsentComplianceArgsDict']]] = None,
-                 jurisdiction: Optional[pulumi.Input[_builtins.str]] = None,
-                 origin: Optional[pulumi.Input[_builtins.str]] = None,
-                 subject: Optional[pulumi.Input[Union['ConsentSubjectArgs', 'ConsentSubjectArgsDict']]] = None,
-                 tags: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]] = None,
+                 actions: pulumi.Input[Optional[Sequence[pulumi.Input[Union['ConsentActionArgs', 'ConsentActionArgsDict', 'outputs.ConsentAction']]]]] = None,
+                 attributes: pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
+                 compliance: pulumi.Input[Optional[Union['ConsentComplianceArgs', 'ConsentComplianceArgsDict', 'outputs.ConsentCompliance']]] = None,
+                 country_code_override: pulumi.Input[Optional[_builtins.str]] = None,
+                 jurisdiction: pulumi.Input[Optional[_builtins.str]] = None,
+                 origin: pulumi.Input[Optional[_builtins.str]] = None,
+                 region_code_override: pulumi.Input[Optional[_builtins.str]] = None,
+                 session_token: pulumi.Input[Optional[_builtins.str]] = None,
+                 subject: pulumi.Input[Optional[Union['ConsentSubjectArgs', 'ConsentSubjectArgsDict', 'outputs.ConsentSubject']]] = None,
+                 tags: pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]] = None,
                  __props__=None):
         """
-        Creates unified consent decisions within Osano for a given subject.
+        Submits a Unified Consent decision for a subject. Consents are immutable in Osano: changing any input submits a new consent (replacement), and destroying the resource only removes it from Pulumi state. Set origin to gpc and omit actions to submit a Global Privacy Control consent, whose actions Osano derives and returns in gpcActions.
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input[Sequence[pulumi.Input[Union['ConsentActionArgs', 'ConsentActionArgsDict']]]] actions: Consent actions referencing privacy protocols (target) within a configuration (vendor).
-        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] attributes: Optional key/value attributes stored with the consent record (e.g., ipAddress overrides).
-        :param pulumi.Input[Union['ConsentComplianceArgs', 'ConsentComplianceArgsDict']] compliance: Optional compliance metadata such as the privacy policy version and GPC signal.
-        :param pulumi.Input[_builtins.str] jurisdiction: Optional jurisdiction override matching one of the configuration's jurisdictions.
-        :param pulumi.Input[_builtins.str] origin: Origin metadata for the consent, typically 'api' or 'gpc'.
-        :param pulumi.Input[Union['ConsentSubjectArgs', 'ConsentSubjectArgsDict']] subject: Subject identifiers used for the consent (verifiedId or anonymousId).
+        :param pulumi.Input[Sequence[pulumi.Input[Union['ConsentActionArgs', 'ConsentActionArgsDict', 'outputs.ConsentAction']]]] actions: Consent actions referencing privacy protocols (target) within a configuration (vendor). Required unless origin is gpc.
+        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] attributes: Optional key/value attributes stored with the consent record. Osano fills ipAddress and userAgent itself and overwrites values sent for those keys.
+        :param pulumi.Input[Union['ConsentComplianceArgs', 'ConsentComplianceArgsDict', 'outputs.ConsentCompliance']] compliance: Optional compliance metadata such as the privacy policy version and GPC signal.
+        :param pulumi.Input[_builtins.str] country_code_override: Optional ISO 3166-1 country code Osano uses instead of resolving the caller's IP address. Set it when submitting from a pipeline, whose IP address says nothing about the subject.
+        :param pulumi.Input[_builtins.str] jurisdiction: Optional jurisdiction, which must be one of the configuration's jurisdictions (see getCollections).
+        :param pulumi.Input[_builtins.str] origin: Origin of the consent: api (default) or gpc. With gpc and no actions, the consent is submitted to Osano's GPC endpoint, which derives the actions.
+        :param pulumi.Input[_builtins.str] region_code_override: Optional ISO 3166-2 region code Osano uses instead of resolving the caller's IP address.
+        :param pulumi.Input[_builtins.str] session_token: Optional session token returned when the subject's profile was created.
+        :param pulumi.Input[Union['ConsentSubjectArgs', 'ConsentSubjectArgsDict', 'outputs.ConsentSubject']] subject: Subject identifiers used for the consent (verifiedId or anonymousId).
         :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] tags: Custom tags that Osano associates with the consent record.
         """
         ...
@@ -170,7 +226,7 @@ class Consent(pulumi.CustomResource):
                  args: ConsentArgs,
                  opts: Optional[pulumi.ResourceOptions] = None):
         """
-        Creates unified consent decisions within Osano for a given subject.
+        Submits a Unified Consent decision for a subject. Consents are immutable in Osano: changing any input submits a new consent (replacement), and destroying the resource only removes it from Pulumi state. Set origin to gpc and omit actions to submit a Global Privacy Control consent, whose actions Osano derives and returns in gpcActions.
 
         :param str resource_name: The name of the resource.
         :param ConsentArgs args: The arguments to use to populate this resource's properties.
@@ -187,13 +243,16 @@ class Consent(pulumi.CustomResource):
     def _internal_init(__self__,
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
-                 actions: Optional[pulumi.Input[Sequence[pulumi.Input[Union['ConsentActionArgs', 'ConsentActionArgsDict']]]]] = None,
-                 attributes: Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
-                 compliance: Optional[pulumi.Input[Union['ConsentComplianceArgs', 'ConsentComplianceArgsDict']]] = None,
-                 jurisdiction: Optional[pulumi.Input[_builtins.str]] = None,
-                 origin: Optional[pulumi.Input[_builtins.str]] = None,
-                 subject: Optional[pulumi.Input[Union['ConsentSubjectArgs', 'ConsentSubjectArgsDict']]] = None,
-                 tags: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]] = None,
+                 actions: pulumi.Input[Optional[Sequence[pulumi.Input[Union['ConsentActionArgs', 'ConsentActionArgsDict', 'outputs.ConsentAction']]]]] = None,
+                 attributes: pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
+                 compliance: pulumi.Input[Optional[Union['ConsentComplianceArgs', 'ConsentComplianceArgsDict', 'outputs.ConsentCompliance']]] = None,
+                 country_code_override: pulumi.Input[Optional[_builtins.str]] = None,
+                 jurisdiction: pulumi.Input[Optional[_builtins.str]] = None,
+                 origin: pulumi.Input[Optional[_builtins.str]] = None,
+                 region_code_override: pulumi.Input[Optional[_builtins.str]] = None,
+                 session_token: pulumi.Input[Optional[_builtins.str]] = None,
+                 subject: pulumi.Input[Optional[Union['ConsentSubjectArgs', 'ConsentSubjectArgsDict', 'outputs.ConsentSubject']]] = None,
+                 tags: pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]] = None,
                  __props__=None):
         opts = pulumi.ResourceOptions.merge(_utilities.get_resource_opts_defaults(), opts)
         if not isinstance(opts, pulumi.ResourceOptions):
@@ -203,20 +262,24 @@ class Consent(pulumi.CustomResource):
                 raise TypeError('__props__ is only valid when passed in combination with a valid opts.id to get an existing resource')
             __props__ = ConsentArgs.__new__(ConsentArgs)
 
-            if actions is None and not opts.urn:
-                raise TypeError("Missing required property 'actions'")
             __props__.__dict__["actions"] = actions
             __props__.__dict__["attributes"] = attributes
             __props__.__dict__["compliance"] = compliance
+            __props__.__dict__["country_code_override"] = country_code_override
             __props__.__dict__["jurisdiction"] = jurisdiction
             __props__.__dict__["origin"] = origin
+            __props__.__dict__["region_code_override"] = region_code_override
+            __props__.__dict__["session_token"] = None if session_token is None else pulumi.Output.secret(session_token)
             if subject is None and not opts.urn:
                 raise TypeError("Missing required property 'subject'")
             __props__.__dict__["subject"] = subject
             __props__.__dict__["tags"] = tags
             __props__.__dict__["consent_id"] = None
+            __props__.__dict__["gpc_actions"] = None
             __props__.__dict__["last_synced"] = None
-        replace_on_changes = pulumi.ResourceOptions(replace_on_changes=["actions[*]", "attributes.*", "compliance", "jurisdiction", "origin", "subject", "tags[*]"])
+        secret_opts = pulumi.ResourceOptions(additional_secret_outputs=["sessionToken"])
+        opts = pulumi.ResourceOptions.merge(opts, secret_opts)
+        replace_on_changes = pulumi.ResourceOptions(replace_on_changes=["actions[*]", "attributes.*", "compliance", "countryCodeOverride", "jurisdiction", "origin", "regionCodeOverride", "sessionToken", "subject", "tags[*]"])
         opts = pulumi.ResourceOptions.merge(opts, replace_on_changes)
         super(Consent, __self__).__init__(
             'osano:index:Consent',
@@ -244,18 +307,22 @@ class Consent(pulumi.CustomResource):
         __props__.__dict__["attributes"] = None
         __props__.__dict__["compliance"] = None
         __props__.__dict__["consent_id"] = None
+        __props__.__dict__["country_code_override"] = None
+        __props__.__dict__["gpc_actions"] = None
         __props__.__dict__["jurisdiction"] = None
         __props__.__dict__["last_synced"] = None
         __props__.__dict__["origin"] = None
+        __props__.__dict__["region_code_override"] = None
+        __props__.__dict__["session_token"] = None
         __props__.__dict__["subject"] = None
         __props__.__dict__["tags"] = None
         return Consent(resource_name, opts=opts, __props__=__props__)
 
     @_builtins.property
     @pulumi.getter
-    def actions(self) -> pulumi.Output[Sequence['outputs.ConsentAction']]:
+    def actions(self) -> pulumi.Output[Optional[Sequence['outputs.ConsentAction']]]:
         """
-        Consent actions referencing privacy protocols (target) within a configuration (vendor).
+        Consent actions referencing privacy protocols (target) within a configuration (vendor). Required unless origin is gpc.
         """
         return pulumi.get(self, "actions")
 
@@ -263,7 +330,7 @@ class Consent(pulumi.CustomResource):
     @pulumi.getter
     def attributes(self) -> pulumi.Output[Optional[Mapping[str, _builtins.str]]]:
         """
-        Optional key/value attributes stored with the consent record (e.g., ipAddress overrides).
+        Optional key/value attributes stored with the consent record. Osano fills ipAddress and userAgent itself and overwrites values sent for those keys.
         """
         return pulumi.get(self, "attributes")
 
@@ -284,10 +351,26 @@ class Consent(pulumi.CustomResource):
         return pulumi.get(self, "consent_id")
 
     @_builtins.property
+    @pulumi.getter(name="countryCodeOverride")
+    def country_code_override(self) -> pulumi.Output[Optional[_builtins.str]]:
+        """
+        Optional ISO 3166-1 country code Osano uses instead of resolving the caller's IP address. Set it when submitting from a pipeline, whose IP address says nothing about the subject.
+        """
+        return pulumi.get(self, "country_code_override")
+
+    @_builtins.property
+    @pulumi.getter(name="gpcActions")
+    def gpc_actions(self) -> pulumi.Output[Optional[Sequence['outputs.ConsentAction']]]:
+        """
+        The actions Osano derived for a GPC consent submitted without actions.
+        """
+        return pulumi.get(self, "gpc_actions")
+
+    @_builtins.property
     @pulumi.getter
     def jurisdiction(self) -> pulumi.Output[Optional[_builtins.str]]:
         """
-        Optional jurisdiction override matching one of the configuration's jurisdictions.
+        Optional jurisdiction, which must be one of the configuration's jurisdictions (see getCollections).
         """
         return pulumi.get(self, "jurisdiction")
 
@@ -303,9 +386,25 @@ class Consent(pulumi.CustomResource):
     @pulumi.getter
     def origin(self) -> pulumi.Output[Optional[_builtins.str]]:
         """
-        Origin metadata for the consent, typically 'api' or 'gpc'.
+        Origin of the consent: api (default) or gpc. With gpc and no actions, the consent is submitted to Osano's GPC endpoint, which derives the actions.
         """
         return pulumi.get(self, "origin")
+
+    @_builtins.property
+    @pulumi.getter(name="regionCodeOverride")
+    def region_code_override(self) -> pulumi.Output[Optional[_builtins.str]]:
+        """
+        Optional ISO 3166-2 region code Osano uses instead of resolving the caller's IP address.
+        """
+        return pulumi.get(self, "region_code_override")
+
+    @_builtins.property
+    @pulumi.getter(name="sessionToken")
+    def session_token(self) -> pulumi.Output[Optional[_builtins.str]]:
+        """
+        Optional session token returned when the subject's profile was created.
+        """
+        return pulumi.get(self, "session_token")
 
     @_builtins.property
     @pulumi.getter

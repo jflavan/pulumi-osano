@@ -37,16 +37,25 @@ class GetCollectionResult:
     @_builtins.property
     @pulumi.getter
     def collection(self) -> Mapping[str, Any]:
+        """
+        The collection: collectionId, name, frameworks, configIds, jurisdiction, type, consents, and preferences.
+        """
         return pulumi.get(self, "collection")
 
     @_builtins.property
     @pulumi.getter(name="collectionId")
     def collection_id(self) -> _builtins.str:
+        """
+        The collection ID that was looked up.
+        """
         return pulumi.get(self, "collection_id")
 
     @_builtins.property
     @pulumi.getter
     def exists(self) -> _builtins.bool:
+        """
+        Whether Osano returned the collection.
+        """
         return pulumi.get(self, "exists")
 
 
@@ -66,7 +75,6 @@ def get_collection(collection_id: Optional[_builtins.str] = None,
     """
     Retrieves a specific privacy protocol collection by ID.
 
-
     :param _builtins.str collection_id: The privacy protocol collection ID to fetch.
     """
     __args__ = dict()
@@ -78,11 +86,10 @@ def get_collection(collection_id: Optional[_builtins.str] = None,
         collection=pulumi.get(__ret__, 'collection'),
         collection_id=pulumi.get(__ret__, 'collection_id'),
         exists=pulumi.get(__ret__, 'exists'))
-def get_collection_output(collection_id: Optional[pulumi.Input[_builtins.str]] = None,
+def get_collection_output(collection_id: pulumi.Input[Optional[_builtins.str]] = None,
                           opts: Optional[Union[pulumi.InvokeOptions, pulumi.InvokeOutputOptions]] = None) -> pulumi.Output[GetCollectionResult]:
     """
     Retrieves a specific privacy protocol collection by ID.
-
 
     :param _builtins.str collection_id: The privacy protocol collection ID to fetch.
     """

@@ -50,10 +50,45 @@ export const getConsentProfile: typeof import("./getConsentProfile").getConsentP
 export const getConsentProfileOutput: typeof import("./getConsentProfile").getConsentProfileOutput = null as any;
 utilities.lazyLoad(exports, ["getConsentProfile","getConsentProfileOutput"], () => require("./getConsentProfile"));
 
+export { GetCookieConsentAuditLogArgs, GetCookieConsentAuditLogResult, GetCookieConsentAuditLogOutputArgs } from "./getCookieConsentAuditLog";
+export const getCookieConsentAuditLog: typeof import("./getCookieConsentAuditLog").getCookieConsentAuditLog = null as any;
+export const getCookieConsentAuditLogOutput: typeof import("./getCookieConsentAuditLog").getCookieConsentAuditLogOutput = null as any;
+utilities.lazyLoad(exports, ["getCookieConsentAuditLog","getCookieConsentAuditLogOutput"], () => require("./getCookieConsentAuditLog"));
+
+export { GetCookieConsentConfigArgs, GetCookieConsentConfigResult, GetCookieConsentConfigOutputArgs } from "./getCookieConsentConfig";
+export const getCookieConsentConfig: typeof import("./getCookieConsentConfig").getCookieConsentConfig = null as any;
+export const getCookieConsentConfigOutput: typeof import("./getCookieConsentConfig").getCookieConsentConfigOutput = null as any;
+utilities.lazyLoad(exports, ["getCookieConsentConfig","getCookieConsentConfigOutput"], () => require("./getCookieConsentConfig"));
+
+export { GetCookieConsentConfigsArgs, GetCookieConsentConfigsResult, GetCookieConsentConfigsOutputArgs } from "./getCookieConsentConfigs";
+export const getCookieConsentConfigs: typeof import("./getCookieConsentConfigs").getCookieConsentConfigs = null as any;
+export const getCookieConsentConfigsOutput: typeof import("./getCookieConsentConfigs").getCookieConsentConfigsOutput = null as any;
+utilities.lazyLoad(exports, ["getCookieConsentConfigs","getCookieConsentConfigsOutput"], () => require("./getCookieConsentConfigs"));
+
+export { GetCookieConsentDiscoveriesArgs, GetCookieConsentDiscoveriesResult, GetCookieConsentDiscoveriesOutputArgs } from "./getCookieConsentDiscoveries";
+export const getCookieConsentDiscoveries: typeof import("./getCookieConsentDiscoveries").getCookieConsentDiscoveries = null as any;
+export const getCookieConsentDiscoveriesOutput: typeof import("./getCookieConsentDiscoveries").getCookieConsentDiscoveriesOutput = null as any;
+utilities.lazyLoad(exports, ["getCookieConsentDiscoveries","getCookieConsentDiscoveriesOutput"], () => require("./getCookieConsentDiscoveries"));
+
+export { GetCookieConsentRulesArgs, GetCookieConsentRulesResult, GetCookieConsentRulesOutputArgs } from "./getCookieConsentRules";
+export const getCookieConsentRules: typeof import("./getCookieConsentRules").getCookieConsentRules = null as any;
+export const getCookieConsentRulesOutput: typeof import("./getCookieConsentRules").getCookieConsentRulesOutput = null as any;
+utilities.lazyLoad(exports, ["getCookieConsentRules","getCookieConsentRulesOutput"], () => require("./getCookieConsentRules"));
+
+export { GetSessionArgs, GetSessionResult, GetSessionOutputArgs } from "./getSession";
+export const getSession: typeof import("./getSession").getSession = null as any;
+export const getSessionOutput: typeof import("./getSession").getSessionOutput = null as any;
+utilities.lazyLoad(exports, ["getSession","getSessionOutput"], () => require("./getSession"));
+
 export { GetSubjectArgs, GetSubjectResult, GetSubjectOutputArgs } from "./getSubject";
 export const getSubject: typeof import("./getSubject").getSubject = null as any;
 export const getSubjectOutput: typeof import("./getSubject").getSubjectOutput = null as any;
 utilities.lazyLoad(exports, ["getSubject","getSubjectOutput"], () => require("./getSubject"));
+
+export { GetSubjectProfileArgs, GetSubjectProfileResult, GetSubjectProfileOutputArgs } from "./getSubjectProfile";
+export const getSubjectProfile: typeof import("./getSubjectProfile").getSubjectProfile = null as any;
+export const getSubjectProfileOutput: typeof import("./getSubjectProfile").getSubjectProfileOutput = null as any;
+utilities.lazyLoad(exports, ["getSubjectProfile","getSubjectProfileOutput"], () => require("./getSubjectProfile"));
 
 export { GetUnifiedConsentArgs, GetUnifiedConsentResult, GetUnifiedConsentOutputArgs } from "./getUnifiedConsent";
 export const getUnifiedConsent: typeof import("./getUnifiedConsent").getUnifiedConsent = null as any;

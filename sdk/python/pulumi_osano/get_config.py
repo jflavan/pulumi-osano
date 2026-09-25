@@ -31,6 +31,9 @@ class GetConfigResult:
     @_builtins.property
     @pulumi.getter
     def config(self) -> Mapping[str, Any]:
+        """
+        The Unified Consent configuration: configId, customerId, name, domains, privacy policy, privacyProtocols, frameworks, styling, publication state, and text customizations.
+        """
         return pulumi.get(self, "config")
 
 

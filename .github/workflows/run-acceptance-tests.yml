@@ -324,6 +324,28 @@ jobs:
           working-directory: .
           install-mode: none
 
+  # Drives the provider through real Pulumi engine operations against an in-process mock of the Osano
+  # Customer REST API, so it needs no secrets. The suite builds and installs the provider plugin itself.
+  pipeline_e2e:
+    runs-on: ubuntu-latest
+    name: pipeline_e2e
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v7
+        with:
+          lfs: true
+          ref: ${{ env.PR_COMMIT_SHA || github.ref }}
+
+      - name: Setup Tools
+        uses: ./.github/actions/setup-tools
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run pipeline e2e suite
+        env:
+          OSANO_RUN_PIPELINE_E2E: "1"
+        run: go test -tags 'e2e pipeline' -count=1 -timeout 20m -v ./tests/e2e/pipeline/...
+
   sentinel:
     runs-on: ubuntu-latest
     name: sentinel
@@ -332,6 +354,7 @@ jobs:
       - build_examples
       - prerequisites
       - lint
+      - pipeline_e2e
     steps:
       - name: Mark workflow as successful
         uses: guibranco/github-status-action-v2@77639353504055053524efa7a3719aaf0b731ce9 # v1.2.4

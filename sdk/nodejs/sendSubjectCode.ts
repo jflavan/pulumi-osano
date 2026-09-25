@@ -5,9 +5,10 @@ import * as pulumi from "@pulumi/pulumi";
 import * as utilities from "./utilities";
 
 /**
- * Sends a verification code to a subject's email or phone using the Osano API key. Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
+ * Sends a verification code to a subject's email or phone, authenticating with every configured key (the Osano API key, the Unified Consent API key, or both). Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
  */
-export function sendSubjectCode(args: SendSubjectCodeArgs, opts?: pulumi.InvokeOptions): Promise<SendSubjectCodeResult> {
+export function sendSubjectCode(args?: SendSubjectCodeArgs, opts?: pulumi.InvokeOptions): Promise<SendSubjectCodeResult> {
+    args = args || {};
     opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts || {});
     return pulumi.runtime.invoke("osano:index:sendSubjectCode", {
         "email": args.email,
@@ -22,9 +23,9 @@ export interface SendSubjectCodeArgs {
      */
     email?: string;
     /**
-     * The hashed subject identifier to verify.
+     * Optional hashed subject identifier, sent only when set. Osano's current API identifies the subject by email or phone.
      */
-    hashedSubjectId: string;
+    hashedSubjectId?: string;
     /**
      * Phone number to send the code to by SMS. Set exactly one of email or phone.
      */
@@ -32,14 +33,28 @@ export interface SendSubjectCodeArgs {
 }
 
 export interface SendSubjectCodeResult {
+    /**
+     * The delivery channel: email or sms.
+     */
     readonly channel: string;
+    /**
+     * The email address or phone number the code was sent to. Secret, because it is personal data.
+     */
     readonly destination: string;
+    /**
+     * The hashed subject identifier sent with the request, if any.
+     */
     readonly hashedSubjectId: string;
+    /**
+     * The SMS challenge session, when Osano returns one; pass it to verifySubjectCode. Empty for email.
+     */
+    readonly session: string;
 }
 /**
- * Sends a verification code to a subject's email or phone using the Osano API key. Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
+ * Sends a verification code to a subject's email or phone, authenticating with every configured key (the Osano API key, the Unified Consent API key, or both). Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a new code each time; call it from automation rather than from long-lived stack code.
  */
-export function sendSubjectCodeOutput(args: SendSubjectCodeOutputArgs, opts?: pulumi.InvokeOutputOptions): pulumi.Output<SendSubjectCodeResult> {
+export function sendSubjectCodeOutput(args?: SendSubjectCodeOutputArgs, opts?: pulumi.InvokeOutputOptions): pulumi.Output<SendSubjectCodeResult> {
+    args = args || {};
     opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts || {});
     return pulumi.runtime.invokeOutput("osano:index:sendSubjectCode", {
         "email": args.email,
@@ -52,13 +67,13 @@ export interface SendSubjectCodeOutputArgs {
     /**
      * Email address to send the code to. Set exactly one of email or phone.
      */
-    email?: pulumi.Input<string>;
+    email?: pulumi.Input<string | undefined>;
     /**
-     * The hashed subject identifier to verify.
+     * Optional hashed subject identifier, sent only when set. Osano's current API identifies the subject by email or phone.
      */
-    hashedSubjectId: pulumi.Input<string>;
+    hashedSubjectId?: pulumi.Input<string | undefined>;
     /**
      * Phone number to send the code to by SMS. Set exactly one of email or phone.
      */
-    phone?: pulumi.Input<string>;
+    phone?: pulumi.Input<string | undefined>;
 }

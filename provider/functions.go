@@ -9,22 +9,46 @@ import (
 	"github.com/pulumi/pulumi-go-provider/infer"
 )
 
-const referenceTypeDescription = "Reference type: subject (default) for a verified subject ID, " +
-	"or anonymous for an anonymous ID."
+const (
+	referenceTypeDescription = "Reference type: subject (default) for a subject's verified or anonymous ID, " +
+		"or session for a session ID. anonymous is accepted as a deprecated alias of subject."
+	countryCodeOverrideDescription = "Optional ISO 3166-1 country code Osano uses instead of resolving the " +
+		"caller's IP address, which in a pipeline is the CI runner's."
+	regionCodeOverrideDescription = "Optional ISO 3166-2 region code Osano uses instead of resolving the " +
+		"caller's IP address."
+)
+
+func geoOverrideFrom(country, region *string) (geoOverride, error) {
+	if err := validateGeoOverride(country, region); err != nil {
+		return geoOverride{}, err
+	}
+	var geo geoOverride
+	if country != nil {
+		geo.CountryCode = *country
+	}
+	if region != nil {
+		geo.RegionCode = *region
+	}
+	return geo, nil
+}
 
 // GetUnifiedConsent exposes an invoke to fetch the latest unified consent summary for a subject.
 type GetUnifiedConsent struct{}
 
 // GetUnifiedConsentArgs captures the lookup parameters for the invoke.
 type GetUnifiedConsentArgs struct {
-	SubjectRef    string `pulumi:"subjectRef"`
-	ReferenceType string `pulumi:"referenceType,optional"`
+	SubjectRef          string  `pulumi:"subjectRef"`
+	ReferenceType       string  `pulumi:"referenceType,optional"`
+	CountryCodeOverride *string `pulumi:"countryCodeOverride,optional"`
+	RegionCodeOverride  *string `pulumi:"regionCodeOverride,optional"`
 }
 
 // Annotate documents the getUnifiedConsent input fields.
 func (args *GetUnifiedConsentArgs) Annotate(a infer.Annotator) {
-	a.Describe(&args.SubjectRef, "The subject reference to look up.")
+	a.Describe(&args.SubjectRef, "The subject reference to look up: an anonymous ID, verified ID, or session ID.")
 	a.Describe(&args.ReferenceType, referenceTypeDescription)
+	a.Describe(&args.CountryCodeOverride, countryCodeOverrideDescription)
+	a.Describe(&args.RegionCodeOverride, regionCodeOverrideDescription)
 }
 
 // GetUnifiedConsentResult is returned to Pulumi programs.
@@ -33,6 +57,18 @@ type GetUnifiedConsentResult struct {
 	Exists         bool             `pulumi:"exists"`
 	UnifiedConsent map[string]any   `pulumi:"unifiedConsent"`
 	Conflicts      []map[string]any `pulumi:"conflicts"`
+}
+
+// Annotate documents the getUnifiedConsent outputs.
+func (r *GetUnifiedConsentResult) Annotate(a infer.Annotator) {
+	a.Describe(&r.SubjectRef, "The subject reference that was looked up.")
+	a.Describe(&r.Exists, "Whether Osano has any consent for the subject.")
+	a.Describe(
+		&r.UnifiedConsent,
+		"The merged consent: subjectId, brandId, channelIds, jurisdiction, lastUpdateDate, "+
+			"lastConflictDate, actions, attributes, compliance, and tags.",
+	)
+	a.Describe(&r.Conflicts, "Conflicting consents Osano resolved, with the resolution and the actions in conflict.")
 }
 
 // Annotate registers the getUnifiedConsent invoke schema metadata.
@@ -51,8 +87,12 @@ func (g *GetUnifiedConsent) Invoke(
 		return infer.FunctionResponse[GetUnifiedConsentResult]{}, errors.New("subjectRef is required")
 	}
 
+	geo, err := geoOverrideFrom(req.Input.CountryCodeOverride, req.Input.RegionCodeOverride)
+	if err != nil {
+		return infer.FunctionResponse[GetUnifiedConsentResult]{}, err
+	}
 	client := newAPIClient(ctx)
-	payload, found, err := client.FetchUnifiedConsent(ctx, subjectRef, req.Input.ReferenceType)
+	payload, found, err := client.FetchUnifiedConsent(ctx, subjectRef, req.Input.ReferenceType, geo)
 	if err != nil {
 		return infer.FunctionResponse[GetUnifiedConsentResult]{}, err
 	}
@@ -71,19 +111,34 @@ func (g *GetUnifiedConsent) Invoke(
 		Conflicts:  payload.Conflicts,
 	}
 
-	if payload.UnifiedConsent != nil {
+	if uc := payload.UnifiedConsent; uc != nil {
 		result.UnifiedConsent = map[string]any{
-			"subjectId":      payload.UnifiedConsent.SubjectID,
-			"jurisdiction":   payload.UnifiedConsent.Jurisdiction,
-			"lastUpdateDate": payload.UnifiedConsent.LastUpdate,
-			"actions":        convertActionMaps(payload.UnifiedConsent.Actions),
-			"attributes":     payload.UnifiedConsent.Attributes,
-			"compliance":     payload.UnifiedConsent.Compliance,
-			"tags":           payload.UnifiedConsent.Tags,
+			"subjectId":        uc.SubjectID,
+			"brandId":          uc.BrandID,
+			"channelIds":       stringsToAny(uc.ChannelIDs),
+			"jurisdiction":     uc.Jurisdiction,
+			"lastUpdateDate":   uc.LastUpdate,
+			"lastConflictDate": uc.LastConflictDate,
+			"actions":          convertActionMaps(uc.Actions),
+			"attributes":       uc.Attributes,
+			"compliance":       uc.Compliance,
+			"tags":             stringsToAny(uc.Tags),
 		}
 	}
 
 	return infer.FunctionResponse[GetUnifiedConsentResult]{Output: result}, nil
+}
+
+// stringsToAny converts a string list for a map output, keeping an empty list empty rather than null.
+func stringsToAny(values []string) []any {
+	if values == nil {
+		return nil
+	}
+	converted := make([]any, 0, len(values))
+	for _, value := range values {
+		converted = append(converted, value)
+	}
+	return converted
 }
 
 func convertActionMaps(actions []unifiedConsentAction) []map[string]any {
@@ -113,7 +168,7 @@ type GetSubjectArgs struct {
 
 // Annotate documents the getSubject input fields.
 func (args *GetSubjectArgs) Annotate(a infer.Annotator) {
-	a.Describe(&args.SubjectRef, "The subject reference to resolve.")
+	a.Describe(&args.SubjectRef, "The subject reference to resolve: an anonymous ID, verified ID, or session ID.")
 	a.Describe(&args.ReferenceType, referenceTypeDescription)
 }
 
@@ -124,6 +179,15 @@ type GetSubjectResult struct {
 	VerifiedID  string `pulumi:"verifiedId"`
 	AnonymousID string `pulumi:"anonymousId"`
 	Exists      bool   `pulumi:"exists"`
+}
+
+// Annotate documents the getSubject outputs.
+func (r *GetSubjectResult) Annotate(a infer.Annotator) {
+	a.Describe(&r.SubjectRef, "The subject reference that was resolved.")
+	a.Describe(&r.SubjectID, "The subject's Osano ID.")
+	a.Describe(&r.VerifiedID, "The subject's verified ID, if the subject is verified.")
+	a.Describe(&r.AnonymousID, "The subject's anonymous ID, if any.")
+	a.Describe(&r.Exists, "Whether Osano knows the subject. The ID outputs are empty when false.")
 }
 
 // Annotate registers the getSubject invoke schema metadata.
@@ -178,6 +242,15 @@ type GetConfigResult struct {
 	Config map[string]any `pulumi:"config"`
 }
 
+// Annotate documents the getConfig outputs.
+func (r *GetConfigResult) Annotate(a infer.Annotator) {
+	a.Describe(
+		&r.Config,
+		"The Unified Consent configuration: configId, customerId, name, domains, privacy policy, "+
+			"privacyProtocols, frameworks, styling, publication state, and text customizations.",
+	)
+}
+
 // Annotate registers the getConfig invoke schema metadata.
 func (g *GetConfig) Annotate(a infer.Annotator) {
 	a.SetToken("index", "getConfig")
@@ -211,14 +284,23 @@ type GetCollectionsArgs struct {
 
 // Annotate documents the getCollections input fields.
 func (args *GetCollectionsArgs) Annotate(a infer.Annotator) {
-	a.Describe(&args.Jurisdiction, "Optional jurisdiction filter, sent as the jurisdiction query parameter.")
-	a.Describe(&args.Type, "Optional collection type filter, sent as the type query parameter.")
+	a.Describe(
+		&args.Jurisdiction,
+		"Optional jurisdiction filter. When unset, Osano resolves the jurisdiction from the caller's IP address.",
+	)
+	a.Describe(&args.Type, "Optional collection type: published (default) or draft.")
 }
 
 // GetCollectionsResult returns the collection aggregate payload.
 type GetCollectionsResult struct {
 	Jurisdictions []string       `pulumi:"jurisdictions"`
 	Collection    map[string]any `pulumi:"collection"`
+}
+
+// Annotate documents the getCollections outputs.
+func (r *GetCollectionsResult) Annotate(a infer.Annotator) {
+	a.Describe(&r.Jurisdictions, "Every jurisdiction the configuration defines.")
+	a.Describe(&r.Collection, "The collection of privacy protocols that applies to the jurisdiction.")
 }
 
 // Annotate registers the getCollections invoke schema metadata.
@@ -235,6 +317,11 @@ func (g *GetCollections) Invoke(
 	ctx context.Context,
 	req infer.FunctionRequest[GetCollectionsArgs],
 ) (infer.FunctionResponse[GetCollectionsResult], error) {
+	if collectionType := strings.TrimSpace(req.Input.Type); collectionType != "" {
+		if err := oneOf("type", collectionType, []string{"published", "draft"}); err != nil {
+			return infer.FunctionResponse[GetCollectionsResult]{}, err
+		}
+	}
 	client := newAPIClient(ctx)
 	payload, err := client.FetchCollections(ctx, req.Input.Jurisdiction, req.Input.Type)
 	if err != nil {
@@ -267,6 +354,16 @@ type GetCollectionResult struct {
 	CollectionID string         `pulumi:"collectionId"`
 	Collection   map[string]any `pulumi:"collection"`
 	Exists       bool           `pulumi:"exists"`
+}
+
+// Annotate documents the getCollection outputs.
+func (r *GetCollectionResult) Annotate(a infer.Annotator) {
+	a.Describe(&r.CollectionID, "The collection ID that was looked up.")
+	a.Describe(
+		&r.Collection,
+		"The collection: collectionId, name, frameworks, configIds, jurisdiction, type, consents, and preferences.",
+	)
+	a.Describe(&r.Exists, "Whether Osano returned the collection.")
 }
 
 // Annotate registers the getCollection invoke schema metadata.
@@ -313,18 +410,28 @@ type CheckConsent struct{}
 
 // CheckConsentArgs identifies the subject to inspect.
 type CheckConsentArgs struct {
-	SubjectID string `pulumi:"subjectId"`
+	SubjectID           string  `pulumi:"subjectId"`
+	CountryCodeOverride *string `pulumi:"countryCodeOverride,optional"`
+	RegionCodeOverride  *string `pulumi:"regionCodeOverride,optional"`
 }
 
 // Annotate documents the checkConsent input fields.
 func (args *CheckConsentArgs) Annotate(a infer.Annotator) {
 	a.Describe(&args.SubjectID, "The subject ID to check.")
+	a.Describe(&args.CountryCodeOverride, countryCodeOverrideDescription)
+	a.Describe(&args.RegionCodeOverride, regionCodeOverrideDescription)
 }
 
 // CheckConsentResult reports whether consent exists for a subject.
 type CheckConsentResult struct {
 	SubjectID string `pulumi:"subjectId"`
 	Exists    bool   `pulumi:"exists"`
+}
+
+// Annotate documents the checkConsent outputs.
+func (r *CheckConsentResult) Annotate(a infer.Annotator) {
+	a.Describe(&r.SubjectID, "The subject ID that was checked.")
+	a.Describe(&r.Exists, "Whether the subject has given consent in the configuration.")
 }
 
 // Annotate registers the checkConsent invoke schema metadata.
@@ -343,8 +450,12 @@ func (c *CheckConsent) Invoke(
 		return infer.FunctionResponse[CheckConsentResult]{}, errors.New("subjectId is required")
 	}
 
+	geo, err := geoOverrideFrom(req.Input.CountryCodeOverride, req.Input.RegionCodeOverride)
+	if err != nil {
+		return infer.FunctionResponse[CheckConsentResult]{}, err
+	}
 	client := newAPIClient(ctx)
-	exists, err := client.CheckConsent(ctx, subjectID)
+	exists, err := client.CheckConsent(ctx, subjectID, geo)
 	if err != nil {
 		return infer.FunctionResponse[CheckConsentResult]{}, err
 	}
@@ -362,14 +473,18 @@ type GetConsentProfile struct{}
 
 // GetConsentProfileArgs identifies the consent profile to retrieve.
 type GetConsentProfileArgs struct {
-	HashedSubjectID string `pulumi:"hashedSubjectId"`
-	ConfigID        string `pulumi:"configId"`
+	HashedSubjectID     string  `pulumi:"hashedSubjectId"`
+	ConfigID            string  `pulumi:"configId"`
+	CountryCodeOverride *string `pulumi:"countryCodeOverride,optional"`
+	RegionCodeOverride  *string `pulumi:"regionCodeOverride,optional"`
 }
 
 // Annotate documents the getConsentProfile input fields.
 func (args *GetConsentProfileArgs) Annotate(a infer.Annotator) {
 	a.Describe(&args.HashedSubjectID, "The hashed subject identifier whose consent profile is returned.")
 	a.Describe(&args.ConfigID, "The consent configuration ID the profile belongs to.")
+	a.Describe(&args.CountryCodeOverride, countryCodeOverrideDescription)
+	a.Describe(&args.RegionCodeOverride, regionCodeOverrideDescription)
 }
 
 // GetConsentProfileResult returns a consent profile lookup result.
@@ -378,6 +493,14 @@ type GetConsentProfileResult struct {
 	ConfigID        string         `pulumi:"configId"`
 	Profile         map[string]any `pulumi:"profile"`
 	Exists          bool           `pulumi:"exists"`
+}
+
+// Annotate documents the getConsentProfile outputs.
+func (r *GetConsentProfileResult) Annotate(a infer.Annotator) {
+	a.Describe(&r.HashedSubjectID, "The hashed subject identifier that was looked up.")
+	a.Describe(&r.ConfigID, "The configuration ID that was looked up.")
+	a.Describe(&r.Profile, "The consent profile Osano returned, with unifiedConsent and conflicts keys.")
+	a.Describe(&r.Exists, "Whether Osano returned a consent profile.")
 }
 
 // Annotate registers the getConsentProfile invoke schema metadata.
@@ -400,8 +523,12 @@ func (g *GetConsentProfile) Invoke(
 		return infer.FunctionResponse[GetConsentProfileResult]{}, errors.New("configId is required")
 	}
 
+	geo, err := geoOverrideFrom(req.Input.CountryCodeOverride, req.Input.RegionCodeOverride)
+	if err != nil {
+		return infer.FunctionResponse[GetConsentProfileResult]{}, err
+	}
 	client := newAPIClient(ctx)
-	profile, found, err := client.FetchConsentProfile(ctx, hashed, configID)
+	profile, found, err := client.FetchConsentProfile(ctx, hashed, configID, geo)
 	if err != nil {
 		return infer.FunctionResponse[GetConsentProfileResult]{}, err
 	}
@@ -418,19 +545,146 @@ func (g *GetConsentProfile) Invoke(
 	return infer.FunctionResponse[GetConsentProfileResult]{Output: result}, nil
 }
 
+// GetSubjectProfile reads the profile of a subject.
+type GetSubjectProfile struct{}
+
+// GetSubjectProfileArgs identifies the subject.
+type GetSubjectProfileArgs struct {
+	SubjectID string `pulumi:"subjectId"`
+}
+
+// Annotate documents the getSubjectProfile inputs.
+func (args *GetSubjectProfileArgs) Annotate(a infer.Annotator) {
+	a.Describe(&args.SubjectID, "The subject ID whose profile is returned.")
+}
+
+// GetSubjectProfileResult is the subject profile.
+type GetSubjectProfileResult struct {
+	SubjectID string         `pulumi:"subjectId"`
+	Exists    bool           `pulumi:"exists"`
+	Email     string         `pulumi:"email" provider:"secret"`
+	Profile   map[string]any `pulumi:"profile" provider:"secret"`
+}
+
+// Annotate documents the getSubjectProfile outputs.
+func (r *GetSubjectProfileResult) Annotate(a infer.Annotator) {
+	a.Describe(&r.SubjectID, "The subject ID that was looked up.")
+	a.Describe(&r.Exists, "Whether Osano returned a profile for the subject.")
+	a.Describe(&r.Email, "The subject's email address. Secret, because it is personal data.")
+	a.Describe(&r.Profile, "The complete profile Osano returned. Secret, because it is personal data.")
+}
+
+// Annotate registers the getSubjectProfile function.
+func (g *GetSubjectProfile) Annotate(a infer.Annotator) {
+	a.SetToken("index", "getSubjectProfile")
+	a.Describe(
+		g,
+		"Reads a subject's profile (email and subject ID) using the Unified Consent API key. The outputs "+
+			"are secrets because they hold personal data.",
+	)
+}
+
+// Invoke reads the subject profile.
+func (g *GetSubjectProfile) Invoke(
+	ctx context.Context, req infer.FunctionRequest[GetSubjectProfileArgs],
+) (infer.FunctionResponse[GetSubjectProfileResult], error) {
+	subjectID := strings.TrimSpace(req.Input.SubjectID)
+	if subjectID == "" {
+		return infer.FunctionResponse[GetSubjectProfileResult]{}, errors.New("subjectId is required")
+	}
+	profile, found, err := newAPIClient(ctx).FetchSubjectProfile(ctx, subjectID)
+	if err != nil {
+		return infer.FunctionResponse[GetSubjectProfileResult]{}, err
+	}
+	result := GetSubjectProfileResult{SubjectID: subjectID, Exists: found}
+	if found {
+		result.Profile = profile
+		result.Email, _ = profile["email"].(string)
+	}
+	return infer.FunctionResponse[GetSubjectProfileResult]{Output: result}, nil
+}
+
+// GetSession reads the subject and profile behind a session ID.
+type GetSession struct{}
+
+// GetSessionArgs identifies the session.
+type GetSessionArgs struct {
+	SessionID string `pulumi:"sessionId" provider:"secret"`
+}
+
+// Annotate documents the getSession inputs.
+func (args *GetSessionArgs) Annotate(a infer.Annotator) {
+	a.Describe(&args.SessionID, "The session ID to resolve.")
+}
+
+// GetSessionResult is the session's subject and profile.
+type GetSessionResult struct {
+	Exists     bool           `pulumi:"exists"`
+	VerifiedID string         `pulumi:"verifiedId"`
+	Profile    map[string]any `pulumi:"profile" provider:"secret"`
+}
+
+// Annotate documents the getSession outputs.
+func (r *GetSessionResult) Annotate(a infer.Annotator) {
+	a.Describe(&r.Exists, "Whether Osano recognized the session.")
+	a.Describe(&r.VerifiedID, "The verified ID of the session's subject.")
+	a.Describe(
+		&r.Profile,
+		"The session's profile (email, firstName, lastName). Secret, because it is personal data.",
+	)
+}
+
+// Annotate registers the getSession function.
+func (g *GetSession) Annotate(a infer.Annotator) {
+	a.SetToken("index", "getSession")
+	a.Describe(
+		g,
+		"Resolves a Unified Consent session ID to its subject's verified ID and profile, using the Unified "+
+			"Consent API key.",
+	)
+}
+
+// Invoke reads the session.
+func (g *GetSession) Invoke(
+	ctx context.Context, req infer.FunctionRequest[GetSessionArgs],
+) (infer.FunctionResponse[GetSessionResult], error) {
+	sessionID := strings.TrimSpace(req.Input.SessionID)
+	if sessionID == "" {
+		return infer.FunctionResponse[GetSessionResult]{}, errors.New("sessionId is required")
+	}
+	session, found, err := newAPIClient(ctx).FetchSession(ctx, sessionID)
+	if err != nil {
+		return infer.FunctionResponse[GetSessionResult]{}, err
+	}
+	result := GetSessionResult{Exists: found}
+	if found {
+		if subject, ok := session["subject"].(map[string]any); ok {
+			result.VerifiedID, _ = subject["verifiedId"].(string)
+		}
+		if profile, ok := session["profile"].(map[string]any); ok {
+			result.Profile = profile
+		}
+	}
+	return infer.FunctionResponse[GetSessionResult]{Output: result}, nil
+}
+
 // SendSubjectCode starts the verification flow for a subject profile.
 type SendSubjectCode struct{}
 
 // SendSubjectCodeArgs identifies the subject and delivery channel for verification.
 type SendSubjectCodeArgs struct {
-	HashedSubjectID string `pulumi:"hashedSubjectId"`
+	HashedSubjectID string `pulumi:"hashedSubjectId,optional"`
 	Email           string `pulumi:"email,optional"`
 	Phone           string `pulumi:"phone,optional"`
 }
 
 // Annotate documents the sendSubjectCode input fields.
 func (args *SendSubjectCodeArgs) Annotate(a infer.Annotator) {
-	a.Describe(&args.HashedSubjectID, "The hashed subject identifier to verify.")
+	a.Describe(
+		&args.HashedSubjectID,
+		"Optional hashed subject identifier, sent only when set. Osano's current API identifies the subject "+
+			"by email or phone.",
+	)
 	a.Describe(&args.Email, "Email address to send the code to. Set exactly one of email or phone.")
 	a.Describe(&args.Phone, "Phone number to send the code to by SMS. Set exactly one of email or phone.")
 }
@@ -439,7 +693,22 @@ func (args *SendSubjectCodeArgs) Annotate(a infer.Annotator) {
 type SendSubjectCodeResult struct {
 	HashedSubjectID string `pulumi:"hashedSubjectId"`
 	Channel         string `pulumi:"channel"`
-	Destination     string `pulumi:"destination"`
+	Destination     string `pulumi:"destination" provider:"secret"`
+	Session         string `pulumi:"session" provider:"secret"`
+}
+
+// Annotate documents the sendSubjectCode outputs.
+func (r *SendSubjectCodeResult) Annotate(a infer.Annotator) {
+	a.Describe(&r.HashedSubjectID, "The hashed subject identifier sent with the request, if any.")
+	a.Describe(&r.Channel, "The delivery channel: email or sms.")
+	a.Describe(
+		&r.Destination,
+		"The email address or phone number the code was sent to. Secret, because it is personal data.",
+	)
+	a.Describe(
+		&r.Session,
+		"The SMS challenge session, when Osano returns one; pass it to verifySubjectCode. Empty for email.",
+	)
 }
 
 // Annotate registers the sendSubjectCode invoke schema metadata.
@@ -447,9 +716,10 @@ func (s *SendSubjectCode) Annotate(a infer.Annotator) {
 	a.SetToken("index", "sendSubjectCode")
 	a.Describe(
 		s,
-		"Sends a verification code to a subject's email or phone using the Osano API key. "+
-			"Pulumi runs invokes on every preview, update, and refresh, so declaring this in a stack sends a "+
-			"new code each time; call it from automation rather than from long-lived stack code.",
+		"Sends a verification code to a subject's email or phone, authenticating with every configured "+
+			"key (the Osano API key, the Unified Consent API key, or both). Pulumi runs invokes on every preview, update, and "+
+			"refresh, so declaring this in a stack sends a new code each time; call it from automation rather "+
+			"than from long-lived stack code.",
 	)
 }
 
@@ -459,30 +729,33 @@ func (s *SendSubjectCode) Invoke(
 	req infer.FunctionRequest[SendSubjectCodeArgs],
 ) (infer.FunctionResponse[SendSubjectCodeResult], error) {
 	hashed := strings.TrimSpace(req.Input.HashedSubjectID)
-	if hashed == "" {
-		return infer.FunctionResponse[SendSubjectCodeResult]{}, errors.New("hashedSubjectId is required")
-	}
 	channel, destination, err := resolveVerificationContact(req.Input.Email, req.Input.Phone)
 	if err != nil {
 		return infer.FunctionResponse[SendSubjectCodeResult]{}, err
 	}
 
 	client := newAPIClient(ctx)
-	if err := client.SendVerificationCode(ctx, sendCodeRequest{
+	response, err := client.SendVerificationCode(ctx, sendCodeRequest{
 		HashedSubjectID: hashed,
 		Channel:         channel,
 		Contact:         destination,
-	}); err != nil {
+	})
+	if err != nil {
 		return infer.FunctionResponse[SendSubjectCodeResult]{}, err
 	}
 
-	return infer.FunctionResponse[SendSubjectCodeResult]{
-		Output: SendSubjectCodeResult{
-			HashedSubjectID: hashed,
-			Channel:         channel,
-			Destination:     destination,
-		},
-	}, nil
+	result := SendSubjectCodeResult{
+		HashedSubjectID: hashed,
+		Channel:         channel,
+		Destination:     destination,
+	}
+	for _, key := range []string{"session", "sessionId"} {
+		if session, ok := response[key].(string); ok && session != "" {
+			result.Session = session
+			break
+		}
+	}
+	return infer.FunctionResponse[SendSubjectCodeResult]{Output: result}, nil
 }
 
 // VerifySubjectCode finalizes a subject verification challenge.
@@ -490,27 +763,40 @@ type VerifySubjectCode struct{}
 
 // VerifySubjectCodeArgs captures the contact and code used for verification.
 type VerifySubjectCodeArgs struct {
-	HashedSubjectID string `pulumi:"hashedSubjectId"`
+	HashedSubjectID string `pulumi:"hashedSubjectId,optional"`
 	Code            string `pulumi:"code" provider:"secret"`
 	Email           string `pulumi:"email,optional"`
 	Phone           string `pulumi:"phone,optional"`
+	Session         string `pulumi:"session,optional" provider:"secret"`
 }
 
 // Annotate documents the verifySubjectCode input fields.
 func (args *VerifySubjectCodeArgs) Annotate(a infer.Annotator) {
-	a.Describe(&args.HashedSubjectID, "The hashed subject identifier being verified.")
-	a.Describe(&args.Code, "The one-time verification code the subject received.")
+	a.Describe(&args.HashedSubjectID, "Optional hashed subject identifier, sent only when set.")
+	a.Describe(&args.Code, "The one-time verification code the subject received (6 characters by email, 8 by SMS).")
 	a.Describe(&args.Email, "Email address the code was sent to. Set exactly one of email or phone.")
 	a.Describe(&args.Phone, "Phone number the code was sent to. Set exactly one of email or phone.")
+	a.Describe(&args.Session, "The SMS challenge session. Required with phone; not used with email.")
 }
 
 // VerifySubjectCodeResult reports whether verification succeeded and returns the profile.
 type VerifySubjectCodeResult struct {
 	HashedSubjectID string         `pulumi:"hashedSubjectId"`
 	Channel         string         `pulumi:"channel"`
-	Destination     string         `pulumi:"destination"`
+	Destination     string         `pulumi:"destination" provider:"secret"`
 	Verified        bool           `pulumi:"verified"`
-	Profile         map[string]any `pulumi:"profile"`
+	VerifiedID      string         `pulumi:"verifiedId"`
+	Profile         map[string]any `pulumi:"profile" provider:"secret"`
+}
+
+// Annotate documents the verifySubjectCode outputs.
+func (r *VerifySubjectCodeResult) Annotate(a infer.Annotator) {
+	a.Describe(&r.HashedSubjectID, "The hashed subject identifier sent with the request, if any.")
+	a.Describe(&r.Channel, "The verification channel: email or sms.")
+	a.Describe(&r.Destination, "The email address or phone number that was verified. Secret, because it is personal data.")
+	a.Describe(&r.Verified, "True when Osano accepted the code; a rejected code fails the invoke instead.")
+	a.Describe(&r.VerifiedID, "The subject's verified ID returned by Osano.")
+	a.Describe(&r.Profile, "The complete response Osano returned. Secret, because it can hold personal data.")
 }
 
 // Annotate registers the verifySubjectCode invoke schema metadata.
@@ -530,9 +816,6 @@ func (v *VerifySubjectCode) Invoke(
 	req infer.FunctionRequest[VerifySubjectCodeArgs],
 ) (infer.FunctionResponse[VerifySubjectCodeResult], error) {
 	hashed := strings.TrimSpace(req.Input.HashedSubjectID)
-	if hashed == "" {
-		return infer.FunctionResponse[VerifySubjectCodeResult]{}, errors.New("hashedSubjectId is required")
-	}
 	code := strings.TrimSpace(req.Input.Code)
 	if code == "" {
 		return infer.FunctionResponse[VerifySubjectCodeResult]{}, errors.New("code is required")
@@ -541,6 +824,12 @@ func (v *VerifySubjectCode) Invoke(
 	if err != nil {
 		return infer.FunctionResponse[VerifySubjectCodeResult]{}, err
 	}
+	session := strings.TrimSpace(req.Input.Session)
+	if channel == "sms" && session == "" {
+		return infer.FunctionResponse[VerifySubjectCodeResult]{}, errors.New(
+			"session is required to verify an SMS code; pass the session from the SMS challenge",
+		)
+	}
 
 	client := newAPIClient(ctx)
 	profile, err := client.VerifySubjectCode(ctx, verifyRequest{
@@ -548,6 +837,7 @@ func (v *VerifySubjectCode) Invoke(
 		Channel:         channel,
 		Contact:         destination,
 		Code:            code,
+		Session:         session,
 	})
 	if err != nil {
 		return infer.FunctionResponse[VerifySubjectCodeResult]{}, err
@@ -561,6 +851,7 @@ func (v *VerifySubjectCode) Invoke(
 	}
 	if len(profile) > 0 {
 		result.Profile = profile
+		result.VerifiedID, _ = profile["verifiedId"].(string)
 	}
 
 	return infer.FunctionResponse[VerifySubjectCodeResult]{Output: result}, nil

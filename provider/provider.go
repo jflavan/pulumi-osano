@@ -55,6 +55,11 @@ func Provider() p.Provider {
 			infer.Resource(&ConsentResource{}),
 		).
 		WithFunctions(
+			infer.Function(&GetCookieConsentConfig{}),
+			infer.Function(&GetCookieConsentConfigs{}),
+			infer.Function(&GetCookieConsentRules{}),
+			infer.Function(&GetCookieConsentDiscoveries{}),
+			infer.Function(&GetCookieConsentAuditLog{}),
 			infer.Function(&GetUnifiedConsent{}),
 			infer.Function(&GetSubject{}),
 			infer.Function(&GetConfig{}),
@@ -62,15 +67,25 @@ func Provider() p.Provider {
 			infer.Function(&GetCollection{}),
 			infer.Function(&CheckConsent{}),
 			infer.Function(&GetConsentProfile{}),
+			infer.Function(&GetSubjectProfile{}),
+			infer.Function(&GetSession{}),
 			infer.Function(&SendSubjectCode{}),
 			infer.Function(&VerifySubjectCode{}),
 		).
 		WithModuleMap(map[tokens.ModuleName]tokens.ModuleName{
 			"provider": "index",
 		}).
+		// WithLanguageMap replaces go-provider's per-language defaults, so every option the SDKs rely on
+		// is listed here, including the Go import path.
 		WithLanguageMap(map[string]any{
 			"csharp": map[string]any{
 				"rootNamespace":        "Community.Pulumi",
+				"respectSchemaVersion": true,
+			},
+			"go": map[string]any{
+				"importBasePath":                 "github.com/jflavan/pulumi-osano/sdk/go/osano",
+				"generateResourceContainerTypes": true,
+				// Bakes the SDK version into the Go SDK so Go programs request the matching plugin.
 				"respectSchemaVersion": true,
 			},
 			"java": map[string]any{
@@ -83,8 +98,12 @@ func Provider() p.Provider {
 				"respectSchemaVersion": true,
 			},
 			"python": map[string]any{
-				"packageName":        "pulumi_osano",
-				"packageDescription": "Pulumi provider for Osano Cookie Consent and Unified Consent APIs.",
+				"packageName":          "pulumi_osano",
+				"packageDescription":   "Pulumi provider for Osano Cookie Consent and Unified Consent APIs.",
+				"respectSchemaVersion": true,
+				// The pulumi Python SDK itself requires Python 3.10 or later.
+				"pythonRequires": ">=3.10",
+				"pyproject":      map[string]any{"enabled": true},
 			},
 		}).
 		Build()

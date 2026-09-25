@@ -43,26 +43,41 @@ class GetSubjectResult:
     @_builtins.property
     @pulumi.getter(name="anonymousId")
     def anonymous_id(self) -> _builtins.str:
+        """
+        The subject's anonymous ID, if any.
+        """
         return pulumi.get(self, "anonymous_id")
 
     @_builtins.property
     @pulumi.getter
     def exists(self) -> _builtins.bool:
+        """
+        Whether Osano knows the subject. The ID outputs are empty when false.
+        """
         return pulumi.get(self, "exists")
 
     @_builtins.property
     @pulumi.getter(name="subjectId")
     def subject_id(self) -> _builtins.str:
+        """
+        The subject's Osano ID.
+        """
         return pulumi.get(self, "subject_id")
 
     @_builtins.property
     @pulumi.getter(name="subjectRef")
     def subject_ref(self) -> _builtins.str:
+        """
+        The subject reference that was resolved.
+        """
         return pulumi.get(self, "subject_ref")
 
     @_builtins.property
     @pulumi.getter(name="verifiedId")
     def verified_id(self) -> _builtins.str:
+        """
+        The subject's verified ID, if the subject is verified.
+        """
         return pulumi.get(self, "verified_id")
 
 
@@ -85,9 +100,8 @@ def get_subject(reference_type: Optional[_builtins.str] = None,
     """
     Fetches subject identifiers (subject, verified, anonymous IDs) for a reference or session ID.
 
-
-    :param _builtins.str reference_type: Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
-    :param _builtins.str subject_ref: The subject reference to resolve.
+    :param _builtins.str reference_type: Reference type: subject (default) for a subject's verified or anonymous ID, or session for a session ID. anonymous is accepted as a deprecated alias of subject.
+    :param _builtins.str subject_ref: The subject reference to resolve: an anonymous ID, verified ID, or session ID.
     """
     __args__ = dict()
     __args__['referenceType'] = reference_type
@@ -101,15 +115,14 @@ def get_subject(reference_type: Optional[_builtins.str] = None,
         subject_id=pulumi.get(__ret__, 'subject_id'),
         subject_ref=pulumi.get(__ret__, 'subject_ref'),
         verified_id=pulumi.get(__ret__, 'verified_id'))
-def get_subject_output(reference_type: Optional[pulumi.Input[Optional[_builtins.str]]] = None,
-                       subject_ref: Optional[pulumi.Input[_builtins.str]] = None,
+def get_subject_output(reference_type: pulumi.Input[Optional[Optional[_builtins.str]]] = None,
+                       subject_ref: pulumi.Input[Optional[_builtins.str]] = None,
                        opts: Optional[Union[pulumi.InvokeOptions, pulumi.InvokeOutputOptions]] = None) -> pulumi.Output[GetSubjectResult]:
     """
     Fetches subject identifiers (subject, verified, anonymous IDs) for a reference or session ID.
 
-
-    :param _builtins.str reference_type: Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
-    :param _builtins.str subject_ref: The subject reference to resolve.
+    :param _builtins.str reference_type: Reference type: subject (default) for a subject's verified or anonymous ID, or session for a session ID. anonymous is accepted as a deprecated alias of subject.
+    :param _builtins.str subject_ref: The subject reference to resolve: an anonymous ID, verified ID, or session ID.
     """
     __args__ = dict()
     __args__['referenceType'] = reference_type

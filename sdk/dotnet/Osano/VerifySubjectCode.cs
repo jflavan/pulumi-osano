@@ -38,7 +38,7 @@ namespace Community.Pulumi.Osano
         private string? _code;
 
         /// <summary>
-        /// The one-time verification code the subject received.
+        /// The one-time verification code the subject received (6 characters by email, 8 by SMS).
         /// </summary>
         public string? Code
         {
@@ -53,16 +53,28 @@ namespace Community.Pulumi.Osano
         public string? Email { get; set; }
 
         /// <summary>
-        /// The hashed subject identifier being verified.
+        /// Optional hashed subject identifier, sent only when set.
         /// </summary>
-        [Input("hashedSubjectId", required: true)]
-        public string HashedSubjectId { get; set; } = null!;
+        [Input("hashedSubjectId")]
+        public string? HashedSubjectId { get; set; }
 
         /// <summary>
         /// Phone number the code was sent to. Set exactly one of email or phone.
         /// </summary>
         [Input("phone")]
         public string? Phone { get; set; }
+
+        [Input("session")]
+        private string? _session;
+
+        /// <summary>
+        /// The SMS challenge session. Required with phone; not used with email.
+        /// </summary>
+        public string? Session
+        {
+            get => _session;
+            set => _session = value;
+        }
 
         public VerifySubjectCodeArgs()
         {
@@ -76,7 +88,7 @@ namespace Community.Pulumi.Osano
         private Input<string>? _code;
 
         /// <summary>
-        /// The one-time verification code the subject received.
+        /// The one-time verification code the subject received (6 characters by email, 8 by SMS).
         /// </summary>
         public Input<string>? Code
         {
@@ -95,16 +107,32 @@ namespace Community.Pulumi.Osano
         public Input<string>? Email { get; set; }
 
         /// <summary>
-        /// The hashed subject identifier being verified.
+        /// Optional hashed subject identifier, sent only when set.
         /// </summary>
-        [Input("hashedSubjectId", required: true)]
-        public Input<string> HashedSubjectId { get; set; } = null!;
+        [Input("hashedSubjectId")]
+        public Input<string>? HashedSubjectId { get; set; }
 
         /// <summary>
         /// Phone number the code was sent to. Set exactly one of email or phone.
         /// </summary>
         [Input("phone")]
         public Input<string>? Phone { get; set; }
+
+        [Input("session")]
+        private Input<string>? _session;
+
+        /// <summary>
+        /// The SMS challenge session. Required with phone; not used with email.
+        /// </summary>
+        public Input<string>? Session
+        {
+            get => _session;
+            set
+            {
+                var emptySecret = Output.CreateSecret(0);
+                _session = Output.Tuple<Input<string>?, int>(value, emptySecret).Apply(t => t.Item1);
+            }
+        }
 
         public VerifySubjectCodeInvokeArgs()
         {
@@ -116,11 +144,30 @@ namespace Community.Pulumi.Osano
     [OutputType]
     public sealed class VerifySubjectCodeResult
     {
+        /// <summary>
+        /// The verification channel: email or sms.
+        /// </summary>
         public readonly string Channel;
+        /// <summary>
+        /// The email address or phone number that was verified. Secret, because it is personal data.
+        /// </summary>
         public readonly string Destination;
+        /// <summary>
+        /// The hashed subject identifier sent with the request, if any.
+        /// </summary>
         public readonly string HashedSubjectId;
+        /// <summary>
+        /// The complete response Osano returned. Secret, because it can hold personal data.
+        /// </summary>
         public readonly ImmutableDictionary<string, object> Profile;
+        /// <summary>
+        /// True when Osano accepted the code; a rejected code fails the invoke instead.
+        /// </summary>
         public readonly bool Verified;
+        /// <summary>
+        /// The subject's verified ID returned by Osano.
+        /// </summary>
+        public readonly string VerifiedId;
 
         [OutputConstructor]
         private VerifySubjectCodeResult(
@@ -132,13 +179,16 @@ namespace Community.Pulumi.Osano
 
             ImmutableDictionary<string, object> profile,
 
-            bool verified)
+            bool verified,
+
+            string verifiedId)
         {
             Channel = channel;
             Destination = destination;
             HashedSubjectId = hashedSubjectId;
             Profile = profile;
             Verified = verified;
+            VerifiedId = verifiedId;
         }
     }
 }

@@ -13,27 +13,79 @@ import java.util.Objects;
 
 @CustomType
 public final class VerifySubjectCodeResult {
+    /**
+     * @return The verification channel: email or sms.
+     *
+     */
     private String channel;
+    /**
+     * @return The email address or phone number that was verified. Secret, because it is personal data.
+     *
+     */
     private String destination;
+    /**
+     * @return The hashed subject identifier sent with the request, if any.
+     *
+     */
     private String hashedSubjectId;
+    /**
+     * @return The complete response Osano returned. Secret, because it can hold personal data.
+     *
+     */
     private Map<String,Object> profile;
+    /**
+     * @return True when Osano accepted the code; a rejected code fails the invoke instead.
+     *
+     */
     private Boolean verified;
+    /**
+     * @return The subject&#39;s verified ID returned by Osano.
+     *
+     */
+    private String verifiedId;
 
     private VerifySubjectCodeResult() {}
+    /**
+     * @return The verification channel: email or sms.
+     *
+     */
     public String channel() {
         return this.channel;
     }
+    /**
+     * @return The email address or phone number that was verified. Secret, because it is personal data.
+     *
+     */
     public String destination() {
         return this.destination;
     }
+    /**
+     * @return The hashed subject identifier sent with the request, if any.
+     *
+     */
     public String hashedSubjectId() {
         return this.hashedSubjectId;
     }
+    /**
+     * @return The complete response Osano returned. Secret, because it can hold personal data.
+     *
+     */
     public Map<String,Object> profile() {
         return this.profile;
     }
+    /**
+     * @return True when Osano accepted the code; a rejected code fails the invoke instead.
+     *
+     */
     public Boolean verified() {
         return this.verified;
+    }
+    /**
+     * @return The subject&#39;s verified ID returned by Osano.
+     *
+     */
+    public String verifiedId() {
+        return this.verifiedId;
     }
 
     public static Builder builder() {
@@ -50,6 +102,7 @@ public final class VerifySubjectCodeResult {
         private String hashedSubjectId;
         private Map<String,Object> profile;
         private Boolean verified;
+        private String verifiedId;
         public Builder() {}
         public Builder(VerifySubjectCodeResult defaults) {
     	      Objects.requireNonNull(defaults);
@@ -58,6 +111,7 @@ public final class VerifySubjectCodeResult {
     	      this.hashedSubjectId = defaults.hashedSubjectId;
     	      this.profile = defaults.profile;
     	      this.verified = defaults.verified;
+    	      this.verifiedId = defaults.verifiedId;
         }
 
         @CustomType.Setter
@@ -100,6 +154,14 @@ public final class VerifySubjectCodeResult {
             this.verified = verified;
             return this;
         }
+        @CustomType.Setter
+        public Builder verifiedId(String verifiedId) {
+            if (verifiedId == null) {
+              throw new MissingRequiredPropertyException("VerifySubjectCodeResult", "verifiedId");
+            }
+            this.verifiedId = verifiedId;
+            return this;
+        }
         public VerifySubjectCodeResult build() {
             final var _resultValue = new VerifySubjectCodeResult();
             _resultValue.channel = channel;
@@ -107,6 +169,7 @@ public final class VerifySubjectCodeResult {
             _resultValue.hashedSubjectId = hashedSubjectId;
             _resultValue.profile = profile;
             _resultValue.verified = verified;
+            _resultValue.verifiedId = verifiedId;
             return _resultValue;
         }
     }

@@ -40,21 +40,33 @@ class GetUnifiedConsentResult:
     @_builtins.property
     @pulumi.getter
     def conflicts(self) -> Sequence[Mapping[str, Any]]:
+        """
+        Conflicting consents Osano resolved, with the resolution and the actions in conflict.
+        """
         return pulumi.get(self, "conflicts")
 
     @_builtins.property
     @pulumi.getter
     def exists(self) -> _builtins.bool:
+        """
+        Whether Osano has any consent for the subject.
+        """
         return pulumi.get(self, "exists")
 
     @_builtins.property
     @pulumi.getter(name="subjectRef")
     def subject_ref(self) -> _builtins.str:
+        """
+        The subject reference that was looked up.
+        """
         return pulumi.get(self, "subject_ref")
 
     @_builtins.property
     @pulumi.getter(name="unifiedConsent")
     def unified_consent(self) -> Mapping[str, Any]:
+        """
+        The merged consent: subjectId, brandId, channelIds, jurisdiction, lastUpdateDate, lastConflictDate, actions, attributes, compliance, and tags.
+        """
         return pulumi.get(self, "unified_consent")
 
 
@@ -70,18 +82,23 @@ class AwaitableGetUnifiedConsentResult(GetUnifiedConsentResult):
             unified_consent=self.unified_consent)
 
 
-def get_unified_consent(reference_type: Optional[_builtins.str] = None,
+def get_unified_consent(country_code_override: Optional[_builtins.str] = None,
+                        reference_type: Optional[_builtins.str] = None,
+                        region_code_override: Optional[_builtins.str] = None,
                         subject_ref: Optional[_builtins.str] = None,
                         opts: Optional[pulumi.InvokeOptions] = None) -> AwaitableGetUnifiedConsentResult:
     """
     Fetches the unified consent state for a subject reference using the Unified Consent API key.
 
-
-    :param _builtins.str reference_type: Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
-    :param _builtins.str subject_ref: The subject reference to look up.
+    :param _builtins.str country_code_override: Optional ISO 3166-1 country code Osano uses instead of resolving the caller's IP address, which in a pipeline is the CI runner's.
+    :param _builtins.str reference_type: Reference type: subject (default) for a subject's verified or anonymous ID, or session for a session ID. anonymous is accepted as a deprecated alias of subject.
+    :param _builtins.str region_code_override: Optional ISO 3166-2 region code Osano uses instead of resolving the caller's IP address.
+    :param _builtins.str subject_ref: The subject reference to look up: an anonymous ID, verified ID, or session ID.
     """
     __args__ = dict()
+    __args__['countryCodeOverride'] = country_code_override
     __args__['referenceType'] = reference_type
+    __args__['regionCodeOverride'] = region_code_override
     __args__['subjectRef'] = subject_ref
     opts = pulumi.InvokeOptions.merge(_utilities.get_invoke_opts_defaults(), opts)
     __ret__ = pulumi.runtime.invoke('osano:index:getUnifiedConsent', __args__, opts=opts, typ=GetUnifiedConsentResult).value
@@ -91,18 +108,23 @@ def get_unified_consent(reference_type: Optional[_builtins.str] = None,
         exists=pulumi.get(__ret__, 'exists'),
         subject_ref=pulumi.get(__ret__, 'subject_ref'),
         unified_consent=pulumi.get(__ret__, 'unified_consent'))
-def get_unified_consent_output(reference_type: Optional[pulumi.Input[Optional[_builtins.str]]] = None,
-                               subject_ref: Optional[pulumi.Input[_builtins.str]] = None,
+def get_unified_consent_output(country_code_override: pulumi.Input[Optional[Optional[_builtins.str]]] = None,
+                               reference_type: pulumi.Input[Optional[Optional[_builtins.str]]] = None,
+                               region_code_override: pulumi.Input[Optional[Optional[_builtins.str]]] = None,
+                               subject_ref: pulumi.Input[Optional[_builtins.str]] = None,
                                opts: Optional[Union[pulumi.InvokeOptions, pulumi.InvokeOutputOptions]] = None) -> pulumi.Output[GetUnifiedConsentResult]:
     """
     Fetches the unified consent state for a subject reference using the Unified Consent API key.
 
-
-    :param _builtins.str reference_type: Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
-    :param _builtins.str subject_ref: The subject reference to look up.
+    :param _builtins.str country_code_override: Optional ISO 3166-1 country code Osano uses instead of resolving the caller's IP address, which in a pipeline is the CI runner's.
+    :param _builtins.str reference_type: Reference type: subject (default) for a subject's verified or anonymous ID, or session for a session ID. anonymous is accepted as a deprecated alias of subject.
+    :param _builtins.str region_code_override: Optional ISO 3166-2 region code Osano uses instead of resolving the caller's IP address.
+    :param _builtins.str subject_ref: The subject reference to look up: an anonymous ID, verified ID, or session ID.
     """
     __args__ = dict()
+    __args__['countryCodeOverride'] = country_code_override
     __args__['referenceType'] = reference_type
+    __args__['regionCodeOverride'] = region_code_override
     __args__['subjectRef'] = subject_ref
     opts = pulumi.InvokeOutputOptions.merge(_utilities.get_invoke_opts_defaults(), opts)
     __ret__ = pulumi.runtime.invoke_output('osano:index:getUnifiedConsent', __args__, opts=opts, typ=GetUnifiedConsentResult)

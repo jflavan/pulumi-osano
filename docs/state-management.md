@@ -19,17 +19,34 @@ schema marks them `secret: true`; never place credentials in ordinary resource
 inputs, outputs, `changeToken`, or diagnostics. Mark subject identifiers and
 other PII with Pulumi secret helpers as well.
 
-`CookieConsentPublication.scriptSrc` and `scriptTag` contain only the public
+The schema marks these values secret, so Pulumi encrypts them in state and
+masks them in output:
+
+- `CookieConsentPublication.webhookUrl`: Osano calls it without authentication,
+  so the URL itself is the only protection.
+- `Consent.sessionToken`.
+- The `session` input and output of `verifySubjectCode` and `sendSubjectCode`,
+  and `verifySubjectCode.code`.
+- The personal-data outputs of `getSubjectProfile` (`email`, `profile`) and
+  `getSession` (`profile`), and the `getSession.sessionId` input.
+
+`CookieConsentPublication.scriptSrc` and `scriptTag`, and the same outputs of
+`getCookieConsentConfig` and `getCookieConsentConfigs`, contain only the public
 customer/config installation path. They are deliberately non-secret so they can
-feed site deployment resources.
+feed site deployment resources and other stacks.
 
 ## Cookie Consent lifecycle
 
 - `CookieConsentConfig` state stores the inputs as applied plus Osano's
   publication metadata. Refresh surfaces drift in declared values, but the
-  `configuration` object tracks only the keys the program declares, so keys
-  Osano adds on its side never produce a diff. Its delete is state-only because
-  Osano exposes no configuration delete endpoint.
+  `configuration` object tracks only the keys the program declares, recursively
+  into nested objects such as `palette` and `translations`, so keys Osano adds
+  on its side never produce a diff and `pulumi up --refresh` with no edits is a
+  no-op. A declared key that Osano omits keeps its declared value.
+  `variantMapping` is compared as a whole, so jurisdictions added in Osano show
+  as drift. An import, which has no declared keys, adopts the whole
+  configuration Osano reports. Its delete is state-only because Osano exposes
+  no configuration delete endpoint.
 - `CookieConsentRule` uses `<configId>/<ruleId>` identity. Deleting the Pulumi
   resource deletes the managed rule from Osano; a missing upstream rule is
   treated as already deleted.
@@ -41,7 +58,10 @@ feed site deployment resources.
   The upstream configuration and previously published script remain active.
 - Provider configuration changes (API key rotation, `requestTimeoutSeconds`,
   base URLs) update the provider in place and never replace the resources it
-  manages.
+  manages. An SDK upgrade changes only the provider as well: default providers
+  are named after their version, so the new one is created and the old one
+  deleted, and an explicit provider resource records the new `version` with an
+  in-place update.
 
 Build `changeToken` deterministically from every publish-relevant desired
 configuration and rule value. Do not hash API keys or depend on unstable map
@@ -60,11 +80,17 @@ update.
 - `pulumi destroy` deletes managed rules, but configuration/publication removal
   is state-only. Immutable Unified Consent submissions also remain upstream.
 
-For Unified Consent resources, refresh checks that the subject still has
-consent and updates `lastSynced`; it keeps the submitted inputs rather than the
-subject's merged consent view, so a refresh never triggers a replacement.
-Consent submissions are append-only events, so removing a logical Pulumi
-resource never erases the historical Osano record.
+For Unified Consent resources, refresh looks the subject up by its `verifiedId`
+or `anonymousId` (both are subject references to Osano), checks that it still
+has consent, and updates `lastSynced`; it keeps the submitted inputs rather than
+the subject's merged consent view, so a refresh never triggers a replacement.
+If Osano reports no consent for the subject, refresh removes the resource from
+state and the next `pulumi up` submits it again. A GPC consent also stores the
+actions Osano derived in `gpcActions`. Consent submissions are append-only
+events, so removing a logical Pulumi resource never erases the historical Osano
+record.
 
 Use Pulumi state diffs and audit logs to understand who applied each desired
-state. Review retained Osano configurations separately after stack teardown.
+state, and `getCookieConsentAuditLog` to see Osano's side: publications and
+configuration or rule changes, including edits made in the dashboard. Review
+retained Osano configurations separately after stack teardown.

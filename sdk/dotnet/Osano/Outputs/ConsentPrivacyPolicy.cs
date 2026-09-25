@@ -14,7 +14,13 @@ namespace Community.Pulumi.Osano.Outputs
     [OutputType]
     public sealed class ConsentPrivacyPolicy
     {
+        /// <summary>
+        /// The privacy policy URL.
+        /// </summary>
         public readonly string Url;
+        /// <summary>
+        /// The privacy policy version active when the consent was submitted.
+        /// </summary>
         public readonly string? Version;
 
         [OutputConstructor]

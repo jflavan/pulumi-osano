@@ -5,7 +5,7 @@ The examples directory contains runnable Pulumi programs that show how to intera
 | Example | Description |
 | --- | --- |
 | [quickstart](./quickstart) | Minimal consent submission in TypeScript, Python, and Go |
-| [cookie-consent](./cookie-consent) | End-to-end Cookie Consent configuration, rules, publication, and hosted script outputs in canonical C# and companion TypeScript |
+| [cookie-consent](./cookie-consent) | End-to-end Cookie Consent configuration, rules, and publication in canonical C# and companion TypeScript, exporting the hosted script URL, the script tag, and a `headHtml` fragment for the website |
 
 ## Quickstart credentials and configuration
 
@@ -13,7 +13,7 @@ The quickstart uses Unified Consent:
 
 - `osano:unifiedConsentApiKey` – `pulumi config set osano:unifiedConsentApiKey --secret`
 - `subjectRef` – subject reference to operate on
-- `subjectType` – optional, either `verified` (default) or `anonymous`
+- `subjectType` – optional, either `verified` (default) or `anonymous`: whether `subjectRef` is submitted as the subject's `verifiedId` or `anonymousId`
 - `privacyProtocolId` / `configId` – values from the Osano dashboard
 - `jurisdiction` – optional jurisdiction applied to the consent action
 
@@ -23,7 +23,10 @@ The Cookie Consent workflow requires a Customer REST API key through
 `OSANO_API_KEY` or `pulumi config set osano:osanoApiKey --secret`, plus the
 example's `domain`, `storagePolicyHref`, and optional `mode` stack values. See
 its [README](./cookie-consent) before opting in to `pulumi up`: it creates and
-publishes real customer resources.
+publishes real customer resources. The
+[end-to-end workflow guide](../docs/end-to-end-workflow.md) shows how the
+exported script tag reaches the website, in the same program or from another
+stack.
 
 These examples are intended for use from a repository clone: their dependency
 files reference the SDKs generated in this repository, and running them needs a

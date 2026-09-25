@@ -88,9 +88,16 @@ return await Deployment.RunAsync(() =>
         KeepUnclassifiedTattles = true,
     }, publicationOptions);
 
+    // Downstream website resources consume the tag as an ordinary output. It must be the first script
+    // in <head>, with no async or defer attribute, so it can block tags that load after it. Pass
+    // headHtml (or the tag itself) to the resource that renders or configures the site, for example a
+    // template file, a CDN edge function, or a hosting provider's head-script setting.
+    var headHtml = publication.ScriptTag.Apply(tag => $"<head>\n  {tag}\n  <meta charset=\"utf-8\">\n</head>");
+
     return new Dictionary<string, object?>
     {
         ["cookieConsentScriptSrc"] = publication.ScriptSrc,
         ["cookieConsentScriptTag"] = publication.ScriptTag,
+        ["headHtml"] = headHtml,
     };
 });

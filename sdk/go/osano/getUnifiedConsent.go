@@ -23,32 +23,40 @@ func GetUnifiedConsent(ctx *pulumi.Context, args *GetUnifiedConsentArgs, opts ..
 }
 
 type GetUnifiedConsentArgs struct {
-	// Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
+	// Optional ISO 3166-1 country code Osano uses instead of resolving the caller's IP address, which in a pipeline is the CI runner's.
+	CountryCodeOverride *string `pulumi:"countryCodeOverride"`
+	// Reference type: subject (default) for a subject's verified or anonymous ID, or session for a session ID. anonymous is accepted as a deprecated alias of subject.
 	ReferenceType *string `pulumi:"referenceType"`
-	// The subject reference to look up.
+	// Optional ISO 3166-2 region code Osano uses instead of resolving the caller's IP address.
+	RegionCodeOverride *string `pulumi:"regionCodeOverride"`
+	// The subject reference to look up: an anonymous ID, verified ID, or session ID.
 	SubjectRef string `pulumi:"subjectRef"`
 }
 
 type GetUnifiedConsentResult struct {
-	Conflicts      []map[string]interface{} `pulumi:"conflicts"`
-	Exists         bool                     `pulumi:"exists"`
-	SubjectRef     string                   `pulumi:"subjectRef"`
-	UnifiedConsent map[string]interface{}   `pulumi:"unifiedConsent"`
+	// Conflicting consents Osano resolved, with the resolution and the actions in conflict.
+	Conflicts []map[string]interface{} `pulumi:"conflicts"`
+	// Whether Osano has any consent for the subject.
+	Exists bool `pulumi:"exists"`
+	// The subject reference that was looked up.
+	SubjectRef string `pulumi:"subjectRef"`
+	// The merged consent: subjectId, brandId, channelIds, jurisdiction, lastUpdateDate, lastConflictDate, actions, attributes, compliance, and tags.
+	UnifiedConsent map[string]interface{} `pulumi:"unifiedConsent"`
 }
 
 func GetUnifiedConsentOutput(ctx *pulumi.Context, args GetUnifiedConsentOutputArgs, opts ...pulumi.InvokeOption) GetUnifiedConsentResultOutput {
-	return pulumi.ToOutputWithContext(ctx.Context(), args).
-		ApplyT(func(v interface{}) (GetUnifiedConsentResultOutput, error) {
-			args := v.(GetUnifiedConsentArgs)
-			options := pulumi.InvokeOutputOptions{InvokeOptions: internal.PkgInvokeDefaultOpts(opts)}
-			return ctx.InvokeOutput("osano:index:getUnifiedConsent", args, GetUnifiedConsentResultOutput{}, options).(GetUnifiedConsentResultOutput), nil
-		}).(GetUnifiedConsentResultOutput)
+	options := pulumi.InvokeOutputOptions{InvokeOptions: internal.PkgInvokeDefaultOpts(opts)}
+	return ctx.InvokeOutput("osano:index:getUnifiedConsent", args, GetUnifiedConsentResultOutput{}, options).(GetUnifiedConsentResultOutput)
 }
 
 type GetUnifiedConsentOutputArgs struct {
-	// Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
+	// Optional ISO 3166-1 country code Osano uses instead of resolving the caller's IP address, which in a pipeline is the CI runner's.
+	CountryCodeOverride pulumi.StringPtrInput `pulumi:"countryCodeOverride"`
+	// Reference type: subject (default) for a subject's verified or anonymous ID, or session for a session ID. anonymous is accepted as a deprecated alias of subject.
 	ReferenceType pulumi.StringPtrInput `pulumi:"referenceType"`
-	// The subject reference to look up.
+	// Optional ISO 3166-2 region code Osano uses instead of resolving the caller's IP address.
+	RegionCodeOverride pulumi.StringPtrInput `pulumi:"regionCodeOverride"`
+	// The subject reference to look up: an anonymous ID, verified ID, or session ID.
 	SubjectRef pulumi.StringInput `pulumi:"subjectRef"`
 }
 
@@ -70,18 +78,22 @@ func (o GetUnifiedConsentResultOutput) ToGetUnifiedConsentResultOutputWithContex
 	return o
 }
 
+// Conflicting consents Osano resolved, with the resolution and the actions in conflict.
 func (o GetUnifiedConsentResultOutput) Conflicts() pulumi.MapArrayOutput {
 	return o.ApplyT(func(v GetUnifiedConsentResult) []map[string]interface{} { return v.Conflicts }).(pulumi.MapArrayOutput)
 }
 
+// Whether Osano has any consent for the subject.
 func (o GetUnifiedConsentResultOutput) Exists() pulumi.BoolOutput {
 	return o.ApplyT(func(v GetUnifiedConsentResult) bool { return v.Exists }).(pulumi.BoolOutput)
 }
 
+// The subject reference that was looked up.
 func (o GetUnifiedConsentResultOutput) SubjectRef() pulumi.StringOutput {
 	return o.ApplyT(func(v GetUnifiedConsentResult) string { return v.SubjectRef }).(pulumi.StringOutput)
 }
 
+// The merged consent: subjectId, brandId, channelIds, jurisdiction, lastUpdateDate, lastConflictDate, actions, attributes, compliance, and tags.
 func (o GetUnifiedConsentResultOutput) UnifiedConsent() pulumi.MapOutput {
 	return o.ApplyT(func(v GetUnifiedConsentResult) map[string]interface{} { return v.UnifiedConsent }).(pulumi.MapOutput)
 }

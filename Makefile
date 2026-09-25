@@ -30,9 +30,11 @@ export PULUMI_IGNORE_AMBIENT_PLUGINS = true
 ensure::
 	go mod tidy
 
+# The provider sets language.go.importBasePath itself; the version is dropped so the committed
+# schema does not change with every build version.
 $(SCHEMA_FILE): provider
 	$(PULUMI) package get-schema $(WORKING_DIR)/bin/${PROVIDER} | \
-		jq 'del(.version) | (.language.go.importBasePath="github.com/jflavan/pulumi-osano/sdk/go/osano")' > $(SCHEMA_FILE)
+		jq 'del(.version)' > $(SCHEMA_FILE)
 
 # Codegen generates the schema file and *generates* all sdks. This is a local process and
 # does not require the ability to build all SDKs.
@@ -69,9 +71,8 @@ sdk/java: $(SCHEMA_FILE)
 
 sdk/python: $(SCHEMA_FILE)
 	rm -rf $@
+	# The provider enables pyproject.toml generation, which takes the package version from --version.
 	$(PULUMI) package gen-sdk --language python $(SCHEMA_FILE) --version "${VERSION_GENERIC}"
-	# Pulumi SDK generator doesn't set version in setup.py, so we patch it manually
-	sed -i.bak 's/VERSION = "0.0.0"/VERSION = "${VERSION_GENERIC}"/' ${PACKDIR}/python/setup.py && rm ${PACKDIR}/python/setup.py.bak
 	@python3 scripts/normalize-python-sdk.py ${PACKDIR}/python
 	cp README.md ${PACKDIR}/python/
 
@@ -178,6 +179,14 @@ test_e2e_compile:
 	go vet -tags 'e2e consentread' ./tests/...
 	go vet -tags 'e2e consentwrite' ./tests/...
 	go vet -tags 'e2e subjectverification' ./tests/...
+	go vet -tags 'e2e pipeline' ./tests/...
+
+# Runs the provider through real Pulumi engine operations (a Pulumi YAML program's up, preview,
+# refresh, and destroy) against an in-process mock of the Osano Customer REST API. No credentials
+# are needed; the suite builds and installs the provider plugin itself and needs the pulumi CLI on PATH.
+.PHONY: test_pipeline_e2e
+test_pipeline_e2e:
+	OSANO_RUN_PIPELINE_E2E=1 go test -tags 'e2e pipeline' -count=1 -timeout 20m -v ./tests/e2e/pipeline/...
 
 .PHONY: test_scripts
 test_scripts:

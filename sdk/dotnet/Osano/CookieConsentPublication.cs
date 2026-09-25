@@ -44,7 +44,7 @@ namespace Community.Pulumi.Osano
         /// Whether publication preserves unclassified discoveries. Defaults to true to avoid unexpected deletion.
         /// </summary>
         [Output("keepUnclassifiedTattles")]
-        public Output<bool?> KeepUnclassifiedTattles { get; private set; } = null!;
+        public Output<bool> KeepUnclassifiedTattles { get; private set; } = null!;
 
         /// <summary>
         /// Unix timestamp of the completed Osano publication.
@@ -77,7 +77,7 @@ namespace Community.Pulumi.Osano
         public Output<string> ScriptTag { get; private set; } = null!;
 
         /// <summary>
-        /// Optional absolute HTTP or HTTPS URL notified by Osano after publication.
+        /// Optional absolute HTTP or HTTPS URL Osano calls when the publication completes. Osano does not document the call's payload or sign it, so use an unguessable URL; the value is stored as a secret.
         /// </summary>
         [Output("webhookUrl")]
         public Output<string?> WebhookUrl { get; private set; } = null!;
@@ -106,6 +106,10 @@ namespace Community.Pulumi.Osano
             {
                 Version = Utilities.Version,
                 PluginDownloadURL = "github://api.github.com/jflavan/pulumi-osano",
+                AdditionalSecretOutputs =
+                {
+                    "webhookUrl",
+                },
             };
             var merged = CustomResourceOptions.Merge(defaultOptions, options);
             // Override the ID if one was specified for consistency with other language SDKs.
@@ -152,11 +156,21 @@ namespace Community.Pulumi.Osano
         [Input("keepUnclassifiedTattles")]
         public Input<bool>? KeepUnclassifiedTattles { get; set; }
 
-        /// <summary>
-        /// Optional absolute HTTP or HTTPS URL notified by Osano after publication.
-        /// </summary>
         [Input("webhookUrl")]
-        public Input<string>? WebhookUrl { get; set; }
+        private Input<string>? _webhookUrl;
+
+        /// <summary>
+        /// Optional absolute HTTP or HTTPS URL Osano calls when the publication completes. Osano does not document the call's payload or sign it, so use an unguessable URL; the value is stored as a secret.
+        /// </summary>
+        public Input<string>? WebhookUrl
+        {
+            get => _webhookUrl;
+            set
+            {
+                var emptySecret = Output.CreateSecret(0);
+                _webhookUrl = Output.Tuple<Input<string>?, int>(value, emptySecret).Apply(t => t.Item1);
+            }
+        }
 
         public CookieConsentPublicationArgs()
         {

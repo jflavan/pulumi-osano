@@ -26,6 +26,9 @@ type schemaObject struct {
 	Inputs          struct {
 		Properties map[string]schemaProperty `json:"properties"`
 	} `json:"inputs"`
+	Outputs struct {
+		Properties map[string]schemaProperty `json:"properties"`
+	} `json:"outputs"`
 }
 
 type providerSchema struct {
@@ -99,12 +102,48 @@ func TestProviderSchemaContract(t *testing.T) {
 	if !schema.Functions["osano:index:verifySubjectCode"].Inputs.Properties["code"].Secret {
 		t.Fatal("expected verifySubjectCode.code to be secret")
 	}
+	if !publication.InputProperties["webhookUrl"].Secret {
+		t.Fatal("expected the unauthenticated publication webhookUrl to be secret")
+	}
+	if !schema.Functions["osano:index:verifySubjectCode"].Inputs.Properties["session"].Secret {
+		t.Fatal("expected verifySubjectCode.session to be secret")
+	}
+	if !schema.Resources["osano:index:Consent"].InputProperties["sessionToken"].Secret {
+		t.Fatal("expected Consent.sessionToken to be secret")
+	}
+
+	// The script lookup must return the same public outputs as the publication.
+	lookup, ok := schema.Functions["osano:index:getCookieConsentConfig"]
+	if !ok {
+		t.Fatal("getCookieConsentConfig missing from schema")
+	}
+	for _, output := range []string{"scriptSrc", "scriptTag", "publishStatus", "exists"} {
+		prop, ok := lookup.Outputs.Properties[output]
+		if !ok {
+			t.Fatalf("getCookieConsentConfig missing output %s", output)
+		}
+		if prop.Secret {
+			t.Fatalf("public output getCookieConsentConfig.%s must not be secret", output)
+		}
+	}
+	for _, token := range []string{
+		"getCookieConsentConfigs", "getCookieConsentRules", "getCookieConsentDiscoveries",
+		"getCookieConsentAuditLog", "getSubjectProfile", "getSession",
+	} {
+		if _, ok := schema.Functions["osano:index:"+token]; !ok {
+			t.Fatalf("function %s missing from schema", token)
+		}
+	}
+	// Personal data read from Unified Consent is secret.
+	if !schema.Functions["osano:index:getSubjectProfile"].Outputs.Properties["email"].Secret {
+		t.Fatal("expected getSubjectProfile.email to be secret")
+	}
 }
 
 func TestProviderSchemaDescribesEveryInput(t *testing.T) {
 	t.Parallel()
 	schema := loadProviderSchema(t)
-	if len(schema.Resources) != 4 || len(schema.Functions) != 9 || len(schema.Config.Variables) == 0 {
+	if len(schema.Resources) != 4 || len(schema.Functions) != 16 || len(schema.Config.Variables) == 0 {
 		t.Fatalf("unexpected schema shape: %d resources, %d functions, %d config variables",
 			len(schema.Resources), len(schema.Functions), len(schema.Config.Variables))
 	}
@@ -118,6 +157,11 @@ func TestProviderSchemaDescribesEveryInput(t *testing.T) {
 				t.Errorf("resource %s input %s has no description", token, name)
 			}
 		}
+		for name, prop := range resource.Properties {
+			if prop.Description == "" {
+				t.Errorf("resource %s output %s has no description", token, name)
+			}
+		}
 	}
 	for token, function := range schema.Functions {
 		if function.Description == "" {
@@ -126,6 +170,11 @@ func TestProviderSchemaDescribesEveryInput(t *testing.T) {
 		for name, prop := range function.Inputs.Properties {
 			if prop.Description == "" {
 				t.Errorf("function %s input %s has no description", token, name)
+			}
+		}
+		for name, prop := range function.Outputs.Properties {
+			if prop.Description == "" {
+				t.Errorf("function %s output %s has no description", token, name)
 			}
 		}
 	}

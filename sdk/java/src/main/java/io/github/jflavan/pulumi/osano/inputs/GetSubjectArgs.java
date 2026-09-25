@@ -17,14 +17,14 @@ public final class GetSubjectArgs extends com.pulumi.resources.InvokeArgs {
     public static final GetSubjectArgs Empty = new GetSubjectArgs();
 
     /**
-     * Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
+     * Reference type: subject (default) for a subject&#39;s verified or anonymous ID, or session for a session ID. anonymous is accepted as a deprecated alias of subject.
      *
      */
     @Import(name="referenceType")
     private @Nullable Output<String> referenceType;
 
     /**
-     * @return Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
+     * @return Reference type: subject (default) for a subject&#39;s verified or anonymous ID, or session for a session ID. anonymous is accepted as a deprecated alias of subject.
      *
      */
     public Optional<Output<String>> referenceType() {
@@ -32,14 +32,14 @@ public final class GetSubjectArgs extends com.pulumi.resources.InvokeArgs {
     }
 
     /**
-     * The subject reference to resolve.
+     * The subject reference to resolve: an anonymous ID, verified ID, or session ID.
      *
      */
     @Import(name="subjectRef", required=true)
     private Output<String> subjectRef;
 
     /**
-     * @return The subject reference to resolve.
+     * @return The subject reference to resolve: an anonymous ID, verified ID, or session ID.
      *
      */
     public Output<String> subjectRef() {
@@ -72,7 +72,7 @@ public final class GetSubjectArgs extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param referenceType Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
+         * @param referenceType Reference type: subject (default) for a subject&#39;s verified or anonymous ID, or session for a session ID. anonymous is accepted as a deprecated alias of subject.
          *
          * @return builder
          *
@@ -83,7 +83,7 @@ public final class GetSubjectArgs extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param referenceType Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
+         * @param referenceType Reference type: subject (default) for a subject&#39;s verified or anonymous ID, or session for a session ID. anonymous is accepted as a deprecated alias of subject.
          *
          * @return builder
          *
@@ -93,7 +93,7 @@ public final class GetSubjectArgs extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param subjectRef The subject reference to resolve.
+         * @param subjectRef The subject reference to resolve: an anonymous ID, verified ID, or session ID.
          *
          * @return builder
          *
@@ -104,7 +104,7 @@ public final class GetSubjectArgs extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param subjectRef The subject reference to resolve.
+         * @param subjectRef The subject reference to resolve: an anonymous ID, verified ID, or session ID.
          *
          * @return builder
          *

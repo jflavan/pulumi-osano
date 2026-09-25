@@ -13,9 +13,15 @@ namespace Community.Pulumi.Osano.Inputs
 
     public sealed class ConsentSubjectArgs : global::Pulumi.ResourceArgs
     {
+        /// <summary>
+        /// The subject's anonymous ID. Must not contain #, %, or spaces.
+        /// </summary>
         [Input("anonymousId")]
         public Input<string>? AnonymousId { get; set; }
 
+        /// <summary>
+        /// The subject's verified ID. Must not contain #, %, or spaces.
+        /// </summary>
         [Input("verifiedId")]
         public Input<string>? VerifiedId { get; set; }
 

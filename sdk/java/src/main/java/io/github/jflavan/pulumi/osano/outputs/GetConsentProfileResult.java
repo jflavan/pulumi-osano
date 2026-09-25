@@ -13,21 +13,53 @@ import java.util.Objects;
 
 @CustomType
 public final class GetConsentProfileResult {
+    /**
+     * @return The configuration ID that was looked up.
+     *
+     */
     private String configId;
+    /**
+     * @return Whether Osano returned a consent profile.
+     *
+     */
     private Boolean exists;
+    /**
+     * @return The hashed subject identifier that was looked up.
+     *
+     */
     private String hashedSubjectId;
+    /**
+     * @return The consent profile Osano returned, with unifiedConsent and conflicts keys.
+     *
+     */
     private Map<String,Object> profile;
 
     private GetConsentProfileResult() {}
+    /**
+     * @return The configuration ID that was looked up.
+     *
+     */
     public String configId() {
         return this.configId;
     }
+    /**
+     * @return Whether Osano returned a consent profile.
+     *
+     */
     public Boolean exists() {
         return this.exists;
     }
+    /**
+     * @return The hashed subject identifier that was looked up.
+     *
+     */
     public String hashedSubjectId() {
         return this.hashedSubjectId;
     }
+    /**
+     * @return The consent profile Osano returned, with unifiedConsent and conflicts keys.
+     *
+     */
     public Map<String,Object> profile() {
         return this.profile;
     }

@@ -24,7 +24,8 @@ func TestSendAndVerifySubjectCode(t *testing.T) {
 		t.Fatalf("unable to initialize API client: %v", err)
 	}
 
-	hashedSubjectID := testenv.Require(t, testenv.EnvHashedSubjectID, "hashed subject identifier")
+	// Osano's current API identifies the subject by email or phone; a hashed subject ID is optional.
+	hashedSubjectID := testenv.Optional(testenv.EnvHashedSubjectID, "")
 	channel := strings.ToLower(testenv.Require(t, testenv.EnvVerificationChannel, "verification channel (email or sms)"))
 	contact := resolveVerificationContact(t, channel)
 
@@ -32,8 +33,23 @@ func TestSendAndVerifySubjectCode(t *testing.T) {
 	defer cancel()
 
 	t.Logf("Sending verification code via %s to %s", channel, redactContact(contact))
-	if err := client.SendVerificationCode(ctx, channel, contact, hashedSubjectID); err != nil {
+	sent, err := client.SendVerificationCode(ctx, channel, contact, hashedSubjectID)
+	if err != nil {
 		t.Fatalf("send verification code failed: %v", err)
+	}
+	t.Logf("send-code response keys: %v", mapKeys(sent))
+
+	// SMS verification requires the challenge session. Osano does not document where it comes from,
+	// so take it from the send-code response when present, or from the environment.
+	session := testenv.Optional(testenv.EnvVerificationSession, "")
+	for _, key := range []string{"session", "sessionId"} {
+		if value, ok := sent[key].(string); ok && value != "" && session == "" {
+			session = value
+		}
+	}
+	if channel == "sms" && session == "" {
+		t.Fatalf("SMS verification needs a session: the send-code response had none; set %s",
+			testenv.EnvVerificationSession)
 	}
 
 	code := strings.TrimSpace(os.Getenv(testenv.EnvVerificationCode))
@@ -48,7 +64,7 @@ func TestSendAndVerifySubjectCode(t *testing.T) {
 		t.Fatalf("verification code cannot be empty")
 	}
 
-	profile, err := client.VerifySubjectCode(ctx, channel, contact, hashedSubjectID, code)
+	profile, err := client.VerifySubjectCode(ctx, channel, contact, hashedSubjectID, code, session)
 	if err != nil {
 		t.Fatalf("verify subject code failed: %v", err)
 	}

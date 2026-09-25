@@ -16,14 +16,29 @@ public final class GetUnifiedConsentPlainArgs extends com.pulumi.resources.Invok
     public static final GetUnifiedConsentPlainArgs Empty = new GetUnifiedConsentPlainArgs();
 
     /**
-     * Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
+     * Optional ISO 3166-1 country code Osano uses instead of resolving the caller&#39;s IP address, which in a pipeline is the CI runner&#39;s.
+     *
+     */
+    @Import(name="countryCodeOverride")
+    private @Nullable String countryCodeOverride;
+
+    /**
+     * @return Optional ISO 3166-1 country code Osano uses instead of resolving the caller&#39;s IP address, which in a pipeline is the CI runner&#39;s.
+     *
+     */
+    public Optional<String> countryCodeOverride() {
+        return Optional.ofNullable(this.countryCodeOverride);
+    }
+
+    /**
+     * Reference type: subject (default) for a subject&#39;s verified or anonymous ID, or session for a session ID. anonymous is accepted as a deprecated alias of subject.
      *
      */
     @Import(name="referenceType")
     private @Nullable String referenceType;
 
     /**
-     * @return Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
+     * @return Reference type: subject (default) for a subject&#39;s verified or anonymous ID, or session for a session ID. anonymous is accepted as a deprecated alias of subject.
      *
      */
     public Optional<String> referenceType() {
@@ -31,14 +46,29 @@ public final class GetUnifiedConsentPlainArgs extends com.pulumi.resources.Invok
     }
 
     /**
-     * The subject reference to look up.
+     * Optional ISO 3166-2 region code Osano uses instead of resolving the caller&#39;s IP address.
+     *
+     */
+    @Import(name="regionCodeOverride")
+    private @Nullable String regionCodeOverride;
+
+    /**
+     * @return Optional ISO 3166-2 region code Osano uses instead of resolving the caller&#39;s IP address.
+     *
+     */
+    public Optional<String> regionCodeOverride() {
+        return Optional.ofNullable(this.regionCodeOverride);
+    }
+
+    /**
+     * The subject reference to look up: an anonymous ID, verified ID, or session ID.
      *
      */
     @Import(name="subjectRef", required=true)
     private String subjectRef;
 
     /**
-     * @return The subject reference to look up.
+     * @return The subject reference to look up: an anonymous ID, verified ID, or session ID.
      *
      */
     public String subjectRef() {
@@ -48,7 +78,9 @@ public final class GetUnifiedConsentPlainArgs extends com.pulumi.resources.Invok
     private GetUnifiedConsentPlainArgs() {}
 
     private GetUnifiedConsentPlainArgs(GetUnifiedConsentPlainArgs $) {
+        this.countryCodeOverride = $.countryCodeOverride;
         this.referenceType = $.referenceType;
+        this.regionCodeOverride = $.regionCodeOverride;
         this.subjectRef = $.subjectRef;
     }
 
@@ -71,7 +103,18 @@ public final class GetUnifiedConsentPlainArgs extends com.pulumi.resources.Invok
         }
 
         /**
-         * @param referenceType Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
+         * @param countryCodeOverride Optional ISO 3166-1 country code Osano uses instead of resolving the caller&#39;s IP address, which in a pipeline is the CI runner&#39;s.
+         *
+         * @return builder
+         *
+         */
+        public Builder countryCodeOverride(@Nullable String countryCodeOverride) {
+            $.countryCodeOverride = countryCodeOverride;
+            return this;
+        }
+
+        /**
+         * @param referenceType Reference type: subject (default) for a subject&#39;s verified or anonymous ID, or session for a session ID. anonymous is accepted as a deprecated alias of subject.
          *
          * @return builder
          *
@@ -82,7 +125,18 @@ public final class GetUnifiedConsentPlainArgs extends com.pulumi.resources.Invok
         }
 
         /**
-         * @param subjectRef The subject reference to look up.
+         * @param regionCodeOverride Optional ISO 3166-2 region code Osano uses instead of resolving the caller&#39;s IP address.
+         *
+         * @return builder
+         *
+         */
+        public Builder regionCodeOverride(@Nullable String regionCodeOverride) {
+            $.regionCodeOverride = regionCodeOverride;
+            return this;
+        }
+
+        /**
+         * @param subjectRef The subject reference to look up: an anonymous ID, verified ID, or session ID.
          *
          * @return builder
          *

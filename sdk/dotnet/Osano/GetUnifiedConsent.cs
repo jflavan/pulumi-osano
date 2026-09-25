@@ -35,13 +35,25 @@ namespace Community.Pulumi.Osano
     public sealed class GetUnifiedConsentArgs : global::Pulumi.InvokeArgs
     {
         /// <summary>
-        /// Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
+        /// Optional ISO 3166-1 country code Osano uses instead of resolving the caller's IP address, which in a pipeline is the CI runner's.
+        /// </summary>
+        [Input("countryCodeOverride")]
+        public string? CountryCodeOverride { get; set; }
+
+        /// <summary>
+        /// Reference type: subject (default) for a subject's verified or anonymous ID, or session for a session ID. anonymous is accepted as a deprecated alias of subject.
         /// </summary>
         [Input("referenceType")]
         public string? ReferenceType { get; set; }
 
         /// <summary>
-        /// The subject reference to look up.
+        /// Optional ISO 3166-2 region code Osano uses instead of resolving the caller's IP address.
+        /// </summary>
+        [Input("regionCodeOverride")]
+        public string? RegionCodeOverride { get; set; }
+
+        /// <summary>
+        /// The subject reference to look up: an anonymous ID, verified ID, or session ID.
         /// </summary>
         [Input("subjectRef", required: true)]
         public string SubjectRef { get; set; } = null!;
@@ -55,13 +67,25 @@ namespace Community.Pulumi.Osano
     public sealed class GetUnifiedConsentInvokeArgs : global::Pulumi.InvokeArgs
     {
         /// <summary>
-        /// Reference type: subject (default) for a verified subject ID, or anonymous for an anonymous ID.
+        /// Optional ISO 3166-1 country code Osano uses instead of resolving the caller's IP address, which in a pipeline is the CI runner's.
+        /// </summary>
+        [Input("countryCodeOverride")]
+        public Input<string>? CountryCodeOverride { get; set; }
+
+        /// <summary>
+        /// Reference type: subject (default) for a subject's verified or anonymous ID, or session for a session ID. anonymous is accepted as a deprecated alias of subject.
         /// </summary>
         [Input("referenceType")]
         public Input<string>? ReferenceType { get; set; }
 
         /// <summary>
-        /// The subject reference to look up.
+        /// Optional ISO 3166-2 region code Osano uses instead of resolving the caller's IP address.
+        /// </summary>
+        [Input("regionCodeOverride")]
+        public Input<string>? RegionCodeOverride { get; set; }
+
+        /// <summary>
+        /// The subject reference to look up: an anonymous ID, verified ID, or session ID.
         /// </summary>
         [Input("subjectRef", required: true)]
         public Input<string> SubjectRef { get; set; } = null!;
@@ -76,9 +100,21 @@ namespace Community.Pulumi.Osano
     [OutputType]
     public sealed class GetUnifiedConsentResult
     {
+        /// <summary>
+        /// Conflicting consents Osano resolved, with the resolution and the actions in conflict.
+        /// </summary>
         public readonly ImmutableArray<ImmutableDictionary<string, object>> Conflicts;
+        /// <summary>
+        /// Whether Osano has any consent for the subject.
+        /// </summary>
         public readonly bool Exists;
+        /// <summary>
+        /// The subject reference that was looked up.
+        /// </summary>
         public readonly string SubjectRef;
+        /// <summary>
+        /// The merged consent: subjectId, brandId, channelIds, jurisdiction, lastUpdateDate, lastConflictDate, actions, attributes, compliance, and tags.
+        /// </summary>
         public readonly ImmutableDictionary<string, object> UnifiedConsent;
 
         [OutputConstructor]
