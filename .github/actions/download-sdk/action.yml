@@ -17,4 +17,6 @@ runs:
 
     - name: UnTar SDK folder
       shell: bash
-      run: tar -zxf ${{ github.workspace }}/sdk/${{ inputs.language }}.tar.gz -C ${{ github.workspace }}/sdk/${{ inputs.language }}
+      env:
+        LANGUAGE: ${{ inputs.language }}
+      run: tar -zxf "$GITHUB_WORKSPACE/sdk/$LANGUAGE.tar.gz" -C "$GITHUB_WORKSPACE/sdk/$LANGUAGE"

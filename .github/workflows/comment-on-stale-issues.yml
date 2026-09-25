@@ -5,6 +5,10 @@ on:
   schedule:
   - cron: "46 4 * * *" # run once per day
 
+# Read-only while dry-run is on below; switch to issues: write when turning dry-run off.
+permissions:
+  issues: read
+
 jobs:
   cleanup:
     runs-on: ubuntu-latest

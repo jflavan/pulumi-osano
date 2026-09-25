@@ -39,3 +39,7 @@ on:
     - main
     types:
     - opened
+# pull_request_target runs with a write token, so grant only what the filters and the comment need.
+permissions:
+  contents: read
+  pull-requests: write
