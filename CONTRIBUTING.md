@@ -60,7 +60,7 @@ To run an example against Osano from your clone, build and install the local pro
    make test_e2e_compile
    make test_pipeline_e2e   # needs the Pulumi CLI; no credentials
    ```
-6. Document behavior changes in `docs/` and/or `README.md` as appropriate. `make codegen` copies `README.md` byte for byte to `sdk/nodejs/README.md`, `sdk/python/README.md`, and `sdk/dotnet/README.md` (the package READMEs on npm, PyPI, and NuGet). After editing `README.md`, run `make codegen` or copy it to those three files in the same commit, or the CI worktree-clean check fails.
+6. Document behavior changes in `docs/` and/or `README.md` as appropriate. The package registries show a README written for their own language, not `README.md`: `make codegen` copies `docs/package-readmes/nodejs.md`, `python.md`, `dotnet.md`, and `go.md` byte for byte to `sdk/nodejs/README.md`, `sdk/python/README.md`, `sdk/dotnet/README.md`, and `sdk/go/osano/README.md` (npm, PyPI, NuGet, and pkg.go.dev). When a change affects what users of a package see, update the matching files in `docs/package-readmes/` too, keeping their code samples in that language. Then run `make codegen` or copy them to the SDK folders in the same commit, or the CI worktree-clean check and `make test_scripts` fail.
 
 ### Important Make Targets
 

@@ -13,6 +13,8 @@ VERSION_PATH    := ${PROVIDER_PATH}/version.Version
 PULUMI          := pulumi
 
 SCHEMA_FILE     := provider/cmd/pulumi-resource-osano/schema.json
+# Each SDK ships the README for its own language to its package registry (npm, PyPI, NuGet, pkg.go.dev).
+PACKAGE_READMES := docs/package-readmes
 export GOPATH   := $(shell go env GOPATH)
 
 WORKING_DIR     := $(shell pwd)
@@ -52,7 +54,7 @@ sdk/%: $(SCHEMA_FILE)
 sdk/nodejs: $(SCHEMA_FILE)
 	rm -rf $@
 	$(PULUMI) package gen-sdk --language nodejs $(SCHEMA_FILE) --version "${VERSION_GENERIC}"
-	cp README.md ${PACKDIR}/nodejs/
+	cp ${PACKAGE_READMES}/nodejs.md ${PACKDIR}/nodejs/README.md
 
 sdk/java: $(SCHEMA_FILE)
 	rm -rf $@
@@ -74,12 +76,12 @@ sdk/python: $(SCHEMA_FILE)
 	# The provider enables pyproject.toml generation, which takes the package version from --version.
 	$(PULUMI) package gen-sdk --language python $(SCHEMA_FILE) --version "${VERSION_GENERIC}"
 	@python3 scripts/normalize-python-sdk.py ${PACKDIR}/python
-	cp README.md ${PACKDIR}/python/
+	cp ${PACKAGE_READMES}/python.md ${PACKDIR}/python/README.md
 
 sdk/dotnet: $(SCHEMA_FILE)
 	rm -rf $@
 	$(PULUMI) package gen-sdk --language dotnet $(SCHEMA_FILE) --version "${VERSION_GENERIC}"
-	cp README.md ${PACKDIR}/dotnet/
+	cp ${PACKAGE_READMES}/dotnet.md ${PACKDIR}/dotnet/README.md
 	@python3 scripts/patch-dotnet-csproj.py sdk/dotnet/Community.Pulumi.Osano.csproj
 	# The generator downloads the schema's logoUrl into logo.png (the NuGet package icon). Use the
 	# committed copy instead so codegen output never depends on what that URL serves.
@@ -92,6 +94,7 @@ sdk/go: ${SCHEMA_FILE}
 	$(PULUMI) package gen-sdk --language go ${SCHEMA_FILE} --version "${VERSION_GENERIC}"
 	GO_PKG_DIR=${PACKDIR}/go/osano; \
 	mkdir -p $$GO_PKG_DIR; \
+	cp ${PACKAGE_READMES}/go.md $$GO_PKG_DIR/README.md; \
 	cp go.mod $$GO_PKG_DIR/go.mod; \
 	cd $$GO_PKG_DIR && \
 		go mod edit -module=github.com/jflavan/pulumi-osano/sdk/go/osano && \
@@ -115,7 +118,7 @@ test_provider:
 
 dotnet_sdk: sdk/dotnet
 	cd ${PACKDIR}/dotnet/&& \
-		cp ../../README.md . && \
+		cp ../../${PACKAGE_READMES}/dotnet.md README.md && \
 		echo "${VERSION_GENERIC}" > version.txt && \
 		dotnet build
 
@@ -125,10 +128,10 @@ nodejs_sdk: sdk/nodejs
 	cd ${PACKDIR}/nodejs/ && \
 		yarn install && \
 		yarn run tsc
-	cp README.md LICENSE ${PACKDIR}/nodejs/package.json ${PACKDIR}/nodejs/yarn.lock ${PACKDIR}/nodejs/bin/
+	cp ${PACKDIR}/nodejs/README.md LICENSE ${PACKDIR}/nodejs/package.json ${PACKDIR}/nodejs/yarn.lock ${PACKDIR}/nodejs/bin/
 
 python_sdk: sdk/python
-	cp README.md ${PACKDIR}/python/
+	cp ${PACKAGE_READMES}/python.md ${PACKDIR}/python/README.md
 	cd ${PACKDIR}/python/ && \
 		rm -rf ./bin/ ../python.bin/ && cp -R . ../python.bin && mv ../python.bin ./bin && \
 		python3 -m venv venv && \

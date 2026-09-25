@@ -44,7 +44,7 @@ Concise, task-agnostic instructions so an agent can work efficiently without ext
 - Provider unit tests use mocked HTTP and do not require Osano API credentials.
 - CI lint job briefly replaces `go:embed` with ` goembed` before running golangci-lint; you do not need to do this locally—just avoid committing any such rewrites if you see them.
 - CI checks for a clean worktree; ensure `git status` clean after codegen/build.
-- Editing `README.md`: codegen copies it byte for byte to `sdk/nodejs/README.md`, `sdk/python/README.md`, and `sdk/dotnet/README.md`. Update those copies in the same commit (`make codegen`, or copy the file preserving LF line endings), or CI fails the worktree-clean check.
+- Package READMEs: npm, PyPI, NuGet, and pkg.go.dev show `docs/package-readmes/{nodejs,python,dotnet,go}.md`, not `README.md`; each shows code only in its own language (`scripts/test_package_readmes.py`). Codegen copies them byte for byte to `sdk/nodejs/README.md`, `sdk/python/README.md`, `sdk/dotnet/README.md`, and `sdk/go/osano/README.md`. Update the copies in the same commit (`make codegen`, or copy the files preserving LF line endings), or CI fails the worktree-clean check.
 - Never bump versions in files. The committed schema and SDKs stay at `0.1.0-alpha.0+dev` (Makefile `PROVIDER_VERSION`), and `release.yml` stamps the version from the `vX.Y.Z` tag. See `docs/RELEASE_GUIDE.md`.
 
 ## When to search
