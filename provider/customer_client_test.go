@@ -57,6 +57,29 @@ func TestCustomerClientSendsProviderUserAgent(t *testing.T) {
 	}
 }
 
+// Released binaries are stamped with the git tag (v0.1.0) and Makefile builds with the bare version
+// (0.1.0); both must send pulumi-osano/0.1.0.
+func TestUserAgentForVersion(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		version string
+		want    string
+	}{
+		{version: "0.1.0", want: "pulumi-osano/0.1.0"},
+		{version: "v0.1.0", want: "pulumi-osano/0.1.0"},
+		{version: "v0.1.0-alpha.1727200000", want: "pulumi-osano/0.1.0-alpha.1727200000"},
+		{version: "0.1.0-alpha.0+dev", want: "pulumi-osano/0.1.0-alpha.0+dev"},
+		{version: " v1.2.3 ", want: "pulumi-osano/1.2.3"},
+		{version: "", want: "pulumi-osano/dev"},
+		{version: "  ", want: "pulumi-osano/dev"},
+	}
+	for _, tt := range tests {
+		if got := userAgentForVersion(tt.version); got != tt.want {
+			t.Errorf("userAgentForVersion(%q) = %q, want %q", tt.version, got, tt.want)
+		}
+	}
+}
+
 func TestCustomerSettingsFromConfigWhitespaceEnvironmentFallsBackToConfig(t *testing.T) {
 	t.Setenv(envOsanoAPIKey, " \t ")
 	t.Setenv(envRequestTimeout, " \t ")

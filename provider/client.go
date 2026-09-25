@@ -38,10 +38,18 @@ func newAPIClient(ctx context.Context) *apiClient {
 // providerUserAgent identifies this provider and its version to the Osano APIs, for example
 // pulumi-osano/0.1.0.
 func providerUserAgent() string {
-	if strings.TrimSpace(providerVersion) == "" {
+	return userAgentForVersion(providerVersion)
+}
+
+// userAgentForVersion builds the provider user agent from a build version. GoReleaser stamps the
+// git tag (v0.1.0) and `make provider` the bare version (0.1.0), so drop a leading "v" to send the
+// same pulumi-osano/0.1.0 either way.
+func userAgentForVersion(version string) string {
+	version = strings.TrimPrefix(strings.TrimSpace(version), "v")
+	if version == "" {
 		return "pulumi-osano/dev"
 	}
-	return "pulumi-osano/" + providerVersion
+	return "pulumi-osano/" + version
 }
 
 func (c *apiClient) CreateConsent(ctx context.Context, payload consentRequestPayload) (map[string]any, error) {
