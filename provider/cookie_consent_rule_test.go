@@ -194,6 +194,18 @@ func TestCookieConsentRuleCheck(t *testing.T) {
 			}()),
 			failureKey: "expiry",
 		},
+		// The payload never sends description for other store types, so a declared "" would sit in
+		// state while refresh reads Osano's null, and every `pulumi up` would plan an update.
+		{
+			name: "empty description rejected for scripts",
+			inputs: property.NewMap(func() map[string]property.Value {
+				values := deleteKey(validRuleCheckInputValues(), "expiry")
+				values["storeType"] = property.New("scripts")
+				values["description"] = property.New("")
+				return values
+			}()),
+			failureKey: "description",
+		},
 	}
 
 	for _, tc := range cases {
@@ -767,6 +779,61 @@ func TestPtrStringEqual(t *testing.T) {
 			}
 		})
 	}
+}
+
+// Osano reports description: "" on some script rules. Adopting it would import a value Check
+// rejects, so the preview after `pulumi import` failed; it must stay unmanaged instead.
+func TestCookieConsentRuleArgsFromResponseLeavesCookieOnlyFieldsUnmanaged(t *testing.T) {
+	t.Parallel()
+
+	empty := ""
+	scriptRule := cmpRuleResponseFixture()
+	scriptRule.Type = "script"
+	scriptRule.Description = &empty
+	scriptRule.Expiry = &empty
+
+	t.Run("import of a script rule", func(t *testing.T) {
+		args, err := cookieConsentRuleArgsFromResponse(scriptRule, "config-abc", CookieConsentRuleArgs{})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if args.StoreType != "scripts" {
+			t.Fatalf("expected storeType scripts, got %q", args.StoreType)
+		}
+		if args.Description != nil || args.Expiry != nil {
+			t.Fatalf("expected description and expiry unset, got %v and %v", args.Description, args.Expiry)
+		}
+		if args.Title == nil || *args.Title != *scriptRule.Title {
+			t.Fatalf("expected the other optional fields to be adopted, got title %v", args.Title)
+		}
+	})
+
+	// State written by an import from an earlier provider version still holds the "".
+	t.Run("refresh of a script rule imported with an empty description", func(t *testing.T) {
+		declared := baseRuleArgs()
+		declared.StoreType = "scripts"
+		declared.Description = &empty
+		declared.Expiry = &empty
+		args, err := cookieConsentRuleArgsFromResponse(scriptRule, "config-abc", declared)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if args.Description != nil || args.Expiry != nil {
+			t.Fatalf("expected description and expiry unset, got %v and %v", args.Description, args.Expiry)
+		}
+	})
+
+	t.Run("import of a cookie rule keeps an empty description", func(t *testing.T) {
+		cookieRule := cmpRuleResponseFixture()
+		cookieRule.Description = &empty
+		args, err := cookieConsentRuleArgsFromResponse(cookieRule, "config-abc", CookieConsentRuleArgs{})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if args.Description == nil || *args.Description != "" {
+			t.Fatalf("expected the cookie rule's empty description to be adopted, got %v", args.Description)
+		}
+	})
 }
 
 func validRuleCheckInputValues() map[string]property.Value {

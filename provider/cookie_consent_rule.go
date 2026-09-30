@@ -430,7 +430,7 @@ func cookieConsentRuleState(args CookieConsentRuleArgs, resp cmpRuleResponse) Co
 // declared inputs) adopts everything Osano reports, including the store type mapped from the
 // response type. A refresh keeps the declared identity, adopts the required fields so drift is
 // visible, and adopts optional fields only where the program declares them; unset optional fields
-// stay unmanaged.
+// stay unmanaged, as do description and expiry on rules other than cookies.
 func cookieConsentRuleArgsFromResponse(
 	resp cmpRuleResponse, configID string, declared CookieConsentRuleArgs,
 ) (CookieConsentRuleArgs, error) {
@@ -461,8 +461,13 @@ func cookieConsentRuleArgsFromResponse(
 	args.Title = adopt(declared.Title, resp.Title)
 	args.VendorName = adopt(declared.VendorName, resp.VendorName)
 	args.RuleType = adopt(declared.RuleType, resp.RuleType)
-	args.Description = adopt(declared.Description, resp.Description)
-	args.Expiry = adopt(declared.Expiry, resp.Expiry)
+	// description and expiry apply only to cookies: the payload never sends them for other store
+	// types and Check rejects them there. Osano still reports description: "" on some script rules,
+	// so adopting it would import a value the program cannot declare.
+	if args.StoreType == "cookies" {
+		args.Description = adopt(declared.Description, resp.Description)
+		args.Expiry = adopt(declared.Expiry, resp.Expiry)
+	}
 	return args, nil
 }
 
