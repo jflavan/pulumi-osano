@@ -17,10 +17,10 @@ autobot is a [Claude Code routine](https://code.claude.com/docs/en/routines): a 
 Each run sorts the open Dependabot pull requests into three buckets:
 
 - **Generated-only.** The PR edits only `sdk/`, which `make codegen` owns. autobot closes it with an explanation.
-- **Needs a human.** The PR bumps a dependency of the provider binary (a module in the root `go.mod`) by a major version, counting a minor bump of a `v0.x` module as major. It also covers any bump whose release notes describe a breaking change that affects this repository. autobot leaves the PR open, labels it `autobot:needs-human`, and comments with its analysis and an @mention of the maintainer.
+- **Needs a human.** The PR bumps a dependency of the provider binary (a module in the root `go.mod`) by a major version, counting a minor bump of a `v0.x` module as major. It also covers any bump whose release notes describe a breaking change that affects this repository, and any root `go.mod` bump that changes the schema or the generated SDK sources, since that needs a full `make codegen` the cloud environment can't run. autobot leaves the PR open, labels it `autobot:needs-human`, and comments with its analysis and an @mention of the maintainer.
 - **Rollup.** Everything else. autobot applies these updates to a single `claude/autobot-deps-*` branch, following the same rules a maintainer follows by hand:
   - It drops Dependabot's hunks under `sdk/`.
-  - It runs `make codegen` after a root `go.mod` bump.
+  - It runs `make codegen` after a root `go.mod` bump. If codegen can't run in the cloud environment, it regenerates only the Go SDK's module files and relies on the `prerequisites` check, which runs the full codegen, to confirm that nothing else changed.
   - It regenerates lockfiles with their package manager.
   - It checks that each SHA-pinned action matches its tag.
 
@@ -59,7 +59,7 @@ Your job is to take the open Dependabot pull requests, combine them into one pul
 1. `gh pr list --repo jflavan/pulumi-osano --state open --author app/dependabot --json number,title,headRefName,labels,files,url`
 2. `gh pr list --repo jflavan/pulumi-osano --state open --label autobot --json number,title,headRefName,mergeStateStatus,url`, which lists any open rollup.
 3. If there are no open Dependabot PRs and no open rollup, print "autobot: nothing to do" and stop. Do not post any comments.
-4. Leave out any Dependabot PR labeled `autobot:needs-human` unless it changed (a new head commit) since your last comment on it.
+4. Leave out any Dependabot PR labeled `autobot:needs-human` unless it changed (a new head commit) since your last comment on it. One exception: a PR whose only `autobot:needs-human` comment carries the marker `<!-- autobot:needs-human:go-mod -->` was held back only because codegen couldn't run. The Go-only regeneration in step 2 now covers it, so remove the label and sort it again.
 5. If a rollup is already open, keep working on it: add any new Dependabot PRs to its branch, then go on to step 4. Never open a second rollup.
 
 ## 1. Sort each Dependabot PR
@@ -82,7 +82,16 @@ For each PR, read its diff (`gh pr diff N`), its description (the release notes 
   - GitHub Actions: keep the action pinned to a full commit SHA with the `# vX.Y.Z` comment. Check that the SHA is the commit the tag points to (`gh api repos/OWNER/REPO/git/ref/tags/vX.Y.Z`, and dereference annotated tags).
 - Repository rules you must follow:
   - Never keep a Dependabot hunk that edits a file under `sdk/`. Drop those hunks, because `make codegen` owns them.
-  - If the rollup changes the **root** `go.mod`, run `make codegen` and commit the regenerated SDK files (in `sdk/go/osano` and anywhere else codegen changes). Install the toolchain the same way CI does. Read `.github/actions/setup-tools/action.yml` and `.config/mise.toml`, run `bash scripts/get-versions.sh` and export what it prints, then use `mise install`, or install the pinned Go and Pulumi versions directly. If codegen can't run in your environment, move the root `go.mod` bump to **Needs a human** and say so in the comment. Never push a root `go.mod` change without regenerated SDKs.
+  - If the rollup changes the **root** `go.mod`, the generated files must match it. The provider schema (`provider/cmd/pulumi-resource-osano/schema.json`) is generated from the Go provider, so a root `go.mod` bump can change the schema and, through it, every SDK. The `prerequisites` check enforces this: it runs the full `make codegen`, then fails at its "Check worktree clean" step and lists every generated file that differs from the committed copy.
+    - **Full regeneration first.** Install the toolchain the same way CI does. Read `.github/actions/setup-tools/action.yml` and `.config/mise.toml`, run `bash scripts/get-versions.sh` and export what it prints, then use `mise install`, or install the pinned Go and Pulumi versions directly. Run `make codegen`, then `cd examples/quickstart/go && go mod tidy`, and commit everything that changed.
+    - **Go-only regeneration as the fallback.** If `make codegen` can't run in your environment (for example, the `pulumi-language-dotnet` or `pulumi-language-java` plugin is missing), regenerate the files that always follow the root `go.mod` and let `prerequisites` check the rest:
+      1. `cp go.mod sdk/go/osano/go.mod`
+      2. `cd sdk/go/osano && go mod edit -module=github.com/jflavan/pulumi-osano/sdk/go/osano -toolchain=none && go mod tidy && go build ./... && go vet ./...`
+      3. `cd examples/quickstart/go && go mod tidy && go build ./...` (the example replaces the SDK with the local copy, so it needs the SDK's new indirect requirements)
+
+      Commit only those four files (`go.mod` and `go.sum` in both directories). In the PR body, say that the rollup used the Go-only regeneration and depends on `prerequisites` to confirm it.
+    - **If `prerequisites` fails at "Check worktree clean"** after a Go-only regeneration, the bump changed the schema or the generated SDK sources, and it needs a full `make codegen` that you can't run. Take the root `go.mod` bump and its regenerated files out of the rollup, push, and move the PR to **Needs a human**. In the comment, use the marker `<!-- autobot:needs-human:codegen-drift -->` and quote the list of changed files from the log. Never hand-edit generated files to match the log.
+    - Never merge a root `go.mod` change until `prerequisites` has passed on the rollup's head commit.
   - Don't edit `CHANGELOG.md`, workflows (beyond Dependabot's own version and SHA lines), `.github/dependabot.yml`, the rulesets or anything under `provider/`, except for a change a dependency update requires. If one is required, explain it in the PR body.
   - Never put GitHub's skip-CI token (the word "skip" and the word "ci" joined inside square brackets, or any of its variants) anywhere in a commit message, PR title or PR body. It stops the required checks from running, and the PR is then blocked forever.
 - Make one commit per run with a Conventional Commit message, in this form:
@@ -111,6 +120,7 @@ The branch ruleset on `main` requires the checks `CodeQL gate`, `CodeQL` and `Se
 
 - Wait for the checks with `gh pr checks R --watch --interval 30`, or poll `gh pr view R --json statusCheckRollup,mergeStateStatus,mergeable,headRefOid`.
 - If a check fails, read the log (`gh run view RUN_ID --log-failed`) and work out the cause:
+  - If `prerequisites` failed at "Check worktree clean" and the rollup bumps the root `go.mod`, follow the codegen-drift rule in step 2. Don't re-run it, because the result is deterministic.
   - If a specific update caused it, fix it with a small change, or take that update out of the rollup, push, and wait again. Move the removed update to **Needs a human** with the log excerpt.
   - If it looks like an unrelated flake (a network timeout, or a live Osano acceptance read that got a transient 5xx), re-run the failed jobs **once** with `gh run rerun RUN_ID --failed`.
   - If it still fails, or the cause isn't in the rollup (for example, main itself is broken), comment on the rollup mentioning @jflavan with the failing job, the log excerpt and your diagnosis. Then stop.
