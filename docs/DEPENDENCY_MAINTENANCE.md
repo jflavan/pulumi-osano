@@ -36,6 +36,19 @@ It merges with `--match-head-commit` and never with `--admin`. If a check fails 
 
 All state lives on GitHub (PRs, labels, and comments that carry hidden `<!-- autobot:... -->` markers), so each hourly run continues from where the previous one stopped. A run with nothing new to report posts nothing.
 
+## Security alerts without a pull request
+
+autobot works only from Dependabot's pull requests, so a Dependabot alert that never gets one stays open until a maintainer fixes it. This always happens for an indirect dependency in `examples/cookie-consent/typescript`. Its `package.json` installs the SDK from `file:../../../sdk/nodejs/bin`, which is build output and isn't committed. In Dependabot's checkout yarn can't resolve the lockfile, so each security update job fails with "The latest possible version of X that can be installed is ..." and opens no pull request, even when the fix is within the allowed range. Version updates to the example's direct dependencies still arrive as pull requests.
+
+Check for these alerts with `gh api "repos/jflavan/pulumi-osano/dependabot/alerts?state=open"`. When the patched version is within the range the lockfile already allows, refresh only the affected entries:
+
+1. From the repository root, run `mise exec -- make nodejs_sdk PROVIDER_VERSION=0.1.0-alpha.0+dev` to build `sdk/nodejs/bin`, the version the lockfile pins.
+2. In `examples/cookie-consent/typescript`, delete each affected package's entry (its header line and the indented lines under it) from `yarn.lock`. Leave every other entry alone.
+3. Run `yarn install`. Yarn resolves only the removed entries again, each to the newest version its range allows.
+4. Check that `git diff` changes only those entries. Then run `yarn audit`, `yarn install --frozen-lockfile` and `yarn run tsc --noEmit`, as `make build_cookie_consent_examples` does.
+
+If the patched version is outside the allowed range, the dependency that pulls in the package has to be upgraded first. Treat that as a normal dependency update and review it for breaking changes.
+
 ## Managing the routine
 
 The routine is managed at [claude.ai/code/routines](https://claude.ai/code/routines), and its runs are listed there with their logs. The prompt below is the source of truth. To change autobot's behavior:
