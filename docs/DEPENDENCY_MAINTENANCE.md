@@ -45,7 +45,7 @@ Check for these alerts with `gh api "repos/jflavan/pulumi-osano/dependabot/alert
 1. From the repository root, run `mise exec -- make nodejs_sdk PROVIDER_VERSION=0.1.0-alpha.0+dev` to build `sdk/nodejs/bin`, the version the lockfile pins.
 2. In `examples/cookie-consent/typescript`, delete each affected package's entry (its header line and the indented lines under it) from `yarn.lock`. Leave every other entry alone.
 3. Run `yarn install`. Yarn resolves only the removed entries again, each to the newest version its range allows.
-4. Check that `git diff` changes only those entries. Then run `yarn audit`, `yarn install --frozen-lockfile` and `yarn run tsc --noEmit`, as `make build_cookie_consent_examples` does.
+4. Check that `git diff` changes only those entries and that `yarn audit` no longer reports them. Then run `yarn install --frozen-lockfile` and `yarn run tsc --noEmit`, as `make build_cookie_consent_examples` does.
 
 If the patched version is outside the allowed range, the dependency that pulls in the package has to be upgraded first. Treat that as a normal dependency update and review it for breaking changes.
 
