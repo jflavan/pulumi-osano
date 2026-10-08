@@ -228,7 +228,7 @@ func TestCookieConsentConfigConfigurationConverges(t *testing.T) {
 			t.Fatal(err)
 		}
 		if _, present := resp.Inputs.Get("configuration").AsMap().GetOk("crossDomain"); !present {
-			t.Fatalf("import must adopt every server configuration key, got %#v", resp.Inputs.Get("configuration"))
+			t.Fatalf("import must adopt every server-added spec key, got %#v", resp.Inputs.Get("configuration"))
 		}
 	})
 }

@@ -246,6 +246,64 @@ func TestCookieConsentConfigUpdateWithUnmodelledKeys(t *testing.T) {
 	})
 }
 
+// The decision to skip the request follows what the PATCH would send, nulls for removed keys
+// included, not the declared configuration alone.
+func TestCookieConsentConfigUpdateWithDashboardOnlyPalette(t *testing.T) {
+	previous := configStateProperties().Set("configuration", toPropertyValue(map[string]any{
+		"storagePolicyHref": "https://example.com/storage-policy",
+		"palette":           map[string]any{"widgetColor": "#222222"},
+	}))
+
+	// Removing the palette sends palette: null, which Osano accepts, so the request is still made.
+	t.Run("removing the palette clears it", func(t *testing.T) {
+		var body atomic.Value
+		api := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			assertCMPRequest(t, r, http.MethodPatch, "/v1/cookie-consent/configs/config-123")
+			body.Store(decodeJSONBody(t, r))
+			writeCMPConfigResponse(t, w)
+		}))
+		defer api.Close()
+
+		inputs := configInputProperties().Set("configuration", toPropertyValue(map[string]any{
+			"storagePolicyHref": "https://example.com/storage-policy",
+		}))
+		if _, err := newCMPProviderServer(t, api.URL).Update(p.UpdateRequest{
+			ID: "config-123", Urn: cmpURN("CookieConsentConfig", "palette"), State: previous, Inputs: inputs,
+		}); err != nil {
+			t.Fatal(err)
+		}
+		sent, _ := body.Load().(map[string]any)
+		configuration, _ := sent["configuration"].(map[string]any)
+		if value, present := configuration["palette"]; !present || value != nil {
+			t.Fatalf("expected palette to be sent as null, got %#v", configuration)
+		}
+	})
+
+	// Emptying the palette would send nothing new: the unmodelled key is left out, and so is the
+	// palette it leaves empty.
+	t.Run("emptying the palette sends nothing", func(t *testing.T) {
+		api := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			t.Errorf("an update that sends nothing new must not call Osano: %s %s", r.Method, r.URL)
+			w.WriteHeader(http.StatusBadRequest)
+		}))
+		defer api.Close()
+
+		inputs := configInputProperties().Set("configuration", toPropertyValue(map[string]any{
+			"storagePolicyHref": "https://example.com/storage-policy",
+			"palette":           map[string]any{},
+		}))
+		resp, err := newCMPProviderServer(t, api.URL).Update(p.UpdateRequest{
+			ID: "config-123", Urn: cmpURN("CookieConsentConfig", "palette"), State: previous, Inputs: inputs,
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got := resp.Properties.Get("configuration"); !got.Equals(inputs.Get("configuration")) {
+			t.Fatalf("state must record the declared configuration, got %v", got)
+		}
+	})
+}
+
 // toPropertyValue converts a decoded JSON value into a property value.
 func toPropertyValue(value any) property.Value {
 	switch typed := value.(type) {

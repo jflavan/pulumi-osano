@@ -272,7 +272,13 @@ func (r *CookieConsentConfig) Update(
 		return infer.UpdateResponse[CookieConsentConfigState]{Output: preview}, nil
 	}
 
-	if onlyUnsentConfigurationKeysChanged(req.Inputs, req.State.CookieConsentConfigArgs) {
+	// A configuration key the program stopped declaring is cleared with an explicit null. Refresh
+	// compares only declared keys, so without this the old value would survive in Osano unseen.
+	// Unmodelled keys are left out even then: Osano rejects them whatever their value.
+	configuration := withoutUnmodelledKeys(
+		withRemovedKeysNulled(req.Inputs.Configuration, req.State.Configuration),
+	)
+	if onlyUnsentConfigurationKeysChanged(req.Inputs, req.State.CookieConsentConfigArgs, configuration) {
 		// Such as removing the unmodelled keys an earlier import adopted. Osano already holds
 		// everything a PATCH would send, and a PATCH can still mark a published configuration
 		// outdated, so only the state records the change.
@@ -288,12 +294,7 @@ func (r *CookieConsentConfig) Update(
 
 	// Send orgIds only to set or clear a managed value; Osano treats omitted and empty alike.
 	body := cookieConsentConfigPayload(req.Inputs, len(req.Inputs.OrgIDs) > 0 || len(req.State.OrgIDs) > 0)
-	// A configuration key the program stopped declaring is cleared with an explicit null. Refresh
-	// compares only declared keys, so without this the old value would survive in Osano unseen.
-	// Unmodelled keys are left out even then: Osano rejects them whatever their value.
-	body["configuration"] = withoutUnmodelledKeys(
-		withRemovedKeysNulled(req.Inputs.Configuration, req.State.Configuration),
-	)
+	body["configuration"] = configuration
 
 	var out cmpConfigResponse
 	if err := client.DoJSON(
@@ -410,15 +411,18 @@ func cookieConsentConfigPayload(args CookieConsentConfigArgs, includeOrgIDs bool
 }
 
 // onlyUnsentConfigurationKeysChanged reports whether the inputs differ from the previous ones only
-// in configuration keys that cookieConsentConfigPayload leaves out, so an update would send Osano
-// nothing new.
-func onlyUnsentConfigurationKeysChanged(inputs, previous CookieConsentConfigArgs) bool {
+// in configuration keys the provider never sends, so an update would send Osano nothing new.
+// configuration is what the update would send, removed-key nulls included, so a removal that
+// sends a null (such as palette: null for a palette that held only unmodelled keys) still counts.
+func onlyUnsentConfigurationKeysChanged(
+	inputs, previous CookieConsentConfigArgs, configuration map[string]any,
+) bool {
 	return inputs.Name == previous.Name &&
 		stringSlicesEqual(inputs.Domains, previous.Domains) &&
 		inputs.Mode == previous.Mode &&
 		stringSlicesEqual(inputs.OrgIDs, previous.OrgIDs) &&
 		!jsonValuesEqual(inputs.Configuration, previous.Configuration) &&
-		jsonValuesEqual(withoutUnmodelledKeys(inputs.Configuration), withoutUnmodelledKeys(previous.Configuration))
+		jsonValuesEqual(configuration, withoutUnmodelledKeys(previous.Configuration))
 }
 
 // cookieConsentConfigState combines the inputs Pulumi manages with Osano's server-side metadata.

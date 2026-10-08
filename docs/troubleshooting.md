@@ -130,7 +130,8 @@ Warnings do not stop the deployment. They appear in the preview output for:
   value, so the provider never sends such a key. Check the spelling. If an
   import with provider `0.3.1` or earlier adopted the key from the Osano
   dashboard, remove it from the program; the next `pulumi up` updates only
-  the state;
+  the state. A key Osano adds to its spec later is sent once a provider
+  release adds it;
 - a deprecated palette key: use `toggleOffThumbColor` for
   `toggleButtonOffColor`, `toggleOnThumbColor` for `toggleButtonOnColor`,
   `toggleOffTrackColor` for `toggleOffBackgroundColor`, and

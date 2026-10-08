@@ -114,8 +114,8 @@ type mockOsano struct {
 	defaults   map[string]any
 	// dashboardOnly holds keys every read reports but every write rejects (AddDashboardOnlyKeys).
 	dashboardOnly map[string]any
-	requests   []recordedRequest
-	lastTick   int64
+	requests      []recordedRequest
+	lastTick      int64
 }
 
 // serverDefaultConfiguration is what Osano adds to every configuration: a top-level key the program
