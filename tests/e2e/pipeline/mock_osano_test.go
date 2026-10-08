@@ -112,6 +112,8 @@ type mockOsano struct {
 	rules      map[int]*mockRule
 	nextRuleID int
 	defaults   map[string]any
+	// dashboardOnly holds keys every read reports but every write rejects (AddDashboardOnlyKeys).
+	dashboardOnly map[string]any
 	requests   []recordedRequest
 	lastTick   int64
 }
@@ -365,6 +367,9 @@ func (m *mockOsano) createConfig(w http.ResponseWriter, r *http.Request) {
 
 	m.mu.Lock()
 	defer m.mu.Unlock()
+	if m.rejectDashboardOnlyKeysLocked(w, body.Configuration) {
+		return
+	}
 	now := m.tick()
 	config := &mockConfig{
 		ConfigID:      uuid.NewString(),
@@ -429,6 +434,9 @@ func (m *mockOsano) patchConfig(w http.ResponseWriter, r *http.Request) {
 	config, ok := m.configs[r.PathValue("configId")]
 	if !ok {
 		writeError(w, http.StatusNotFound, "config not found")
+		return
+	}
+	if m.rejectDashboardOnlyKeysLocked(w, body.Configuration) {
 		return
 	}
 	if body.Name != nil {
@@ -734,6 +742,62 @@ func (m *mockOsano) EditPalette(t *testing.T, configID, key string, value any) {
 	palette[key] = value
 	config.Updated = m.tick()
 	config.markChanged()
+}
+
+// AddDashboardOnlyKeys simulates configuration keys set in the Osano dashboard that Osano's spec
+// does not define, such as iabEnabled or palette.widgetColor: every read reports them, and every
+// create or update that names one is rejected with 400, whatever its value, as Osano's
+// additionalProperties: false schema does. A map value lists keys nested in that object.
+func (m *mockOsano) AddDashboardOnlyKeys(keys map[string]any) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.defaults = mergeDefaults(m.defaults, keys)
+	m.dashboardOnly = mergeDefaults(m.dashboardOnly, keys)
+}
+
+// rejectDashboardOnlyKeysLocked answers 400 and returns true when a written configuration names a
+// dashboard-only key.
+func (m *mockOsano) rejectDashboardOnlyKeysLocked(w http.ResponseWriter, configuration map[string]any) bool {
+	for key, value := range m.dashboardOnly {
+		written, present := configuration[key]
+		nested, isNested := value.(map[string]any)
+		if !isNested {
+			if present {
+				writeError(w, http.StatusBadRequest, "request/body/configuration must NOT have additional properties")
+				return true
+			}
+			continue
+		}
+		writtenObject, _ := written.(map[string]any)
+		for nestedKey := range nested {
+			if _, named := writtenObject[nestedKey]; named {
+				writeError(w, http.StatusBadRequest,
+					"request/body/configuration/"+key+" must NOT have additional properties")
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// SeedConfig creates a configuration outside Pulumi, as the Osano dashboard does, and returns its ID.
+func (m *mockOsano) SeedConfig(name string, domains []string, configuration map[string]any) string {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	now := m.tick()
+	config := &mockConfig{
+		ConfigID:      uuid.NewString(),
+		Name:          name,
+		Domains:       domains,
+		Mode:          "production",
+		Configuration: deepCopyMap(configuration),
+		Created:       now,
+		Updated:       now,
+		PublishStatus: statusUnpublished,
+		revision:      1,
+	}
+	m.configs[config.ConfigID] = config
+	return config.ConfigID
 }
 
 // Mark returns a position in the request log for RequestsSince.

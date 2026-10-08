@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"maps"
 	"net/http"
 	"net/url"
 	"slices"
@@ -273,6 +272,15 @@ func (r *CookieConsentConfig) Update(
 		return infer.UpdateResponse[CookieConsentConfigState]{Output: preview}, nil
 	}
 
+	if onlyUnsentConfigurationKeysChanged(req.Inputs, req.State.CookieConsentConfigArgs) {
+		// Such as removing the unmodelled keys an earlier import adopted. Osano already holds
+		// everything a PATCH would send, and a PATCH can still mark a published configuration
+		// outdated, so only the state records the change.
+		state := req.State
+		state.CookieConsentConfigArgs = req.Inputs
+		return infer.UpdateResponse[CookieConsentConfigState]{Output: state}, nil
+	}
+
 	client, err := customerClient(ctx)
 	if err != nil {
 		return infer.UpdateResponse[CookieConsentConfigState]{}, err
@@ -282,7 +290,10 @@ func (r *CookieConsentConfig) Update(
 	body := cookieConsentConfigPayload(req.Inputs, len(req.Inputs.OrgIDs) > 0 || len(req.State.OrgIDs) > 0)
 	// A configuration key the program stopped declaring is cleared with an explicit null. Refresh
 	// compares only declared keys, so without this the old value would survive in Osano unseen.
-	body["configuration"] = withRemovedKeysNulled(req.Inputs.Configuration, req.State.Configuration)
+	// Unmodelled keys are left out even then: Osano rejects them whatever their value.
+	body["configuration"] = withoutUnmodelledKeys(
+		withRemovedKeysNulled(req.Inputs.Configuration, req.State.Configuration),
+	)
 
 	var out cmpConfigResponse
 	if err := client.DoJSON(
@@ -379,13 +390,14 @@ func jsonValuesEqual(left, right any) bool {
 
 // cookieConsentConfigPayload builds the create/update request body. Osano documents orgIds as
 // optional, with omitted and empty both meaning the root organization, so it is sent only when
-// includeOrgIDs is set and then always as a JSON array rather than null.
+// includeOrgIDs is set and then always as a JSON array rather than null. Configuration keys that
+// Osano's spec does not define are left out, because Osano rejects any request that names one.
 func cookieConsentConfigPayload(args CookieConsentConfigArgs, includeOrgIDs bool) map[string]any {
 	body := map[string]any{
 		"name":          args.Name,
 		"domains":       args.Domains,
 		"mode":          args.Mode,
-		"configuration": args.Configuration,
+		"configuration": withoutUnmodelledKeys(args.Configuration),
 	}
 	if includeOrgIDs {
 		orgIDs := args.OrgIDs
@@ -395,6 +407,18 @@ func cookieConsentConfigPayload(args CookieConsentConfigArgs, includeOrgIDs bool
 		body["orgIds"] = orgIDs
 	}
 	return body
+}
+
+// onlyUnsentConfigurationKeysChanged reports whether the inputs differ from the previous ones only
+// in configuration keys that cookieConsentConfigPayload leaves out, so an update would send Osano
+// nothing new.
+func onlyUnsentConfigurationKeysChanged(inputs, previous CookieConsentConfigArgs) bool {
+	return inputs.Name == previous.Name &&
+		stringSlicesEqual(inputs.Domains, previous.Domains) &&
+		inputs.Mode == previous.Mode &&
+		stringSlicesEqual(inputs.OrgIDs, previous.OrgIDs) &&
+		!jsonValuesEqual(inputs.Configuration, previous.Configuration) &&
+		jsonValuesEqual(withoutUnmodelledKeys(inputs.Configuration), withoutUnmodelledKeys(previous.Configuration))
 }
 
 // cookieConsentConfigState combines the inputs Pulumi manages with Osano's server-side metadata.
@@ -415,10 +439,11 @@ func cookieConsentConfigState(args CookieConsentConfigArgs, resp cmpConfigRespon
 }
 
 // cookieConsentConfigArgsFromResponse derives refreshed inputs from a config read. An import (no
-// declared inputs) adopts everything Osano reports except an empty additionalLinks. A refresh
+// declared inputs) adopts what Osano reports except the values a write could not send back:
+// configuration and palette keys outside Osano's spec, and an empty additionalLinks. A refresh
 // adopts the scalar fields so drift is visible, but projects the configuration object onto the
-// keys the program declares: server-added defaults stay out of state, and a declared key Osano
-// omits keeps its declared value.
+// keys of the previous inputs, which the engine passes during a refresh: server-added defaults
+// stay out of state, and a declared key Osano omits keeps its declared value.
 func cookieConsentConfigArgsFromResponse(
 	resp cmpConfigResponse, declared CookieConsentConfigArgs,
 ) CookieConsentConfigArgs {
@@ -431,11 +456,15 @@ func cookieConsentConfigArgsFromResponse(
 	}
 	if declared.Configuration != nil {
 		args.Configuration = projectConfiguration(resp.Configuration, declared.Configuration)
-	} else if links, isList := resp.Configuration["additionalLinks"].([]any); isList && len(links) == 0 {
+		return args
+	}
+	// Osano's GET reports keys set in the Osano dashboard that its PATCH rejects, so an adopted
+	// configuration holding them could never be updated.
+	args.Configuration = withoutUnmodelledKeys(resp.Configuration)
+	if links, isList := args.Configuration["additionalLinks"].([]any); isList && len(links) == 0 {
 		// Osano reports [] for a configuration without additional links, but its spec requires at
 		// least one link on write, so adopting [] would import a value Check rejects once the
 		// configuration next changes. Leaving the key out means the same thing.
-		args.Configuration = maps.Clone(resp.Configuration)
 		delete(args.Configuration, "additionalLinks")
 	}
 	return args

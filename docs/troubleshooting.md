@@ -126,8 +126,11 @@ was applied; they fail again once you change the configuration.
 Warnings do not stop the deployment. They appear in the preview output for:
 
 - a configuration or palette key that is not in Osano's published spec. Osano
-  rejects configuration keys it does not know, so check the spelling unless
-  Osano added the key recently;
+  rejects every write that names a key it does not know, even with a `null`
+  value, so the provider never sends such a key. Check the spelling. If an
+  import with provider `0.3.1` or earlier adopted the key from the Osano
+  dashboard, remove it from the program; the next `pulumi up` updates only
+  the state;
 - a deprecated palette key: use `toggleOffThumbColor` for
   `toggleButtonOffColor`, `toggleOnThumbColor` for `toggleButtonOnColor`,
   `toggleOffTrackColor` for `toggleOffBackgroundColor`, and
@@ -368,6 +371,12 @@ Many invalid `CookieConsentConfig` and `Consent` values fail at preview
 instead; see
 [configuration check failures and warnings](#configuration-check-failures-and-warnings)
 and [`Consent` validation failures](#consent-validation-failures).
+
+`request/body/configuration must NOT have additional properties` on a
+`CookieConsentConfig` update means the request named a configuration key
+outside Osano's spec. Provider `0.3.1` and earlier sent such keys when an import
+had adopted them from the Osano dashboard. Later versions never send them; see
+[configuration check failures and warnings](#configuration-check-failures-and-warnings).
 
 ### `401 Unauthorized`
 

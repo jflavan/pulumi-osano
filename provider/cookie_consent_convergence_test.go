@@ -102,9 +102,9 @@ func TestCookieConsentConfigConfigurationConverges(t *testing.T) {
 	normalizedFixture := func() cmpConfigResponse {
 		fixture := cmpConfigResponseFixture()
 		fixture.Configuration = map[string]any{
-			"storagePolicyHref":  "https://example.com/storage-policy",
-			"flag":               true,
-			"crossDomainEnabled": false,
+			"storagePolicyHref": "https://example.com/storage-policy",
+			"showWidget":        true,
+			"crossDomain":       false,
 		}
 		return fixture
 	}
@@ -124,10 +124,10 @@ func TestCookieConsentConfigConfigurationConverges(t *testing.T) {
 			t.Fatal(err)
 		}
 		configuration := resp.Properties.Get("configuration").AsMap()
-		if _, present := configuration.GetOk("crossDomainEnabled"); present {
+		if _, present := configuration.GetOk("crossDomain"); present {
 			t.Fatalf("state must not carry server-added configuration keys: %#v", configuration)
 		}
-		if !configuration.Get("flag").AsBool() {
+		if !configuration.Get("showWidget").AsBool() {
 			t.Fatalf("expected declared keys to be kept: %#v", configuration)
 		}
 	})
@@ -148,7 +148,7 @@ func TestCookieConsentConfigConfigurationConverges(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if _, present := resp.Properties.Get("configuration").AsMap().GetOk("crossDomainEnabled"); present {
+		if _, present := resp.Properties.Get("configuration").AsMap().GetOk("crossDomain"); present {
 			t.Fatalf("state must not carry server-added configuration keys: %#v", resp.Properties)
 		}
 	})
@@ -175,13 +175,13 @@ func TestCookieConsentConfigConfigurationConverges(t *testing.T) {
 			resp.Inputs.Get("configuration").AsMap(),
 			resp.Properties.Get("configuration").AsMap(),
 		} {
-			if _, present := configuration.GetOk("crossDomainEnabled"); present {
+			if _, present := configuration.GetOk("crossDomain"); present {
 				t.Fatalf("refresh must not adopt server-added configuration keys: %#v", configuration)
 			}
 			if got := configuration.Get("storagePolicyHref").AsString(); got != "https://example.com/changed" {
 				t.Fatalf("refresh must surface drift in declared keys, got %q", got)
 			}
-			if !configuration.Get("flag").AsBool() {
+			if !configuration.Get("showWidget").AsBool() {
 				t.Fatalf("expected declared keys to be kept: %#v", configuration)
 			}
 		}
@@ -205,7 +205,7 @@ func TestCookieConsentConfigConfigurationConverges(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		flag, present := resp.Inputs.Get("configuration").AsMap().GetOk("flag")
+		flag, present := resp.Inputs.Get("configuration").AsMap().GetOk("showWidget")
 		if !present || !flag.AsBool() {
 			t.Fatalf("expected the declared flag key to be kept, got %#v", resp.Inputs.Get("configuration"))
 		}
@@ -227,7 +227,7 @@ func TestCookieConsentConfigConfigurationConverges(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if _, present := resp.Inputs.Get("configuration").AsMap().GetOk("crossDomainEnabled"); !present {
+		if _, present := resp.Inputs.Get("configuration").AsMap().GetOk("crossDomain"); !present {
 			t.Fatalf("import must adopt every server configuration key, got %#v", resp.Inputs.Get("configuration"))
 		}
 	})

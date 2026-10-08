@@ -118,7 +118,13 @@ func TestValidateCookieConsentConfiguration(t *testing.T) {
 		mode          string
 		want          string
 	}{
-		{"unknown key", with("showWidgets", true), "production", "configuration.showWidgets is not in Osano's"},
+		{
+			name:          "unknown key",
+			configuration: with("showWidgets", true),
+			mode:          "production",
+			want: "configuration.showWidgets is not in Osano's published Customer REST API spec, and Osano " +
+				"rejects configuration keys it does not know, so the provider does not send it",
+		},
 		{
 			name:          "deprecated palette key",
 			configuration: with("palette", map[string]any{"toggleButtonOnColor": "#fff"}),
@@ -129,7 +135,8 @@ func TestValidateCookieConsentConfiguration(t *testing.T) {
 			name:          "unknown palette key",
 			configuration: with("palette", map[string]any{"buttonColour": "#fff"}),
 			mode:          "production",
-			want:          "configuration.palette.buttonColour",
+			want: "configuration.palette.buttonColour is not in Osano's published Customer REST API spec, and " +
+				"Osano rejects palette keys it does not know, so the provider does not send it",
 		},
 		{"undocumented policy link text", with("policyLinkText", "legal"), "production", "policyLinkText \"legal\""},
 		{
