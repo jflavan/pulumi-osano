@@ -14,18 +14,18 @@ The first release is `v0.1.0` (2026-09-25).
 | --- | --- | --- | --- |
 | Node.js | npm | [`@jflavan/pulumi-osano`](https://www.npmjs.com/package/@jflavan/pulumi-osano) | `npm install @jflavan/pulumi-osano` |
 | Python | PyPI | [`pulumi-osano`](https://pypi.org/project/pulumi-osano/) | `pip install pulumi-osano` |
-| Go | Go module proxy | [`github.com/jflavan/pulumi-osano/sdk/go/osano`](https://pkg.go.dev/github.com/jflavan/pulumi-osano/sdk/go/osano) | `go get github.com/jflavan/pulumi-osano/sdk/go/osano@v0.3.1` |
+| Go | Go module proxy | [`github.com/jflavan/pulumi-osano/sdk/go/osano`](https://pkg.go.dev/github.com/jflavan/pulumi-osano/sdk/go/osano) | `go get github.com/jflavan/pulumi-osano/sdk/go/osano@v0.3.2` |
 | .NET | NuGet | [`Community.Pulumi.Osano`](https://www.nuget.org/packages/Community.Pulumi.Osano) | `dotnet add package Community.Pulumi.Osano` |
 | Java | Maven Central | [`io.github.jflavan.pulumi:pulumi-osano`](https://central.sonatype.com/artifact/io.github.jflavan.pulumi/pulumi-osano) | See [Java](#java) |
 | Provider plugin | GitHub Releases | [`pulumi-resource-osano`](https://github.com/jflavan/pulumi-osano/releases) | Downloaded automatically; see [Provider plugin](#provider-plugin) |
 
-Import names and requirements, as of `0.3.1`:
+Import names and requirements, as of `0.3.2`:
 
 | Language | Import | Requires |
 | --- | --- | --- |
 | Node.js | `import * as osano from "@jflavan/pulumi-osano";` | `@pulumi/pulumi` `^3.142.0`; Node.js 22 or later, which current `@pulumi/pulumi` releases require |
 | Python | `import pulumi_osano as osano` | Python 3.10 or later, `pulumi>=3.231.0,<4.0.0`, `packaging>=24.0` (the package is built from `pyproject.toml`) |
-| Go | `import "github.com/jflavan/pulumi-osano/sdk/go/osano"` | Go 1.26.6 or later, `github.com/pulumi/pulumi/sdk/v3` v3.264.0 or later (`go get` raises your requirement to it) |
+| Go | `import "github.com/jflavan/pulumi-osano/sdk/go/osano"` | Go 1.26.6 or later, `github.com/pulumi/pulumi/sdk/v3` v3.265.0 or later (`go get` raises your requirement to it) |
 | .NET | `using Community.Pulumi.Osano;` | .NET 8 or later, tested with .NET 8 and .NET 10 (`0.2.x` targets `net6.0`, which NuGet resolves for any later framework; from `0.3.0` the package targets `net8.0`), `Pulumi` `[3.76.1, 4.0.0)` |
 | Java | `import io.github.jflavan.pulumi.osano.*;` | Java 11 or later, `com.pulumi:pulumi` |
 
@@ -37,14 +37,14 @@ Maven:
 <dependency>
     <groupId>io.github.jflavan.pulumi</groupId>
     <artifactId>pulumi-osano</artifactId>
-    <version>0.3.1</version>
+    <version>0.3.2</version>
 </dependency>
 ```
 
 Gradle (Groovy or Kotlin DSL):
 
 ```groovy
-implementation("io.github.jflavan.pulumi:pulumi-osano:0.3.1")
+implementation("io.github.jflavan.pulumi:pulumi-osano:0.3.2")
 ```
 
 The package declares `com.pulumi:pulumi` only as a runtime dependency, so your program must depend on
@@ -66,7 +66,7 @@ Install it by hand for a Pulumi YAML program, or before working without network 
 version as your SDK:
 
 ```bash
-pulumi plugin install resource osano 0.3.1 --server github://api.github.com/jflavan/pulumi-osano
+pulumi plugin install resource osano 0.3.2 --server github://api.github.com/jflavan/pulumi-osano
 ```
 
 The download uses the GitHub API. If Pulumi reports that the GitHub rate limit is exceeded, set
@@ -108,22 +108,22 @@ run one against the published packages, see
 
 Every archive and SBOM on a release has a SHA-256 checksum in `checksums.txt` and a GitHub build
 provenance attestation signed by this repository's release workflow. To check the Linux amd64
-archive of `v0.3.1`:
+archive of `v0.3.2`:
 
 ```bash
-gh release download v0.3.1 -R jflavan/pulumi-osano \
-  -p 'pulumi-resource-osano-v0.3.1-linux-amd64.tar.gz*' -p checksums.txt
+gh release download v0.3.2 -R jflavan/pulumi-osano \
+  -p 'pulumi-resource-osano-v0.3.2-linux-amd64.tar.gz*' -p checksums.txt
 sha256sum -c --ignore-missing checksums.txt
-gh attestation verify pulumi-resource-osano-v0.3.1-linux-amd64.tar.gz --owner jflavan
+gh attestation verify pulumi-resource-osano-v0.3.2-linux-amd64.tar.gz --owner jflavan
 ```
 
 With `--owner jflavan`, `gh attestation verify` accepts an attestation from any workflow in a
 `jflavan` repository, and its output names the signing workflow
-(`.github/workflows/release.yml@refs/tags/v0.3.1` in `jflavan/pulumi-osano`). To require the release
+(`.github/workflows/release.yml@refs/tags/v0.3.2` in `jflavan/pulumi-osano`). To require the release
 workflow itself:
 
 ```bash
-gh attestation verify pulumi-resource-osano-v0.3.1-linux-amd64.tar.gz \
+gh attestation verify pulumi-resource-osano-v0.3.2-linux-amd64.tar.gz \
   --repo jflavan/pulumi-osano \
   --signer-workflow jflavan/pulumi-osano/.github/workflows/release.yml
 ```
@@ -132,7 +132,7 @@ The same commands verify an SBOM. To scan an SBOM for known vulnerabilities, use
 [grype](https://github.com/anchore/grype):
 
 ```bash
-grype sbom:./pulumi-resource-osano-v0.3.1-linux-amd64.tar.gz.sbom.json
+grype sbom:./pulumi-resource-osano-v0.3.2-linux-amd64.tar.gz.sbom.json
 ```
 
 ### npm
@@ -153,7 +153,7 @@ them on each file's page under **Download files**, and the integrity API returns
 
 ```bash
 curl -s -H 'Accept: application/vnd.pypi.integrity.v1+json' \
-  https://pypi.org/integrity/pulumi-osano/0.3.1/pulumi_osano-0.3.1-py3-none-any.whl/provenance
+  https://pypi.org/integrity/pulumi-osano/0.3.2/pulumi_osano-0.3.2-py3-none-any.whl/provenance
 ```
 
 ### NuGet
@@ -161,7 +161,7 @@ curl -s -H 'Accept: application/vnd.pypi.integrity.v1+json' \
 nuget.org signs every package with its repository signature. To check a downloaded package:
 
 ```bash
-dotnet nuget verify --all community.pulumi.osano.0.3.1.nupkg
+dotnet nuget verify --all community.pulumi.osano.0.3.2.nupkg
 ```
 
 The output names `NuGet.org Repository by Microsoft`. The package is published from the release
@@ -190,14 +190,14 @@ Every file of the Java package has a detached `.asc` signature made with the rel
 - Published on `keyserver.ubuntu.com` and `keys.openpgp.org` (keys.openpgp.org serves the key
   without its user ID, because the key has no email address)
 
-To check the `0.3.1` jar:
+To check the `0.3.2` jar:
 
 ```bash
-base=https://repo1.maven.org/maven2/io/github/jflavan/pulumi/pulumi-osano/0.3.1
-curl -sO "$base/pulumi-osano-0.3.1.jar"
-curl -sO "$base/pulumi-osano-0.3.1.jar.asc"
+base=https://repo1.maven.org/maven2/io/github/jflavan/pulumi/pulumi-osano/0.3.2
+curl -sO "$base/pulumi-osano-0.3.2.jar"
+curl -sO "$base/pulumi-osano-0.3.2.jar.asc"
 curl -s 'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x5277E2610B7E70216871969A48097CF94C3F74F3' | gpg --import
-gpg --verify pulumi-osano-0.3.1.jar.asc pulumi-osano-0.3.1.jar
+gpg --verify pulumi-osano-0.3.2.jar.asc pulumi-osano-0.3.2.jar
 ```
 
 `gpg` reports `Good signature from "John Flavan (pulumi-osano release signing)"` and prints the

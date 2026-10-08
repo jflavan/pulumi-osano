@@ -32,7 +32,7 @@ The Osano (Unofficial) provider is available as a package in these Pulumi langua
   dotnet add package Community.Pulumi.Osano
   ```
 
-- Java: [`io.github.jflavan.pulumi:pulumi-osano`](https://central.sonatype.com/artifact/io.github.jflavan.pulumi/pulumi-osano) on Maven Central. Replace `VERSION` with the release you want (for example `0.3.1`).
+- Java: [`io.github.jflavan.pulumi:pulumi-osano`](https://central.sonatype.com/artifact/io.github.jflavan.pulumi/pulumi-osano) on Maven Central. Replace `VERSION` with the release you want (for example `0.3.2`).
 
   Maven:
 
@@ -58,7 +58,7 @@ Every package's registry page, how each is published, and how to verify release 
 | --- | --- |
 | Node.js | Node.js 22 or later, which current `@pulumi/pulumi` releases require |
 | Python | Python 3.10 or later and `pulumi>=3.231.0,<4.0.0` |
-| Go | Go 1.26.6 or later and `github.com/pulumi/pulumi/sdk/v3` v3.264.0 or later |
+| Go | Go 1.26.6 or later and `github.com/pulumi/pulumi/sdk/v3` v3.265.0 or later |
 | .NET | .NET 8 or later, tested with .NET 8 and .NET 10 (the package targets `net8.0`) |
 | Java | Java 11 or later, with `com.pulumi:pulumi` as a dependency of your program |
 
@@ -68,7 +68,7 @@ Use Pulumi CLI 3.252 or later to import existing resources with `pulumi import`.
 
 The SDK packages record the plugin download location (`github://api.github.com/jflavan/pulumi-osano`), so Pulumi downloads the matching `pulumi-resource-osano` plugin from the provider's [GitHub releases](https://github.com/jflavan/pulumi-osano/releases) the first time you run `pulumi preview` or `pulumi up`. Pin the SDK package to an exact version and the engine installs the plugin of the same version.
 
-To install the plugin by hand, for example on a machine that runs Pulumi YAML programs or before going offline, run the following, replacing `VERSION` with your SDK's version (for example `0.3.1`):
+To install the plugin by hand, for example on a machine that runs Pulumi YAML programs or before going offline, run the following, replacing `VERSION` with your SDK's version (for example `0.3.2`):
 
 ```bash
 pulumi plugin install resource osano VERSION --server github://api.github.com/jflavan/pulumi-osano
