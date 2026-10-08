@@ -173,7 +173,7 @@ func TestCookieConsentConfigDiff(t *testing.T) {
 		inputs := baseConfigArgs()
 		inputs.Configuration = map[string]any{
 			"storagePolicyHref": "https://example.com/policy",
-			"flag":              false,
+			"showWidget":        false,
 		}
 		resp, err := resource.Diff(ctx, infer.DiffRequest[CookieConsentConfigArgs, CookieConsentConfigState]{
 			State:  state,
@@ -335,7 +335,7 @@ func assertCMPRequestBody(t *testing.T, r *http.Request) {
 		"orgIds":  []any{"org-123"},
 		"configuration": map[string]any{
 			"storagePolicyHref": "https://example.com/storage-policy",
-			"flag":              true,
+			"showWidget":        true,
 		},
 	}
 	if !reflect.DeepEqual(body, want) {
@@ -393,7 +393,7 @@ func configInputProperties() property.Map {
 		"orgIds":  property.New([]property.Value{property.New("org-123")}),
 		"configuration": property.New(property.NewMap(map[string]property.Value{
 			"storagePolicyHref": property.New("https://example.com/storage-policy"),
-			"flag":              property.New(true),
+			"showWidget":        property.New(true),
 		})),
 	})
 }
@@ -418,7 +418,7 @@ func cmpConfigResponseFixture() cmpConfigResponse {
 		Domains:             []string{"example.com"},
 		Mode:                "debug",
 		OrgIDs:              []string{"org-123"},
-		Configuration:       map[string]any{"storagePolicyHref": "https://example.com/storage-policy", "flag": true},
+		Configuration:       map[string]any{"storagePolicyHref": "https://example.com/storage-policy", "showWidget": true},
 		ConfigID:            "config-123",
 		CustomerID:          "customer-123",
 		Created:             100,
@@ -480,7 +480,7 @@ func baseConfigArgs() CookieConsentConfigArgs {
 		OrgIDs:  []string{"org-123"},
 		Configuration: map[string]any{
 			"storagePolicyHref": "https://example.com/storage-policy",
-			"flag":              true,
+			"showWidget":        true,
 		},
 	}
 }
@@ -502,7 +502,7 @@ func TestCookieConsentConfigArgsFromResponseOmitsEmptyAdditionalLinks(t *testing
 		if _, present := args.Configuration["additionalLinks"]; present {
 			t.Fatalf("expected an empty additionalLinks to be left out, got %#v", args.Configuration)
 		}
-		if args.Configuration["flag"] != true {
+		if args.Configuration["showWidget"] != true {
 			t.Fatalf("expected the other keys to be adopted, got %#v", args.Configuration)
 		}
 		if _, present := resp.Configuration["additionalLinks"]; !present {

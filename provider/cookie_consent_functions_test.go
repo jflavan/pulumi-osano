@@ -93,7 +93,7 @@ func TestGetCookieConsentConfig(t *testing.T) {
 		if got := ret.Get("publishedRevision").AsNumber(); got != 7 {
 			t.Fatalf("expected publishedRevision 7, got %v", got)
 		}
-		if !ret.Get("configuration").AsMap().Get("flag").AsBool() {
+		if !ret.Get("configuration").AsMap().Get("showWidget").AsBool() {
 			t.Fatalf("expected the full configuration, got %#v", ret.Get("configuration"))
 		}
 	})

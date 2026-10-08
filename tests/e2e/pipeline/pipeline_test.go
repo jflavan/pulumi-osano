@@ -38,6 +38,7 @@ func TestPipeline(t *testing.T) {
 
 	t.Run("DefaultProviders", func(t *testing.T) { testDefaultProviderLifecycle(ctx, t, h) })
 	t.Run("ExplicitProviderUpgrade", func(t *testing.T) { testExplicitProviderUpgrade(ctx, t, h) })
+	t.Run("DashboardOnlyKeys", func(t *testing.T) { testDashboardOnlyKeys(ctx, t, h) })
 }
 
 func scriptSrcFor(configID string) string {

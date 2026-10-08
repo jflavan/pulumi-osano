@@ -15,8 +15,9 @@ import (
 // spec (the CmpConfig.configuration schema at https://developers.osano.com/customer-rest-api).
 //
 // Only what the spec defines precisely fails a check: value types, ranges, enums, and documented
-// combinations. Keys the spec does not list only warn, because Osano may add configuration keys
-// before this provider learns about them.
+// combinations. Keys the spec does not list only warn: the spec declares the configuration and its
+// palette with additionalProperties: false, so the provider never sends such a key to Osano (see
+// withoutUnmodelledKeys), and a program or an older import that declares one still deploys.
 
 // cookieConsentBooleanKeys are the configuration keys whose values are booleans.
 var cookieConsentBooleanKeys = []string{
@@ -205,12 +206,12 @@ func validateCookieConsentConfiguration(
 		}
 	}
 
-	known := append(append([]string{}, cookieConsentBooleanKeys...), cookieConsentOtherKeys...)
 	for _, key := range sortedKeys(configuration) {
-		if !slices.Contains(known, key) {
+		if !isCookieConsentConfigurationKey(key) {
 			warnings = append(warnings, fmt.Sprintf(
 				"configuration.%s is not in Osano's published Customer REST API spec, and Osano rejects "+
-					"configuration keys it does not know; check the spelling unless Osano added it recently", key,
+					"configuration keys it does not know, so the provider does not send it; check the "+
+					"spelling, or remove the key", key,
 			))
 		}
 	}
@@ -316,8 +317,9 @@ func validatePalette(value any) (failures, warnings []string) {
 				"configuration.palette.%s is deprecated by Osano; use palette.%s instead", key, replacement))
 		} else if !slices.Contains(cookieConsentPaletteKeys, key) {
 			warnings = append(warnings, fmt.Sprintf(
-				"configuration.palette.%s is not in Osano's published Customer REST API spec; check the spelling",
-				key))
+				"configuration.palette.%s is not in Osano's published Customer REST API spec, and Osano "+
+					"rejects palette keys it does not know, so the provider does not send it; check the "+
+					"spelling, or remove the key", key))
 		}
 	}
 	if position, ok := palette["displayPosition"].(string); ok {
@@ -388,6 +390,44 @@ func nullRemovedKeys(declared, previous map[string]any, topLevel bool) map[strin
 		}
 	}
 	return merged
+}
+
+// isCookieConsentConfigurationKey reports whether the spec defines a top-level configuration key.
+func isCookieConsentConfigurationKey(key string) bool {
+	return slices.Contains(cookieConsentBooleanKeys, key) || slices.Contains(cookieConsentOtherKeys, key)
+}
+
+// withoutUnmodelledKeys returns a copy of the configuration without the keys that Osano's spec does
+// not define, at the top level and in palette. The spec declares both objects with
+// additionalProperties: false, so Osano rejects a write that names any other key, even to null it,
+// although its GET reports such keys when they were set in the dashboard. Leaving them out keeps an
+// imported configuration writable and lets a program stop declaring them. A palette that held only
+// such keys is left out rather than sent as {}. Other nested objects, such as translations, are
+// kept as they are.
+func withoutUnmodelledKeys(configuration map[string]any) map[string]any {
+	if configuration == nil {
+		return nil
+	}
+	sendable := make(map[string]any, len(configuration))
+	for key, value := range configuration {
+		if !isCookieConsentConfigurationKey(key) {
+			continue
+		}
+		if palette, isObject := value.(map[string]any); key == "palette" && isObject && len(palette) > 0 {
+			kept := make(map[string]any, len(palette))
+			for paletteKey, paletteValue := range palette {
+				if slices.Contains(cookieConsentPaletteKeys, paletteKey) {
+					kept[paletteKey] = paletteValue
+				}
+			}
+			if len(kept) == 0 {
+				continue
+			}
+			value = kept
+		}
+		sendable[key] = value
+	}
+	return sendable
 }
 
 func projectObject(server, declared map[string]any, topLevel bool) map[string]any {

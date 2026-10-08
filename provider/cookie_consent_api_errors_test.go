@@ -251,13 +251,15 @@ func TestCookieConsentConfigUpdateClearsRemovedConfigurationKeys(t *testing.T) {
 
 	previous := configStateProperties().Set("configuration", property.New(map[string]property.Value{
 		"storagePolicyHref": property.New("https://example.com/storage-policy"),
-		"flag":              property.New(true),
-		"palette":           property.New(map[string]property.Value{"a": property.New("1"), "b": property.New("2")}),
-		"variantMapping":    property.New(map[string]property.Value{"behavior": property.New("fallbackToOsano")}),
+		"showWidget":        property.New(true),
+		"palette": property.New(map[string]property.Value{
+			"linkColor": property.New("#111"), "focusOutlineColor": property.New("#222"),
+		}),
+		"variantMapping": property.New(map[string]property.Value{"behavior": property.New("fallbackToOsano")}),
 	}))
 	inputs := configInputProperties().Set("configuration", property.New(map[string]property.Value{
 		"storagePolicyHref": property.New("https://example.com/storage-policy"),
-		"palette":           property.New(map[string]property.Value{"a": property.New("1")}),
+		"palette":           property.New(map[string]property.Value{"linkColor": property.New("#111")}),
 		"variantMapping":    property.New(map[string]property.Value{}),
 	}))
 	server := newCMPProviderServer(t, api.URL)
@@ -269,19 +271,19 @@ func TestCookieConsentConfigUpdateClearsRemovedConfigurationKeys(t *testing.T) {
 	}
 	sent, _ := body.Load().(map[string]any)
 	configuration, _ := sent["configuration"].(map[string]any)
-	if value, present := configuration["flag"]; !present || value != nil {
-		t.Fatalf("expected the removed flag to be sent as null, got %v", configuration)
+	if value, present := configuration["showWidget"]; !present || value != nil {
+		t.Fatalf("expected the removed showWidget to be sent as null, got %v", configuration)
 	}
 	palette, _ := configuration["palette"].(map[string]any)
-	if value, present := palette["b"]; !present || value != nil || palette["a"] != "1" {
+	if value, present := palette["focusOutlineColor"]; !present || value != nil || palette["linkColor"] != "#111" {
 		t.Fatalf("expected the removed palette key to be sent as null, got %v", palette)
 	}
 	// variantMapping is compared and sent as a whole: an emptied object clears it, no nested nulls.
 	if mapping, _ := configuration["variantMapping"].(map[string]any); len(mapping) != 0 {
 		t.Fatalf("expected the emptied variantMapping to be sent as {}, got %v", mapping)
 	}
-	if !resp.Properties.Get("configuration").AsMap().Get("flag").IsNull() &&
-		resp.Properties.Get("configuration").AsMap().Get("flag").IsBool() {
+	if !resp.Properties.Get("configuration").AsMap().Get("showWidget").IsNull() &&
+		resp.Properties.Get("configuration").AsMap().Get("showWidget").IsBool() {
 		t.Fatalf("state must record the declared configuration only, got %#v", resp.Properties.Get("configuration"))
 	}
 }

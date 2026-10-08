@@ -1,0 +1,23 @@
+# A configuration created in the Osano dashboard and adopted with `pulumi import`. Osano reports
+# keys its spec does not define and rejects any write that names one. The test replaces
+# {{PROVIDER_VERSION}}, and replaces the comment on the last line with the imported resource (or
+# with nothing before the import).
+name: osano-pipeline-e2e-dashboard
+runtime: yaml
+description: Engine-level e2e program for the Osano provider (dashboard-only configuration keys).
+config:
+  osanoBaseUrl:
+    type: string
+  osanoKey:
+    type: string
+    secret: true
+resources:
+  osanoProvider:
+    type: pulumi:providers:osano
+    properties:
+      customerBaseUrl: ${osanoBaseUrl}
+      osanoApiKey: ${osanoKey}
+      requestTimeoutSeconds: 30
+    options:
+      version: {{PROVIDER_VERSION}}
+# {{CONSENT_CONFIG}}
