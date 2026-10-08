@@ -31,12 +31,12 @@ Every function also has an `Output` form, such as `LookupCookieConsentConfigOutp
 go get github.com/jflavan/pulumi-osano/sdk/go/osano
 ```
 
-The module requires `github.com/pulumi/pulumi/sdk/v3` v3.264.0 or later, so `go get` may raise your requirement to it.
+The module requires `github.com/pulumi/pulumi/sdk/v3` v3.265.0 or later, so `go get` may raise your requirement to it.
 
 The module declares its provider plugin, and Pulumi downloads the matching `pulumi-resource-osano` release from GitHub the first time you run `pulumi preview` or `pulumi up`. To install it manually, pin the version and point Pulumi at the GitHub releases:
 
 ```bash
-pulumi plugin install resource osano 0.3.1 --server github://api.github.com/jflavan/pulumi-osano
+pulumi plugin install resource osano 0.3.2 --server github://api.github.com/jflavan/pulumi-osano
 ```
 
 [Package publishing](https://github.com/jflavan/pulumi-osano/blob/main/docs/PUBLISHING.md) describes how each release is built and how to verify its provenance.

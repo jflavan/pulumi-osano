@@ -34,7 +34,7 @@ To run an example against Osano from your clone, build and install the local pro
 - .NET 10 SDK (mise pins 10.0.401; it builds the `net8.0` SDK and the .NET 8 and .NET 10 compatibility targets)
 - Java 11+
 - Gradle 7.6 (installed by `mise install`; used by `make build_java`)
-- Pulumi CLI + pulumictl (installed by `mise install`; the CLI version follows `github.com/pulumi/pulumi/pkg/v3` in `go.mod`, currently 3.264.0)
+- Pulumi CLI + pulumictl (installed by `mise install`; the CLI version follows `github.com/pulumi/pulumi/pkg/v3` in `go.mod`, currently 3.265.0)
 - golangci-lint 2.14.0 (installed by `mise install`; used by `make lint`)
 
 > Tip: `eval "$(mise activate zsh)"` (or bash) before running make targets so the managed toolchain is on your `PATH`.
