@@ -82,7 +82,7 @@ jobs:
         run: tar -zcf "$GITHUB_WORKSPACE/bin/provider.tar.gz" -C "$GITHUB_WORKSPACE/bin/" "pulumi-resource-$PROVIDER"
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: pulumi-${{ env.PROVIDER }}-provider.tar.gz
           path: ${{ github.workspace }}/bin/provider.tar.gz
@@ -151,7 +151,7 @@ jobs:
         run: tar -zcf "sdk/$LANGUAGE.tar.gz" -C "sdk/$LANGUAGE" .
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ${{ matrix.language }}-sdk.tar.gz
           path: ${{ github.workspace }}/sdk/${{ matrix.language }}.tar.gz
@@ -221,7 +221,7 @@ jobs:
         uses: anchore/sbom-action/download-syft@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
 
       - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@f06c13b6b1a9625abc9e6e439d9c05a8f2190e94 # v7.2.3
+        uses: goreleaser/goreleaser-action@a4f02ab5355a589de60d917a659ce617ed19b3de # v7.3.0
         env:
           GORELEASER_CURRENT_TAG: v${{ steps.version.outputs.version }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -270,7 +270,7 @@ jobs:
       # --snapshot skips publishing, announcing and git validation, so no GitHub release is created.
       # GORELEASER_CURRENT_TAG gives the archives the same names a release of this version would have.
       - name: Run GoReleaser (snapshot)
-        uses: goreleaser/goreleaser-action@f06c13b6b1a9625abc9e6e439d9c05a8f2190e94 # v7.2.3
+        uses: goreleaser/goreleaser-action@a4f02ab5355a589de60d917a659ce617ed19b3de # v7.3.0
         env:
           GORELEASER_CURRENT_TAG: v${{ steps.version.outputs.version }}
         with:
@@ -297,7 +297,7 @@ jobs:
           exit "$missing"
 
       - name: Upload dry-run archives
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: dry-run-provider-archives
           path: |
@@ -360,7 +360,7 @@ jobs:
       #   .npmrc that setup-node writes, which npm reads only when the OIDC exchange fails. An empty or
       #   missing NPM_TOKEN does not affect trusted publishing. See docs/RELEASE_GUIDE.md.
       - name: Setup Node for npm publishing
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: "22"
           registry-url: "https://registry.npmjs.org"
@@ -458,7 +458,7 @@ jobs:
           language: nodejs
 
       - name: Setup Node for npm publishing
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: "22"
           registry-url: "https://registry.npmjs.org"
