@@ -4,7 +4,7 @@ go 1.26.6
 
 require (
 	github.com/jflavan/pulumi-osano/sdk/go/osano v0.0.0
-	github.com/pulumi/pulumi/sdk/v3 v3.275.0
+	github.com/pulumi/pulumi/sdk/v3 v3.276.0
 )
 
 require (
